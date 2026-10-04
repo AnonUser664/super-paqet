@@ -279,7 +279,7 @@ func (e *Engine) forward(listener *net.TCPListener, f Forward) {
 		}
 		e.launch(func() {
 			trace := e.flowTrace()
-			if trace != 0 {
+			if e.traceFlow(trace) {
 				e.log().Debug("flow.open", "flow_id", trace, "role", "forward", "peer", f.Peer, "target", f.Target, "source", conn.RemoteAddr().String())
 			}
 			defer e.stats.Active.Add(-1)
@@ -288,9 +288,7 @@ func (e *Engine) forward(listener *net.TCPListener, f Forward) {
 			strm, err := e.peers[f.Peer].open(ctx, protocol.PTCP2, f.Target)
 			cancel()
 			if err != nil {
-				if trace != 0 {
-					e.log().Debug("flow.open_failed", "flow_id", trace, "error", err)
-				}
+				e.log().Debug("flow.open_failed", "flow_id", trace, "peer", f.Peer, "target", f.Target, "error", err)
 				e.report(fmt.Errorf("open %s via %s: %w", f.Target, f.Peer, err))
 				return
 			}
@@ -352,8 +350,8 @@ func (e *Engine) handle(listener tnet.Listener, strm tnet.Strm, owner uint32) {
 		e.report(fmt.Errorf("read stream control: %w", err))
 		return
 	}
-	if trace != 0 {
-		e.log().Debug("flow.control", "flow_id", trace, "conv", owner, "protocol", p.Type, "source", strm.RemoteAddr().String())
+	if e.traceFlow(trace) {
+		e.log().Debug("flow.control", "flow_id", trace, "conv", owner, "stream_id", strm.SID(), "protocol", p.Type, "source", strm.RemoteAddr().String())
 	}
 	switch p.Type {
 	case protocol.PTCPF:
@@ -382,9 +380,7 @@ func (e *Engine) handle(listener tnet.Listener, strm tnet.Strm, owner uint32) {
 	conn, err := dialer.DialContext(ctx, proto, p.Addr.String())
 	cancel()
 	if err != nil {
-		if trace != 0 {
-			e.log().Debug("flow.target_failed", "flow_id", trace, "target", p.Addr.String(), "error", err)
-		}
+		e.log().Debug("flow.target_failed", "flow_id", trace, "conv", owner, "stream_id", strm.SID(), "target", p.Addr.String(), "error", err)
 		writeOpeningAck(strm, 1)
 		e.report(fmt.Errorf("dial %s: %w", p.Addr.String(), err))
 		return

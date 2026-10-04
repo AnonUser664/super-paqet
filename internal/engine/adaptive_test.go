@@ -142,3 +142,20 @@ func TestReverseQueueDoesNotThrottleForwardPacing(t *testing.T) {
 		t.Fatal("forward queue did not reduce paced data")
 	}
 }
+
+func TestSmallControlPacketRateGrowsCreditWithoutDataPacing(t *testing.T) {
+	c := newController(1024, 4096)
+	now := time.Unix(100, 0)
+	s := kcp.TransportStats{SRTT: 100, MSS: 1306}
+	c.update(s, now)
+	for i := 0; i < 10; i++ {
+		now = now.Add(250 * time.Millisecond)
+		s.AckedBytes += 1000
+		s.AckedSegments += 50
+		s.WriteWaitCount++
+		c.update(s, now)
+	}
+	if c.window < 40 || c.pacingRate() != 0 {
+		t.Fatal("small control traffic was byte-limited or paced", c.window, c.pacingRate())
+	}
+}

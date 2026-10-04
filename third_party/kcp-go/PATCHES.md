@@ -6,9 +6,9 @@ Based on github.com/xtaci/kcp-go/v5 v5.6.72; MIT license retained.
 * New-data flushes visit only newly queued segments. Timer flushes and fast
   retransmission still visit outstanding segments. ACK-only flushes do not move
   queued data into the send window.
-* Batch receive coalesces immediate ACKs until the end of an already available
-  batch. No timer delay is added to singleton packets. Out-of-order ACKs and
-  timer-driven retransmission are retained.
+* Batch receive coalesces ACKs. An optional 1..20ms engine-controlled deadline
+  survives application data flushes; low-RTT paths retain immediate ACKs.
+  Out-of-order ACKs and timer-driven retransmission are retained.
 * Coherent per-session delivery/RTT/window counters support adaptive control.
 * The encryption/send FIFO grows on demand within the current send-window
   budget instead of dropping bursts at a fixed 2048-packet channel. Empty
@@ -19,6 +19,22 @@ Based on github.com/xtaci/kcp-go/v5 v5.6.72; MIT license retained.
 * Pre-Accept session admission bounds allocation; default zero preserves upstream.
 * Upstream tests no longer start an unsolicited public pprof server.
 
-KCP packet format, encryption derivation, segment ordering and FEC encoding are
-unchanged. Scheduling and ACK cadence change intentionally and need impairment
-regression tests, not just throughput tests.
+* Optional encrypted four-byte ACK receive timestamps estimate forward/reverse
+  transit relative to recent minima without synchronized clocks. Legacy ACKs
+  fall back to RTT; wraparound and mixed-enabled interoperability are tested.
+* Optional KCP WINS payload (SPQ1 + stream ID/consumed/window) expedites
+  cumulative stream credit. Application bytes remain reliably ordered by KCP.
+  The mux retains ordinary reliable UPD fallback and validates stale/future hints.
+  Hint callbacks run after releasing the carrier lock, including FEC input.
+* Data pacing exempts ACK/window control. Deferred paced writes bring the shared
+  timer wake forward; superseded callbacks do not create extra update chains.
+* Data-frame budget follows send-window bytes and pacing rate, with a full-MSS
+  floor and configurable batching time. Receive/enqueued/ACK packet counters
+  distinguish tiny control messages from bulk and expose real pending bytes.
+* Only initial PUSH data can replace a mismatched carrier generation. Unknown
+  control cannot create sessions; late control cannot reset a newer session.
+
+The outer Ethernet/IP/TCP byte contract and encryption derivation are preserved.
+The ACK/WINS extensions change encrypted inner control payloads, not application
+ordering or FEC coding. Scheduling/ACK cadence intentionally change and require
+impairment regression tests. The full upstream suites remain required.

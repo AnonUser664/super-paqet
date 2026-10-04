@@ -29,6 +29,12 @@ PROFILES={
     'delay-step':['--mode','bulk','--rate-mbit','100','--delay-ms','10','--workers','8','--schedule',json.dumps([{'at':4,'delay_ms':100},{'at':10,'delay_ms':10}])],
     'outage':['--mode','bulk','--rate-mbit','100','--delay-ms','10','--workers','8','--schedule',json.dumps([{'at':4,'loss':100},{'at':7,'loss':0}])],
     'restart':['--functional','--restart','--capture','--workers','4','--sessions','1'],
+    'mixed-ack':['--iperf','--iperf-directions','bidirectional','--duplex-http','--rate-mbit','1','--down-rate-mbit','100','--delay-ms','25','--workers','4'],
+    'mixed-asymmetric':['--iperf','--iperf-directions','bidirectional','--duplex-http','--rate-mbit','20','--down-rate-mbit','100','--delay-ms','40','--loss','0.5','--workers','4'],
+    'churn':['--mode','http-churn','--workers','32','--sessions','8'],
+    'harsh':['--rate-mbit','100','--delay-ms','100','--jitter-ms','25','--reorder','10','--loss','5','--workers','8'],
+    'deep-rate-step':['--mode','bulk','--rate-mbit','100','--delay-ms','10','--workers','8','--schedule',json.dumps([{'at':4,'rate_mbit':1},{'at':12,'rate_mbit':100}])],
+    'pcap':['--backend','pcap','--functional','--restart','--capture','--workers','4','--sessions','1'],
 }
 
 def main():

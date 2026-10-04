@@ -194,6 +194,7 @@ func (h *segmentHeap) Has(sn uint32) bool {
 // KCP defines a single KCP connection's protocol state machine.
 // It is a pure ARQ (Automatic Repeat reQuest) implementation with no I/O.
 type KCP struct {
+	ackedSegments                                       uint64
 	creditHints                                         bool
 	receivedCredits                                     []streamCredit
 	ackTimestamps                                       bool
@@ -213,6 +214,7 @@ type KCP struct {
 	sendNext                                            uint32 // next initial send, including deferred paced segments
 	ackedBytes, sentSegments, retransmittedSegments     uint64
 	outputPackets, outputBytes, ackPackets, ackSegments uint64
+	receivedBytes, enqueuedBytes                        uint64
 	// Connection identity and framing
 	conv  uint32 // conversation id, must be equal on both sides
 	mtu   uint32 // maximum transmission unit (bytes)
@@ -423,6 +425,7 @@ func (kcp *KCP) Send(buffer []byte) int {
 					oldlen := len(seg.data)
 					seg.data = seg.data[:oldlen+extend]
 					copy(seg.data[oldlen:], buffer)
+					kcp.enqueuedBytes += uint64(extend)
 					buffer = buffer[extend:]
 				}
 				break
@@ -453,6 +456,7 @@ func (kcp *KCP) Send(buffer []byte) int {
 		size = min(len(buffer), int(kcp.mss))
 		seg := kcp.newSegment(size)
 		copy(seg.data, buffer[:size])
+		kcp.enqueuedBytes += uint64(size)
 		if kcp.stream == 0 { // message mode
 			seg.frg = uint8(count - i - 1)
 		} else { // stream mode
@@ -510,6 +514,7 @@ func (kcp *KCP) parse_ack(sn uint32) {
 
 	if seg, ok := kcp.snd_buf.At(int(sn - kcp.snd_una)); ok && seg.sn == sn && seg.acked == 0 {
 		kcp.ackedBytes += uint64(len(seg.data))
+		kcp.ackedSegments++
 		seg.acked = 1
 		kcp.recycleSegment(seg)
 	}
@@ -550,6 +555,7 @@ func (kcp *KCP) parse_una(una uint32) int {
 		if _itimediff(una, seg.sn) > 0 {
 			if seg.acked == 0 {
 				kcp.ackedBytes += uint64(len(seg.data))
+				kcp.ackedSegments++
 			}
 			kcp.recycleSegment(seg)
 			count++
@@ -701,6 +707,9 @@ func (kcp *KCP) Input(data []byte, pktType PacketType, ackNoDelay bool) int {
 			}
 			if pktType == IKCP_PACKET_REGULAR && repeat {
 				atomic.AddUint64(&DefaultSnmp.RepeatSegs, 1)
+			}
+			if !repeat {
+				kcp.receivedBytes += uint64(length)
 			}
 			kcp.debugLog(IKCP_LOG_IN_PUSH, "conv", conv, "sn", sn, "una", una, "ts", ts, "packettype", pktType, "repeat", repeat)
 		case IKCP_CMD_WASK:

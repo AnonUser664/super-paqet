@@ -132,11 +132,10 @@ func (e *Engine) flowTrace() uint64 {
 		return 0
 	}
 	id := e.flowIDs.Add(1)
-	if id%e.cfg.Log.FlowSample != 0 {
-		return 0
-	}
 	return id
 }
+
+func (e *Engine) traceFlow(id uint64) bool { return id != 0 && id%e.cfg.Log.FlowSample == 0 }
 
 func (e *Engine) log() *slog.Logger {
 	if e.diagnostics == nil {

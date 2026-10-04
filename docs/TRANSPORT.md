@@ -36,6 +36,12 @@ Its encrypted command 5 closes both directions, releasing writers after target
 abort; directional FIN still supports a response after request EOF. Both
 enterprise endpoints must implement this extension. Default upstream smux mode
 does not use it.
+Optional ACK receive timestamps (four encrypted payload bytes) separate forward
+queue estimates from a delayed ACK path. KCP WINS can carry an encrypted 16-byte
+stream-credit hint (marker, stream ID, cumulative consumed bytes, window). Hints
+may be dropped/reordered; ordinary reliable smux UPD remains the recovery path.
+No application data uses the hint path. Disable with `kcp.ack_timestamps: false`
+and `kcp.credit_hints: false` when comparing the legacy control behavior.
 These encrypted inner changes do not introduce an outer TCP handshake.
 
 Packet timing, rate and retransmission schedules change with optimization and

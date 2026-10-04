@@ -67,6 +67,7 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	for name, p := range e.peers {
+		p.mu.RLock()
 		for i, s := range p.slots {
 			if c := s.conn.Load(); c != nil && !c.Session.IsClosed() {
 				state := c.UDPSession.TransportStats()
@@ -82,6 +83,7 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprintf(w, "super_paqet_peer_streams{peer=%s,session=%s} %d\nsuper_paqet_peer_rtt_ms{peer=%s,session=%s} %d\n", strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), c.Session.NumStreams(), strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), c.UDPSession.GetSRTT())
 			}
 		}
+		p.mu.RUnlock()
 	}
 	for i, closer := range e.closers {
 		if l, ok := closer.(*tkcp.Listener); ok {

@@ -116,11 +116,31 @@ to TCP sockets. Linux I/O batches packets, and server receive workers distribute
 KCP sessions through kernel hash fanout. Worker count is fixed at startup so
 existing flows never move to workers without their session state.
 
-Defaults: up to eight peer sessions (CPU-derived), up to four server packet
-workers, KCP window ceilings 32768 segments, stream receive ceiling 16 MiB, and
+Peers start with up to eight carriers (CPU-derived). `sessions` sets the initial
+count and `max_sessions` bounds adaptive growth (default twice the CPU count,
+at most 256). Cached traffic/queue pressure keeps new short requests off busy
+carriers where capacity permits. Set both counts equal for a fixed pool. Fixed
+source ports require both counts 1; `adaptive: false` defaults to a fixed pool.
+
+Defaults: up to four server packet workers, KCP window ceilings 32768 segments, stream receive ceiling 16 MiB, and
 aggregate smux receive budget 32 MiB per session. These are ceilings, not memory
 allocated for each idle connection. FEC is off by default and can be configured
 with matched `kcp.dshard` and `kcp.pshard` settings.
+
+Advanced ceilings/overrides remain optional:
+
+```yaml
+kcp:
+  write_batch_ms: 20       # paced frame duration ceiling, 1..1000ms
+  ack_delay_max_ms: 20     # adaptive ACK delay ceiling, 1..20ms
+  ack_timestamps: true     # relative forward/reverse queue estimates
+  credit_hints: true       # expedited KCP control; reliable fallback retained
+  adaptive_buffers: true  # independent override for receive-window adaptation
+```
+
+Data frames adapt to the live send window and pacing rate. Control requests have
+bounded priority across streams. These mechanisms preserve application ordering
+and bound advertised receive storage with the existing stream/session ceilings.
 
 ```yaml
 limits:

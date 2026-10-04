@@ -9,6 +9,8 @@ import (
 )
 
 type KCP struct {
+	WriteBatchMS            int    `yaml:"write_batch_ms"`
+	ACKDelayMaxMS           int    `yaml:"ack_delay_max_ms"`
 	CreditHints             *bool  `yaml:"credit_hints"`
 	ACKTimestamps           *bool  `yaml:"ack_timestamps"`
 	AdaptiveBuffersOverride *bool  `yaml:"adaptive_buffers"`
@@ -45,6 +47,12 @@ type KCP struct {
 }
 
 func (k *KCP) setDefaults(role string) {
+	if k.WriteBatchMS == 0 {
+		k.WriteBatchMS = 20
+	}
+	if k.ACKDelayMaxMS == 0 {
+		k.ACKDelayMaxMS = 20
+	}
 	if k.Mode == "" {
 		k.Mode = "fast"
 	}

@@ -174,6 +174,15 @@ func (s *stream) ID() uint32 {
 	return s.id
 }
 
+// ConversationID allows diagnostics to correlate both endpoints without
+// retaining additional per-stream transport metadata.
+func (s *stream) ConversationID() uint32 {
+	if carrier, ok := s.sess.conn.(interface{ GetConv() uint32 }); ok {
+		return carrier.GetConv()
+	}
+	return 0
+}
+
 // Read reads data from the stream into the provided buffer.
 func (s *stream) Read(b []byte) (n int, err error) {
 	for {

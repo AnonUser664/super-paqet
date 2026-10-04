@@ -4,9 +4,19 @@ import "time"
 
 func (s *UDPSession) SetACKDelay(delay time.Duration) {
 	s.mu.Lock()
-	s.ackDelay = min(20*time.Millisecond, max(0, delay))
+	limit := s.ackDelayLimit
+	if limit == 0 {
+		limit = 20 * time.Millisecond
+	}
+	s.ackDelay = min(limit, max(0, delay))
 	s.kcp.ackDelay = uint32(s.ackDelay / time.Millisecond)
 	s.mu.Unlock()
+}
+
+func (s *UDPSession) SetACKDelayLimit(limit time.Duration) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.ackDelayLimit = min(20*time.Millisecond, max(time.Millisecond, limit))
 }
 
 func (s *UDPSession) ackImmediately() bool {

@@ -16,9 +16,20 @@ func (s *UDPSession) updateWriteBudgetLocked() {
 	if k.pacingRate > 0 {
 		// At most 20ms of paced data per mux request. Keep one full MSS
 		// as the floor to avoid wasting scarce bandwidth on tiny packets.
-		limit = min(limit, max(uint64(k.mss), k.pacingRate/50))
+		ms := s.writeBatchMS
+		if ms == 0 {
+			ms = 20
+		}
+		limit = min(limit, max(uint64(k.mss), k.pacingRate/1000*uint64(ms)+(k.pacingRate%1000)*uint64(ms)/1000))
 	}
 	s.writeBudget.Store(uint32(limit))
+}
+
+func (s *UDPSession) SetWriteBatchBudget(milliseconds uint32) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.writeBatchMS = min(1000, max(1, milliseconds))
+	s.updateWriteBudgetLocked()
 }
 
 type streamCredit struct{ sid, consumed, window uint32 }

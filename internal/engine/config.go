@@ -34,6 +34,7 @@ type Endpoint struct {
 	Key           string       `yaml:"key"`
 	KeyEnv        string       `yaml:"key_env"`
 	Sessions      int          `yaml:"sessions"`
+	MaxSessions   int          `yaml:"max_sessions"`
 	Network       conf.Network `yaml:"network"`
 	KCP           conf.KCP     `yaml:"kcp"`
 }
@@ -256,11 +257,23 @@ func (e *Endpoint) prepare(listener bool) error {
 	if err := conf.PrepareNetwork(&e.Network, role); err != nil {
 		return err
 	}
+	if e.MaxSessions == 0 {
+		e.MaxSessions = min(256, max(e.Sessions, runtime.GOMAXPROCS(0)*2))
+		if e.Network.Port != 0 || (e.Adaptive != nil && !*e.Adaptive) {
+			e.MaxSessions = e.Sessions
+		}
+	}
+	if e.MaxSessions < e.Sessions || e.MaxSessions > 256 {
+		return fmt.Errorf("max_sessions must be sessions..256")
+	}
 	if listener && e.Network.Port != a.Port {
 		return fmt.Errorf("network port must match listener port")
 	}
 	if !listener && e.Network.Port != 0 && e.Sessions != 1 {
 		return fmt.Errorf("a fixed source port requires sessions: 1")
+	}
+	if !listener && e.Network.Port != 0 && e.MaxSessions != 1 {
+		return fmt.Errorf("a fixed source port requires max_sessions: 1")
 	}
 	if e.KCP.MTU == 0 {
 		e.KCP.MTU = min(1350, e.Network.Interface.MTU-80)

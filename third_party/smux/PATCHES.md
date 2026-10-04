@@ -23,3 +23,14 @@ Local changes:
 
 Tests must cover upstream behavior and half-close with backpressure, ordered
 delivery, cancellation and deadlines.
+
+* Optional asynchronous coalesced receive credits let readers drain independently
+  of opposite-direction send backpressure. One queued credit per stream, close
+  unlink, no per-stream timer/goroutine. Cumulative zero survives 4GiB wrap.
+* Optional KCP WINS hints retain reliable UPD fallback; duplicates/stale/future
+  consumption cannot rewind credit or advertise unsent bytes.
+* Optional global control priority has a bounded 16-frame burst before data;
+  data frames follow the current carrier window/rate budget.
+* Atomic CloseIfIdle excludes stream registration while retiring a carrier.
+* An asynchronous carrier write error closes the session, clears pending work
+  and wakes blocked readers. Fault/integrity/race coverage exercises this path.

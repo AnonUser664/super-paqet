@@ -119,6 +119,8 @@ type OOBCallBackType func([]byte)
 type (
 	// UDPSession defines a KCP session implemented by UDP
 	UDPSession struct {
+		writeBatchMS         uint32
+		ackDelayLimit        time.Duration
 		ackDelay             time.Duration
 		ackScheduled         bool
 		updateDue            time.Time

@@ -102,13 +102,19 @@ func (w countedWriter) Write(p []byte) (int, error) {
 
 func (e *Engine) relay(tcp *net.TCPConn, strm tnet.Strm, traces ...uint64) {
 	var trace uint64
+	var conv uint32
 	var started time.Time
 	if len(traces) > 0 {
 		trace = traces[0]
 	}
 	if trace != 0 {
+		if c, ok := strm.(interface{ ConversationID() uint32 }); ok {
+			conv = c.ConversationID()
+		}
+	}
+	if e.traceFlow(trace) {
 		started = time.Now()
-		e.log().Debug("flow.relay", "flow_id", trace, "tcp_remote", tcp.RemoteAddr().String(), "tunnel_remote", strm.RemoteAddr().String())
+		e.log().Debug("flow.relay", "flow_id", trace, "conv", conv, "stream_id", strm.SID(), "tcp_remote", tcp.RemoteAddr().String(), "tunnel_remote", strm.RemoteAddr().String())
 	}
 	defer tcp.Close()
 	defer strm.Close()
@@ -141,10 +147,11 @@ func (e *Engine) relay(tcp *net.TCPConn, strm tnet.Strm, traces ...uint64) {
 		strm.Close()
 	}
 	other := <-result
-	if trace != 0 {
-		e.log().Debug("flow.closed", "flow_id", trace, "elapsed_ms", time.Since(started).Milliseconds(), "sent_bytes", uplinkBytes, "received_bytes", downlinkBytes, "read_error", err, "write_error", other)
+	if e.traceFlow(trace) {
+		e.log().Debug("flow.closed", "flow_id", trace, "conv", conv, "stream_id", strm.SID(), "elapsed_ms", time.Since(started).Milliseconds(), "sent_bytes", uplinkBytes, "received_bytes", downlinkBytes, "read_error", err, "write_error", other)
 	}
 	if (err != nil && !errors.Is(err, net.ErrClosed)) || (other != nil && !errors.Is(other, net.ErrClosed)) {
+		e.log().Debug("flow.relay_failed", "flow_id", trace, "conv", conv, "stream_id", strm.SID(), "read_error", err, "write_error", other)
 		e.stats.Aborted.Add(1)
 	}
 }

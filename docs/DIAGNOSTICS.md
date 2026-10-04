@@ -29,6 +29,7 @@ interpreting incomplete traces.
 | `session.invalidated`, `session.idle_invalidated` | Carrier replacement |
 | `flow.open`, `flow.control`, `flow.relay`, `flow.closed` | Sampled lifecycle, correlated by flow ID within the process |
 | `transport.sample` | Delivery estimate, RTT/variance, pacing, windows, queues and wait time |
+| `peer.pool_grew`, `peer.pool_growth_failed` | Adaptive carrier growth, ceiling and expansion failures |
 | `engine.stopping`, `engine.stopped` | Shutdown progress, final active count and firewall cleanup result |
 
 For `transport.sample`, compare `kcp_wait_ms` with `mux_wait_ms`: the first
@@ -38,7 +39,19 @@ exceed the wall interval when multiple streams wait concurrently or a wait spans
 snapshot boundaries. `receive_reordered` shows the packet backlog behind a gap.
 `pipeline_queued` and `pipeline_drop_delta` separate local pipeline pressure from
 link loss. `startup`, `peak_mbit`, `pacing_mbit`, `loss_ratio` and window values
-expose adaptation rather than silently changing parameters.
+expose adaptation rather than silently changing parameters. `forward_queue_ms`
+and `reverse_queue_ms` are smoothed transit estimates relative to recent minima,
+not absolute one-way propagation latency; `transit_samples: 0` means RTT fallback.
+`congested` explains pacing backoff. `output_pps`/`output_kcp_mbit` count inner
+KCP output; encryption and Ethernet/IP/TCP overhead are additional. `ack_pps`
+counts standalone ACK/window-control packets, including credit hints.
+`credit_pending`, hint counters and `write_budget_bytes` show credit bypass and
+batching. Receive window minima/maxima are skipped (zero) above 64 streams.
+
+Debug flow IDs are unique within one process. Match `(conv, stream_id)` across
+client/server logs. Lifecycle events are sampled; debug opening/target/relay
+failures retain identifiers even when their lifecycle was not selected. Use
+`--flow-sample 1` for small live reproductions.
 
 The KCP virtual-clock matrix uses no sockets, sleeps, shared random state or
 goroutine timing. It repeats each seeded simulation and asserts identical
@@ -70,3 +83,11 @@ Netem queues include emulated propagation, including small ACK packets; their
 default capacity uses a 64-byte minimum-frame budget. Explicit tiny packet-count
 queues are separate stress cases. Earlier tests sized queues from 1500-byte data
 packets, which incorrectly capped ACK throughput on asymmetric links.
+
+Duplex tests run simultaneous one-way iperf clients on separate target ports.
+iperf3 `--bidir` chooses roles by accept order and can misassign independently
+forwarded connections; prior measurements using it are historical diagnostics.
+Every measured duplex receiver stream must carry bytes. `--duplex-http` adds
+HTTP connection churn; `canceled_requests` distinguishes workload deadline
+cancellation from unexpected forwarding errors. Full steady bulk rates and mixed
+request latency are separate acceptance workloads.

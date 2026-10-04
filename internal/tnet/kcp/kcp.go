@@ -37,6 +37,8 @@ func aplConf(conn *kcp.UDPSession, cfg *conf.KCP) error {
 	}
 	conn.SetWriteDelay(wDelay)
 	conn.SetACKNoDelay(ackNoDelay)
+	conn.SetACKDelayLimit(time.Duration(cfg.ACKDelayMaxMS) * time.Millisecond)
+	conn.SetWriteBatchBudget(uint32(cfg.WriteBatchMS))
 	conn.SetACKTimestamps(cfg.ACKTimestamps == nil || *cfg.ACKTimestamps)
 	conn.SetStreamMode(true)
 	conn.SetDSCP(46)

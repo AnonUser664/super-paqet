@@ -13,6 +13,8 @@ import (
 // lowest observed RTT. It does not confuse random loss with queue congestion.
 // Limits remain explicit ceilings. These heuristics require link-matrix testing.
 type controller struct {
+	packetRate               float64
+	bulkSeen                 bool
 	maximum, receive, window int
 	previous                 kcplib.TransportStats
 	last                     time.Time
@@ -27,6 +29,8 @@ type controller struct {
 	delivery                 [32]deliverySample
 	deliveryNext             int
 	congested                bool
+	slot                     *slot
+	hotUntil                 time.Time
 }
 
 type deliverySample struct {
@@ -49,6 +53,7 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 		return c.window
 	}
 	acked := s.AckedBytes - c.previous.AckedBytes
+	packets := s.AckedSegments - c.previous.AckedSegments
 	previousPending := c.previous.Pending
 	waited := s.WriteWaitCount > c.previous.WriteWaitCount
 	resent := s.RetransmittedSegments - c.previous.RetransmittedSegments
@@ -77,9 +82,21 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 	if acked == 0 {
 		return c.window
 	}
+	if packets > 0 {
+		c.packetRate = max(float64(packets)/elapsed, c.packetRate*.75)
+		if acked/packets >= uint64(max(1, s.MSS)/4) || s.PendingBytes >= uint64(max(1, s.MSS)*2) {
+			c.bulkSeen = true
+		}
+	} else if acked >= uint64(max(1, s.MSS)*2) {
+		c.bulkSeen = true
+	}
 	// Keepalive/opening traffic must not erase a learned bulk capacity or
 	// collapse the initial window before the first application transfer.
 	if acked < uint64(max(1, s.MSS)*2) && s.Pending < c.window/2 {
+		if !c.bulkSeen && (waited || packets > 0) {
+			target := int(math.Ceil(2*c.packetRate*rtt/1000)) + 2
+			c.window = min(c.maximum, max(c.window, target))
+		}
 		return c.window
 	}
 	if c.minRTT == 0 || rtt < c.minRTT {
@@ -115,6 +132,7 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 	// state. Budget bounded ACK-delay headroom; pacing drains the queue.
 	flightRTT := min(rtt, c.minRTT*4)
 	target := int(math.Ceil(2*c.rate*flightRTT/1000/float64(mss))) + 2
+	target = max(target, int(math.Ceil(2*c.packetRate*flightRTT/1000))+2)
 	target = min(c.maximum, max(min(4, c.maximum), target))
 	saturated := waited || s.Pending >= c.window/2
 	queued := c.congested
@@ -163,7 +181,7 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 }
 
 func (c *controller) pacingRate() uint64 {
-	if c.minRTT < 10 || c.rate <= 0 {
+	if c.minRTT < 10 || c.rate <= 0 || !c.bulkSeen {
 		return 0
 	}
 	gain := 1.05 * (1 + c.lossRatio)
@@ -175,8 +193,11 @@ func (c *controller) pacingRate() uint64 {
 	return uint64(max(1024, c.rate*gain))
 }
 
-func (e *Engine) addTuner(conn *kcp.Conn, maximum, receive int) {
+func (e *Engine) addTuner(conn *kcp.Conn, maximum, receive int, slots ...*slot) {
 	c := newController(maximum, receive)
+	if len(slots) > 0 {
+		c.slot = slots[0]
+	}
 	conn.UDPSession.SetWindowSize(c.window, receive)
 	e.tuneMu.Lock()
 	e.tuners[conn] = c
@@ -208,6 +229,19 @@ func (e *Engine) tune() {
 					continue
 				}
 				s := conn.UDPSession.TransportStats()
+				if c.slot != nil && c.slot.conn.Load() == conn {
+					traffic := s.AckedBytes - c.previous.AckedBytes + s.ReceivedBytes - c.previous.ReceivedBytes
+					wait := s.WriteWaitNanoseconds - c.previous.WriteWaitNanoseconds
+					streams := conn.Session.NumStreams()
+					score := uint64(streams)
+					if traffic > 8192 || s.PendingBytes >= uint64(max(1, s.MSS)*2) || (traffic > 2048 && wait > uint64(100*time.Millisecond)) {
+						c.hotUntil = now.Add(max(2*time.Second, min(10*time.Second, time.Duration(s.SRTT)*4*time.Millisecond)))
+					}
+					if streams > 0 && now.Before(c.hotUntil) {
+						score += busyCarrier
+					}
+					c.slot.score.Store(score)
+				}
 				if s.SRTT >= 10 {
 					conn.UDPSession.SetACKDelay(time.Duration(min(20, max(1, int(c.minRTT/5)))) * time.Millisecond)
 				} else {

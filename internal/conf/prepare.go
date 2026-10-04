@@ -27,6 +27,9 @@ func PrepareNetwork(n *Network, role string) error {
 // PrepareKCP applies the existing encryption derivation and transport defaults.
 func PrepareKCP(k *KCP, role string) error {
 	k.setDefaults(role)
+	if k.WriteBatchMS < 1 || k.WriteBatchMS > 1000 || k.ACKDelayMaxMS < 1 || k.ACKDelayMaxMS > 20 {
+		return fmt.Errorf("write_batch_ms must be 1..1000 and ack_delay_max_ms must be 1..20")
+	}
 	if k.Smuxkalive_ < 1 || int64(k.Smuxkalive_) > math.MaxInt64/int64(time.Second) ||
 		k.Smuxktimeout_ < 1 || int64(k.Smuxktimeout_) > math.MaxInt64/int64(time.Second) {
 		return fmt.Errorf("keepalive seconds exceed duration bounds")
