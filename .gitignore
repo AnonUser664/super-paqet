@@ -41,3 +41,7 @@ Thumbs.db
 build/
 dist/
 tmp/
+
+# Benchmark harness bytecode
+__pycache__/
+*.pyc

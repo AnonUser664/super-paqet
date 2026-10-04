@@ -1,304 +1,210 @@
-# paqet - transport over raw packets
+# super-paqet
 
-[![Go Version](https://img.shields.io/badge/go-1.27+-blue.svg)](https://golang.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+A Linux port-forwarding tunnel using encrypted KCP datagrams inside fabricated
+raw TCP packets. It preserves paqet's raw Ethernet/IP/TCP envelope and packet
+capture/injection mechanism. It does not establish an outer TCP connection.
 
-paqet is a raw-packet proxy that tunnels traffic inside raw TCP packets. Instead of relying on the host's TCP/IP stack, it crafts and captures packets directly, while KCP provides fast, reliable, encrypted transport.
+One process can accept multiple clients, dial several named peers, and forward
+TCP and UDP ports. SOCKS5 and the old role-based configuration have been removed.
 
-> [!WARNING]
-> This project is in active development. APIs, configuration formats, and interfaces may change without notice. Use with caution in production environments.
+The transport contract and its reasons are documented in [docs/TRANSPORT.md](docs/TRANSPORT.md).
+Measured results and qualification limits are in [docs/BENCHMARKS.md](docs/BENCHMARKS.md).
+This is a substantial transport/runtime rewrite; successful local benchmarks do
+not establish universal optimality, WAN behavior, or production readiness on
+untested hardware and firewall products.
 
-## The Idea
+## Build and run
 
-Conventional applications rely on the host's TCP/IP stack, placing the kernel in the path of every connection, where it tracks each packet.
+Requires Linux, Go 1.27+, libpcap development headers, `ip` from iproute2, and
+iptables/ip6tables. The packet backend uses AF_PACKET, sendmmsg/recvmmsg, and
+kernel packet fanout. The pcap backend is available as an explicit fallback.
 
-paqet operates on raw packets instead. It crafts TCP packets directly and uses pcap to capture inbound ones, treating each as a self-contained, stateless datagram. The traffic still looks ordinary on the wire, while KCP and smux provide a fast, reliable, encrypted, and multiplexed transport layer on top. paqet may bypass firewalls that rely on handshakes or connection tracking, which makes it useful for security research. Configuration is more complex than a VPN, but gives you finer control in return.
+```sh
+# Debian/Ubuntu build dependencies:
+sudo apt-get install libpcap-dev iproute2 iptables
+make build
+./build/super-paqet secret
+sudo ./build/super-paqet run -c config.yaml
+```
 
-## Getting Started
+The program needs raw-packet and network-administration privileges. Firewall
+rules are installed automatically by default. Configuration is strict: unknown
+fields are errors. `run --check -c config.yaml` validates configuration and
+network discovery without starting listeners or modifying firewall rules.
 
-### Prerequisites
+## Minimal configuration
 
-- `libpcap` development libraries must be installed on both the client and server machines.
-  - **Linux:** No prerequisites - binaries are statically linked.
-  - **macOS:** Comes pre-installed with Xcode Command Line Tools. Install with `xcode-select --install`
-  - **Windows:** Install Npcap. Download from [npcap.com](https://npcap.com/).
-
-### 1. Download a Release
-
-Download the pre-compiled binary for your client and server operating systems from the [Releases page](https://github.com/hanselime/paqet/releases/latest).
-
-### 2. Configure the Connection
-
-#### Finding Your Network Details
-
-You'll need to find your network interface name, local IP, and the MAC address of your network's gateway (router).
-
-**On Linux:**
-
-1.  **Find Interface and Local IP:** Run `ip a`. Look for your primary network card (e.g., `eth0`, `ens3`). Its IP address is listed under `inet`.
-2.  **Find Gateway MAC:**
-    - First, find your gateway's IP: `ip r | grep default`
-    - Then, find its MAC address with `arp -n <gateway_ip>` (e.g., `arp -n 192.168.1.1`).
-
-**On macOS:**
-
-1.  **Find Interface and Local IP:** Run `ifconfig`. Look for your primary interface (e.g., `en0`). Its IP is listed under `inet`.
-2.  **Find Gateway MAC:**
-    - First, find your gateway's IP: `netstat -rn | grep default`
-    - Then, find its MAC address with `arp -n <gateway_ip>` (e.g., `arp -n 192.168.1.1`).
-
-**On Windows:**
-
-1. **Find Interface and Local IP:** Run `ipconfig /all` and note your active network adapter (Ethernet or Wi-Fi):
-   - Its **IP Address**
-   - The **Gateway IP Address**
-2. **Find Interface device GUID:** Windows requires the Npcap device GUID. In PowerShell, run `Get-NetAdapter | Select-Object Name, InterfaceGuid`. Note the **Name** and **InterfaceGuid** of your active network interface, and format the GUID as `\Device\NPF_{GUID}`.
-3. **Find Gateway MAC Address:** Run: `arp -a <gateway_ip>`. Note the MAC address for the gateway.
-
-#### Client Configuration - SOCKS5 Proxy Mode
-
-The client acts as a SOCKS5 proxy server, accepting connections from applications and dynamically forwarding them through the raw TCP packets to any destination.
-
-#### Example Client Configuration (`config.yaml`)
+Server: use an address assigned to its local Ethernet interface.
 
 ```yaml
-# Role must be explicitly set
-role: "client"
-
-# Logging configuration
-log:
-  level: "info" # none, debug, info, warn, error, fatal
-
-# SOCKS5 proxy configuration (client mode)
-socks5:
-  - listen: "127.0.0.1:1080" # SOCKS5 proxy listen address
-
-# Port forwarding configuration (can be used alongside SOCKS5)
-# forward:
-#   - listen: "127.0.0.1:8080"  # Local port to listen on
-#     target: "127.0.0.1:80"    # Target to forward to (via server)
-#     protocol: "tcp"           # Protocol (tcp/udp)
-
-# Network interface settings
-network:
-  interface: "en0" # CHANGE ME: Network interface (en0, eth0, wlan0, etc.)
-  # guid: "\Device\NPF_{...}" # Windows only (Npcap).
-  ipv4:
-    addr: "192.168.1.100:0" # CHANGE ME: Local IP (use port 0 for random port)
-    router_mac: "aa:bb:cc:dd:ee:ff" # CHANGE ME: Gateway/router MAC address
-
-# Server connection settings
-server:
-  addr: "10.0.0.100:9999" # CHANGE ME: paqet server address and port
-
-# Transport protocol configuration
-transport:
-  protocol: "kcp" # Transport protocol (currently only "kcp" supported)
-  kcp:
-    block: "aes" # Encryption algorithm
-    key: "your-secret-key-here" # CHANGE ME: Secret key (must match server)
+listeners:
+  - address: 192.0.2.20:29999
+    key_env: PAQET_KEY
+metrics: 127.0.0.1:9090
 ```
 
-#### Example Server Configuration (`config.yaml`)
+Client: the peer address may be the server's public/NAT address. The target is
+resolved and dialed from the server.
 
 ```yaml
-# Role must be explicitly set
-role: "server"
-
-# Logging configuration
-log:
-  level: "info" # none, debug, info, warn, error, fatal
-
-# Server listen configuration
-listen:
-  addr: ":9999" # CHANGE ME: Server listen port (must match network.ipv4.addr port), WARNING: Do not use standard ports (80, 443, etc.) as iptables rules can affect outgoing server connections.
-
-# Network interface settings
-network:
-  interface: "eth0" # CHANGE ME: Network interface (eth0, ens3, en0, etc.)
-  ipv4:
-    addr: "10.0.0.100:9999" # CHANGE ME: Server IPv4 and port (port must match listen.addr)
-    router_mac: "aa:bb:cc:dd:ee:ff" # CHANGE ME: Gateway/router MAC address
-
-# Transport protocol configuration
-transport:
-  protocol: "kcp" # Transport protocol (currently only "kcp" supported)
-  kcp:
-    block: "aes" # Encryption algorithm
-    key: "your-secret-key-here" # CHANGE ME: Secret key (must match client)
+peers:
+  primary:
+    address: 203.0.113.20:29999
+    key_env: PAQET_KEY
+forwards:
+  - listen: 127.0.0.1:8080
+    peer: primary
+    target: 127.0.0.1:80
+  - listen: 127.0.0.1:5353
+    peer: primary
+    target: 1.1.1.1:53
+    protocol: udp
+metrics: 127.0.0.1:9090
 ```
 
-#### Critical Firewall Configuration
+Provide the same secret to both endpoints. `key` can be used in place of
+`key_env`; keep config/environment files private. Authenticated AES-128-GCM is
+the new default. Existing encrypted block modes remain configurable under
+`kcp.block`. All clients using one listener share its key and are trusted to
+request destinations from that server.
 
-Although packets are handled at a low level, the OS kernel can still see incoming packets on the connection port and generate TCP RST packets since it has no knowledge of the connection. These kernel generated resets can corrupt connection state in NAT devices and stateful firewalls, causing instability, packet drops, and premature termination.
+A second entry under `peers` can be selected by any forward's `peer` field.
+`listeners`, `peers`, and `forwards` can coexist in one configuration. Several
+listeners can use different local addresses or keys. Application traffic uses
+KCP only; there is no TCP/UDP transport substitution underneath the raw envelope.
 
-You **must** configure `iptables` on the server to prevent the kernel from interfering.
+See [client example](example/client.yaml.example) and
+[server example](example/server.yaml.example) for additional settings.
 
-> [!IMPORTANT]
-> Do not use ports 80, 443, or any other standard ports, because iptables rules can also affect outgoing connections from the server. Choose non-standard ports (e.g., 9999, 8888, or other high-numbered ports) for your server configuration.
+## Automatic discovery and overrides
 
-Run these commands as root on your server:
+The interface, local source address, and next-hop MAC are discovered using the
+Linux route and neighbor tables. Client tunnel ports are reserved randomly in
+the original 32768..65535 range, preventing clashes with ordinary TCP sockets.
+An interface must have an Ethernet MAC; use a real NIC or veth rather than `lo`
+or a layer-3 TUN device.
 
-```bash
-# Replace <PORT> with your server listen port (e.g., 9999)
+On hosts with policy routing, several gateways, VPN default routes, or no usable
+default route, provide the necessary network overrides:
 
-# 1. Bypass connection tracking (conntrack) for the connection port. This is essential.
-# This tells the kernel's netfilter to ignore packets on this port for state tracking.
-sudo iptables -t raw -A PREROUTING -p tcp --dport <PORT> -j NOTRACK
-sudo iptables -t raw -A OUTPUT -p tcp --sport <PORT> -j NOTRACK
-
-# 2. Prevent the kernel from sending TCP RST packets that would kill the session.
-# This drops any RST packets the kernel tries to send from the connection port.
-sudo iptables -t mangle -A OUTPUT -p tcp --sport <PORT> --tcp-flags RST RST -j DROP
-
-# An alternative for rule 2 if issues persist:
-sudo iptables -t filter -A INPUT -p tcp --dport <PORT> -j ACCEPT
-sudo iptables -t filter -A OUTPUT -p tcp --sport <PORT> -j ACCEPT
-
-# To make rules persistent across reboots:
-# Debian/Ubuntu: sudo iptables-save > /etc/iptables/rules.v4
-# RHEL/CentOS: sudo service iptables save
+```yaml
+peers:
+  primary:
+    address: 203.0.113.20:29999
+    key_env: PAQET_KEY
+    network:
+      interface: eth0
+      ipv4:
+        addr: 192.0.2.10:0
+        router_mac: aa:bb:cc:dd:ee:ff
+      tcp:
+        local_flag: [PA]
+        remote_flag: [PA]
 ```
 
-These rules ensure that only the application handles traffic for the connection port.
+IPv6 uses `network.ipv6` with a bracketed address and next-hop MAC. Configuring
+both families requires matching ports. Listener network ports must match the
+listener's address. A fixed client source port requires `sessions: 1`.
 
-### 3. Run `paqet`
+## Performance and resource control
 
-Make the downloaded binary executable (`chmod +x ./paqet_linux_amd64`). You will need root privileges to use raw sockets.
+KCP send windows adapt from delivered bytes and RTT. Stream receive windows grow
+with observed drain rate and transport RTT, subject to configured ceilings.
+TCP scratch buffers follow queued bytes and are acquired after readiness, so
+idle connections retain no copy buffer. smux transfers received slices directly
+to TCP sockets. Linux I/O batches packets, and server receive workers distribute
+KCP sessions through kernel hash fanout. Worker count is fixed at startup so
+existing flows never move to workers without their session state.
 
-**On the Server:**
-_Place your server configuration file in the same directory as the binary and run:_
+Defaults: up to eight peer sessions (CPU-derived), up to four server packet
+workers, KCP window ceilings 32768 segments, stream receive ceiling 16 MiB, and
+aggregate smux receive budget 32 MiB per session. These are ceilings, not memory
+allocated for each idle connection. FEC is off by default and can be configured
+with matched `kcp.dshard` and `kcp.pshard` settings.
 
-```bash
-# Make sure to use the binary name you downloaded for your server's OS/Arch.
-sudo ./paqet_linux_amd64 run -c config.yaml
+```yaml
+limits:
+  connections: 200000
+  sessions: 1024
+  memory_mib: 1024
+  open_timeout: 10s
+  dial_timeout: 5s
+  udp_idle: 60s
 ```
 
-**On the Client:**
-_Place your client configuration file in the same directory as the binary and run:_
+`memory_mib` is an optional soft Go memory limit; kernel socket memory is outside
+it. File descriptor limits are raised within the existing hard limit. Use
+systemd/cgroups for an overall process budget. Establishment rate, idle capacity,
+active-flow throughput, and tail latency are separate workloads.
 
-```bash
-# Make sure to use the binary name you downloaded for your client's OS/Arch.
-sudo ./paqet_darwin_arm64 run -c config.yaml
+For a specific environment, `sessions`, listener `packet_workers`, buffer/window
+ceilings, MTU, encryption, FEC, keepalive, and manual KCP parameters can be
+configured. `adaptive: false` on an endpoint disables adaptive send/receive
+windows. `network.backend: pcap` requires one packet worker. Very long or
+high-bandwidth/high-delay paths may require higher ceilings; qualification
+results should determine those values rather than assuming one setting is best.
+
+## Lifecycle and monitoring
+
+Owned firewall chains are scoped to interface, local address, and tunnel port.
+SIGINT/SIGTERM clean up those rules and close tunnel resources. Journals under
+`/run/super-paqet` record ownership before mutations. Startup recovers dead
+owners in the same network namespace, using PID start time and boot identity.
+No cleanup runs inside a process after SIGKILL; the systemd service uses
+`ExecStopPost` to perform recovery after an abnormal exit.
+
+```sh
+sudo ./build/super-paqet firewall-cleanup
+./build/super-paqet ping -c config.yaml --peer primary
+./build/super-paqet dump -c config.yaml --listener 0
 ```
 
-### 4. Test the Connection
+Do not persist application-owned `SPQ_*` chains in an iptables snapshot. Normal
+exit and recovery preserve unrelated rules. `firewall: false` leaves firewall
+management to external automation.
 
-Once the client and server are running, test the SOCKS5 proxy:
+`metrics` binds only to an explicit loopback address. `/metrics` exposes active
+connections, admission rejections, failed opens, aborted relays, byte counters,
+KCP retransmissions, local send-pipeline and capture/transmit drops, RTT, windows,
+heap, and goroutines. Stream-window samples are omitted for large sessions to
+avoid scanning all held connections on each scrape.
+`/healthz` reports process liveness. `profiling: true` enables local pprof endpoints;
+it is off by default. Existing application TCP streams cannot survive a server
+process restart; new flows recover through replacement KCP sessions.
 
-```bash
-# Test with curl using the SOCKS5 proxy
-curl -v https://httpbin.org/ip --proxy socks5h://127.0.0.1:1080
+The [systemd unit](deploy/super-paqet.service) expects the binary at
+`/usr/local/bin/super-paqet`, configuration at `/etc/super-paqet/config.yaml`, and
+an optional private environment file at `/etc/super-paqet/environment`. Install
+those files and the unit before enabling the service. The repository does not
+automatically start a tunnel on the host network.
+
+## Tests
+
+```sh
+make vet test
+make build bench-build
+# The WAN matrix requires the local iperf3 build described in docs/BENCHMARKS.md.
+sudo python3 scripts/qualify_wan.py --duration 20 --output build/wan-qualification
+sudo python3 scripts/systemd_netns_test.py
+sudo python3 scripts/netns_bench.py --enterprise --binary build/super-paqet \
+  --functional --restart --capture --duration 5 --sessions 1 --workers 4
+sudo python3 scripts/netns_bench.py --enterprise --binary build/super-paqet \
+  --hold 100000 --mixed --duration 120 --sessions 8 --workers 64
+sudo python3 scripts/netns_bench.py --enterprise --binary build/super-paqet \
+  --rate-mbit 100 --delay-ms 10 --loss 1 --duration 20
 ```
 
-This request will be proxied over raw TCP packets to the server, and then forwarded according to the client mode configuration. The output should show your server's public IP address, confirming the connection is working.
+The harness creates disposable network namespaces and veth links. Bandwidth,
+delay, queue depth, and loss are configurable. It verifies bytes, checks UDP
+boundaries and half-close, samples process resources, records the running binary
+hash, and checks firewall cleanup and unrelated-rule preservation. CPU profiles
+and optional packet captures remain in the selected ignored `build/` directory.
+The iperf3 workload expects `build/iperf-local/bin/iperf3`; see the benchmark notes.
 
-## Command-Line Usage
+## Dependencies and license
 
-`paqet` is a multi-command application. The primary command is `run`, which starts the proxy, but several utility commands are included to help with configuration and debugging.
-
-The general syntax is:
-
-```bash
-sudo ./paqet <command> [arguments]
-```
-
-| Command   | Description                                                                      |
-| :-------- | :------------------------------------------------------------------------------- |
-| `run`     | Starts the `paqet` client or server proxy. This is the main operational command. |
-| `secret`  | Generates a new, cryptographically secure secret key.                            |
-| `ping`    | Sends a single test packet to the server to verify connectivity .                |
-| `dump`    | A diagnostic tool similar to `tcpdump` that captures and decodes packets.        |
-| `version` | Prints the application's version information.                                    |
-
-## Configuration Reference
-
-paqet uses unified YAML configuration for client and server. The `role` field must be explicitly set to either `"client"` or `"server"`.
-
-**For complete parameter documentation, see the example files:**
-
-- [`example/client.yaml.example`](example/client.yaml.example) - Client configuration reference
-- [`example/server.yaml.example`](example/server.yaml.example) - Server configuration reference
-
-### Encryption Modes
-
-The `transport.kcp.block` parameter determines the encryption method.
-
-> [!WARNING]
-> `none` and `null` modes disable authentication, anyone with your server IP and port can connect.
-
-- **`none`** - Plaintext with protocol header (protocol-compatible)
-- **`null`** - Raw data, no header (highest performance, least secure)
-
-### TCP Flag Cycling
-
-The `network.tcp.local_flag` and `network.tcp.remote_flag` arrays cycle through flag combinations to vary traffic patterns. Common patterns: `["PA"]` (standard data), `["S"]` (connection setup), `["A"]` (acknowledgment).
-
-# Architecture & Security Model
-
-### The `pcap` Approach and Firewall Bypass
-
-Understanding why standard firewalls are bypassed is key to using this tool securely.
-
-A normal application uses the OS's TCP/IP stack. When a packet arrives, it travels up the stack where `netfilter` (the backend for `ufw`/`firewalld`) inspects it. If a firewall rule blocks the port, the packet is dropped and never reaches the application.
-
-```
-      +------------------------+
-      |   Normal Application   |  <-- Data is received here
-      +------------------------+
-                   ^
-      +------------------------+
-      |    OS TCP/IP Stack     |  <-- Firewall (netfilter) runs here
-      |  (Connection Tracking) |
-      +------------------------+
-                   ^
-      +------------------------+
-      |     Network Driver     |
-      +------------------------+
-```
-
-`paqet` uses `pcap` to hook in at a much lower level. It requests a copy of every packet directly from the network driver, before the main OS TCP/IP stack and firewall get to process it.
-
-```
-      +------------------------+
-      |    paqet Application   |  <-- Gets a packet copy immediately
-      +------------------------+
-              ^       \
- (pcap copy) /         \  (Original packet continues up)
-            /           v
-      +------------------------+
-      |     OS TCP/IP Stack    |  <-- Firewall drops the original packet,
-      |  (Connection Tracking) |      but paqet already has its copy.
-      +------------------------+
-                  ^
-      +------------------------+
-      |     Network Driver     |
-      +------------------------+
-```
-
-This means a rule like `ufw deny <PORT>` will have no effect on the proxy's operation, as `paqet` receives and processes the packet before `ufw` can block it.
-
-## Troubleshooting
-
-1.  **Permission Denied:** Ensure you are running with `sudo`.
-2.  **Connection Times Out:**
-    - **Transport Configuration Mismatch:**
-      - **KCP**: Ensure `transport.kcp.key` is exactly identical on client and server
-    - **`iptables` Rules:** Did you apply the firewall rules on the server?
-    - **Incorrect Network Details:** Double-check all IPs, MAC addresses, and interface names.
-    - **Cloud Provider Firewalls:** Ensure your cloud provider's security group allows TCP traffic on your `listen.addr` port.
-    - **NAT/Port Configuration:** For servers, ensure `listen.addr` and `network.ipv4.addr` ports match. For clients, use port `0` in `network.ipv4.addr` for automatic port assignment to avoid conflicts.
-3.  **Use `ping` and `dump`:** Use `paqet ping -c config.yaml` to test the connection. Use `paqet dump -p <PORT>` on the server to see if packets are arriving.
-
-## Acknowledgments
-
-This work implements an idea from [gfw_resist_tcp_proxy](https://github.com/GFW-knocker/gfw_resist_tcp_proxy) by GFW-knocker, which explored the use of raw sockets to circumvent certain forms of network filtering. This project is a Go implementation of that approach.
-
-- Uses [pcap](https://github.com/the-tcpdump-group/libpcap) for low-level packet capture and injection
-- Uses [gopacket](https://github.com/gopacket/gopacket) for raw packet crafting and decoding
-- Uses [kcp-go](https://github.com/xtaci/kcp-go) for reliable transport with encryption
-- Uses [smux](https://github.com/xtaci/smux) for connection multiplexing
-
-## License
-
-This project is licensed under the MIT License. See the see [LICENSE](LICENSE) file for details.
+MIT license. Derived from [hanselime/paqet](https://github.com/hanselime/paqet).
+Local MIT forks of kcp-go v5.6.72 and smux v1.5.53 are in `third_party`; each has
+its license and a patch log. Merging upstream changes requires rerunning both
+library suites and the impairment tests. Packet capture/BPF compilation also
+uses gopacket/libpcap.

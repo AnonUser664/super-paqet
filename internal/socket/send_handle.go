@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"net"
+	"net/netip"
 	"runtime"
 	"sync"
 	"sync/atomic"
@@ -14,13 +15,13 @@ import (
 	"github.com/gopacket/gopacket/pcap"
 
 	"paqet/internal/conf"
-	"paqet/internal/pkg/hash"
 	"paqet/internal/pkg/iterator"
 )
 
 type tcpF struct {
 	tcpF       iterator.Iterator[conf.TCPF]
-	clientTCPF map[uint64]*iterator.Iterator[conf.TCPF]
+	clientTCPF map[netip.AddrPort]*iterator.Iterator[conf.TCPF]
+	owners     map[netip.AddrPort]uint32
 	mu         sync.RWMutex
 }
 
@@ -57,6 +58,12 @@ func NewSendHandle(cfg *conf.Network) (*SendHandle, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open pcap handle: %w", err)
 	}
+	ready := false
+	defer func() {
+		if !ready {
+			handle.Close()
+		}
+	}()
 
 	// SetDirection is not fully supported on Windows Npcap, so skip it
 	if runtime.GOOS != "windows" {
@@ -72,7 +79,7 @@ func NewSendHandle(cfg *conf.Network) (*SendHandle, error) {
 	sh := &SendHandle{
 		handle:  handle,
 		srcPort: uint16(cfg.Port),
-		tcpF:    tcpF{tcpF: iterator.Iterator[conf.TCPF]{Items: cfg.TCP.LF}, clientTCPF: make(map[uint64]*iterator.Iterator[conf.TCPF])},
+		tcpF:    tcpF{tcpF: iterator.Iterator[conf.TCPF]{Items: cfg.TCP.LF}, clientTCPF: make(map[netip.AddrPort]*iterator.Iterator[conf.TCPF])},
 		time:    uint32(time.Now().UnixNano() / int64(time.Millisecond)),
 		ePool: sync.Pool{
 			New: func() any {
@@ -93,6 +100,7 @@ func NewSendHandle(cfg *conf.Network) (*SendHandle, error) {
 		sh.srcIPv6 = cfg.IPv6.Addr.IP
 		sh.srcIPv6RHWA = cfg.IPv6.Router
 	}
+	ready = true
 	return sh, nil
 }
 
@@ -196,6 +204,10 @@ func (h *SendHandle) Write(payload []byte, addr *net.UDPAddr) error {
 
 	// pcap_sendpacket is not guaranteed thread-safe.
 	h.writeMu.Lock()
+	if h.handle == nil {
+		h.writeMu.Unlock()
+		return net.ErrClosed
+	}
 	err := h.handle.WritePacketData(e.buf.Bytes())
 	h.writeMu.Unlock()
 	return err
@@ -204,7 +216,7 @@ func (h *SendHandle) Write(payload []byte, addr *net.UDPAddr) error {
 func (h *SendHandle) getClientTCPF(dstIP net.IP, dstPort uint16) conf.TCPF {
 	h.tcpF.mu.RLock()
 	defer h.tcpF.mu.RUnlock()
-	if ff := h.tcpF.clientTCPF[hash.IPAddr(dstIP, dstPort)]; ff != nil {
+	if ff := h.tcpF.clientTCPF[peerAddress(dstIP, dstPort)]; ff != nil {
 		return ff.Next()
 	}
 	return h.tcpF.tcpF.Next()
@@ -216,8 +228,50 @@ func (h *SendHandle) setClientTCPF(addr net.Addr, f []conf.TCPF) {
 		return
 	}
 	h.tcpF.mu.Lock()
-	h.tcpF.clientTCPF[hash.IPAddr(a.IP, uint16(a.Port))] = &iterator.Iterator[conf.TCPF]{Items: f}
+	h.tcpF.clientTCPF[peerAddress(a.IP, uint16(a.Port))] = &iterator.Iterator[conf.TCPF]{Items: f}
 	h.tcpF.mu.Unlock()
+}
+
+func (h *SendHandle) registerClient(addr net.Addr, owner uint32) {
+	a, ok := addr.(*net.UDPAddr)
+	if !ok {
+		return
+	}
+	key := peerAddress(a.IP, uint16(a.Port))
+	h.tcpF.mu.Lock()
+	defer h.tcpF.mu.Unlock()
+	if h.tcpF.owners == nil {
+		h.tcpF.owners = make(map[netip.AddrPort]uint32)
+	}
+	h.tcpF.owners[key] = owner
+	delete(h.tcpF.clientTCPF, key)
+}
+func (h *SendHandle) setClientTCPFSession(addr net.Addr, owner uint32, f []conf.TCPF) {
+	a, ok := addr.(*net.UDPAddr)
+	if !ok {
+		return
+	}
+	key := peerAddress(a.IP, uint16(a.Port))
+	h.tcpF.mu.Lock()
+	defer h.tcpF.mu.Unlock()
+	if h.tcpF.owners[key] != owner {
+		return
+	}
+	h.tcpF.clientTCPF[key] = &iterator.Iterator[conf.TCPF]{Items: f}
+}
+func (h *SendHandle) deleteClientSession(addr net.Addr, owner uint32) {
+	a, ok := addr.(*net.UDPAddr)
+	if !ok {
+		return
+	}
+	key := peerAddress(a.IP, uint16(a.Port))
+	h.tcpF.mu.Lock()
+	defer h.tcpF.mu.Unlock()
+	if h.tcpF.owners[key] != owner {
+		return
+	}
+	delete(h.tcpF.owners, key)
+	delete(h.tcpF.clientTCPF, key)
 }
 
 func (h *SendHandle) deleteClientTCPF(addr net.Addr) {
@@ -226,12 +280,23 @@ func (h *SendHandle) deleteClientTCPF(addr net.Addr) {
 		return
 	}
 	h.tcpF.mu.Lock()
-	delete(h.tcpF.clientTCPF, hash.IPAddr(a.IP, uint16(a.Port)))
+	delete(h.tcpF.clientTCPF, peerAddress(a.IP, uint16(a.Port)))
 	h.tcpF.mu.Unlock()
 }
 
 func (h *SendHandle) Close() {
+	h.writeMu.Lock()
+	defer h.writeMu.Unlock()
 	if h.handle != nil {
 		h.handle.Close()
+		h.handle = nil
 	}
+}
+
+func peerAddress(ip net.IP, port uint16) netip.AddrPort {
+	addr, ok := netip.AddrFromSlice(ip)
+	if !ok {
+		return netip.AddrPort{}
+	}
+	return netip.AddrPortFrom(addr.Unmap(), port)
 }

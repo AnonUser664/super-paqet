@@ -1,13 +1,15 @@
 package kcp
 
 import (
+	"fmt"
 	"paqet/internal/conf"
+	"time"
 
 	"github.com/xtaci/kcp-go/v5"
 	"github.com/xtaci/smux"
 )
 
-func aplConf(conn *kcp.UDPSession, cfg *conf.KCP) {
+func aplConf(conn *kcp.UDPSession, cfg *conf.KCP) error {
 	var noDelay, interval, resend, noCongestion int
 	var wDelay, ackNoDelay bool
 	switch cfg.Mode {
@@ -30,15 +32,26 @@ func aplConf(conn *kcp.UDPSession, cfg *conf.KCP) {
 
 	conn.SetNoDelay(noDelay, interval, resend, noCongestion)
 	conn.SetWindowSize(cfg.Sndwnd, cfg.Rcvwnd)
-	conn.SetMtu(cfg.MTU)
+	if !conn.SetMtu(cfg.MTU) {
+		return fmt.Errorf("KCP MTU %d cannot fit transport overhead", cfg.MTU)
+	}
 	conn.SetWriteDelay(wDelay)
 	conn.SetACKNoDelay(ackNoDelay)
+	conn.SetACKTimestamps(cfg.ACKTimestamps == nil || *cfg.ACKTimestamps)
 	conn.SetStreamMode(true)
 	conn.SetDSCP(46)
+	return nil
 }
 
-func smuxConf(cfg *conf.KCP) *smux.Config {
+func smuxConf(cfg *conf.KCP, conn *kcp.UDPSession) *smux.Config {
 	var sconf = smux.DefaultConfig()
+	sconf.HalfClose = cfg.HalfClose
+	sconf.AsyncWindowUpdates = true
+	sconf.TransportWriteLimit = conn.WriteBudget
+	sconf.PrioritizeControl = true
+	sconf.CreditHints = cfg.CreditHints == nil || *cfg.CreditHints
+	sconf.AdaptiveReceive = cfg.AdaptiveBuffers
+	sconf.TransportRTT = func() time.Duration { return time.Duration(conn.GetSRTT()) * time.Millisecond }
 	sconf.Version = 2
 	sconf.KeepAliveInterval = cfg.Smuxkalive
 	sconf.KeepAliveTimeout = cfg.Smuxktimeout

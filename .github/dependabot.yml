@@ -9,6 +9,11 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    ignore:
+      # These are maintained as local forks; version-only bumps do not update
+      # their source or preserve the documented transport patches.
+      - dependency-name: "github.com/xtaci/kcp-go/v5"
+      - dependency-name: "github.com/xtaci/smux"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

@@ -1,0 +1,29 @@
+[Unit]
+Description=Super paqet raw TCP KCP tunnel
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+EnvironmentFile=-/etc/super-paqet/environment
+ExecStart=/usr/local/bin/super-paqet run -c /etc/super-paqet/config.yaml
+ExecStopPost=/usr/local/bin/super-paqet firewall-cleanup
+Restart=on-failure
+RestartSec=2
+TimeoutStopSec=30
+LimitNOFILE=524288
+RuntimeDirectory=super-paqet
+RuntimeDirectoryMode=0700
+RuntimeDirectoryPreserve=yes
+NoNewPrivileges=true
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW CAP_NET_BIND_SERVICE CAP_SYS_RESOURCE
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/run
+RestrictAddressFamilies=AF_INET AF_INET6 AF_PACKET AF_NETLINK AF_UNIX
+
+[Install]
+WantedBy=multi-user.target

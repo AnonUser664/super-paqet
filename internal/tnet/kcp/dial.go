@@ -24,9 +24,13 @@ func Dial(addr *net.UDPAddr, cfg *conf.KCP, netCfg conf.Network) (tnet.Conn, err
 		packetConn.Close()
 		return nil, fmt.Errorf("kcp: failed to dial connection: %w", err)
 	}
-	aplConf(conn, cfg)
+	if err := aplConf(conn, cfg); err != nil {
+		conn.Close()
+		packetConn.Close()
+		return nil, err
+	}
 
-	sess, err := smux.Client(conn, smuxConf(cfg))
+	sess, err := smux.Client(conn, smuxConf(cfg, conn))
 	if err != nil {
 		conn.Close()
 		packetConn.Close()

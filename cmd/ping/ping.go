@@ -1,54 +1,31 @@
 package ping
 
 import (
-	"log"
-
+	"context"
+	"fmt"
 	"github.com/spf13/cobra"
-
-	"paqet/internal/conf"
-	"paqet/internal/socket"
+	"paqet/internal/engine"
+	"time"
 )
 
-var (
-	confPath string
-	payload  string
-)
+var confPath, peer string
 
 func init() {
-	Cmd.Flags().StringVarP(&confPath, "config", "c", "config.yaml", "Path to the configuration file")
-	Cmd.Flags().StringVar(&payload, "payload", "PING", "The string payload to send in the packet")
+	Cmd.Flags().StringVarP(&confPath, "config", "c", "config.yaml", "Configuration file")
+	Cmd.Flags().StringVarP(&peer, "peer", "p", "", "Named peer (required if more than one)")
 }
 
-var Cmd = &cobra.Command{
-	Use:   "ping [flags]",
-	Short: "Sends a single raw TCP packet with a custom payload",
-	Run: func(cmd *cobra.Command, args []string) {
-		sendPacket()
-	},
-}
-
-func sendPacket() {
-	cfg, err := conf.LoadFromFile(confPath)
+var Cmd = &cobra.Command{Use: "ping", Short: "Checks encrypted KCP delivery and response from a peer", RunE: func(cmd *cobra.Command, args []string) error {
+	cfg, err := engine.Load(confPath)
 	if err != nil {
-		log.Fatalf("failed to parse configuration: %v", err)
+		return err
 	}
-
-	if cfg.Role != "client" {
-		log.Fatalf("ping command requires client configuration")
+	ctx, cancel := context.WithTimeout(cmd.Context(), cfg.Limits.OpenDuration)
+	defer cancel()
+	start := time.Now()
+	if err := engine.Ping(ctx, cfg, peer); err != nil {
+		return err
 	}
-
-	netCfg := cfg.Network
-	packetConn, err := socket.New(&netCfg)
-	if err != nil {
-		log.Fatalf("failed to create raw socket: %v", err)
-	}
-	defer packetConn.Close()
-
-	log.Printf("sending packet from IPv4:%s IPv6:%s to %s via %s", cfg.Network.IPv4.Addr, cfg.Network.IPv6.Addr, cfg.Server.Addr.String(), cfg.Network.Interface.Name)
-	log.Printf("payload: \"%s\" (%d bytes)", payload, len(payload))
-
-	if _, err := packetConn.WriteTo([]byte(payload), cfg.Server.Addr); err != nil {
-		log.Fatalf("failed to send packet: %v", err)
-	}
-	log.Printf("packet sent successfully")
-}
+	fmt.Fprintf(cmd.OutOrStdout(), "pong %s\n", time.Since(start))
+	return nil
+}}

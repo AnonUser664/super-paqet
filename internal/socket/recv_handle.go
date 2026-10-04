@@ -35,6 +35,12 @@ func NewRecvHandle(cfg *conf.Network) (*RecvHandle, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open pcap handle: %w", err)
 	}
+	ready := false
+	defer func() {
+		if !ready {
+			handle.Close()
+		}
+	}()
 
 	// SetDirection is not fully supported on Windows Npcap, so skip it
 	if runtime.GOOS != "windows" {
@@ -43,7 +49,7 @@ func NewRecvHandle(cfg *conf.Network) (*RecvHandle, error) {
 		}
 	}
 
-	filter := fmt.Sprintf("tcp and dst port %d", cfg.Port)
+	filter := captureFilter(cfg)
 	if err := handle.SetBPFFilter(filter); err != nil {
 		return nil, fmt.Errorf("failed to set BPF filter: %w", err)
 	}
@@ -56,12 +62,16 @@ func NewRecvHandle(cfg *conf.Network) (*RecvHandle, error) {
 		return d
 	}
 
+	ready = true
 	return h, nil
 }
 
 func (h *RecvHandle) Read(data []byte) (int, net.Addr, error) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
+	if h.handle == nil {
+		return 0, nil, net.ErrClosed
+	}
 
 	zdata, _, err := h.handle.ZeroCopyReadPacketData()
 	if err != nil {
@@ -97,7 +107,10 @@ func (h *RecvHandle) Read(data []byte) (int, net.Addr, error) {
 }
 
 func (h *RecvHandle) Close() {
+	h.mu.Lock()
+	defer h.mu.Unlock()
 	if h.handle != nil {
 		h.handle.Close()
+		h.handle = nil
 	}
 }

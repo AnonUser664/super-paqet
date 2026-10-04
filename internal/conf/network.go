@@ -14,14 +14,18 @@ type Addr struct {
 }
 
 type Network struct {
-	Interface_ string         `yaml:"interface"`
-	GUID       string         `yaml:"guid"`
-	IPv4       Addr           `yaml:"ipv4"`
-	IPv6       Addr           `yaml:"ipv6"`
-	PCAP       PCAP           `yaml:"pcap"`
-	TCP        TCP            `yaml:"tcp"`
-	Interface  *net.Interface `yaml:"-"`
-	Port       int            `yaml:"-"`
+	FanoutID      uint16         `yaml:"-"`
+	FanoutUnique  bool           `yaml:"-"`
+	FanoutEnabled bool           `yaml:"-"`
+	Backend       string         `yaml:"backend"`
+	Interface_    string         `yaml:"interface"`
+	GUID          string         `yaml:"guid"`
+	IPv4          Addr           `yaml:"ipv4"`
+	IPv6          Addr           `yaml:"ipv6"`
+	PCAP          PCAP           `yaml:"pcap"`
+	TCP           TCP            `yaml:"tcp"`
+	Interface     *net.Interface `yaml:"-"`
+	Port          int            `yaml:"-"`
 }
 
 func (n *Network) setDefaults(role string) {
@@ -43,6 +47,9 @@ func (n *Network) validate() []error {
 		errors = append(errors, fmt.Errorf("failed to find network interface %s: %v", n.Interface_, err))
 	}
 	n.Interface = lIface
+	if lIface != nil && len(lIface.HardwareAddr) != 6 {
+		errors = append(errors, fmt.Errorf("raw transport requires an Ethernet interface with a 6-byte MAC address"))
+	}
 
 	if runtime.GOOS == "windows" && n.GUID == "" {
 		errors = append(errors, fmt.Errorf("guid is required on windows"))
@@ -61,6 +68,12 @@ func (n *Network) validate() []error {
 
 	ipv4OK := n.IPv4.Addr != nil
 	ipv6OK := n.IPv6.Addr != nil
+	if ipv4OK && (n.IPv4.Addr.IP.To4() == nil || n.IPv4.Addr.IP.IsUnspecified()) {
+		errors = append(errors, fmt.Errorf("network.ipv4.addr needs a concrete IPv4 address"))
+	}
+	if ipv6OK && (n.IPv6.Addr.IP.To16() == nil || n.IPv6.Addr.IP.To4() != nil || n.IPv6.Addr.IP.IsUnspecified()) {
+		errors = append(errors, fmt.Errorf("network.ipv6.addr needs a concrete IPv6 address"))
+	}
 
 	if ipv4OK && ipv6OK && n.IPv4.Addr.Port != n.IPv6.Addr.Port {
 		errors = append(errors, fmt.Errorf("IPv4 port (%d) and IPv6 port (%d) must match when both are configured", n.IPv4.Addr.Port, n.IPv6.Addr.Port))

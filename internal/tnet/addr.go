@@ -21,6 +21,9 @@ func NewAddr(s string) (*Addr, error) {
 	if err != nil {
 		return nil, fmt.Errorf("invalid port %q: %w", portStr, err)
 	}
+	if host == "" || len(host) > 253 || port < 1 || port > 65535 {
+		return nil, fmt.Errorf("target needs a host and port between 1 and 65535")
+	}
 
 	return &Addr{Host: host, Port: port}, nil
 }

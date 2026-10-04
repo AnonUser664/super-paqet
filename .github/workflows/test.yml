@@ -1,0 +1,26 @@
+name: Linux tests
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.27'
+      - name: Native dependencies
+        run: sudo apt-get update && sudo apt-get install -y libpcap-dev iproute2 iptables
+      - name: Validate and test
+        run: make vet test
+      - name: Build
+        run: make build bench-build
+      - name: Namespace integration
+        run: sudo python3 scripts/netns_bench.py --enterprise --binary build/super-paqet --functional --restart --duration 3 --sessions 1 --workers 4 --output build/ci-integration

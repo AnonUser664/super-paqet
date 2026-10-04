@@ -9,13 +9,20 @@ import (
 )
 
 type KCP struct {
-	Mode         string `yaml:"mode"`
-	NoDelay      int    `yaml:"nodelay"`
-	Interval     int    `yaml:"interval"`
-	Resend       int    `yaml:"resend"`
-	NoCongestion int    `yaml:"nocongestion"`
-	WDelay       bool   `yaml:"wdelay"`
-	AckNoDelay   bool   `yaml:"acknodelay"`
+	CreditHints             *bool  `yaml:"credit_hints"`
+	ACKTimestamps           *bool  `yaml:"ack_timestamps"`
+	AdaptiveBuffersOverride *bool  `yaml:"adaptive_buffers"`
+	AdaptiveBuffers         bool   `yaml:"-"`
+	PacketWorkers           int    `yaml:"-"`
+	MaxSessions             int    `yaml:"-"`
+	HalfClose               bool   `yaml:"-"`
+	Mode                    string `yaml:"mode"`
+	NoDelay                 int    `yaml:"nodelay"`
+	Interval                int    `yaml:"interval"`
+	Resend                  int    `yaml:"resend"`
+	NoCongestion            int    `yaml:"nocongestion"`
+	WDelay                  bool   `yaml:"wdelay"`
+	AckNoDelay              bool   `yaml:"acknodelay"`
 
 	MTU    int `yaml:"mtu"`
 	Rcvwnd int `yaml:"rcvwnd"`

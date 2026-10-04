@@ -21,6 +21,9 @@ const (
 	PTCPF PType = 0x03
 	PTCP  PType = 0x04
 	PUDP  PType = 0x05
+	// Enterprise streams require directional FIN and framed UDP respectively.
+	PTCP2 PType = 0x06
+	PUDP2 PType = 0x07
 )
 
 const (
@@ -104,15 +107,15 @@ func (p *Proto) Write(w io.Writer) error {
 	case PPING, PPONG:
 		// no body
 
-	case PTCP, PUDP:
+	case PTCP, PUDP, PTCP2, PUDP2:
 		if p.Addr == nil {
 			return errors.New("protocol: address required")
 		}
 		host := []byte(p.Addr.Host)
-		if len(host) > maxHostLen {
+		if len(host) == 0 || len(host) > maxHostLen {
 			return fmt.Errorf("protocol: host length %d exceeds max %d", len(host), maxHostLen)
 		}
-		if p.Addr.Port < 0 || p.Addr.Port > maxPort {
+		if p.Addr.Port < 1 || p.Addr.Port > maxPort {
 			return fmt.Errorf("protocol: port %d out of range", p.Addr.Port)
 		}
 		body = append(body, byte(len(host)))
@@ -120,7 +123,7 @@ func (p *Proto) Write(w io.Writer) error {
 		body = binary.BigEndian.AppendUint16(body, uint16(p.Addr.Port))
 
 	case PTCPF:
-		if len(p.TCPF) > maxTCPFCount {
+		if len(p.TCPF) == 0 || len(p.TCPF) > maxTCPFCount {
 			return fmt.Errorf("protocol: tcpf count %d exceeds max %d", len(p.TCPF), maxTCPFCount)
 		}
 		body = append(body, byte(len(p.TCPF)))
@@ -141,7 +144,16 @@ func (p *Proto) Write(w io.Writer) error {
 	buf = binary.BigEndian.AppendUint16(buf, uint16(len(body)))
 	buf = append(buf, body...)
 
-	_, err := w.Write(buf)
+	var n int
+	var err error
+	if priority, ok := w.(interface{ WritePriority([]byte) (int, error) }); ok {
+		n, err = priority.WritePriority(buf)
+	} else {
+		n, err = w.Write(buf)
+	}
+	if err == nil && n != len(buf) {
+		return io.ErrShortWrite
+	}
 	return err
 }
 
@@ -170,18 +182,24 @@ func (p *Proto) Read(r io.Reader) error {
 
 	switch p.Type {
 	case PPING, PPONG:
+		if len(body) != 0 {
+			return errors.New("protocol: unexpected ping body")
+		}
 		return nil
 
-	case PTCP, PUDP:
+	case PTCP, PUDP, PTCP2, PUDP2:
 		if len(body) < 3 {
 			return errors.New("protocol: truncated address body")
 		}
 		hl := int(body[0])
-		if hl > maxHostLen || 1+hl+2 != len(body) {
+		if hl == 0 || hl > maxHostLen || 1+hl+2 != len(body) {
 			return fmt.Errorf("protocol: bad host length %d", hl)
 		}
 		host := string(body[1 : 1+hl])
 		port := int(binary.BigEndian.Uint16(body[1+hl:]))
+		if port == 0 {
+			return errors.New("protocol: target port cannot be zero")
+		}
 		p.Addr = &tnet.Addr{Host: host, Port: port}
 		return nil
 
@@ -190,7 +208,7 @@ func (p *Proto) Read(r io.Reader) error {
 			return errors.New("protocol: truncated tcpf body")
 		}
 		c := int(body[0])
-		if c > maxTCPFCount || 1+c*2 != len(body) {
+		if c == 0 || c > maxTCPFCount || 1+c*2 != len(body) {
 			return fmt.Errorf("protocol: bad tcpf count %d", c)
 		}
 		p.TCPF = make([]conf.TCPF, c)

@@ -1,44 +1,39 @@
 package run
 
 import (
-	"log"
+	"context"
+	"os/signal"
+	"syscall"
 
 	"github.com/spf13/cobra"
 
-	"paqet/internal/conf"
-	"paqet/internal/flog"
+	"paqet/internal/engine"
 )
 
 var confPath string
 
+var check bool
+
 func init() {
 	Cmd.Flags().StringVarP(&confPath, "config", "c", "config.yaml", "Path to the configuration file")
+	Cmd.Flags().BoolVar(&check, "check", false, "Validate configuration and discovered network settings, then exit")
 }
 
 var Cmd = &cobra.Command{
 	Use:   "run",
-	Short: "Runs the client or server based on the config file",
+	Short: "Runs the Linux raw TCP tunnel and configured port forwards",
 	Long:  `The 'run' command reads the specified YAML configuration file.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		cfg, err := conf.LoadFromFile(confPath)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cfg, err := engine.Load(confPath)
 		if err != nil {
-			log.Fatalf("failed to parse configuration: %v", err)
+			return err
 		}
-		initialize(cfg)
-
-		switch cfg.Role {
-		case "client":
-			startClient(cfg)
-			return
-		case "server":
-			startServer(cfg)
-			return
+		if check {
+			cmd.Println("configuration valid")
+			return nil
 		}
-
-		log.Fatalf("failed to load configuration")
+		ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+		defer stop()
+		return engine.Run(ctx, cfg)
 	},
-}
-
-func initialize(cfg *conf.Conf) {
-	flog.SetLevel(cfg.Log.Level)
 }
