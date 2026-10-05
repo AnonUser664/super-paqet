@@ -57,9 +57,9 @@ func TestStaticReliabilityStillGrowsHotPool(t *testing.T) {
 	defer stream.Close()
 	settings := &atomic.Pointer[Endpoint]{}
 	settings.Store(&Endpoint{Adaptive: new(bool), KCP: conf.KCP{Mode: "fast3", Sndwnd: 128, Rcvwnd: 128, WriteBatchMS: 20, ACKDelayMaxMS: 20}})
-	slot := &slot{}
-	slot.conn.Store(conn)
-	e.addEndpoint(conn, settings, slot)
+	hotSlot := &slot{}
+	hotSlot.conn.Store(conn)
+	e.addEndpoint(conn, settings, hotSlot)
 	if _, err := udp.Write(make([]byte, 10000)); err != nil {
 		t.Fatal(err)
 	}
@@ -67,13 +67,13 @@ func TestStaticReliabilityStillGrowsHotPool(t *testing.T) {
 	go func() { defer close(done); e.tune() }()
 	defer func() { cancel(); <-done }()
 	deadline := time.Now().Add(3 * time.Second)
-	for slot.score.Load() < busyCarrier && time.Now().Before(deadline) {
+	for hotSlot.score.Load() < busyCarrier && time.Now().Before(deadline) {
 		time.Sleep(10 * time.Millisecond)
 	}
-	if slot.score.Load() < busyCarrier {
+	if hotSlot.score.Load() < busyCarrier {
 		t.Fatal("static carrier pressure was not sampled")
 	}
-	peer := &peer{engine: e, endpoint: Endpoint{MaxSessions: 2}, slots: []*slot{slot}}
+	peer := &peer{engine: e, endpoint: Endpoint{MaxSessions: 2}, slots: []*slot{hotSlot}}
 	spare := &slot{}
 	peer.createSlot = func(context.Context) (*slot, error) { return spare, nil }
 	if selected, err := peer.selectSlot(ctx); err != nil || selected != spare || len(peer.slots) != 2 {
