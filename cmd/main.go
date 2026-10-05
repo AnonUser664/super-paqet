@@ -4,10 +4,12 @@
 package main
 
 import (
-	"log"
+	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 
+	"paqet/cmd/config"
 	"paqet/cmd/dump"
 	"paqet/cmd/firewall"
 	"paqet/cmd/ping"
@@ -19,13 +21,16 @@ import (
 // rootCmd registers the unified executable command tree rather than separate client/server
 // programs.
 var rootCmd = &cobra.Command{
-	Use:   "super-paqet",
-	Short: "KCP transport over raw TCP packet",
-	Long:  `paqet is a bidirectional packet-level proxy using KCP and raw socket transport with encryption.`,
+	Use:           "super-paqet",
+	Short:         "KCP transport over raw TCP packet",
+	SilenceErrors: true,
+	SilenceUsage:  true,
+	Long:          `paqet is a bidirectional packet-level proxy using KCP and raw socket transport with encryption.`,
 }
 
 // main dispatches CLI work and returns failures as a nonzero process outcome for automation.
 func main() {
+	rootCmd.AddCommand(config.Cmd)
 	rootCmd.AddCommand(run.Cmd)
 	rootCmd.AddCommand(dump.Cmd)
 	rootCmd.AddCommand(ping.Cmd)
@@ -34,6 +39,7 @@ func main() {
 	rootCmd.AddCommand(firewall.Cmd)
 
 	if err := rootCmd.Execute(); err != nil {
-		log.Fatalf("%v", err)
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 }

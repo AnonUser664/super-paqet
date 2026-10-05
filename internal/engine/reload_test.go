@@ -19,6 +19,8 @@ import (
 	"testing"
 	"time"
 
+	kcplib "github.com/xtaci/kcp-go/v5"
+	"github.com/xtaci/smux"
 	"paqet/internal/conf"
 	"paqet/internal/tnet/kcp"
 )
@@ -38,7 +40,10 @@ func reloadFixture(t *testing.T) *Engine {
 	e := &Engine{cfg: cfg, ctx: ctx, cancel: cancel, resources: map[string]*liveResource{}, tuners: map[*kcp.Conn]*controller{}, observeChanged: make(chan struct{}, 1)}
 	e.resourceFactory = func(s resourceSpec) (*liveResource, error) {
 		p := &peer{engine: e, endpoint: s.endpoint}
-		return &liveResource{spec: s, peer: p, start: func() {}, release: p.close}, nil
+		r := &liveResource{spec: s, peer: p, start: func() {}, release: p.close}
+		r.settings.Store(&s.endpoint)
+		p.settings = &r.settings
+		return r, nil
 	}
 	t.Cleanup(func() {
 		cancel()
@@ -94,7 +99,7 @@ func TestReloadPreservesUnchangedPoolsAndBinds(t *testing.T) {
 	}
 	changed := fixtureConfig(next)
 	endpoint := changed.Peers["a"]
-	endpoint.KCP.Resend = 1
+	endpoint.KCP.MTU = 128
 	changed.Peers["a"] = endpoint
 	if err := e.apply(changed); err != nil {
 		t.Fatal(err)
@@ -383,5 +388,103 @@ func TestReloadConfigurationBounds(t *testing.T) {
 	f.Close()
 	if _, err := readConfigBytes(path); err == nil {
 		t.Fatal("oversized configuration accepted")
+	}
+}
+
+// TestLiveReliabilityWhitelistPreservesPool verifies each allowed runtime knob
+// keeps ownership while structural transport changes remain restart boundaries.
+func TestLiveReliabilityWhitelistPreservesPool(t *testing.T) {
+	e := reloadFixture(t)
+	c := fixtureConfig(e.cfg)
+	c.Peers["a"] = Endpoint{Address: "192.0.2.1:29999"}
+	if err := e.apply(c); err != nil {
+		t.Fatal(err)
+	}
+	original := e.resources["peer/a"]
+	next := fixtureConfig(c)
+	endpoint := next.Peers["a"]
+	endpoint.KCP = conf.KCP{Mode: "manual", NoDelay: 1, Interval: 20, Resend: 1, NoCongestion: 1, WDelay: true, AckNoDelay: true, WriteBatchMS: 10, ACKDelayMaxMS: 5}
+	next.Peers["a"] = endpoint
+	if err := e.apply(next); err != nil {
+		t.Fatal(err)
+	}
+	if e.resources["peer/a"] != original || original.released || original.peer.configuration().KCP.Resend != 1 {
+		t.Fatal("reliability edit replaced pool or left future template stale")
+	}
+	for _, change := range []func(*Endpoint){func(e *Endpoint) { e.KCP.MTU = 128 }, func(e *Endpoint) { e.KCP.Sndwnd = 128 }, func(e *Endpoint) { e.KCP.Smuxbuf = 4096 }, func(e *Endpoint) { e.KCP.Block_ = "aes" }, func(e *Endpoint) { e.Network.Backend = "pcap" }, func(e *Endpoint) { e.Adaptive = new(bool) }, func(e *Endpoint) { e.MaxSessions = 2 }} {
+		changed := original.spec
+		change(&changed.endpoint)
+		if canUpdateReliability(original.spec, changed) {
+			t.Fatal("structural difference admitted as live reliability edit")
+		}
+	}
+}
+
+// TestLiveReliabilityRetainsRegisteredConversation exercises real KCP and mux
+// objects under concurrent settings registration, detecting locks/data races
+// and accidental conversation/session replacement without raw socket privileges.
+func TestLiveReliabilityRetainsRegisteredConversation(t *testing.T) {
+	e := reloadFixture(t)
+	c := fixtureConfig(e.cfg)
+	c.Peers["a"] = Endpoint{Address: "192.0.2.1:29999", Adaptive: new(bool), KCP: conf.KCP{Mode: "fast3", Sndwnd: 128, Rcvwnd: 128, WriteBatchMS: 20, ACKDelayMaxMS: 20}}
+	if err := e.apply(c); err != nil {
+		t.Fatal(err)
+	}
+	resource := e.resources["peer/a"]
+	packet, err := net.ListenPacket("udp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer packet.Close()
+	udp, err := kcplib.NewConn3(0x1234, packet.LocalAddr(), nil, 0, 0, packet)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer udp.Close()
+	udp.SetWindowSize(128, 128)
+	left, right := net.Pipe()
+	defer right.Close()
+	session, err := smux.Client(left, smux.DefaultConfig())
+	if err != nil {
+		t.Fatal(err)
+	}
+	conn := &kcp.Conn{UDPSession: udp, Session: session}
+	defer conn.Close()
+	e.addEndpoint(conn, &resource.settings)
+	stop := make(chan struct{})
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for {
+			select {
+			case <-stop:
+				return
+			default:
+			}
+			e.addEndpoint(conn, &resource.settings)
+			udp.TransportStats()
+		}
+	}()
+	for i := 0; i < 50; i++ {
+		next := fixtureConfig(c)
+		endpoint := next.Peers["a"]
+		endpoint.KCP.Mode = "manual"
+		endpoint.KCP.NoDelay = 1
+		endpoint.KCP.Interval = 20
+		endpoint.KCP.Resend = i % 2
+		endpoint.KCP.NoCongestion = 1
+		next.Peers["a"] = endpoint
+		if err := e.apply(next); err != nil {
+			t.Fatal(err)
+		}
+	}
+	close(stop)
+	wg.Wait()
+	if e.resources["peer/a"] != resource || udp.GetConv() != 0x1234 || session.IsClosed() || udp.TransportStats().SendWindow != 128 {
+		t.Fatal("live setting edit reset carrier/window state")
+	}
+	if e.tuners[conn].endpoint != &resource.settings || resource.peer.configuration().KCP.Interval != 20 {
+		t.Fatal("registration or future dial template stale")
 	}
 }

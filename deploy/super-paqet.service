@@ -9,6 +9,7 @@ User=root
 Group=root
 EnvironmentFile=-/etc/super-paqet/environment
 ExecStart=/usr/local/bin/super-paqet run -c /etc/super-paqet/config.yaml
+ExecReload=/bin/kill -HUP $MAINPID
 ExecStopPost=/usr/local/bin/super-paqet firewall-cleanup
 Restart=on-failure
 RestartSec=2

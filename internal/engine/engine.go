@@ -294,7 +294,7 @@ func (e *Engine) forward(listener *net.TCPListener, key string) {
 
 // serve accepts incoming carriers and dispatches their mux streams while preserving
 // generation-owned flag state.
-func (e *Engine) serve(ctx context.Context, listener tnet.Listener, endpoint Endpoint) {
+func (e *Engine) serve(ctx context.Context, listener tnet.Listener, resource *liveResource) {
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -310,6 +310,7 @@ func (e *Engine) serve(ctx context.Context, listener tnet.Listener, endpoint End
 			conn.Close()
 			continue
 		}
+		endpoint := resource.settings.Load()
 		// Accepted carriers share listener sockets. Conversation ownership protects peer flags, not ownership of that socket.
 		owner := conn.(*kcp.Conn).UDPSession.GetConv()
 		e.log().Debug("session.accepted", "conv", owner, "remote", conn.RemoteAddr().String(), "listener", endpoint.Address)
@@ -317,11 +318,7 @@ func (e *Engine) serve(ctx context.Context, listener tnet.Listener, endpoint End
 		e.launch(func() {
 			defer e.stats.Sessions.Add(-1)
 			defer conn.Close()
-			if endpoint.Adaptive == nil || *endpoint.Adaptive {
-				e.addTuner(conn.(*kcp.Conn), endpoint.KCP.Sndwnd, endpoint.KCP.Rcvwnd)
-			} else {
-				e.addPassive(conn.(*kcp.Conn))
-			}
+			e.addEndpoint(conn.(*kcp.Conn), &resource.settings)
 			defer listener.DeleteClientSession(conn.RemoteAddr(), owner)
 			stop := context.AfterFunc(ctx, func() { conn.Close() })
 			defer stop()

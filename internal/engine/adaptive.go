@@ -9,6 +9,7 @@ import (
 	kcplib "github.com/xtaci/kcp-go/v5"
 	"math"
 	"paqet/internal/tnet/kcp"
+	"sync/atomic"
 	"time"
 )
 
@@ -24,6 +25,8 @@ type controller struct {
 	bulkSeen bool
 	// Configured send ceiling, receive setting and currently selected send window, in segments.
 	maximum, receive, window int
+	// Resource-owned template identity used for scoped live reliability updates.
+	endpoint *atomic.Pointer[Endpoint]
 	// Prior observation retained for counter deltas rather than cumulative-rate errors.
 	previous kcplib.TransportStats
 	// Time of the previous delivery/activity observation.
@@ -310,4 +313,27 @@ func (e *Engine) tune() {
 			e.tuneMu.Unlock()
 		}
 	}
+}
+
+// addEndpoint registers a carrier and reapplies the latest resource template
+// under the reload/tuner synchronization boundary. This closes the race between
+// a socket opening with old settings and a concurrent live edit committing.
+func (e *Engine) addEndpoint(conn *kcp.Conn, endpoint *atomic.Pointer[Endpoint], slots ...*slot) {
+	e.tuneMu.Lock()
+	defer e.tuneMu.Unlock()
+	cfg := endpoint.Load()
+	kcp.ReconfigureReliability(conn.UDPSession, &cfg.KCP)
+	var c *controller
+	if cfg.Adaptive == nil || *cfg.Adaptive {
+		c = newController(cfg.KCP.Sndwnd, cfg.KCP.Rcvwnd)
+		if len(slots) > 0 {
+			c.slot = slots[0]
+		}
+		conn.UDPSession.SetWindowSize(c.window, c.receive)
+	} else {
+		s := conn.UDPSession.TransportStats()
+		c = &controller{window: s.SendWindow, passive: true}
+	}
+	c.endpoint = endpoint
+	e.tuners[conn] = c
 }

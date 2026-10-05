@@ -14,6 +14,7 @@ import (
 	"reflect"
 	"runtime/debug"
 	"sort"
+	"sync/atomic"
 	"syscall"
 
 	"golang.org/x/sys/unix"
@@ -58,6 +59,8 @@ type resourceSpec struct {
 type liveResource struct {
 	// Immutable specification used for matching and rollback.
 	spec resourceSpec
+	// Live endpoint template shared with future dial/accept and tuner registration.
+	settings atomic.Pointer[Endpoint]
 	// Incoming listener sockets used for current telemetry and admission updates.
 	listener *kcp.Listener
 	// Outgoing pool, when this resource is a peer.
@@ -167,7 +170,8 @@ func (e *Engine) prepareResource(spec resourceSpec) (_ *liveResource, err error)
 	}()
 	switch spec.kind {
 	case "peer":
-		p := &peer{engine: e, endpoint: spec.endpoint, manageFirewall: spec.firewall}
+		r.settings.Store(&spec.endpoint)
+		p := &peer{engine: e, endpoint: spec.endpoint, settings: &r.settings, manageFirewall: spec.firewall}
 		r.peer, r.fw, r.release = p, &p.fw, p.close
 		for i := 0; i < spec.endpoint.Sessions; i++ {
 			s, allocErr := p.allocateSlot(e.ctx)
@@ -177,6 +181,7 @@ func (e *Engine) prepareResource(spec resourceSpec) (_ *liveResource, err error)
 			p.slots = append(p.slots, s)
 		}
 	case "listener":
+		r.settings.Store(&spec.endpoint)
 		guard, network, reserveErr := reserve(spec.endpoint.Network)
 		if reserveErr != nil {
 			return nil, reserveErr
@@ -196,7 +201,7 @@ func (e *Engine) prepareResource(spec resourceSpec) (_ *liveResource, err error)
 		}
 		ctx, cancel := context.WithCancel(e.ctx)
 		r.release = func() { cancel(); listener.Close(); guard.Close() }
-		r.start = func() { e.launch(func() { e.serve(ctx, listener, spec.endpoint) }) }
+		r.start = func() { e.launch(func() { e.serve(ctx, listener, r) }) }
 		// Listener packet observers are rebuilt from live resources at commit.
 		r.listener = listener.(*kcp.Listener)
 	case "forward":
@@ -296,8 +301,9 @@ func (e *Engine) apply(c *Config) (err error) {
 	stopped := make(map[string]*liveResource)
 	retiring := make(map[string]*liveResource)
 	deferred := make(map[string]resourceSpec)
+	liveUpdates := make(map[string]*liveResource)
 	for key, old := range e.resources {
-		if spec, ok := wanted[key]; !ok || !sameResource(old.spec, spec) {
+		if spec, ok := wanted[key]; !ok || !sameResource(old.spec, spec) && !canUpdateReliability(old.spec, spec) {
 			retiring[key] = old
 		}
 	}
@@ -335,8 +341,14 @@ func (e *Engine) apply(c *Config) (err error) {
 	sort.Strings(keys)
 	for _, key := range keys {
 		spec := wanted[key]
-		if old := e.resources[key]; old != nil && sameResource(old.spec, spec) {
-			continue
+		if old := e.resources[key]; old != nil {
+			if sameResource(old.spec, spec) {
+				continue
+			}
+			if canUpdateReliability(old.spec, spec) {
+				liveUpdates[key] = old
+				continue
+			}
 		}
 		r, buildErr := e.buildResource(spec)
 		if buildErr != nil {
@@ -383,6 +395,25 @@ func (e *Engine) apply(c *Config) (err error) {
 			delete(e.resources, key)
 		}
 	}
+	// All failure-prone work is complete before any live transport setters run.
+	// Registration uses the same tuner lock, so a concurrently accepted/dialed
+	// carrier receives the latest template even if its socket opened earlier.
+	e.tuneMu.Lock()
+	for key, resource := range liveUpdates {
+		spec := wanted[key]
+		resource.spec = spec
+		resource.settings.Store(&spec.endpoint)
+		if resource.listener != nil {
+			cfg := spec.endpoint.KCP
+			resource.listener.ConfigureReliability(&cfg)
+		}
+		for conn, controller := range e.tuners {
+			if controller.endpoint == &resource.settings && !conn.Session.IsClosed() {
+				kcp.ReconfigureReliability(conn.UDPSession, &spec.endpoint.KCP)
+			}
+		}
+	}
+	e.tuneMu.Unlock()
 	e.publish(c)
 	if e.diagnostics != nil {
 		e.diagnostics.configure(c.Log)
@@ -423,7 +454,7 @@ func (e *Engine) apply(c *Config) (err error) {
 	if !initial {
 		e.reloadApplied.Add(1)
 	}
-	e.log().Info("config.applied", "revision", revision, "changed_resources", sortedResourceKeys(staged), "retired_resources", sortedResourceKeys(retiring), "interrupted_resources", sortedResourceKeys(stopped), "peers", len(c.Peers), "forwards", len(c.Forwards), "listeners", len(c.Listeners))
+	e.log().Info("config.applied", "revision", revision, "changed_resources", sortedResourceKeys(staged), "updated_resources", sortedResourceKeys(liveUpdates), "retired_resources", sortedResourceKeys(retiring), "interrupted_resources", sortedResourceKeys(stopped), "peers", len(c.Peers), "forwards", len(c.Forwards), "listeners", len(c.Listeners))
 	return nil
 }
 
@@ -513,4 +544,17 @@ func conflictsWithRetiring(want resourceSpec, retiring map[string]*liveResource)
 		}
 	}
 	return false
+}
+
+// canUpdateReliability explicitly whitelists runtime setters. Every other
+// endpoint difference requires replacement, including any wire/mux contract.
+func canUpdateReliability(a, b resourceSpec) bool {
+	if a.kind != "peer" && a.kind != "listener" {
+		return false
+	}
+	k, n := &a.endpoint.KCP, b.endpoint.KCP
+	k.Mode, k.NoDelay, k.Interval, k.Resend, k.NoCongestion = n.Mode, n.NoDelay, n.Interval, n.Resend, n.NoCongestion
+	k.WDelay, k.AckNoDelay = n.WDelay, n.AckNoDelay
+	k.WriteBatchMS, k.ACKDelayMaxMS = n.WriteBatchMS, n.ACKDelayMaxMS
+	return sameResource(a, b)
 }

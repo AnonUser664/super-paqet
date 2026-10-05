@@ -15,35 +15,11 @@ import (
 // aplConf maps preset or manual parameters to KCP and configures the retained
 // reliability/ACK/packet-size behavior.
 func aplConf(conn *kcp.UDPSession, cfg *conf.KCP) error {
-	var noDelay, interval, resend, noCongestion int
-	var wDelay, ackNoDelay bool
-	switch cfg.Mode {
-	case "normal":
-		noDelay, interval, resend, noCongestion = 0, 40, 2, 1
-		wDelay, ackNoDelay = true, false
-	case "fast":
-		noDelay, interval, resend, noCongestion = 0, 30, 2, 1
-		wDelay, ackNoDelay = true, false
-	case "fast2":
-		noDelay, interval, resend, noCongestion = 1, 20, 2, 1
-		wDelay, ackNoDelay = false, true
-	case "fast3":
-		noDelay, interval, resend, noCongestion = 1, 10, 2, 1
-		wDelay, ackNoDelay = false, true
-	case "manual":
-		noDelay, interval, resend, noCongestion = cfg.NoDelay, cfg.Interval, cfg.Resend, cfg.NoCongestion
-		wDelay, ackNoDelay = cfg.WDelay, cfg.AckNoDelay
-	}
-
-	conn.SetNoDelay(noDelay, interval, resend, noCongestion)
+	ReconfigureReliability(conn, cfg)
 	conn.SetWindowSize(cfg.Sndwnd, cfg.Rcvwnd)
 	if !conn.SetMtu(cfg.MTU) {
 		return fmt.Errorf("KCP MTU %d cannot fit transport overhead", cfg.MTU)
 	}
-	conn.SetWriteDelay(wDelay)
-	conn.SetACKNoDelay(ackNoDelay)
-	conn.SetACKDelayLimit(time.Duration(cfg.ACKDelayMaxMS) * time.Millisecond)
-	conn.SetWriteBatchBudget(uint32(cfg.WriteBatchMS))
 	conn.SetACKTimestamps(cfg.ACKTimestamps == nil || *cfg.ACKTimestamps)
 	conn.SetStreamMode(true)
 	conn.SetDSCP(46)
@@ -68,4 +44,35 @@ func smuxConf(cfg *conf.KCP, conn *kcp.UDPSession) *smux.Config {
 	sconf.MaxReceiveBuffer = cfg.Smuxbuf
 	sconf.MaxStreamBuffer = cfg.Streambuf
 	return sconf
+}
+
+// ReconfigureReliability applies only lock-protected scheduling/retransmission
+// settings. It leaves MTU, queued segment encoding, cipher/FEC, windows and mux
+// contracts intact, so established streams survive these live edits.
+func ReconfigureReliability(conn *kcp.UDPSession, cfg *conf.KCP) {
+	var noDelay, interval, resend, noCongestion int
+	var wDelay, ackNoDelay bool
+	switch cfg.Mode {
+	case "normal":
+		noDelay, interval, resend, noCongestion = 0, 40, 2, 1
+		wDelay, ackNoDelay = true, false
+	case "fast":
+		noDelay, interval, resend, noCongestion = 0, 30, 2, 1
+		wDelay, ackNoDelay = true, false
+	case "fast2":
+		noDelay, interval, resend, noCongestion = 1, 20, 2, 1
+		wDelay, ackNoDelay = false, true
+	case "fast3":
+		noDelay, interval, resend, noCongestion = 1, 10, 2, 1
+		wDelay, ackNoDelay = false, true
+	case "manual":
+		noDelay, interval, resend, noCongestion = cfg.NoDelay, cfg.Interval, cfg.Resend, cfg.NoCongestion
+		wDelay, ackNoDelay = cfg.WDelay, cfg.AckNoDelay
+	}
+
+	conn.SetNoDelay(noDelay, interval, resend, noCongestion)
+	conn.SetWriteDelay(wDelay)
+	conn.SetACKNoDelay(ackNoDelay)
+	conn.SetACKDelayLimit(time.Duration(cfg.ACKDelayMaxMS) * time.Millisecond)
+	conn.SetWriteBatchBudget(uint32(cfg.WriteBatchMS))
 }

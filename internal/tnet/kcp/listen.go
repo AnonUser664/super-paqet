@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"sync"
+	"sync/atomic"
 
 	"github.com/xtaci/kcp-go/v5"
 	"github.com/xtaci/smux"
@@ -34,6 +35,8 @@ type Listener struct {
 	PacketConn *socket.PacketConn
 	// Prepared KCP/mux settings applied to each accepted conversation.
 	cfg *conf.KCP
+	// Atomically replaced template for future accepted carriers.
+	liveConfig atomic.Pointer[conf.KCP]
 	// Underlying KCP acceptor; it owns the incoming conversation table.
 	listener *kcp.Listener
 }
@@ -75,11 +78,12 @@ func (l *Listener) Accept() (tnet.Conn, error) {
 	if err != nil {
 		return nil, fmt.Errorf("kcp: failed to accept connection: %w", err)
 	}
-	if err := aplConf(conn, l.cfg); err != nil {
+	cfg := l.configuration()
+	if err := aplConf(conn, cfg); err != nil {
 		conn.Close()
 		return nil, err
 	}
-	sess, err := smux.Server(conn, smuxConf(l.cfg, conn))
+	sess, err := smux.Server(conn, smuxConf(cfg, conn))
 	if err != nil {
 		conn.Close()
 		return nil, fmt.Errorf("kcp: failed to create smux session: %w", err)
@@ -250,4 +254,21 @@ func (l *Listener) SetMaxSessions(maximum int) {
 		return
 	}
 	l.listener.SetMaxSessions(maximum)
+}
+
+// configuration reads the immutable template used by a newly accepted carrier.
+func (l *Listener) configuration() *conf.KCP {
+	if cfg := l.liveConfig.Load(); cfg != nil {
+		return cfg
+	}
+	return l.cfg
+}
+
+// ConfigureReliability publishes a prepared template for future carriers without
+// moving existing conversations between sockets or fanout workers.
+func (l *Listener) ConfigureReliability(cfg *conf.KCP) {
+	l.liveConfig.Store(cfg)
+	for _, child := range l.children {
+		child.ConfigureReliability(cfg)
+	}
 }

@@ -45,6 +45,8 @@ type peer struct {
 	allocationMu sync.Mutex
 	// Prepared peer configuration inherited by newly allocated slots.
 	endpoint Endpoint
+	// Resource-owned live reliability template; nil permits small unit fixtures.
+	settings *atomic.Pointer[Endpoint]
 	// Carrier reservations owned by this pool, bounded by max_sessions.
 	slots []*slot
 	// Atomic selection cursor used to distribute equal-pressure choices.
@@ -99,11 +101,12 @@ func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
 	if time.Now().Before(s.retry) {
 		return nil, fmt.Errorf("peer reconnect backoff")
 	}
-	a, err := net.ResolveUDPAddr("udp", p.endpoint.Address)
+	a, err := net.ResolveUDPAddr("udp", p.configuration().Address)
 	if err != nil {
 		return nil, err
 	}
-	conn, err := kcp.Dial(a, &p.endpoint.KCP, s.network)
+	endpoint := p.configuration()
+	conn, err := kcp.Dial(a, &endpoint.KCP, s.network)
 	if err != nil {
 		if s.backoff == 0 {
 			s.backoff = 100 * time.Millisecond
@@ -111,14 +114,14 @@ func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
 			s.backoff = min(5*time.Second, s.backoff*2)
 		}
 		s.retry = time.Now().Add(s.backoff)
-		p.engine.log().Debug("session.connect_failed", "remote", p.endpoint.Address, "retry_ms", s.backoff.Milliseconds(), "error", err)
+		p.engine.log().Debug("session.connect_failed", "remote", p.configuration().Address, "retry_ms", s.backoff.Milliseconds(), "error", err)
 		return nil, err
 	}
 	c := conn.(*kcp.Conn)
 	strm, err := c.OpenStrm()
 	if err == nil {
 		strm.SetDeadline(time.Now().Add(p.engine.current().Limits.OpenDuration))
-		err = (&protocol.Proto{Type: protocol.PTCPF, TCPF: p.endpoint.Network.TCP.RF}).Write(strm)
+		err = (&protocol.Proto{Type: protocol.PTCPF, TCPF: p.configuration().Network.TCP.RF}).Write(strm)
 		strm.Close()
 	}
 	if err != nil {
@@ -127,8 +130,10 @@ func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
 	}
 	// Publish only after control setup succeeded; other opens may now reuse this complete carrier generation.
 	s.conn.Store(c)
-	p.engine.log().Debug("session.connected", "conv", c.UDPSession.GetConv(), "remote", p.endpoint.Address, "local", c.LocalAddr().String())
-	if p.endpoint.Adaptive == nil || *p.endpoint.Adaptive {
+	p.engine.log().Debug("session.connected", "conv", c.UDPSession.GetConv(), "remote", p.configuration().Address, "local", c.LocalAddr().String())
+	if p.settings != nil {
+		p.engine.addEndpoint(c, p.settings, s)
+	} else if p.endpoint.Adaptive == nil || *p.endpoint.Adaptive {
 		p.engine.addTuner(c, p.endpoint.KCP.Sndwnd, p.endpoint.KCP.Rcvwnd, s)
 	} else {
 		p.engine.addPassive(c)
@@ -237,7 +242,7 @@ func (p *peer) invalidate(s *slot, c *kcp.Conn) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.conn.Load() == c {
-		p.engine.log().Debug("session.invalidated", "conv", c.UDPSession.GetConv(), "remote", p.endpoint.Address)
+		p.engine.log().Debug("session.invalidated", "conv", c.UDPSession.GetConv(), "remote", p.configuration().Address)
 		c.Close()
 		s.conn.Store(nil)
 		s.score.Store(0)
@@ -249,7 +254,7 @@ func (p *peer) invalidateIdle(s *slot, c *kcp.Conn) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.conn.Load() == c && c.Session.CloseIfIdle() {
-		p.engine.log().Debug("session.idle_invalidated", "conv", c.UDPSession.GetConv(), "remote", p.endpoint.Address)
+		p.engine.log().Debug("session.idle_invalidated", "conv", c.UDPSession.GetConv(), "remote", p.configuration().Address)
 		c.Close()
 		s.conn.Store(nil)
 		s.score.Store(0)
@@ -313,7 +318,7 @@ func (p *peer) selectSlot(ctx context.Context, exclusions ...map[*slot]bool) (*s
 		p.mu.RUnlock()
 		return nil, fmt.Errorf("all peer carriers failed this opening attempt")
 	}
-	grow := best.score.Load() >= busyCarrier && len(p.slots) < p.endpoint.MaxSessions
+	grow := best.score.Load() >= busyCarrier && len(p.slots) < p.configuration().MaxSessions
 	p.mu.RUnlock()
 	if !grow {
 		return best, nil
@@ -336,7 +341,7 @@ func (p *peer) selectSlot(ctx context.Context, exclusions ...map[*slot]bool) (*s
 		p.mu.RUnlock()
 		return nil, fmt.Errorf("all peer carriers failed this opening attempt")
 	}
-	grow = best.score.Load() >= busyCarrier && len(p.slots) < p.endpoint.MaxSessions
+	grow = best.score.Load() >= busyCarrier && len(p.slots) < p.configuration().MaxSessions
 	p.mu.RUnlock()
 	if !grow {
 		return best, nil
@@ -353,7 +358,7 @@ func (p *peer) selectSlot(ctx context.Context, exclusions ...map[*slot]bool) (*s
 			p.growBackoff = min(5*time.Second, p.growBackoff*2)
 		}
 		p.growRetry = time.Now().Add(p.growBackoff)
-		p.engine.log().Debug("peer.pool_growth_failed", "remote", p.endpoint.Address, "error", err)
+		p.engine.log().Debug("peer.pool_growth_failed", "remote", p.configuration().Address, "error", err)
 		return best, nil
 	}
 	p.mu.Lock()
@@ -369,7 +374,7 @@ func (p *peer) selectSlot(ctx context.Context, exclusions ...map[*slot]bool) (*s
 	p.growRetry = time.Time{}
 	count := len(p.slots)
 	p.mu.Unlock()
-	p.engine.log().Debug("peer.pool_grew", "remote", p.endpoint.Address, "carriers", count, "maximum", p.endpoint.MaxSessions)
+	p.engine.log().Debug("peer.pool_grew", "remote", p.configuration().Address, "carriers", count, "maximum", p.configuration().MaxSessions)
 	return s, nil
 }
 
@@ -384,7 +389,7 @@ func (p *peer) allocateSlot(ctx context.Context) (*slot, error) {
 	if closed {
 		return nil, net.ErrClosed
 	}
-	guard, n, err := reserve(p.endpoint.Network)
+	guard, n, err := reserve(p.configuration().Network)
 	if err != nil {
 		return nil, err
 	}
@@ -399,4 +404,15 @@ func (p *peer) allocateSlot(ctx context.Context) (*slot, error) {
 		}
 	}
 	return &slot{network: n, guard: guard}, nil
+}
+
+// configuration supplies a coherent immutable endpoint template. Live reload
+// replaces the pointer rather than mutating a value used by concurrent opens.
+func (p *peer) configuration() *Endpoint {
+	if p.settings != nil {
+		if endpoint := p.settings.Load(); endpoint != nil {
+			return endpoint
+		}
+	}
+	return &p.endpoint
 }
