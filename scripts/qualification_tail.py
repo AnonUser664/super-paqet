@@ -19,6 +19,7 @@ def main():
     p.add_argument('--output',required=True)
     p.add_argument('--hold-seconds',type=int,default=600)
     p.add_argument('--check-source',default=str(ROOT),help='source checkout for full checks (allows an isolated candidate checkout)')
+    p.add_argument('--resume',action='store_true',help='reuse successful recorded stages with identical commands')
     a=p.parse_args()
     if os.geteuid()!=0:p.error('run as root')
     matrix=json.loads((ROOT/a.matrix).read_text())
@@ -26,8 +27,14 @@ def main():
     if set(PROFILES)-{r['case'] for r in matrix}:raise RuntimeError('matrix incomplete')
     if any(r['exit_code'] or r['failures'] or r['results']['binary_sha256']!=sha for r in matrix):raise RuntimeError('matrix failed or mixed binaries')
     out=ROOT/a.output;out.mkdir(parents=True,exist_ok=True)
-    checks=[]
+    checks=json.loads((out/'checks.json').read_text()) if a.resume and (out/'checks.json').exists() else []
     def stage(name,command,cwd=ROOT):
+        previous=next((row for row in checks if row['name']==name),None)
+        if previous and previous['exit_code']==0:
+            if previous['command']!=command:raise RuntimeError('resume command differs for '+name)
+            print('Reusing completed '+name,flush=True)
+            return
+        checks[:]=[row for row in checks if row['name']!=name]
         print('Starting '+name,flush=True)
         started=time.monotonic()
         with (out/(name+'.log')).open('w') as log:
@@ -38,8 +45,7 @@ def main():
         if result.returncode:raise RuntimeError(name+' failed; inspect '+str(out/(name+'.log')))
     stage('full-checks',['make','vet','test'],cwd=Path(a.check_source).resolve())
     stage('scale-soak',[sys.executable,'scripts/netns_bench.py','--enterprise','--binary',a.binary,'--hold','100000','--mixed','--duration',str(a.hold_seconds),'--sessions','8','--workers','64','--debug','--output',str(out/'scale')])
-    if hashlib.sha256((ROOT/'build/super-paqet').read_bytes()).hexdigest()!=sha:raise RuntimeError('systemd binary differs')
-    stage('service',[sys.executable,'scripts/systemd_netns_test.py'])
+    stage('service',[sys.executable,'scripts/systemd_netns_test.py','--binary',a.binary])
     stage('fuzz-control',['go','test','./internal/protocol','-run','^$','-fuzz','FuzzControlRead','-fuzztime','60s','-parallel','4'])
     stage('fuzz-frame',['go','test','./internal/socket','-run','^$','-fuzz','FuzzDecodeFrame','-fuzztime','60s','-parallel','4'])
     stage('extra-seeds',[sys.executable,'scripts/stress_links.py','--binary',a.binary,'--output',str(out/'seeds'),'--duration','30','--profile','--cases','asymmetric','reorder','harsh','mixed-ack','mixed-asymmetric','outage','--seeds','7','313'])

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Exercise the shipped service restrictions in disposable network namespaces."""
+import argparse
 import configparser
 import hashlib
 import json
@@ -15,6 +16,9 @@ def run(*args, **kwargs):
     return subprocess.run(args, check=True, text=True, capture_output=True, **kwargs)
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--binary', default='build/super-paqet')
+    args = parser.parse_args()
     if os.geteuid() != 0: raise SystemExit('run as root')
     ident = str(os.getpid())
     work = Path('/run')/('spq-service-test-'+ident)
@@ -22,7 +26,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     work.mkdir(mode=0o700)
     binary = work/'super-paqet'
-    shutil.copy2(ROOT/'build/super-paqet', binary)
+    shutil.copy2(ROOT/args.binary, binary)
     c,s = 'spq-svc-c-'+ident,'spq-svc-s-'+ident
     namespaces,units,processes = [],[],[]
     def ns(n,*args): return run('ip','netns','exec',n,*args)
