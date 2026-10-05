@@ -1,3 +1,6 @@
+// File pacing.go: paces data with bounded byte credit and injectable time; control traffic
+// stays independently serviceable.
+
 package kcp
 
 import (
@@ -22,6 +25,8 @@ func (s *UDPSession) schedulePacingLocked() {
 	SystemTimedSched.Put(s.update, due)
 }
 
+// now uses the injected simulation clock or normal monotonic clock so protocol tests need no
+// wall-clock sleeping.
 func (k *KCP) now() uint32 {
 	if k.clock != nil {
 		return k.clock()
@@ -43,6 +48,8 @@ func (s *UDPSession) SetPacingRate(bytesPerSecond uint64) {
 	s.updateWriteBudgetLocked()
 }
 
+// refillPacing replenishes bounded byte credit from elapsed time so idle periods cannot create
+// an unbounded output burst.
 func (k *KCP) refillPacing(now uint32) {
 	if k.pacingRate == 0 {
 		return
@@ -55,6 +62,8 @@ func (k *KCP) refillPacing(now uint32) {
 	k.pacingTokens = min(burst, k.pacingTokens+float64(k.pacingRate)*float64(elapsed)/1000)
 }
 
+// pacingDelay computes the next eligible data-send time without delaying ACK/window-control
+// traffic.
 func (k *KCP) pacingDelay(bytes int) uint32 {
 	if k.pacingRate == 0 {
 		return 0

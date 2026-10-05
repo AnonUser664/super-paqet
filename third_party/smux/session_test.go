@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File session_test.go: exercises session regressions; fixtures must preserve cleanup and
+// expose byte/lifecycle failures explicitly.
+
 package smux
 
 import (
@@ -60,6 +63,8 @@ func setupServer(tb testing.TB) (addr string, stopfunc func(), client net.Conn, 
 	return ln.Addr().String(), func() { ln.Close() }, conn, nil
 }
 
+// handleConnection runs the legacy mux echo fixture and releases accepted stream resources
+// afterward.
 func handleConnection(conn net.Conn) {
 	session, _ := Server(conn, nil)
 	for {
@@ -104,6 +109,8 @@ func setupServerV2(tb testing.TB) (addr string, stopfunc func(), client net.Conn
 	return ln.Addr().String(), func() { ln.Close() }, conn, nil
 }
 
+// handleConnectionV2 runs the credit-controlled mux echo fixture for version-two flow-control
+// checks.
 func handleConnectionV2(conn net.Conn) {
 	config := DefaultConfig()
 	config.Version = 2
@@ -126,6 +133,7 @@ func handleConnectionV2(conn net.Conn) {
 	}
 }
 
+// TestEcho checks Echo so a change cannot silently weaken the recorded regression contract.
 func TestEcho(t *testing.T) {
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -154,6 +162,8 @@ func TestEcho(t *testing.T) {
 	session.Close()
 }
 
+// TestWriteTo checks Write To so a change cannot silently weaken the recorded regression
+// contract.
 func TestWriteTo(t *testing.T) {
 	const N = 1 << 20
 	// server
@@ -227,6 +237,8 @@ func TestWriteTo(t *testing.T) {
 	t.Log(stream)
 }
 
+// TestWriteToV2 checks Write To V2 so a change cannot silently weaken the recorded regression
+// contract.
 func TestWriteToV2(t *testing.T) {
 	config := DefaultConfig()
 	config.Version = 2
@@ -303,6 +315,8 @@ func TestWriteToV2(t *testing.T) {
 	t.Log(stream)
 }
 
+// TestGetDieCh checks Get Die Ch so a change cannot silently weaken the recorded regression
+// contract.
 func TestGetDieCh(t *testing.T) {
 	cs, ss, err := getSmuxStreamPair()
 	if err != nil {
@@ -339,6 +353,7 @@ func TestGetDieCh(t *testing.T) {
 	}
 }
 
+// TestSpeed checks Speed so a change cannot silently weaken the recorded regression contract.
 func TestSpeed(t *testing.T) {
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -379,6 +394,8 @@ func TestSpeed(t *testing.T) {
 	session.Close()
 }
 
+// TestParallel checks Parallel so a change cannot silently weaken the recorded regression
+// contract.
 func TestParallel(t *testing.T) {
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -411,6 +428,8 @@ func TestParallel(t *testing.T) {
 	session.Close()
 }
 
+// TestParallelV2 checks Parallel V2 so a change cannot silently weaken the recorded regression
+// contract.
 func TestParallelV2(t *testing.T) {
 	config := DefaultConfig()
 	config.Version = 2
@@ -445,6 +464,8 @@ func TestParallelV2(t *testing.T) {
 	session.Close()
 }
 
+// TestCloseThenOpen checks Close Then Open so a change cannot silently weaken the recorded
+// regression contract.
 func TestCloseThenOpen(t *testing.T) {
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -458,6 +479,8 @@ func TestCloseThenOpen(t *testing.T) {
 	}
 }
 
+// TestSessionDoubleClose checks Session Double Close so a change cannot silently weaken the
+// recorded regression contract.
 func TestSessionDoubleClose(t *testing.T) {
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -471,6 +494,8 @@ func TestSessionDoubleClose(t *testing.T) {
 	}
 }
 
+// TestStreamDoubleClose checks Stream Double Close so a change cannot silently weaken the
+// recorded regression contract.
 func TestStreamDoubleClose(t *testing.T) {
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -486,6 +511,8 @@ func TestStreamDoubleClose(t *testing.T) {
 	session.Close()
 }
 
+// TestConcurrentClose checks Concurrent Close so a change cannot silently weaken the recorded
+// regression contract.
 func TestConcurrentClose(t *testing.T) {
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -512,6 +539,8 @@ func TestConcurrentClose(t *testing.T) {
 	wg.Wait()
 }
 
+// TestTinyReadBuffer checks Tiny Read Buffer so a change cannot silently weaken the recorded
+// regression contract.
 func TestTinyReadBuffer(t *testing.T) {
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -548,6 +577,8 @@ func TestTinyReadBuffer(t *testing.T) {
 	session.Close()
 }
 
+// TestIsClose checks Is Close so a change cannot silently weaken the recorded regression
+// contract.
 func TestIsClose(t *testing.T) {
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -561,6 +592,8 @@ func TestIsClose(t *testing.T) {
 	}
 }
 
+// TestKeepAliveTimeout checks Keep Alive Timeout so a change cannot silently weaken the
+// recorded regression contract.
 func TestKeepAliveTimeout(t *testing.T) {
 	ln, err := net.Listen("tcp", "localhost:0")
 	if err != nil {
@@ -587,16 +620,22 @@ func TestKeepAliveTimeout(t *testing.T) {
 	}
 }
 
+// blockWriteConn retains the block Write Conn fixture state used to expose failures without
+// production network side effects.
 type blockWriteConn struct {
 	net.Conn
 }
 
+// Write holds an output operation to expose deadline/closure behavior under genuine writer
+// backpressure.
 func (c *blockWriteConn) Write(b []byte) (n int, err error) {
 	forever := time.Hour * 24
 	time.Sleep(forever)
 	return c.Conn.Write(b)
 }
 
+// TestKeepAliveBlockWriteTimeout checks Keep Alive Block Write Timeout so a change cannot
+// silently weaken the recorded regression contract.
 func TestKeepAliveBlockWriteTimeout(t *testing.T) {
 	ln, err := net.Listen("tcp", "localhost:0")
 	if err != nil {
@@ -625,6 +664,8 @@ func TestKeepAliveBlockWriteTimeout(t *testing.T) {
 	}
 }
 
+// TestServerEcho checks Server Echo so a change cannot silently weaken the recorded regression
+// contract.
 func TestServerEcho(t *testing.T) {
 	ln, err := net.Listen("tcp", "localhost:0")
 	if err != nil {
@@ -690,6 +731,8 @@ func TestServerEcho(t *testing.T) {
 	}
 }
 
+// TestSendWithoutRecv checks Send Without Recv so a change cannot silently weaken the recorded
+// regression contract.
 func TestSendWithoutRecv(t *testing.T) {
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -710,6 +753,8 @@ func TestSendWithoutRecv(t *testing.T) {
 	stream.Close()
 }
 
+// TestWriteAfterClose checks Write After Close so a change cannot silently weaken the recorded
+// regression contract.
 func TestWriteAfterClose(t *testing.T) {
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -724,6 +769,8 @@ func TestWriteAfterClose(t *testing.T) {
 	}
 }
 
+// TestReadStreamAfterSessionClose checks Read Stream After Session Close so a change cannot
+// silently weaken the recorded regression contract.
 func TestReadStreamAfterSessionClose(t *testing.T) {
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -741,6 +788,8 @@ func TestReadStreamAfterSessionClose(t *testing.T) {
 	}
 }
 
+// TestWriteStreamAfterConnectionClose checks Write Stream After Connection Close so a change
+// cannot silently weaken the recorded regression contract.
 func TestWriteStreamAfterConnectionClose(t *testing.T) {
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -755,6 +804,8 @@ func TestWriteStreamAfterConnectionClose(t *testing.T) {
 	}
 }
 
+// TestNumStreamAfterClose checks Num Stream After Close so a change cannot silently weaken the
+// recorded regression contract.
 func TestNumStreamAfterClose(t *testing.T) {
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -776,6 +827,8 @@ func TestNumStreamAfterClose(t *testing.T) {
 	cli.Close()
 }
 
+// TestRandomFrame checks Random Frame so a change cannot silently weaken the recorded
+// regression contract.
 func TestRandomFrame(t *testing.T) {
 	addr, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -877,6 +930,8 @@ func TestRandomFrame(t *testing.T) {
 	}
 }
 
+// TestWriteFrameInternal checks Write Frame Internal so a change cannot silently weaken the
+// recorded regression contract.
 func TestWriteFrameInternal(t *testing.T) {
 	addr, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -961,6 +1016,8 @@ func TestWriteFrameInternal(t *testing.T) {
 	}
 }
 
+// TestReadDeadline checks Read Deadline so a change cannot silently weaken the recorded
+// regression contract.
 func TestReadDeadline(t *testing.T) {
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -988,6 +1045,8 @@ func TestReadDeadline(t *testing.T) {
 	session.Close()
 }
 
+// TestWriteDeadline checks Write Deadline so a change cannot silently weaken the recorded
+// regression contract.
 func TestWriteDeadline(t *testing.T) {
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -1010,6 +1069,8 @@ func TestWriteDeadline(t *testing.T) {
 	session.Close()
 }
 
+// Test8GBTransferV1 checks 8 GB Transfer V1 so a change cannot silently weaken the recorded
+// regression contract.
 func Test8GBTransferV1(t *testing.T) {
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
@@ -1056,6 +1117,8 @@ func TestRandomLengthRandomDataTransferV1(t *testing.T) {
 	session.Close()
 }
 
+// TestRandomLengthRandomDataTransferV2 checks Random Length Random Data Transfer V2 so a
+// change cannot silently weaken the recorded regression contract.
 func TestRandomLengthRandomDataTransferV2(t *testing.T) {
 	config := DefaultConfig()
 	config.Version = 2
@@ -1072,6 +1135,8 @@ func TestRandomLengthRandomDataTransferV2(t *testing.T) {
 	session.Close()
 }
 
+// testRandomLength varies application write sizes to expose framing boundaries that fixed-size
+// traffic can hide.
 func testRandomLength(t *testing.T, stream *Stream, N int64) {
 	seed := time.Now().UnixNano()
 	writerSrc := rand.NewSource(seed)
@@ -1147,6 +1212,8 @@ func testRandomLength(t *testing.T, stream *Stream, N int64) {
 
 }
 
+// BenchmarkAcceptClose measures Accept Close with the fixture's workload; results must be
+// interpreted with its buffer and transport settings.
 func BenchmarkAcceptClose(b *testing.B) {
 	_, stop, cli, err := setupServer(b)
 	if err != nil {
@@ -1162,6 +1229,9 @@ func BenchmarkAcceptClose(b *testing.B) {
 		}
 	}
 }
+
+// BenchmarkConnSmux measures Conn Smux with the fixture's workload; results must be
+// interpreted with its buffer and transport settings.
 func BenchmarkConnSmux(b *testing.B) {
 	cs, ss, err := getSmuxStreamPair()
 	if err != nil {
@@ -1172,6 +1242,8 @@ func BenchmarkConnSmux(b *testing.B) {
 	bench(b, cs, ss)
 }
 
+// BenchmarkConnTCP measures Conn TCP with the fixture's workload; results must be interpreted
+// with its buffer and transport settings.
 func BenchmarkConnTCP(b *testing.B) {
 	cs, ss, err := getTCPConnectionPair()
 	if err != nil {
@@ -1182,6 +1254,8 @@ func BenchmarkConnTCP(b *testing.B) {
 	bench(b, cs, ss)
 }
 
+// getSmuxStreamPair opens matching logical stream endpoints so tests exercise the same mux
+// conversation.
 func getSmuxStreamPair() (*Stream, *Stream, error) {
 	c1, c2, err := getTCPConnectionPair()
 	if err != nil {
@@ -1216,6 +1290,8 @@ func getSmuxStreamPair() (*Stream, *Stream, error) {
 	return cs, ss, nil
 }
 
+// getTCPConnectionPair constructs loopback TCP endpoints used as an independent carrier
+// fixture.
 func getTCPConnectionPair() (net.Conn, net.Conn, error) {
 	lst, err := net.Listen("tcp", "localhost:0")
 	if err != nil {
@@ -1243,6 +1319,7 @@ func getTCPConnectionPair() (net.Conn, net.Conn, error) {
 	return conn0, conn1, nil
 }
 
+// bench runs the mux throughput fixture while separating setup from repeated transfers.
 func bench(b *testing.B, rd io.Reader, wr io.Writer) {
 	buf := make([]byte, 128*1024)
 	buf2 := make([]byte, 128*1024)
@@ -1269,6 +1346,8 @@ func bench(b *testing.B, rd io.Reader, wr io.Writer) {
 	wg.Wait()
 }
 
+// TestFrameString checks Frame String so a change cannot silently weaken the recorded
+// regression contract.
 func TestFrameString(t *testing.T) {
 	h := rawHeader{1, cmdSYN, 100, 0, 1, 0, 0, 0}
 	expected := "Version:1 Cmd:0 StreamID:1 Length:100"
@@ -1277,6 +1356,8 @@ func TestFrameString(t *testing.T) {
 	}
 }
 
+// TestSessionAddr checks Session Addr so a change cannot silently weaken the recorded
+// regression contract.
 func TestSessionAddr(t *testing.T) {
 	p1, p2 := net.Pipe()
 	s, _ := Server(p1, nil)
@@ -1291,6 +1372,8 @@ func TestSessionAddr(t *testing.T) {
 	}
 }
 
+// TestSessionSetDeadline checks Session Set Deadline so a change cannot silently weaken the
+// recorded regression contract.
 func TestSessionSetDeadline(t *testing.T) {
 	p1, p2 := net.Pipe()
 	s, _ := Server(p1, nil)
@@ -1302,6 +1385,8 @@ func TestSessionSetDeadline(t *testing.T) {
 	}
 }
 
+// TestStreamID checks Stream ID so a change cannot silently weaken the recorded regression
+// contract.
 func TestStreamID(t *testing.T) {
 	p1, p2 := net.Pipe()
 	s, _ := Server(p1, nil)
@@ -1322,6 +1407,8 @@ func TestStreamID(t *testing.T) {
 	}
 }
 
+// TestStreamSetDeadline checks Stream Set Deadline so a change cannot silently weaken the
+// recorded regression contract.
 func TestStreamSetDeadline(t *testing.T) {
 	p1, p2 := net.Pipe()
 	s, _ := Server(p1, nil)
@@ -1342,6 +1429,8 @@ func TestStreamSetDeadline(t *testing.T) {
 	}
 }
 
+// TestTimeoutError checks Timeout Error so a change cannot silently weaken the recorded
+// regression contract.
 func TestTimeoutError(t *testing.T) {
 	var err error = &timeoutError{}
 	if ne, ok := err.(net.Error); ok {
@@ -1359,6 +1448,8 @@ func TestTimeoutError(t *testing.T) {
 	}
 }
 
+// TestSessionOpenAccept checks Session Open Accept so a change cannot silently weaken the
+// recorded regression contract.
 func TestSessionOpenAccept(t *testing.T) {
 	p1, p2 := net.Pipe()
 	s, _ := Server(p1, nil)
@@ -1382,6 +1473,8 @@ func TestSessionOpenAccept(t *testing.T) {
 	<-done
 }
 
+// TestStreamAddr checks Stream Addr so a change cannot silently weaken the recorded regression
+// contract.
 func TestStreamAddr(t *testing.T) {
 	p1, p2 := net.Pipe()
 	s, _ := Server(p1, nil)
@@ -1405,14 +1498,24 @@ func TestStreamAddr(t *testing.T) {
 	}
 }
 
+// hiddenConn retains the hidden Conn fixture state used to expose failures without production
+// network side effects.
 type hiddenConn struct {
 	conn net.Conn
 }
 
-func (c *hiddenConn) Read(b []byte) (n int, err error)  { return c.conn.Read(b) }
-func (c *hiddenConn) Write(b []byte) (n int, err error) { return c.conn.Write(b) }
-func (c *hiddenConn) Close() error                      { return c.conn.Close() }
+// Read delegates test input while hiding optional optimized carrier interfaces.
+func (c *hiddenConn) Read(b []byte) (n int, err error) { return c.conn.Read(b) }
 
+// Write delegates test output while hiding optional optimized carrier interfaces.
+func (c *hiddenConn) Write(b []byte) (n int, err error) { return c.conn.Write(b) }
+
+// Close releases this object's owned resources or signals its lifecycle once; shared listener
+// ownership is handled by its wrapper.
+func (c *hiddenConn) Close() error { return c.conn.Close() }
+
+// TestSessionAddrNonNetConn checks Session Addr Non Net Conn so a change cannot silently
+// weaken the recorded regression contract.
 func TestSessionAddrNonNetConn(t *testing.T) {
 	p1, p2 := net.Pipe()
 	defer p1.Close()
@@ -1429,6 +1532,8 @@ func TestSessionAddrNonNetConn(t *testing.T) {
 	}
 }
 
+// TestStreamAddrNonNetConn checks Stream Addr Non Net Conn so a change cannot silently weaken
+// the recorded regression contract.
 func TestStreamAddrNonNetConn(t *testing.T) {
 	p1, p2 := net.Pipe()
 	defer p1.Close()
@@ -1454,6 +1559,8 @@ func TestStreamAddrNonNetConn(t *testing.T) {
 	}
 }
 
+// TestSessionCloseChan checks Session Close Chan so a change cannot silently weaken the
+// recorded regression contract.
 func TestSessionCloseChan(t *testing.T) {
 	p1, p2 := net.Pipe()
 	s, _ := Server(p1, nil)

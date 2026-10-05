@@ -1,5 +1,8 @@
 //go:build linux
 
+// File observe.go: samples carrier and listener state without taking ownership of accepted
+// carriers' shared packet sockets.
+
 package engine
 
 import (
@@ -12,26 +15,49 @@ import (
 	"paqet/internal/tnet/kcp"
 )
 
+// observedPacket identifies a listener-owned worker socket for shared drop telemetry without
+// taking ownership.
 type observedPacket struct {
+	// Listener/worker identities matching socket-scoped diagnostic labels.
 	index, worker int
-	packet        *socket.PacketConn
+	// Non-owning listener packet reference used for telemetry; it must not be closed by an
+	// accepted carrier.
+	packet *socket.PacketConn
 }
 
+// observedSession copies controller estimates under the tuner lock before formatting
+// diagnostics.
 type observedSession struct {
-	conn                *kcp.Conn
-	minRTT, rate        float64
-	window              int
-	startup             bool
+	// Non-owning carrier reference retained for one diagnostic snapshot.
+	conn *kcp.Conn
+	// Copied controller estimates for formatting outside the tuner lock.
+	minRTT, rate float64
+	// Copied live send window in segments.
+	window int
+	// Allows bounded window/rate growth while learning a new path.
+	startup bool
+	// Copied capacity/loss estimates kept separate from live mutable controller state.
 	peakRate, lossRatio float64
-	congested           bool
-	queueSignal         float64
-}
-type observedState struct {
-	stats                   kcplib.TransportStats
-	flowWait, pipelineDrops uint64
-	at                      time.Time
+	// Hysteretic queue classification used to avoid reacting permanently to reorder/jitter
+	// noise.
+	congested bool
+	// Forward-attributed queue growth used to distinguish congestion from reverse ACK pressure.
+	queueSignal float64
 }
 
+// observedState retains the previous carrier counters/time so periodic logs can report deltas
+// instead of misleading totals.
+type observedState struct {
+	// Previous coherent carrier counters used for interval delivery/retry deltas.
+	stats kcplib.TransportStats
+	// Prior mux wait time and local output-drop counts used to calculate sample deltas.
+	flowWait, pipelineDrops uint64
+	// Timestamp for delta/rate expiry calculations.
+	at time.Time
+}
+
+// observe snapshots controller/listener state under ownership locks and reports sampled queue
+// and delivery changes.
 func (e *Engine) observe() {
 	ticker := time.NewTicker(e.cfg.Log.duration)
 	defer ticker.Stop()

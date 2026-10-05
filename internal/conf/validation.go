@@ -1,3 +1,6 @@
+// File validation.go: checks address syntax and port constraints before sockets or remote
+// target dials are attempted.
+
 package conf
 
 import (
@@ -6,6 +9,8 @@ import (
 	"strconv"
 )
 
+// validateAddr resolves the configured endpoint into an address object and optionally requires
+// a service port.
 func validateAddr(addr string, vPort bool) (*net.UDPAddr, error) {
 	if addr == "" {
 		return nil, fmt.Errorf("address is required")
@@ -25,6 +30,7 @@ func validateAddr(addr string, vPort bool) (*net.UDPAddr, error) {
 	return uAddr, nil
 }
 
+// validateHostPort checks host/port syntax without constructing a raw socket.
 func validateHostPort(addr string, vPort bool) error {
 	if addr == "" {
 		return fmt.Errorf("address is required")

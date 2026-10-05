@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File shaper.go: orders data and bounded-priority controls without starving either class
+// indefinitely.
+
 package smux
 
 import (
@@ -38,6 +41,7 @@ func _itimediff(later, earlier uint32) int32 {
 // It orders writeRequests by class first, then by sequence number within the same class.
 type shaperHeap []writeRequest
 
+// Len reports retained heap entries for the standard heap interface.
 func (h shaperHeap) Len() int { return len(h) }
 
 // Less determines the ordering of elements in the heap.
@@ -50,9 +54,15 @@ func (h shaperHeap) Less(i, j int) bool {
 	return _itimediff(h[j].seq, h[i].seq) > 0
 }
 
+// Swap exchanges entries and maintains the heap's indexing/ownership invariants.
 func (h shaperHeap) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
-func (h *shaperHeap) Push(x any)   { *h = append(*h, x.(writeRequest)) }
 
+// Push accepts a heap element through the standard interface; callers retain the queue's
+// synchronization contract.
+func (h *shaperHeap) Push(x any) { *h = append(*h, x.(writeRequest)) }
+
+// Pop removes the final heap slot and releases membership/reference state as required by the
+// queue.
 func (h *shaperHeap) Pop() any {
 	old := *h
 	n := len(old)
@@ -64,14 +74,20 @@ func (h *shaperHeap) Pop() any {
 
 // shaperQueue manages multiple streams of writeRequests using a round-robin scheduling algorithm.
 type shaperQueue struct {
+	// Selects separate bounded-priority control scheduling.
 	prioritizeControl bool
-	control           shaperHeap
-	controlBurst      int
-	streams           map[uint32]*shaperHeap
-	rrList            *list.List    // list of sid (RR queue)
-	next              *list.Element // next node to pop
-	count             int
-	mu                sync.Mutex
+	// Heap of urgent control requests subject to a bounded consecutive burst.
+	control shaperHeap
+	// Counts consecutive controls so ordinary data cannot starve indefinitely.
+	controlBurst int
+	// Per-stream output heaps retained while requests await transmission.
+	streams map[uint32]*shaperHeap
+	rrList  *list.List    // list of sid (RR queue)
+	next    *list.Element // next node to pop
+	// Number of pending scheduled requests, not application bytes.
+	count int
+	// Protects output heaps, request count and bounded control-priority state.
+	mu sync.Mutex
 }
 
 // shaperHeapPool reduces allocation of shaperHeap objects
@@ -82,6 +98,8 @@ var shaperHeapPool = sync.Pool{
 	},
 }
 
+// NewShaperQueue creates the synchronized scheduler used for bounded control priority and
+// ordered data requests.
 func NewShaperQueue() *shaperQueue {
 	return &shaperQueue{
 		streams: make(map[uint32]*shaperHeap),

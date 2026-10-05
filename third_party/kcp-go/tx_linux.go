@@ -22,6 +22,9 @@
 
 //go:build linux
 
+// File tx_linux.go: injects output batches through Linux/custom packet interfaces and
+// preserves permanent error reporting.
+
 package kcp
 
 import (

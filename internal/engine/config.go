@@ -1,5 +1,8 @@
 //go:build linux
 
+// File config.go: defines strict unified YAML and validates endpoint/resource contracts before
+// startup; see docs/CONFIGURATION.md.
+
 package engine
 
 import (
@@ -17,48 +20,88 @@ import (
 
 // Config supports listening and dialing from the same process.
 type Config struct {
-	Listeners []Endpoint          `yaml:"listeners"`
-	Peers     map[string]Endpoint `yaml:"peers"`
-	Forwards  []Forward           `yaml:"forwards"`
-	Limits    Limits              `yaml:"limits"`
-	Firewall  *bool               `yaml:"firewall"`
-	Metrics   string              `yaml:"metrics"`
-	Profiling bool                `yaml:"profiling"`
-	Log       LogConfig           `yaml:"log"`
+	// Incoming tunnel endpoints sharing this engine lifecycle.
+	Listeners []Endpoint `yaml:"listeners"`
+	// Named outgoing pools selected by local forward rules.
+	Peers map[string]Endpoint `yaml:"peers"`
+	// Local TCP/UDP binds with explicit peer and remote target.
+	Forwards []Forward `yaml:"forwards"`
+	// Process admission, memory and operation deadline configuration.
+	Limits Limits `yaml:"limits"`
+	// Nil enables owned-rule management; false delegates equivalent management externally.
+	Firewall *bool `yaml:"firewall"`
+	// Optional explicit loopback HTTP bind for liveness, counters and profiling.
+	Metrics string `yaml:"metrics"`
+	// Enables local pprof routes only when a metrics HTTP listener is configured.
+	Profiling bool `yaml:"profiling"`
+	// Structured diagnostic levels, cadence and lifecycle sampling.
+	Log LogConfig `yaml:"log"`
 }
 
+// Endpoint describes either an incoming listener or an outgoing peer, with explicit
+// driver/adaptation/ownership constraints.
 type Endpoint struct {
-	PacketWorkers int          `yaml:"packet_workers"`
-	Adaptive      *bool        `yaml:"adaptive"`
-	Address       string       `yaml:"address"`
-	Key           string       `yaml:"key"`
-	KeyEnv        string       `yaml:"key_env"`
-	Sessions      int          `yaml:"sessions"`
-	MaxSessions   int          `yaml:"max_sessions"`
-	Network       conf.Network `yaml:"network"`
-	KCP           conf.KCP     `yaml:"kcp"`
-	Enc           string       `yaml:"enc"`
+	// Fixed incoming packet-worker count established before conversations are accepted.
+	PacketWorkers int `yaml:"packet_workers"`
+	// Nil enables endpoint adaptation; false preserves static link-control choices.
+	Adaptive *bool `yaml:"adaptive"`
+	// Remote peer or assigned local listener address, distinct from the forwarded application
+	// target.
+	Address string `yaml:"address"`
+	// Shared secret supplied by configuration/environment, never diagnostic payload.
+	Key string `yaml:"key"`
+	// Environment variable supplying the endpoint key, mutually exclusive with an inline key.
+	KeyEnv string `yaml:"key_env"`
+	// Initial outgoing carrier count; application connection count is independently admitted.
+	Sessions int `yaml:"sessions"`
+	// Maximum outgoing pool size; fixed source ports require one carrier.
+	MaxSessions int `yaml:"max_sessions"`
+	// Physical interface/source/next-hop metadata prepared before raw socket construction.
+	Network conf.Network `yaml:"network"`
+	// Reliability/cipher/mux settings for each carrier at this endpoint.
+	KCP conf.KCP `yaml:"kcp"`
+	// Configuration alias for cipher mode; precedence is resolved before transport construction.
+	Enc string `yaml:"enc"`
 }
 
+// Forward binds a local protocol/address to one named peer and a target resolved at the
+// accepting server.
 type Forward struct {
-	Listen   string `yaml:"listen"`
-	Peer     string `yaml:"peer"`
-	Target   string `yaml:"target"`
+	// Local application bind; it is not the remote tunnel listener address.
+	Listen string `yaml:"listen"`
+	// Name of the outgoing pool carrying this forward.
+	Peer string `yaml:"peer"`
+	// Host/port resolved and dialed by the accepting server.
+	Target string `yaml:"target"`
+	// Application TCP or length-framed UDP; the outer transport remains KCP/raw TCP.
 	Protocol string `yaml:"protocol"`
 }
 
+// Limits bounds admission and opening/UDP lifetimes; the Go memory limit excludes kernel
+// socket storage.
 type Limits struct {
-	Connections  int64         `yaml:"connections"`
-	Sessions     int64         `yaml:"sessions"`
-	MemoryMiB    int64         `yaml:"memory_mib"`
-	OpenTimeout  string        `yaml:"open_timeout"`
-	DialTimeout  string        `yaml:"dial_timeout"`
-	UDPIdle      string        `yaml:"udp_idle"`
+	// Admission limit for active handled streams/flows, not an upfront allocation.
+	Connections int64 `yaml:"connections"`
+	// Global accepted-carrier admission limit, separate from each outgoing pool.
+	Sessions int64 `yaml:"sessions"`
+	// Optional soft Go memory limit; kernel socket and other process memory are additional.
+	MemoryMiB int64 `yaml:"memory_mib"`
+	// Configured overall target-opening deadline string.
+	OpenTimeout string `yaml:"open_timeout"`
+	// Configured remote target-dial deadline, shorter than overall opening grace.
+	DialTimeout string `yaml:"dial_timeout"`
+	// Configured UDP inactivity deadline string.
+	UDPIdle string `yaml:"udp_idle"`
+	// Parsed opening duration used by client and server control handling.
 	OpenDuration time.Duration `yaml:"-"`
+	// Parsed target connection timeout used by the accepting server.
 	DialDuration time.Duration `yaml:"-"`
-	UDPDuration  time.Duration `yaml:"-"`
+	// Parsed UDP read/flow-expiry duration.
+	UDPDuration time.Duration `yaml:"-"`
 }
 
+// Load strictly parses public YAML and prepares endpoint contracts before any forwarding
+// socket is created.
 func Load(path string) (*Config, error) {
 	b, err := os.ReadFile(path)
 	if err != nil {
@@ -74,6 +117,8 @@ func Load(path string) (*Config, error) {
 	return &c, nil
 }
 
+// prepare fills process defaults and rejects invalid forwards, limits and metrics exposure
+// before network startup.
 func (c *Config) prepare() error {
 	if err := c.Log.prepare(); err != nil {
 		return err
@@ -169,6 +214,8 @@ func (c *Config) prepare() error {
 	return nil
 }
 
+// prepare combines endpoint overrides, discovery and transport defaults while enforcing
+// worker/source-port/cipher compatibility.
 func (e *Endpoint) prepare(listener bool) error {
 	if e.KCP.Key != "" {
 		return fmt.Errorf("configure key/key_env at the endpoint, not under kcp")
@@ -208,6 +255,7 @@ func (e *Endpoint) prepare(listener bool) error {
 	if e.Sessions < 1 || e.Sessions > 256 {
 		return fmt.Errorf("sessions must be between 1 and 256")
 	}
+	// Resolve aliases once: an explicit kcp.block wins, followed by endpoint enc, then kcp.enc.
 	if e.Enc != "" && e.KCP.Block_ == "" {
 		e.KCP.Block_ = e.Enc
 	}
@@ -228,6 +276,7 @@ func (e *Endpoint) prepare(listener bool) error {
 		return fmt.Errorf("key is required")
 	}
 	e.KCP.Key = e.Key
+	// Both enterprise ends use directional EOF; ordinary upstream mux full-close semantics would truncate or hang opposite-direction work.
 	e.KCP.HalfClose = true
 	e.KCP.AdaptiveBuffers = e.Adaptive == nil || *e.Adaptive
 	if e.KCP.AdaptiveBuffersOverride != nil {

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Module purpose: Resume only successful matching stages and finish scale/service/fuzz/checks
+# with an explicitly selected binary.
 """Finish qualification sequentially, recording actual exit status of each stage."""
 import argparse
 import hashlib
@@ -12,6 +14,8 @@ from stress_links import PROFILES
 
 ROOT=Path(__file__).resolve().parents[1]
 
+# main: Resume only successful matching stages and finish scale/service/fuzz/checks with an
+# explicitly selected binary.
 def main():
     p=argparse.ArgumentParser()
     p.add_argument('--binary',required=True)
@@ -29,6 +33,8 @@ def main():
     if any(r['exit_code'] or r['failures'] or r['results']['binary_sha256']!=sha for r in matrix):raise RuntimeError('matrix failed or mixed binaries')
     out=ROOT/a.output;out.mkdir(parents=True,exist_ok=True)
     checks=json.loads((out/'checks.json').read_text()) if a.resume and (out/'checks.json').exists() else []
+    # stage: Persist each command's actual outcome and reuse only identical successful stages
+    # during resume.
     def stage(name,command,cwd=ROOT):
         previous=next((row for row in checks if row['name']==name),None)
         if previous and previous['exit_code']==0:

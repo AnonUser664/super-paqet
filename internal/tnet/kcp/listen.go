@@ -1,3 +1,6 @@
+// File listen.go: builds incoming KCP/mux listeners and fixed fanout worker groups while
+// preserving shared socket ownership.
+
 package kcp
 
 import (
@@ -13,17 +16,30 @@ import (
 	"paqet/internal/tnet"
 )
 
+// Listener owns incoming packet sockets and optional fixed fanout children; accepted carriers
+// do not close those sockets.
 type Listener struct {
-	children   []*Listener
-	accepted   chan acceptResult
-	done       chan struct{}
-	closeOnce  sync.Once
-	workers    sync.WaitGroup
+	// Fixed fanout listeners joined before the first conversation is accepted.
+	children []*Listener
+	// Child-worker accept results aggregated without transferring packet socket ownership.
+	accepted chan acceptResult
+	// Broadcast lifecycle signal observed by pending work and shutdown.
+	done chan struct{}
+	// Makes group/socket shutdown idempotent when multiple paths encounter failure.
+	closeOnce sync.Once
+	// Wait group ensuring accept aggregators finish before group closure returns.
+	workers sync.WaitGroup
+	// Listener-owned worker socket or shared encoder leader; accepted connections do not close
+	// it.
 	PacketConn *socket.PacketConn
-	cfg        *conf.KCP
-	listener   *kcp.Listener
+	// Prepared KCP/mux settings applied to each accepted conversation.
+	cfg *conf.KCP
+	// Underlying KCP acceptor; it owns the incoming conversation table.
+	listener *kcp.Listener
 }
 
+// Listen creates the incoming raw/KCP stack, choosing fixed fanout workers only when
+// configured.
 func Listen(cfg *conf.KCP, netCfg conf.Network) (tnet.Listener, error) {
 	if cfg.PacketWorkers > 1 {
 		return listenFanout(cfg, netCfg)
@@ -44,6 +60,8 @@ func Listen(cfg *conf.KCP, netCfg conf.Network) (tnet.Listener, error) {
 	return &Listener{PacketConn: packetConn, cfg: cfg, listener: l}, nil
 }
 
+// Accept wraps an accepted KCP conversation in server mux state without transferring ownership
+// of its packet socket.
 func (l *Listener) Accept() (tnet.Conn, error) {
 	if len(l.children) > 0 {
 		select {
@@ -69,6 +87,8 @@ func (l *Listener) Accept() (tnet.Conn, error) {
 	return &Conn{nil, conn, sess}, nil
 }
 
+// Close stops accept workers and shared listener sockets; individual accepted carriers are
+// closed separately.
 func (l *Listener) Close() error {
 	if len(l.children) > 0 {
 		l.closeOnce.Do(func() {
@@ -94,6 +114,7 @@ func (l *Listener) Close() error {
 	return err
 }
 
+// Addr reports the listener endpoint, using the first fixed worker for a fanout group.
 func (l *Listener) Addr() net.Addr {
 	if len(l.children) > 0 {
 		return l.children[0].Addr()
@@ -101,29 +122,45 @@ func (l *Listener) Addr() net.Addr {
 	return l.listener.Addr()
 }
 
+// SetClientTCPF delegates a peer flag-cycle update to the listener's shared packet encoder.
 func (l *Listener) SetClientTCPF(addr net.Addr, f []conf.TCPF) {
 	l.PacketConn.SetClientTCPF(addr, f)
 }
 
+// DeleteClientTCPF removes a compatibility peer flag override without closing the listener
+// socket.
 func (l *Listener) DeleteClientTCPF(addr net.Addr) {
 	l.PacketConn.DeleteClientTCPF(addr)
 }
 
+// RegisterClient records conversation ownership for peer flag state shared by listener
+// workers.
 func (l *Listener) RegisterClient(addr net.Addr, owner uint32) {
 	l.PacketConn.RegisterClient(addr, owner)
 }
+
+// SetClientTCPFSession delegates a generation-checked update so delayed old setup cannot
+// overwrite a replacement.
 func (l *Listener) SetClientTCPFSession(addr net.Addr, owner uint32, f []conf.TCPF) {
 	l.PacketConn.SetClientTCPFSession(addr, owner, f)
 }
+
+// DeleteClientSession clears shared peer state only when this conversation still owns it.
 func (l *Listener) DeleteClientSession(addr net.Addr, owner uint32) {
 	l.PacketConn.DeleteClientSession(addr, owner)
 }
 
+// acceptResult passes a child listener's accepted carrier or error to the fixed fanout group.
 type acceptResult struct {
+	// Accepted child carrier passed to the group; ownership is released if shutdown wins
+	// publication.
 	conn tnet.Conn
-	err  error
+	// Failure propagated with the result rather than silently dropping lifecycle/output errors.
+	err error
 }
 
+// listenFanout joins all sockets before accepting traffic so worker membership cannot move a
+// live conversation away from its state.
 func listenFanout(cfg *conf.KCP, netCfg conf.Network) (tnet.Listener, error) {
 	// Ask the kernel for a unique group ID, avoiding collisions between
 	// concurrent processes/listeners in the same network namespace.
@@ -190,6 +227,8 @@ func listenFanout(cfg *conf.KCP, netCfg conf.Network) (tnet.Listener, error) {
 	return group, nil
 }
 
+// PacketConnections exposes listener-owned worker sockets for telemetry, not ownership
+// transfer.
 func (l *Listener) PacketConnections() []*socket.PacketConn {
 	if len(l.children) == 0 {
 		return []*socket.PacketConn{l.PacketConn}

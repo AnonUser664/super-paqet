@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Module purpose: Exercise an identified binary under actual service restrictions, forced
+# restart and owned-rule recovery.
 """Exercise the shipped service restrictions in disposable network namespaces."""
 import argparse
 import configparser
@@ -12,9 +14,13 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 
+# run: Run one command with a checked exit status so failures cannot silently enter
+# acceptance evidence.
 def run(*args, **kwargs):
     return subprocess.run(args, check=True, text=True, capture_output=True, **kwargs)
 
+# main: Exercise an identified binary under actual service restrictions, forced restart and
+# owned-rule recovery.
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--binary', default='build/super-paqet')
@@ -29,11 +35,16 @@ def main():
     shutil.copy2(ROOT/args.binary, binary)
     c,s = 'spq-svc-c-'+ident,'spq-svc-s-'+ident
     namespaces,units,processes = [],[],[]
+    # ns: Execute inside the owned test namespace; target changes must not alter unrelated host
+    # networking.
     def ns(n,*args): return run('ip','netns','exec',n,*args)
+    # pid: Read the service process identity so restart validation requires an actual
+    # replacement process.
     def pid(unit): return int(run('systemctl','show',unit,'--property=MainPID','--value').stdout.strip())
     template = configparser.ConfigParser(interpolation=None)
     template.optionxform = str
     template.read(ROOT/'deploy/super-paqet.service')
+    # start: Start the owned service fixture and verify it reaches the expected lifecycle state.
     def start(n,side):
         unit = 'spq-service-test-'+ident+'-'+side
         args = ['systemd-run','--quiet','--collect','--unit='+unit,'--property=NetworkNamespacePath=/run/netns/'+n]
@@ -44,6 +55,8 @@ def main():
         units.append(unit)
         run(*args)
         return unit
+    # verify: Check a complete application response through the tunnel instead of accepting
+    # liveness as delivery proof.
     def verify(): return json.loads(ns(c,str(ROOT/'build/spq-bench'),'-mode','verify','-addr','127.0.0.1:28080').stdout)
     report = {'binary_sha256':hashlib.sha256(binary.read_bytes()).hexdigest()}
     try:

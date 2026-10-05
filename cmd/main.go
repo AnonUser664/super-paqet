@@ -1,3 +1,6 @@
+// File main.go: registers the production CLI commands; one engine binary can listen and
+// forward together.
+
 package main
 
 import (
@@ -13,12 +16,15 @@ import (
 	"paqet/cmd/version"
 )
 
+// rootCmd registers the unified executable command tree rather than separate client/server
+// programs.
 var rootCmd = &cobra.Command{
 	Use:   "super-paqet",
 	Short: "KCP transport over raw TCP packet",
 	Long:  `paqet is a bidirectional packet-level proxy using KCP and raw socket transport with encryption.`,
 }
 
+// main dispatches CLI work and returns failures as a nonzero process outcome for automation.
 func main() {
 	rootCmd.AddCommand(run.Cmd)
 	rootCmd.AddCommand(dump.Cmd)

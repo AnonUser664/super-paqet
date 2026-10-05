@@ -1,3 +1,6 @@
+// File enterprise_test.go: exercises enterprise regressions; fixtures must preserve cleanup
+// and expose byte/lifecycle failures explicitly.
+
 package kcp
 
 import (
@@ -5,6 +8,8 @@ import (
 	"testing"
 )
 
+// TestIndexedACKWithWrap checks Indexed ACK With Wrap so a change cannot silently weaken the
+// recorded regression contract.
 func TestIndexedACKWithWrap(t *testing.T) {
 	k := NewKCP(1, func([]byte, int) {})
 	k.snd_una = 0xfffffffc
@@ -27,6 +32,8 @@ func TestIndexedACKWithWrap(t *testing.T) {
 	}
 }
 
+// TestNewOnlyFlushDoesNotRetransmit checks New Only Flush Does Not Retransmit so a change
+// cannot silently weaken the recorded regression contract.
 func TestNewOnlyFlushDoesNotRetransmit(t *testing.T) {
 	var packets [][]byte
 	k := NewKCP(1, func(p []byte, n int) { packets = append(packets, bytes.Clone(p[:n])) })
@@ -50,6 +57,8 @@ func TestNewOnlyFlushDoesNotRetransmit(t *testing.T) {
 	}
 }
 
+// TestACKFlushDoesNotMoveSendQueue checks ACK Flush Does Not Move Send Queue so a change
+// cannot silently weaken the recorded regression contract.
 func TestACKFlushDoesNotMoveSendQueue(t *testing.T) {
 	k := NewKCP(1, func([]byte, int) {})
 	k.Send([]byte("data"))

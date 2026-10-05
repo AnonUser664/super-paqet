@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File mux_test.go: exercises mux regressions; fixtures must preserve cleanup and expose
+// byte/lifecycle failures explicitly.
+
 package smux
 
 import (
@@ -28,15 +31,21 @@ import (
 	"testing"
 )
 
+// buffer retains the buffer fixture state used to expose failures without production network
+// side effects.
 type buffer struct {
 	bytes.Buffer
 }
 
+// Close releases this object's owned resources or signals its lifecycle once; shared listener
+// ownership is handled by its wrapper.
 func (b *buffer) Close() error {
 	b.Buffer.Reset()
 	return nil
 }
 
+// TestConfig checks Config so a change cannot silently weaken the recorded regression
+// contract.
 func TestConfig(t *testing.T) {
 	VerifyConfig(DefaultConfig())
 
@@ -126,6 +135,8 @@ func TestConfig(t *testing.T) {
 	}
 }
 
+// TestConfigMaxReceiveBufferUpperBound checks Config Max Receive Buffer Upper Bound so a
+// change cannot silently weaken the recorded regression contract.
 func TestConfigMaxReceiveBufferUpperBound(t *testing.T) {
 	config := DefaultConfig()
 	config.MaxReceiveBuffer = math.MaxInt32 + 1

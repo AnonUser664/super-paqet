@@ -1,3 +1,4 @@
+# Workflow purpose: Maintain stale issue/PR lifecycle; it is unrelated to tunnel packet/runtime behavior.
 name: stale issues and pull requests
 
 on:

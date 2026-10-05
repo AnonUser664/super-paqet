@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Module purpose: Validate same-binary workload, scale, service and cleanup evidence before
+# publishing a qualification result.
 """Export compact qualification evidence and reject mixed binaries or failures."""
 import argparse
 import hashlib
@@ -7,10 +9,14 @@ from pathlib import Path
 from stress_links import PROFILES
 
 
+# load: Load recorded JSON evidence; absence/malformed data must remain a qualification
+# failure.
 def load(path):
     return json.loads(Path(path).read_text())
 
 
+# workloads: Separate actual workload result entries from setup controls and retain the
+# workload's reported errors.
 def workloads(results):
     summary=[]
     for result in results:
@@ -28,11 +34,15 @@ def workloads(results):
     return summary
 
 
+# clean: Require successful owned-rule cleanup and preservation of the planted unrelated
+# rule.
 def clean(report):
     if report.get('firewall_clean') is not True or report.get('unrelated_rule_preserved') is not True:
         raise ValueError('firewall cleanup/preservation failed')
 
 
+# main: Validate same-binary workload, scale, service and cleanup evidence before publishing
+# a qualification result.
 def main():
     p=argparse.ArgumentParser()
     p.add_argument('--binary',required=True)

@@ -1,3 +1,6 @@
+// File network.go: turns network strings into validated interface, address and next-hop
+// objects for raw frame construction.
+
 package conf
 
 import (
@@ -6,33 +9,57 @@ import (
 	"runtime"
 )
 
+// Addr keeps the configured source/next-hop strings and their parsed raw-network address/MAC
+// values.
 type Addr struct {
-	Addr_      string           `yaml:"addr"`
-	RouterMac_ string           `yaml:"router_mac"`
-	Addr       *net.UDPAddr     `yaml:"-"`
-	Router     net.HardwareAddr `yaml:"-"`
+	// Configured local IP:port string; zero source port permits automatic reservation.
+	Addr_ string `yaml:"addr"`
+	// Configured next-hop Ethernet MAC string, not a distant routed peer MAC.
+	RouterMac_ string `yaml:"router_mac"`
+	// Resolved configured source endpoint, separate from its original YAML string.
+	Addr *net.UDPAddr `yaml:"-"`
+	// Parsed next-hop hardware address for direct Ethernet injection.
+	Router net.HardwareAddr `yaml:"-"`
 }
 
+// Network holds configured and discovered physical endpoint state; internal fanout fields are
+// not YAML knobs.
 type Network struct {
-	FanoutID      uint16         `yaml:"-"`
-	FanoutUnique  bool           `yaml:"-"`
-	FanoutEnabled bool           `yaml:"-"`
-	Backend       string         `yaml:"backend"`
-	Interface_    string         `yaml:"interface"`
-	GUID          string         `yaml:"guid"`
-	IPv4          Addr           `yaml:"ipv4"`
-	IPv6          Addr           `yaml:"ipv6"`
-	PCAP          PCAP           `yaml:"pcap"`
-	TCP           TCP            `yaml:"tcp"`
-	Interface     *net.Interface `yaml:"-"`
-	Port          int            `yaml:"-"`
+	// Kernel packet-group identifier shared by fixed listener workers.
+	FanoutID uint16 `yaml:"-"`
+	// Requests a kernel-selected group ID rather than risking collision with another listener.
+	FanoutUnique bool `yaml:"-"`
+	// Distinguishes enabled fanout from an unset or numerically zero group ID.
+	FanoutEnabled bool `yaml:"-"`
+	// Selected packet driver; both choices retain fabricated raw TCP frames.
+	Backend string `yaml:"backend"`
+	// Configured physical Ethernet interface name before discovery/lookup.
+	Interface_ string `yaml:"interface"`
+	// Legacy capture device identity; Linux uses the selected interface name.
+	GUID string `yaml:"guid"`
+	// Local IPv4 endpoint and its next-hop MAC, if this family is configured.
+	IPv4 Addr `yaml:"ipv4"`
+	// Local IPv6 endpoint and its next-hop MAC, if this family is configured.
+	IPv6 Addr `yaml:"ipv6"`
+	// Capture/socket storage budget used by the selected packet driver.
+	PCAP PCAP `yaml:"pcap"`
+	// Prepared outer flag cycles; they do not establish a TCP handshake.
+	TCP TCP `yaml:"tcp"`
+	// Resolved interface attributes used for source MAC, binding and MTU checks.
+	Interface *net.Interface `yaml:"-"`
+	// Prepared local tunnel port, shared by configured address families.
+	Port int `yaml:"-"`
 }
 
+// setDefaults prepares capture budgets and outer flag defaults as separate network-layer
+// contracts.
 func (n *Network) setDefaults(role string) {
 	n.PCAP.setDefaults(role)
 	n.TCP.setDefaults()
 }
 
+// validate resolves configured interface/address/MAC objects and enforces Ethernet and dual-
+// family port invariants.
 func (n *Network) validate() []error {
 	var errors []error
 
@@ -91,6 +118,8 @@ func (n *Network) validate() []error {
 	return errors
 }
 
+// validate resolves a configured local endpoint and parses the next-hop MAC used by raw
+// injection.
 func (n *Addr) validate() []error {
 	var errors []error
 

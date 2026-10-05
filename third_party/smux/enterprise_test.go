@@ -1,3 +1,6 @@
+// File enterprise_test.go: exercises enterprise regressions; fixtures must preserve cleanup
+// and expose byte/lifecycle failures explicitly.
+
 package smux
 
 import (
@@ -8,6 +11,8 @@ import (
 	"time"
 )
 
+// TestDirectionalEOFAndPriorityAccounting checks Directional EOF And Priority Accounting so a
+// change cannot silently weaken the recorded regression contract.
 func TestDirectionalEOFAndPriorityAccounting(t *testing.T) {
 	a, b := net.Pipe()
 	cfg := DefaultConfig()

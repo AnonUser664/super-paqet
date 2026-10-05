@@ -1,4 +1,7 @@
 // bench is a standalone load generator. Its resource use is separate from the tunnel.
+// File main.go: provides targets, load generators and integrity checks used by isolated
+// qualification rather than the production tunnel.
+
 package main
 
 import (
@@ -20,6 +23,7 @@ import (
 	"time"
 )
 
+// main dispatches CLI work and returns failures as a nonzero process outcome for automation.
 func main() {
 	mode := flag.String("mode", "http", "serve, http, bulk, hold, or verify")
 	addr := flag.String("addr", "127.0.0.1:18080", "address; comma separated addresses for hold")
@@ -249,12 +253,16 @@ func serveHold(ctx context.Context, addr string) {
 	}
 }
 
+// emit writes one machine-readable benchmark result so qualification does not infer success
+// from logs alone.
 func emit(v any) {
 	if err := json.NewEncoder(os.Stdout).Encode(v); err != nil {
 		panic(err)
 	}
 }
 
+// load runs bounded concurrent HTTP/bulk work and separates deadline cancellation from
+// unexpected request failure.
 func load(parent context.Context, mode, addr string, workers int, duration time.Duration) {
 	ctx, cancel := context.WithTimeout(parent, duration)
 	defer cancel()
@@ -324,6 +332,8 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 	emit(map[string]any{"mode": mode, "workers": workers, "seconds": elapsed, "requests": requests.Load(), "errors": failed.Load(), "canceled_requests": canceled.Load(), "bytes": bytes.Load(), "goodput_gbps": float64(bytes.Load()) * 8 / elapsed / 1e9, "requests_per_second": float64(requests.Load()) / elapsed, "p50_us_upper": percentile(.50), "p99_us_upper": percentile(.99)})
 }
 
+// hold ramps and retains TCP forwards, then verifies every held socket instead of counting
+// possibly dead descriptors.
 func hold(parent context.Context, addresses []string, workers, count int, duration time.Duration) {
 	var conns []net.Conn
 	var mu sync.Mutex

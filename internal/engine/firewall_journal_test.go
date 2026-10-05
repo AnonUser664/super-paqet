@@ -1,5 +1,8 @@
 //go:build linux
 
+// File firewall_journal_test.go: exercises firewall journal regressions; fixtures must
+// preserve cleanup and expose byte/lifecycle failures explicitly.
+
 package engine
 
 import (
@@ -14,6 +17,8 @@ import (
 	"testing"
 )
 
+// TestRecoverOnlyDeadOwner checks Recover Only Dead Owner so a change cannot silently weaken
+// the recorded regression contract.
 func TestRecoverOnlyDeadOwner(t *testing.T) {
 	dir := t.TempDir()
 	os.Chmod(dir, 0700)
@@ -56,10 +61,14 @@ func TestRecoverOnlyDeadOwner(t *testing.T) {
 	}
 }
 
+// testLocalNetwork creates loopback reservation metadata for port-guard tests without opening
+// a real tunnel.
 func testLocalNetwork() conf.Network {
 	return conf.Network{IPv4: conf.Addr{Addr: &net.UDPAddr{IP: net.IPv4(127, 0, 0, 1)}}}
 }
 
+// TestRejectUntrustedJournalDirectory checks Reject Untrusted Journal Directory so a change
+// cannot silently weaken the recorded regression contract.
 func TestRejectUntrustedJournalDirectory(t *testing.T) {
 	dir := t.TempDir()
 	if err := os.Chmod(dir, 0777); err != nil {
@@ -70,6 +79,8 @@ func TestRejectUntrustedJournalDirectory(t *testing.T) {
 	}
 }
 
+// TestPortReservationPreservesHighRange checks Port Reservation Preserves High Range so a
+// change cannot silently weaken the recorded regression contract.
 func TestPortReservationPreservesHighRange(t *testing.T) {
 	// Namespace benchmarks expand the ephemeral range; auto tunnel ports must
 	// still preserve the original 32768..65535 distribution.
@@ -85,6 +96,9 @@ func TestPortReservationPreservesHighRange(t *testing.T) {
 	}
 }
 
+// TestCleanupAbsentChainDoesNotReferenceMissingTarget checks Cleanup Absent Chain Does Not
+// Reference Missing Target so a change cannot silently weaken the recorded regression
+// contract.
 func TestCleanupAbsentChainDoesNotReferenceMissingTarget(t *testing.T) {
 	missing := exec.Command("sh", "-c", "exit 1").Run()
 	if !isMissing(missing) {

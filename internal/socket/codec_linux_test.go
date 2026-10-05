@@ -1,5 +1,8 @@
 //go:build linux
 
+// File codec_linux_test.go: exercises codec linux regressions; fixtures must preserve cleanup
+// and expose byte/lifecycle failures explicitly.
+
 package socket
 
 import (
@@ -13,10 +16,14 @@ import (
 	"testing"
 )
 
+// testSend creates an encoder fixture with fixed addresses/counters so frame comparisons are
+// reproducible.
 func testSend(f conf.TCPF) *SendHandle {
 	return &SendHandle{srcPort: 29999, time: 0x12345678, srcIPv4: net.IPv4(198, 18, 0, 2), srcIPv6: net.ParseIP("2001:db8::2"), srcIPv4RHWA: net.HardwareAddr{2, 0, 0, 0, 0, 1}, srcIPv6RHWA: net.HardwareAddr{2, 0, 0, 0, 0, 1}, tcpF: tcpF{tcpF: iterator.Iterator[conf.TCPF]{Items: []conf.TCPF{f}}, clientTCPF: make(map[netip.AddrPort]*iterator.Iterator[conf.TCPF])}}
 }
 
+// referenceFrame uses the independent gopacket serializer as the wire reference for the manual
+// encoder.
 func referenceFrame(h *SendHandle, payload []byte, addr *net.UDPAddr, mac net.HardwareAddr) []byte {
 	e := encoder{eth: layers.Ethernet{SrcMAC: mac}, mss: [2]byte{5, 180}, ws: [1]byte{8}, buf: gopacket.NewSerializeBuffer()}
 	h.buildTCPHeader(&e, uint16(addr.Port), h.getClientTCPF(addr.IP, uint16(addr.Port)))
@@ -40,6 +47,8 @@ func referenceFrame(h *SendHandle, payload []byte, addr *net.UDPAddr, mac net.Ha
 	return e.buf.Bytes()
 }
 
+// TestPacketShapeMatchesBaseline checks Packet Shape Matches Baseline so a change cannot
+// silently weaken the recorded regression contract.
 func TestPacketShapeMatchesBaseline(t *testing.T) {
 	mac := net.HardwareAddr{2, 0, 0, 0, 0, 2}
 	for _, ip := range []net.IP{net.IPv4(198, 18, 0, 1), net.ParseIP("2001:db8::1")} {
@@ -73,6 +82,8 @@ func TestPacketShapeMatchesBaseline(t *testing.T) {
 	}
 }
 
+// TestMalformedFrames checks Malformed Frames so a change cannot silently weaken the recorded
+// regression contract.
 func TestMalformedFrames(t *testing.T) {
 	frame := referenceFrame(testSend(conf.TCPF{PSH: true, ACK: true}), []byte("hello"), &net.UDPAddr{IP: net.IPv4(198, 18, 0, 1), Port: 32001}, net.HardwareAddr{2, 0, 0, 0, 0, 2})
 	for i := 0; i < len(frame); i++ {
@@ -89,6 +100,8 @@ func TestMalformedFrames(t *testing.T) {
 	}
 }
 
+// TestFlagOwnershipAcrossReconnect checks Flag Ownership Across Reconnect so a change cannot
+// silently weaken the recorded regression contract.
 func TestFlagOwnershipAcrossReconnect(t *testing.T) {
 	h := testSend(conf.TCPF{PSH: true, ACK: true})
 	addr := &net.UDPAddr{IP: net.IPv4(198, 18, 0, 1), Port: 32000}
@@ -107,11 +120,15 @@ func TestFlagOwnershipAcrossReconnect(t *testing.T) {
 	}
 }
 
+// FuzzDecodeFrame exercises Decode Frame with generated inputs to catch malformed-input
+// crashes and unsafe boundary assumptions.
 func FuzzDecodeFrame(f *testing.F) {
 	f.Add(referenceFrame(testSend(conf.TCPF{PSH: true, ACK: true}), []byte("hello"), &net.UDPAddr{IP: net.IPv4(198, 18, 0, 1), Port: 32001}, net.HardwareAddr{2, 0, 0, 0, 0, 2}))
 	f.Fuzz(func(t *testing.T, b []byte) { decodeFrame(b, 32001) })
 }
 
+// BenchmarkEncodeHeader measures Encode Header with the fixture's workload; results must be
+// interpreted with its buffer and transport settings.
 func BenchmarkEncodeHeader(b *testing.B) {
 	h := testSend(conf.TCPF{PSH: true, ACK: true})
 	payload := make([]byte, 1350)

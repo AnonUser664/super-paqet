@@ -5,4 +5,7 @@
 //
 // The interfaces of this package aim to be compatible with
 // net.Conn in the standard library, but offer powerful features for advanced users.
+// File pkg.go: documents the library module contract and retained upstream compatibility
+// boundaries.
+
 package kcp

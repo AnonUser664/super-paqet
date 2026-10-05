@@ -1,3 +1,6 @@
+// File run.go: loads the unified configuration and owns signal cancellation for one engine
+// run.
+
 package run
 
 import (
@@ -10,15 +13,20 @@ import (
 	"paqet/internal/engine"
 )
 
+// confPath selects the endpoint configuration used by the command.
 var confPath string
 
+// check selects preparation-only validation instead of binding sockets or installing rules.
 var check bool
 
+// init registers command options or initializes module-wide lookup/pool state once before
+// runtime work begins.
 func init() {
 	Cmd.Flags().StringVarP(&confPath, "config", "c", "config.yaml", "Path to the configuration file")
 	Cmd.Flags().BoolVar(&check, "check", false, "Validate configuration and discovered network settings, then exit")
 }
 
+// Cmd registers the run command, including its options and explicit error propagation.
 var Cmd = &cobra.Command{
 	Use:   "run",
 	Short: "Runs the Linux raw TCP tunnel and configured port forwards",

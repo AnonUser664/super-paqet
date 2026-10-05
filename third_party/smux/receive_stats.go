@@ -1,3 +1,6 @@
+// File receive_stats.go: bounds diagnostic stream scanning so monitoring does not dominate
+// high connection counts.
+
 package smux
 
 // ReceiveWindowStats samples small sessions without walking large connection

@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File timedsched.go: schedules protocol work on shared workers rather than a timer loop for
+// every packet/session.
+
 package kcp
 
 import (
@@ -33,18 +36,33 @@ import (
 // It drives periodic KCP flush()/update() calls, avoiding one goroutine per session.
 var SystemTimedSched *TimedSched = NewTimedSched(max(runtime.NumCPU(), 2))
 
+// timedFunc retains one callback/deadline for the shared protocol scheduler instead of a timer
+// per packet.
 type timedFunc struct {
+	// Protocol task invoked by the shared scheduler at its deadline.
 	execute func()
-	ts      time.Time
+	// Task due time ordered by the shared scheduler.
+	ts time.Time
 }
 
 // a heap for sorted timed function
 type timedFuncHeap []timedFunc
 
-func (h timedFuncHeap) Len() int           { return len(h) }
+// Len reports retained heap entries for the standard heap interface.
+func (h timedFuncHeap) Len() int { return len(h) }
+
+// Less orders heap entries according to this queue's sequence or deadline comparator.
 func (h timedFuncHeap) Less(i, j int) bool { return h[i].ts.Before(h[j].ts) }
-func (h timedFuncHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-func (h *timedFuncHeap) Push(x any)        { *h = append(*h, x.(timedFunc)) }
+
+// Swap exchanges entries and maintains the heap's indexing/ownership invariants.
+func (h timedFuncHeap) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
+
+// Push accepts a heap element through the standard interface; callers retain the queue's
+// synchronization contract.
+func (h *timedFuncHeap) Push(x any) { *h = append(*h, x.(timedFunc)) }
+
+// Pop removes the final heap slot and releases membership/reference state as required by the
+// queue.
 func (h *timedFuncHeap) Pop() any {
 	old := *h
 	n := len(old)
@@ -74,15 +92,19 @@ func (h *timedFuncHeap) Pop() any {
 //   - Stage 2 runs in parallel, distributing timer-driven work across CPUs.
 type TimedSched struct {
 	// Stage 1: task collection
-	prependTasks    []timedFunc
-	prependLock     sync.Mutex
+	prependTasks []timedFunc
+	// Protects newly scheduled tasks before they join the worker heap.
+	prependLock sync.Mutex
+	// Coalesces notification of earlier/new work without a timer per packet.
 	chPrependNotify chan struct{}
 
 	// Stage 2: parallel execution
 	chTask chan timedFunc
 
+	// Closes lifecycle signals once so failure/explicit close can race safely.
 	dieOnce sync.Once
-	die     chan struct{}
+	// Broadcasts scheduler/session lifecycle completion to waiting tasks.
+	die chan struct{}
 }
 
 // NewTimedSched creates a parallel-scheduler with given parallelization

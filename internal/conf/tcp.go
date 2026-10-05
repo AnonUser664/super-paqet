@@ -1,20 +1,34 @@
+// File tcp.go: encodes configured outer TCP flag cycles; these flags do not create an ordinary
+// TCP connection.
+
 package conf
 
 import (
 	"fmt"
 )
 
+// TCP keeps configured string cycles and their parsed outer flag combinations.
 type TCP struct {
+	// Configured local outer flag cycle strings before parsing.
 	LF_ []string `yaml:"local_flag"`
+	// Configured requested peer outer flag cycle strings before parsing.
 	RF_ []string `yaml:"remote_flag"`
-	LF  []TCPF   `yaml:"-"`
-	RF  []TCPF   `yaml:"-"`
+	// Parsed local flag cycle used by the packet encoder.
+	LF []TCPF `yaml:"-"`
+	// Parsed peer flag cycle sent through reliable inner setup.
+	RF []TCPF `yaml:"-"`
 }
 
+// TCPF represents the individual fabricated outer TCP flag bits independently of a kernel TCP
+// connection.
 type TCPF struct {
+	// Individual outer TCP flag choices packed into peer setup; KCP remains responsible for
+	// reliability.
 	FIN, SYN, RST, PSH, ACK, URG, ECE, CWR, NS bool
 }
 
+// setDefaults retains PA flag cycles when none were provided so omitted knobs preserve the
+// baseline envelope.
 func (t *TCP) setDefaults() {
 	if len(t.LF_) == 0 {
 		t.LF_ = []string{"PA"}
@@ -24,6 +38,7 @@ func (t *TCP) setDefaults() {
 	}
 }
 
+// validate parses bounded flag cycles once so hot packet writers use validated flag objects.
 func (t *TCP) validate() []error {
 	var errors []error
 
@@ -63,6 +78,8 @@ func (t *TCP) validate() []error {
 	return errors
 }
 
+// strTCPF parses uppercase flag combinations so the wire encoder never has to interpret
+// configuration strings.
 func strTCPF(fStr string) (TCPF, error) {
 	var f TCPF
 	for _, ch := range fStr {

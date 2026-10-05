@@ -1,5 +1,8 @@
 //go:build linux
 
+// File firewall_journal.go: persists firewall intent before mutation and identifies dead
+// owners using boot, PID start and namespace identity.
+
 package engine
 
 import (
@@ -14,19 +17,33 @@ import (
 	"syscall"
 )
 
+// firewallDirectory selects the private runtime journal directory used by startup and
+// abnormal-exit recovery.
 const firewallDirectory = "/run/super-paqet"
 
+// firewallChain records one owned chain and exact jump arguments for narrowly scoped recovery.
 type firewallChain struct {
+	// Exact owned chain location; validation prevents cleanup of unrelated/shared chains.
 	Binary, Table, Name, Hook string
-	Jump                      []string
-}
-type firewallJournal struct {
-	PID         int
-	Start, Boot string
-	Namespace   uint64
-	Chains      []firewallChain
+	// Exact built-in hook reference used to attach/detach this owned chain.
+	Jump []string
 }
 
+// firewallJournal records boot/PID-start/namespace identity and mutation intent so crashes do
+// not leave untraceable rules.
+type firewallJournal struct {
+	// Recorded process owner; combined with start/boot identity to prevent PID-reuse mistakes.
+	PID int
+	// Process-start and system-boot identities guarding journal ownership.
+	Start, Boot string
+	// Network namespace inode limiting recovery to the recorded namespace.
+	Namespace uint64
+	// Ordered mutation intents replayed in reverse during rollback/cleanup.
+	Chains []firewallChain
+}
+
+// processStart reads the kernel process start identity so PID reuse cannot make a dead journal
+// look like the current owner.
 func processStart(pid int) string {
 	b, err := os.ReadFile(fmt.Sprintf("/proc/%d/stat", pid))
 	if err != nil {
@@ -43,6 +60,9 @@ func processStart(pid int) string {
 	}
 	return fields[19]
 }
+
+// namespaceID reads the current network namespace inode so recovery cannot intentionally cross
+// namespace boundaries.
 func namespaceID() (uint64, error) {
 	s, err := os.Stat("/proc/self/ns/net")
 	if err != nil {
@@ -50,11 +70,16 @@ func namespaceID() (uint64, error) {
 	}
 	return s.Sys().(*syscall.Stat_t).Ino, nil
 }
+
+// bootID reads the boot identity used to distinguish stale journals from ownership in the
+// current boot.
 func bootID() string {
 	b, _ := os.ReadFile("/proc/sys/kernel/random/boot_id")
 	return strings.TrimSpace(string(b))
 }
 
+// firewallCommand executes one bounded-lock iptables operation and retains stderr for
+// actionable startup/cleanup errors.
 func firewallCommand(binary, table string, args ...string) error {
 	out, err := exec.Command(binary, append([]string{"-w", "5", "-t", table}, args...)...).CombinedOutput()
 	if err != nil {
@@ -63,11 +88,15 @@ func firewallCommand(binary, table string, args ...string) error {
 	return nil
 }
 
+// isMissing recognizes the normal missing-rule status while leaving permissions and other
+// failures visible.
 func isMissing(err error) bool {
 	var exit *exec.ExitError
 	return errors.As(err, &exit) && exit.ExitCode() == 1
 }
 
+// cleanFirewallChain checks an owned chain before its jump target, then removes only that
+// chain and reference; absent chains are already clean.
 func cleanFirewallChain(c firewallChain, run func(string, string, ...string) error) error {
 	// Never flush a shared table or a built-in chain.
 	if !strings.HasPrefix(c.Name, "SPQ_") || len(c.Name) != 17 {
@@ -102,6 +131,8 @@ func cleanFirewallChain(c firewallChain, run func(string, string, ...string) err
 	return run(c.Binary, c.Table, "-X", c.Name)
 }
 
+// persist atomically stores restrictive ownership/intent metadata before a firewall mutation
+// can outlive the process.
 func (f *firewall) persist() error {
 	if f.directory == "" {
 		f.directory = firewallDirectory
@@ -153,6 +184,8 @@ func (f *firewall) persist() error {
 // namespace. PID start time and boot ID prevent deleting a live instance's rules.
 func RecoverFirewall() error { return recoverFirewall(firewallDirectory, firewallCommand) }
 
+// recoverFirewall replays cleanup only for trusted dead-owner journals in this namespace,
+// preserving live instances.
 func recoverFirewall(directory string, run func(string, string, ...string) error) error {
 	info, err := os.Lstat(directory)
 	if os.IsNotExist(err) {

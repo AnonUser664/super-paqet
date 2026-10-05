@@ -1,5 +1,8 @@
 //go:build linux
 
+// File logging_test.go: exercises logging regressions; fixtures must preserve cleanup and
+// expose byte/lifecycle failures explicitly.
+
 package engine
 
 import (
@@ -11,17 +14,22 @@ import (
 	"time"
 )
 
+// blockedLogWriter retains the blocked Log Writer fixture state used to expose failures
+// without production network side effects.
 type blockedLogWriter struct {
 	entered, release chan struct{}
 	once             sync.Once
 }
 
+// Write blocks the diagnostic sink deliberately to prove forwarding never waits on log output.
 func (w *blockedLogWriter) Write(p []byte) (int, error) {
 	w.once.Do(func() { close(w.entered) })
 	<-w.release
 	return len(p), nil
 }
 
+// TestDiagnosticQueueDoesNotBlockForwarding checks Diagnostic Queue Does Not Block Forwarding
+// so a change cannot silently weaken the recorded regression contract.
 func TestDiagnosticQueueDoesNotBlockForwarding(t *testing.T) {
 	c := LogConfig{Level: "debug"}
 	if err := c.prepare(); err != nil {
@@ -50,6 +58,8 @@ func TestDiagnosticQueueDoesNotBlockForwarding(t *testing.T) {
 	d.close()
 }
 
+// TestStructuredDiagnosticsLevelAndFields checks Structured Diagnostics Level And Fields so a
+// change cannot silently weaken the recorded regression contract.
 func TestStructuredDiagnosticsLevelAndFields(t *testing.T) {
 	c := LogConfig{Level: "info"}
 	if err := c.prepare(); err != nil {
@@ -69,6 +79,8 @@ func TestStructuredDiagnosticsLevelAndFields(t *testing.T) {
 	}
 }
 
+// TestInvalidLogConfiguration checks Invalid Log Configuration so a change cannot silently
+// weaken the recorded regression contract.
 func TestInvalidLogConfiguration(t *testing.T) {
 	for _, c := range []LogConfig{{Level: "verbose"}, {Format: "yaml"}, {Interval: "0s"}} {
 		if c.prepare() == nil {

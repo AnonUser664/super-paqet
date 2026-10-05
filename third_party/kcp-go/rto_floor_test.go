@@ -1,7 +1,12 @@
+// File rto_floor_test.go: exercises rto floor regressions; fixtures must preserve cleanup and
+// expose byte/lifecycle failures explicitly.
+
 package kcp
 
 import "testing"
 
+// TestMinRTOBoundsAndRecovery checks Min RTO Bounds And Recovery so a change cannot silently
+// weaken the recorded regression contract.
 func TestMinRTOBoundsAndRecovery(t *testing.T) {
 	s := &UDPSession{kcp: NewKCP(1, func([]byte, int) {})}
 	s.kcp.NoDelay(1, 10, 2, 1)

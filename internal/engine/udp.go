@@ -1,5 +1,8 @@
 //go:build linux
 
+// File udp.go: maps local UDP sources to reliable mux streams with bounded queues and explicit
+// datagram framing.
+
 package engine
 
 import (
@@ -16,19 +19,35 @@ import (
 	"time"
 )
 
+// packet retains a pooled datagram buffer, its size class and live byte length until send or
+// expiry recycles it.
 type packet struct {
-	b        *[]byte
+	// Pooled payload slice whose handle must be returned after consumption or drop.
+	b *[]byte
+	// Pool size class and live payload bytes, retained for exact recycling and framing.
 	class, n int
 }
+
+// udpFlow retains one local UDP source conversation, its bounded pending queue and idempotent
+// expiry signal.
 type udpFlow struct {
+	// At most eight pending local datagrams; discarded pre-admission bytes cannot be recovered
+	// by KCP.
 	queue chan packet
-	done  chan struct{}
-	once  sync.Once
-	last  atomic.Int64
+	// Broadcasts flow shutdown to sender/receiver/expiry paths.
+	done chan struct{}
+	// Makes concurrent lifecycle completion idempotent.
+	once sync.Once
+	// Atomic activity time used by the shared idle-expiry sweep.
+	last atomic.Int64
 }
 
+// close signals flow cancellation exactly once so expiry, receive failure and engine shutdown
+// can race safely.
 func (f *udpFlow) close() { f.once.Do(func() { close(f.done) }) }
 
+// writeDatagram writes a bounded length-prefixed record, including empty UDP payloads, over
+// the reliable stream.
 func writeDatagram(w io.Writer, b []byte) error {
 	if len(b) > 65507 {
 		return errors.New("UDP datagram too large")
@@ -51,6 +70,8 @@ func writeDatagram(w io.Writer, b []byte) error {
 	return nil
 }
 
+// readDatagram reads exactly one bounded record into pooled storage and recycles the
+// allocation on truncated input.
 func readDatagram(r io.Reader) (packet, error) {
 	var hdr [2]byte
 	if _, err := io.ReadFull(r, hdr[:]); err != nil {
@@ -68,6 +89,8 @@ func readDatagram(r io.Reader) (packet, error) {
 	return packet{b, class, n}, nil
 }
 
+// relayUDP bridges framed stream records and a connected destination UDP socket with
+// independent inactivity deadlines.
 func (e *Engine) relayUDP(conn *net.UDPConn, strm tnet.Strm) {
 	defer conn.Close()
 	defer strm.Close()
@@ -111,6 +134,8 @@ func (e *Engine) relayUDP(conn *net.UDPConn, strm tnet.Strm) {
 	<-done
 }
 
+// startUDP owns a local UDP source-flow map, bounded per-flow queues and expiry; unadmitted
+// datagrams are not KCP-recoverable.
 func (e *Engine) startUDP(f Forward) error {
 	a, err := net.ResolveUDPAddr("udp", f.Listen)
 	if err != nil {

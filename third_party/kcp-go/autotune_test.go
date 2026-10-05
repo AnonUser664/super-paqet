@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File autotune_test.go: exercises autotune regressions; fixtures must preserve cleanup and
+// expose byte/lifecycle failures explicitly.
+
 package kcp
 
 import (
@@ -28,6 +31,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestAutoTune checks Auto Tune so a change cannot silently weaken the recorded regression
+// contract.
 func TestAutoTune(t *testing.T) {
 
 	// Group1
@@ -87,6 +92,8 @@ func TestAutoTune(t *testing.T) {
 	testGroup(t, 14, signals, -1, -1)
 }
 
+// TestAutoTuneEdge checks Auto Tune Edge so a change cannot silently weaken the recorded
+// regression contract.
 func TestAutoTuneEdge(t *testing.T) {
 	// Edge Case0: Empty signals
 	signals := []uint32{}
@@ -105,6 +112,8 @@ func TestAutoTuneEdge(t *testing.T) {
 	testGroup(t, 4, signals, 1, -1)
 }
 
+// testGroup feeds a chosen signal group into the autotuner and checks its expected
+// classifications.
 func testGroup(t *testing.T, gid int, signals []uint32, expectedFalse, expectedTrue int) {
 	tune := autoTune{}
 	for i, signal := range signals {
@@ -120,6 +129,8 @@ func testGroup(t *testing.T, gid int, signals []uint32, expectedFalse, expectedT
 	assert.Equal(t, expectedFalse, tune.FindPeriod(false))
 }
 
+// TestAutoTuneOverflow checks Auto Tune Overflow so a change cannot silently weaken the
+// recorded regression contract.
 func TestAutoTuneOverflow(t *testing.T) {
 	// minimal test
 	tune := autoTune{}
@@ -135,6 +146,8 @@ func TestAutoTuneOverflow(t *testing.T) {
 	assert.Equal(t, maxAutoTuneSamples, tune.count)
 }
 
+// TestAutoTunePop checks Auto Tune Pop so a change cannot silently weaken the recorded
+// regression contract.
 func TestAutoTunePop(t *testing.T) {
 	signals := []uint32{0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0}
 	tune := autoTune{}

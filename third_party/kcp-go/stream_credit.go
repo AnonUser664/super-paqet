@@ -1,3 +1,6 @@
+// File stream_credit.go: expedites cumulative mux feedback inside KCP controls while retaining
+// ordered application delivery.
+
 package kcp
 
 import (
@@ -10,6 +13,9 @@ const creditMagic = 0x31515053 // SPQ1, little endian inside encrypted KCP WINS.
 // WriteBudget bounds one mux data frame to the live send window, so a slow
 // carrier cannot queue a full 64 KiB application frame ahead of new control.
 func (s *UDPSession) WriteBudget() int { return int(s.writeBudget.Load()) }
+
+// updateWriteBudgetLocked recomputes the mux-frame cap from current window/MSS/pacing while
+// the carrier lock protects those values.
 func (s *UDPSession) updateWriteBudgetLocked() {
 	k := s.kcp
 	limit := min(65535, uint64(k.snd_wnd)*uint64(k.mss))
@@ -25,6 +31,8 @@ func (s *UDPSession) updateWriteBudgetLocked() {
 	s.writeBudget.Store(uint32(limit))
 }
 
+// SetWriteBatchBudget bounds the paced frame-duration budget, limiting how long bulk can
+// precede new controls.
 func (s *UDPSession) SetWriteBatchBudget(milliseconds uint32) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -32,8 +40,15 @@ func (s *UDPSession) SetWriteBatchBudget(milliseconds uint32) {
 	s.updateWriteBudgetLocked()
 }
 
-type streamCredit struct{ sid, consumed, window uint32 }
+// streamCredit retains one decoded cumulative stream update until callbacks can run outside
+// the carrier lock.
+type streamCredit struct {
+	// Logical stream ID, cumulative consumed byte count and advertised byte capacity; modular
+	// validation applies.
+	sid, consumed, window uint32
+}
 
+// emit counts packet attempts/control output before invoking the configured wire callback.
 func (k *KCP) emit(data []byte, size int, application bool) {
 	k.outputPackets++
 	k.outputBytes += uint64(size)
@@ -56,6 +71,8 @@ func (s *UDPSession) SetCreditHintHandler(handler func(uint32, uint32, uint32)) 
 	s.mu.Unlock()
 }
 
+// unlockAndDispatchCredits runs mux credit callbacks after releasing the KCP lock to avoid
+// carrier/mux lock inversion.
 func (s *UDPSession) unlockAndDispatchCredits() {
 	credits := s.kcp.receivedCredits
 	s.kcp.receivedCredits = nil

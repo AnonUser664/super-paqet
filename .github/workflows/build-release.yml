@@ -1,3 +1,4 @@
+# Workflow purpose: Build tagged Linux release artifacts across architectures; target compatibility is separate from runtime qualification.
 name: Build and Release
 
 on:

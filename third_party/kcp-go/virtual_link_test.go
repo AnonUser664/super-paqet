@@ -1,3 +1,6 @@
+// File virtual_link_test.go: exercises virtual link regressions; fixtures must preserve
+// cleanup and expose byte/lifecycle failures explicitly.
+
 package kcp
 
 import (
@@ -16,29 +19,50 @@ type virtualProfile struct {
 	burst, outage, slowReader                                bool
 	ackOutage, readerPause, rateStep                         bool
 }
+
+// virtualPacket retains the virtual Packet fixture state used to expose failures without
+// production network side effects.
 type virtualPacket struct {
 	at, id int64
 	side   int
 	data   []byte
 }
+
+// virtualPackets retains the virtual Packets fixture state used to expose failures without
+// production network side effects.
 type virtualPackets []virtualPacket
 
+// Len reports retained heap entries for the standard heap interface.
 func (p virtualPackets) Len() int { return len(p) }
+
+// Less orders heap entries according to this queue's sequence or deadline comparator.
 func (p virtualPackets) Less(i, j int) bool {
 	if p[i].at == p[j].at {
 		return p[i].id < p[j].id
 	}
 	return p[i].at < p[j].at
 }
-func (p virtualPackets) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
-func (p *virtualPackets) Push(v any)   { *p = append(*p, v.(virtualPacket)) }
-func (p *virtualPackets) Pop() any     { a := *p; v := a[len(a)-1]; *p = a[:len(a)-1]; return v }
 
+// Swap exchanges entries and maintains the heap's indexing/ownership invariants.
+func (p virtualPackets) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
+
+// Push accepts a heap element through the standard interface; callers retain the queue's
+// synchronization contract.
+func (p *virtualPackets) Push(v any) { *p = append(*p, v.(virtualPacket)) }
+
+// Pop removes the final heap slot and releases membership/reference state as required by the
+// queue.
+func (p *virtualPackets) Pop() any { a := *p; v := a[len(a)-1]; *p = a[:len(a)-1]; return v }
+
+// virtualResult retains the virtual Result fixture state used to expose failures without
+// production network side effects.
 type virtualResult struct {
 	ticks                        int
 	sent, dropped, retransmitted uint64
 }
 
+// runVirtualLink advances a seeded simulated clock/link until delivery or the scenario bound;
+// repeated runs can compare exact outcomes.
 func runVirtualLink(t *testing.T, p virtualProfile, seed uint64, paced, wrap bool) virtualResult {
 	t.Helper()
 	var now, id int64
@@ -184,6 +208,8 @@ func runVirtualLink(t *testing.T, p virtualProfile, seed uint64, paced, wrap boo
 	return virtualResult{}
 }
 
+// TestVirtualLinkDeterministicMatrix checks Virtual Link Deterministic Matrix so a change
+// cannot silently weaken the recorded regression contract.
 func TestVirtualLinkDeterministicMatrix(t *testing.T) {
 	profiles := []virtualProfile{
 		{name: "lan", up: 125000000, down: 125000000, delay: 1, queue: 4096},

@@ -1,5 +1,8 @@
 //go:build linux
 
+// File raw_linux.go: implements nonblocking Linux AF_PACKET batches, fixed scratch storage and
+// packet-socket loss accounting.
+
 package socket
 
 import (
@@ -23,33 +26,60 @@ import (
 	"paqet/internal/pkg/iterator"
 )
 
+// rawBatchSize bounds reusable frame/message arrays and each Linux multiple-message syscall
+// batch.
 const rawBatchSize = 64
 
+// mmsg matches the Linux multiple-message syscall descriptor layout; its ABI must not be
+// changed casually.
 type mmsg struct {
+	// Kernel msghdr layout used by sendmmsg/recvmmsg.
 	Hdr unix.Msghdr
+	// Kernel-reported accepted message length in the Linux batch ABI.
 	Len uint32
 }
 
+// rawPacket owns a Linux packet socket and reusable batch storage; receive/send/stat locks
+// cover separate mutable regions.
 type rawPacket struct {
+	// Cumulative capture attempts/drops accumulated across resetting kernel statistics reads.
 	packets, drops atomic.Uint64
-	txDrops        atomic.Uint64
-	statsMu        sync.Mutex
-	file           *os.File
-	raw            syscall.RawConn
-	send           *SendHandle
-	mac            net.HardwareAddr
-	local          *net.UDPAddr
-	rxMu, txMu     sync.Mutex
-	rxFrames       [rawBatchSize][2048]byte
-	rxHdr          [rawBatchSize]mmsg
-	rxVec          [rawBatchSize]unix.Iovec
-	txHeaders      [rawBatchSize][96]byte
-	txHdr          [rawBatchSize]mmsg
-	txVec          [rawBatchSize][2]unix.Iovec
-	encoder        encoder
-	cache          map[netip.AddrPort]*net.UDPAddr
+	// Atomic local transmit-queue loss count, separate from network retransmission statistics.
+	txDrops atomic.Uint64
+	// Serializes destructive kernel packet-stat reads while retaining cumulative counters.
+	statsMu sync.Mutex
+	// Owned packet socket file whose close wakes netpoll operations.
+	file *os.File
+	// Netpoll-aware packet file access; this is not an outer kernel TCP connection.
+	raw syscall.RawConn
+	// Encoder/flag state, shared across fixed fanout workers where required by the baseline.
+	send *SendHandle
+	// Physical interface source Ethernet address.
+	mac net.HardwareAddr
+	// Stable local packet endpoint metadata returned to KCP/diagnostics.
+	local *net.UDPAddr
+	// Protect reusable receive/send batch arrays independently so full duplex can progress.
+	rxMu, txMu sync.Mutex
+	// Fixed capture slots; decode checks prevent truncated/oversized frames from being accepted.
+	rxFrames [rawBatchSize][2048]byte
+	// Reusable receive syscall descriptors pointing into rxFrames.
+	rxHdr [rawBatchSize]mmsg
+	// Reusable receive iovecs, avoiding descriptor allocation per packet.
+	rxVec [rawBatchSize]unix.Iovec
+	// Reusable encoded Ethernet/IP/TCP headers separate from already-owned KCP payload slices.
+	txHeaders [rawBatchSize][96]byte
+	// Reusable transmit syscall descriptors for scatter/gather output.
+	txHdr [rawBatchSize]mmsg
+	// Header/payload iovecs consumed before the corresponding buffers can be reused.
+	txVec [rawBatchSize][2]unix.Iovec
+	// Reusable header representation for the serialized batch encoder.
+	encoder encoder
+	// Canonical remote address objects reused by the raw receive path.
+	cache map[netip.AddrPort]*net.UDPAddr
 }
 
+// newRawPacket binds a nonblocking Ethernet packet socket, installs BPF/fanout and prepares
+// reusable batch buffers.
 func newRawPacket(cfg *conf.Network) (*rawPacket, error) {
 	// AF_PACKET takes a network-order protocol in a native integer. A fixed
 	// byte swap would break the big-endian Linux architectures in release CI.
@@ -131,6 +161,8 @@ func newRawPacket(cfg *conf.Network) (*rawPacket, error) {
 	return p, nil
 }
 
+// WriteBatch injects bounded scatter/gather frames and treats ENOBUFS as datagram loss for KCP
+// recovery.
 func (p *rawPacket) WriteBatch(ms []ipv4.Message, flags int) (int, error) {
 	p.txMu.Lock()
 	defer p.txMu.Unlock()
@@ -196,6 +228,8 @@ func (p *rawPacket) WriteBatch(ms []ipv4.Message, flags int) (int, error) {
 	return sent, opErr
 }
 
+// ReadBatch receives into reusable frame slots, validates envelopes and returns only
+// decapsulated KCP payloads.
 func (p *rawPacket) ReadBatch(ms []ipv4.Message, flags int) (int, error) {
 	p.rxMu.Lock()
 	defer p.rxMu.Unlock()
@@ -259,11 +293,16 @@ func (p *rawPacket) ReadBatch(ms []ipv4.Message, flags int) (int, error) {
 	}
 }
 
+// ReadFrom returns one decapsulated packet payload/address while retaining the active driver's
+// deadline and buffer rules.
 func (p *rawPacket) ReadFrom(b []byte) (int, net.Addr, error) {
 	ms := []ipv4.Message{{Buffers: [][]byte{b}}}
 	_, err := p.ReadBatch(ms, 0)
 	return ms[0].N, ms[0].Addr, err
 }
+
+// WriteTo submits one packet to the active driver; reliable retry remains the surrounding KCP
+// session's responsibility.
 func (p *rawPacket) WriteTo(b []byte, a net.Addr) (int, error) {
 	_, err := p.WriteBatch([]ipv4.Message{{Buffers: [][]byte{b}, Addr: a}}, 0)
 	if err != nil {
@@ -271,14 +310,32 @@ func (p *rawPacket) WriteTo(b []byte, a net.Addr) (int, error) {
 	}
 	return len(b), nil
 }
-func (p *rawPacket) Close() error                       { return p.file.Close() }
-func (p *rawPacket) LocalAddr() net.Addr                { return p.local }
-func (p *rawPacket) SetDeadline(t time.Time) error      { return p.file.SetDeadline(t) }
-func (p *rawPacket) SetReadDeadline(t time.Time) error  { return p.file.SetReadDeadline(t) }
+
+// Close releases this object's owned resources or signals its lifecycle once; shared listener
+// ownership is handled by its wrapper.
+func (p *rawPacket) Close() error { return p.file.Close() }
+
+// LocalAddr reports this object's local endpoint without transferring packet socket ownership.
+func (p *rawPacket) LocalAddr() net.Addr { return p.local }
+
+// SetDeadline updates both read and write deadlines and delegates cancellation to the
+// underlying connection.
+func (p *rawPacket) SetDeadline(t time.Time) error { return p.file.SetDeadline(t) }
+
+// SetReadDeadline sets input expiry and wakes blocked I/O through the underlying connection
+// contract.
+func (p *rawPacket) SetReadDeadline(t time.Time) error { return p.file.SetReadDeadline(t) }
+
+// SetWriteDeadline sets output expiry so backpressure cannot ignore caller cancellation
+// indefinitely.
 func (p *rawPacket) SetWriteDeadline(t time.Time) error { return p.file.SetWriteDeadline(t) }
 
+// _ asserts implementation of the expected interface at compile time, catching adapter drift
+// before runtime.
 var _ net.PacketConn = (*rawPacket)(nil)
 
+// packetStats accumulates kernel counters under a lock because reading packet statistics
+// resets their kernel interval.
 func (p *rawPacket) packetStats() (uint64, uint64) {
 	p.statsMu.Lock()
 	defer p.statsMu.Unlock()

@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File crypt_test.go: exercises crypt regressions; fixtures must preserve cleanup and expose
+// byte/lifecycle failures explicitly.
+
 package kcp
 
 import (
@@ -35,6 +38,7 @@ import (
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
+// TestSM4 checks SM4 so a change cannot silently weaken the recorded regression contract.
 func TestSM4(t *testing.T) {
 	bc, err := NewSM4BlockCrypt(pass[:16])
 	if err != nil {
@@ -44,6 +48,7 @@ func TestSM4(t *testing.T) {
 	cryptTest(t, bc)
 }
 
+// TestAES checks AES so a change cannot silently weaken the recorded regression contract.
 func TestAES(t *testing.T) {
 	bc, err := NewAESBlockCrypt(pass[:32])
 	if err != nil {
@@ -53,6 +58,7 @@ func TestAES(t *testing.T) {
 	cryptTest(t, bc)
 }
 
+// TestTEA checks TEA so a change cannot silently weaken the recorded regression contract.
 func TestTEA(t *testing.T) {
 	bc, err := NewTEABlockCrypt(pass[:16])
 	if err != nil {
@@ -62,6 +68,7 @@ func TestTEA(t *testing.T) {
 	cryptTest(t, bc)
 }
 
+// TestXOR checks XOR so a change cannot silently weaken the recorded regression contract.
 func TestXOR(t *testing.T) {
 	bc, err := NewSimpleXORBlockCrypt(pass[:32])
 	if err != nil {
@@ -71,6 +78,8 @@ func TestXOR(t *testing.T) {
 	cryptTest(t, bc)
 }
 
+// TestBlowfish checks Blowfish so a change cannot silently weaken the recorded regression
+// contract.
 func TestBlowfish(t *testing.T) {
 	bc, err := NewBlowfishBlockCrypt(pass[:32])
 	if err != nil {
@@ -80,6 +89,7 @@ func TestBlowfish(t *testing.T) {
 	cryptTest(t, bc)
 }
 
+// TestNone checks None so a change cannot silently weaken the recorded regression contract.
 func TestNone(t *testing.T) {
 	bc, err := NewNoneBlockCrypt(pass[:32])
 	if err != nil {
@@ -89,6 +99,7 @@ func TestNone(t *testing.T) {
 	cryptTest(t, bc)
 }
 
+// TestCast5 checks Cast5 so a change cannot silently weaken the recorded regression contract.
 func TestCast5(t *testing.T) {
 	bc, err := NewCast5BlockCrypt(pass[:16])
 	if err != nil {
@@ -98,6 +109,7 @@ func TestCast5(t *testing.T) {
 	cryptTest(t, bc)
 }
 
+// Test3DES checks 3 DES so a change cannot silently weaken the recorded regression contract.
 func Test3DES(t *testing.T) {
 	bc, err := NewTripleDESBlockCrypt(pass[:24])
 	if err != nil {
@@ -107,6 +119,8 @@ func Test3DES(t *testing.T) {
 	cryptTest(t, bc)
 }
 
+// TestTwofish checks Twofish so a change cannot silently weaken the recorded regression
+// contract.
 func TestTwofish(t *testing.T) {
 	bc, err := NewTwofishBlockCrypt(pass[:32])
 	if err != nil {
@@ -116,6 +130,7 @@ func TestTwofish(t *testing.T) {
 	cryptTest(t, bc)
 }
 
+// TestXTEA checks XTEA so a change cannot silently weaken the recorded regression contract.
 func TestXTEA(t *testing.T) {
 	bc, err := NewXTEABlockCrypt(pass[:16])
 	if err != nil {
@@ -125,6 +140,8 @@ func TestXTEA(t *testing.T) {
 	cryptTest(t, bc)
 }
 
+// TestSalsa20 checks Salsa20 so a change cannot silently weaken the recorded regression
+// contract.
 func TestSalsa20(t *testing.T) {
 	bc, err := NewSalsa20BlockCrypt(pass[:32])
 	if err != nil {
@@ -134,6 +151,8 @@ func TestSalsa20(t *testing.T) {
 	cryptTest(t, bc)
 }
 
+// cryptTest checks packet cipher round trips and buffer use without relying on application
+// traffic.
 func cryptTest(t *testing.T, bc BlockCrypt) {
 	data := make([]byte, mtuLimit)
 	io.ReadFull(rand.Reader, data)
@@ -146,6 +165,8 @@ func cryptTest(t *testing.T, bc BlockCrypt) {
 	}
 }
 
+// TestAES256GCM checks AES256 GCM so a change cannot silently weaken the recorded regression
+// contract.
 func TestAES256GCM(t *testing.T) {
 	bc, err := NewAESGCMCrypt(pass[:32])
 	if err != nil {
@@ -156,6 +177,8 @@ func TestAES256GCM(t *testing.T) {
 	testAEAD(t, bc)
 }
 
+// TestAES128GCM checks AES128 GCM so a change cannot silently weaken the recorded regression
+// contract.
 func TestAES128GCM(t *testing.T) {
 	bc, err := NewAESGCMCrypt(pass[:16])
 	if err != nil {
@@ -166,6 +189,8 @@ func TestAES128GCM(t *testing.T) {
 	testAEAD(t, bc)
 }
 
+// testAEAD checks authenticated round trips, nonce/tag sizing and tamper rejection for the
+// AEAD fixture.
 func testAEAD(t *testing.T, bc BlockCrypt) {
 	aead := bc.(*aeadCrypt)
 
@@ -212,6 +237,8 @@ func testAEAD(t *testing.T, bc BlockCrypt) {
 	}
 }
 
+// BenchmarkSM4 measures SM4 with the fixture's workload; results must be interpreted with its
+// buffer and transport settings.
 func BenchmarkSM4(b *testing.B) {
 	bc, err := NewSM4BlockCrypt(pass[:16])
 	if err != nil {
@@ -221,6 +248,8 @@ func BenchmarkSM4(b *testing.B) {
 	benchCrypt(b, bc)
 }
 
+// BenchmarkAES128 measures AES128 with the fixture's workload; results must be interpreted
+// with its buffer and transport settings.
 func BenchmarkAES128(b *testing.B) {
 	bc, err := NewAESBlockCrypt(pass[:16])
 	if err != nil {
@@ -231,6 +260,8 @@ func BenchmarkAES128(b *testing.B) {
 	benchCrypt(b, bc)
 }
 
+// BenchmarkAES192 measures AES192 with the fixture's workload; results must be interpreted
+// with its buffer and transport settings.
 func BenchmarkAES192(b *testing.B) {
 	bc, err := NewAESBlockCrypt(pass[:24])
 	if err != nil {
@@ -241,6 +272,8 @@ func BenchmarkAES192(b *testing.B) {
 	benchCrypt(b, bc)
 }
 
+// BenchmarkAES256 measures AES256 with the fixture's workload; results must be interpreted
+// with its buffer and transport settings.
 func BenchmarkAES256(b *testing.B) {
 	bc, err := NewAESBlockCrypt(pass[:32])
 	if err != nil {
@@ -251,6 +284,8 @@ func BenchmarkAES256(b *testing.B) {
 	benchCrypt(b, bc)
 }
 
+// BenchmarkTEA measures TEA with the fixture's workload; results must be interpreted with its
+// buffer and transport settings.
 func BenchmarkTEA(b *testing.B) {
 	bc, err := NewTEABlockCrypt(pass[:16])
 	if err != nil {
@@ -260,6 +295,8 @@ func BenchmarkTEA(b *testing.B) {
 	benchCrypt(b, bc)
 }
 
+// BenchmarkXOR measures XOR with the fixture's workload; results must be interpreted with its
+// buffer and transport settings.
 func BenchmarkXOR(b *testing.B) {
 	bc, err := NewSimpleXORBlockCrypt(pass[:32])
 	if err != nil {
@@ -269,6 +306,8 @@ func BenchmarkXOR(b *testing.B) {
 	benchCrypt(b, bc)
 }
 
+// BenchmarkBlowfish measures Blowfish with the fixture's workload; results must be interpreted
+// with its buffer and transport settings.
 func BenchmarkBlowfish(b *testing.B) {
 	bc, err := NewBlowfishBlockCrypt(pass[:32])
 	if err != nil {
@@ -278,6 +317,8 @@ func BenchmarkBlowfish(b *testing.B) {
 	benchCrypt(b, bc)
 }
 
+// BenchmarkNone measures None with the fixture's workload; results must be interpreted with
+// its buffer and transport settings.
 func BenchmarkNone(b *testing.B) {
 	bc, err := NewNoneBlockCrypt(pass[:32])
 	if err != nil {
@@ -287,6 +328,8 @@ func BenchmarkNone(b *testing.B) {
 	benchCrypt(b, bc)
 }
 
+// BenchmarkCast5 measures Cast5 with the fixture's workload; results must be interpreted with
+// its buffer and transport settings.
 func BenchmarkCast5(b *testing.B) {
 	bc, err := NewCast5BlockCrypt(pass[:16])
 	if err != nil {
@@ -296,6 +339,8 @@ func BenchmarkCast5(b *testing.B) {
 	benchCrypt(b, bc)
 }
 
+// Benchmark3DES measures 3 DES with the fixture's workload; results must be interpreted with
+// its buffer and transport settings.
 func Benchmark3DES(b *testing.B) {
 	bc, err := NewTripleDESBlockCrypt(pass[:24])
 	if err != nil {
@@ -305,6 +350,8 @@ func Benchmark3DES(b *testing.B) {
 	benchCrypt(b, bc)
 }
 
+// BenchmarkTwofish measures Twofish with the fixture's workload; results must be interpreted
+// with its buffer and transport settings.
 func BenchmarkTwofish(b *testing.B) {
 	bc, err := NewTwofishBlockCrypt(pass[:32])
 	if err != nil {
@@ -313,6 +360,8 @@ func BenchmarkTwofish(b *testing.B) {
 	benchCrypt(b, bc)
 }
 
+// BenchmarkXTEA measures XTEA with the fixture's workload; results must be interpreted with
+// its buffer and transport settings.
 func BenchmarkXTEA(b *testing.B) {
 	bc, err := NewXTEABlockCrypt(pass[:16])
 	if err != nil {
@@ -322,6 +371,8 @@ func BenchmarkXTEA(b *testing.B) {
 	benchCrypt(b, bc)
 }
 
+// BenchmarkSalsa20 measures Salsa20 with the fixture's workload; results must be interpreted
+// with its buffer and transport settings.
 func BenchmarkSalsa20(b *testing.B) {
 	bc, err := NewSalsa20BlockCrypt(pass[:32])
 	if err != nil {
@@ -331,6 +382,8 @@ func BenchmarkSalsa20(b *testing.B) {
 	benchCrypt(b, bc)
 }
 
+// benchCrypt measures the selected cipher on packet-sized storage while reusing the benchmark
+// buffers.
 func benchCrypt(b *testing.B, bc BlockCrypt) {
 	data := make([]byte, mtuLimit)
 	io.ReadFull(rand.Reader, data)
@@ -346,6 +399,8 @@ func benchCrypt(b *testing.B, bc BlockCrypt) {
 	}
 }
 
+// BenchmarkCRC32 measures CRC32 with the fixture's workload; results must be interpreted with
+// its buffer and transport settings.
 func BenchmarkCRC32(b *testing.B) {
 	content := make([]byte, 1024)
 	b.SetBytes(int64(len(content)))
@@ -354,6 +409,8 @@ func BenchmarkCRC32(b *testing.B) {
 	}
 }
 
+// BenchmarkCFB_AES_128_CRC32 measures CFB AES 128 CRC32 with the fixture's workload; results
+// must be interpreted with its buffer and transport settings.
 func BenchmarkCFB_AES_128_CRC32(b *testing.B) {
 	bc, err := NewAESBlockCrypt(pass[:16])
 	if err != nil {
@@ -371,6 +428,8 @@ func BenchmarkCFB_AES_128_CRC32(b *testing.B) {
 	}
 }
 
+// BenchmarkAEAD_AES_128_GCM measures AEAD AES 128 GCM with the fixture's workload; results
+// must be interpreted with its buffer and transport settings.
 func BenchmarkAEAD_AES_128_GCM(b *testing.B) {
 	block, err := aes.NewCipher(pass[:16])
 	if err != nil {
@@ -393,6 +452,8 @@ func BenchmarkAEAD_AES_128_GCM(b *testing.B) {
 	}
 }
 
+// BenchmarkCFB_Salsa20_CRC32 measures CFB Salsa20 CRC32 with the fixture's workload; results
+// must be interpreted with its buffer and transport settings.
 func BenchmarkCFB_Salsa20_CRC32(b *testing.B) {
 	bc, err := NewSalsa20BlockCrypt(pass[:32])
 	if err != nil {
@@ -410,6 +471,8 @@ func BenchmarkCFB_Salsa20_CRC32(b *testing.B) {
 	}
 }
 
+// BenchmarkAEAD_Chacha20_Poly1035 measures AEAD Chacha20 Poly1035 with the fixture's workload;
+// results must be interpreted with its buffer and transport settings.
 func BenchmarkAEAD_Chacha20_Poly1035(b *testing.B) {
 	aead, err := chacha20poly1305.New(pass[:32])
 	if err != nil {
@@ -427,6 +490,8 @@ func BenchmarkAEAD_Chacha20_Poly1035(b *testing.B) {
 	}
 }
 
+// TestCryptErrors checks Crypt Errors so a change cannot silently weaken the recorded
+// regression contract.
 func TestCryptErrors(t *testing.T) {
 	invalidKey := []byte("invalid")
 

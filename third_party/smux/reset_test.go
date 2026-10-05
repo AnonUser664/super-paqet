@@ -1,3 +1,6 @@
+// File reset_test.go: exercises reset regressions; fixtures must preserve cleanup and expose
+// byte/lifecycle failures explicitly.
+
 package smux
 
 import (
@@ -9,6 +12,8 @@ import (
 	"time"
 )
 
+// resetPair constructs a paired half-close-enabled mux fixture for reset/blocked-writer
+// regressions.
 func resetPair(t *testing.T) (*Session, *Session, *Stream, *Stream) {
 	t.Helper()
 	a, b := net.Pipe()
@@ -39,6 +44,8 @@ func resetPair(t *testing.T) (*Session, *Session, *Stream, *Stream) {
 	return client, server, c, s
 }
 
+// TestFullCloseUnblocksFlowControlledWriter checks Full Close Unblocks Flow Controlled Writer
+// so a change cannot silently weaken the recorded regression contract.
 func TestFullCloseUnblocksFlowControlledWriter(t *testing.T) {
 	client, _, c, s := resetPair(t)
 	done := make(chan error, 1)
@@ -68,6 +75,8 @@ func TestFullCloseUnblocksFlowControlledWriter(t *testing.T) {
 	}
 }
 
+// TestFullCloseRetainsAlreadyWrittenResponse checks Full Close Retains Already Written
+// Response so a change cannot silently weaken the recorded regression contract.
 func TestFullCloseRetainsAlreadyWrittenResponse(t *testing.T) {
 	_, _, c, s := resetPair(t)
 	response := bytes.Repeat([]byte("response"), 16384)

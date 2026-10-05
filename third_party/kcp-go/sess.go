@@ -43,6 +43,9 @@
 //   v                                               v
 // Packet Network  (Network Transmission)         Stream          (Input Data)
 
+// File sess.go: binds protocol state to packet input, optional FEC/crypto and cancellation
+// with explicit listener/session ownership.
+
 package kcp
 
 import (
@@ -95,22 +98,36 @@ const (
 )
 
 var (
+	// errInvalidOperation reports unsupported session operations rather than silently changing
+	// ownership or behavior.
 	errInvalidOperation = errors.New("invalid operation")
-	errTimeout          = timeoutError{}
-	errNotOwner         = errors.New("not the owner of this connection")
+	// errTimeout is the shared deadline-expiry classification used by carrier operations.
+	errTimeout = timeoutError{}
+	// errNotOwner rejects socket operations that an accepted shared-socket session does not own.
+	errNotOwner = errors.New("not the owner of this connection")
 )
 
 // timeoutError implements net.Error
 type timeoutError struct{}
 
-func (timeoutError) Error() string   { return "timeout" }
-func (timeoutError) Timeout() bool   { return true }
+// Error formats the stored failure for callers without changing its error classification.
+func (timeoutError) Error() string { return "timeout" }
+
+// Timeout identifies deadline expiry for callers that distinguish timeouts from permanent
+// transport failures.
+func (timeoutError) Timeout() bool { return true }
+
+// Temporary exposes the error's transient classification through the compatibility network-
+// error contract.
 func (timeoutError) Temporary() bool { return true }
 
 // sendRequest defines a write request before encoding and transmission
 type sendRequest struct {
+	// Owned prepared output bytes retained until encryption/injection completes.
 	buffer []byte
-	oob    bool
+	// Selects the FEC out-of-band control path, which is separate from reliable application
+	// delivery.
+	oob bool
 }
 
 // OOB callback function
@@ -119,29 +136,43 @@ type OOBCallBackType func([]byte)
 type (
 	// UDPSession defines a KCP session implemented by UDP
 	UDPSession struct {
-		writeBatchMS         uint32
-		ackDelayLimit        time.Duration
-		ackDelay             time.Duration
-		ackScheduled         bool
-		updateDue            time.Time
-		batchACK             atomic.Bool
-		postProcessingDrops  atomic.Uint64
-		writeWaitCount       atomic.Uint64
+		// Maximum paced frame duration used when exposing the current mux write budget.
+		writeBatchMS uint32
+		// Maximum deferred ACK lifetime; data traffic must not postpone it indefinitely.
+		ackDelayLimit time.Duration
+		// Chosen bounded feedback deferral rather than a fixed retry timeout.
+		ackDelay time.Duration
+		// Prevents duplicate outstanding delayed-ACK callbacks.
+		ackScheduled bool
+		// Next shared protocol callback deadline; superseded wakes must not create duplicate timer
+		// chains.
+		updateDue time.Time
+		// Marks batched input so feedback can coalesce safely before the batch ends.
+		batchACK atomic.Bool
+		// Counts locally rejected queued output separately from network loss.
+		postProcessingDrops atomic.Uint64
+		// Counts waits for reliable send capacity rather than busy-loop attempts.
+		writeWaitCount atomic.Uint64
+		// Cumulative blocked write duration used by diagnostics/control.
 		writeWaitNanoseconds atomic.Uint64
-		writeBudget          atomic.Uint32
-		conn                 net.PacketConn // the underlying packet connection
-		ownConn              bool           // true if we created conn internally, false if provided by caller
-		kcp                  *KCP           // KCP ARQ protocol
-		l                    *Listener      // pointing to the Listener object if it's been accepted by a Listener
-		block                BlockCrypt     // block encryption object
+		// Atomically exposed maximum mux frame bytes from current carrier window/pacing.
+		writeBudget atomic.Uint32
+		conn        net.PacketConn // the underlying packet connection
+		ownConn     bool           // true if we created conn internally, false if provided by caller
+		kcp         *KCP           // KCP ARQ protocol
+		l           *Listener      // pointing to the Listener object if it's been accepted by a Listener
+		block       BlockCrypt     // block encryption object
 
 		// kcp receiving is based on packets
 		// recvbuf turns packets into stream
 		recvbuf []byte
-		bufptr  []byte
+		// Unread region of the session receive buffer; ownership persists until the next read
+		// consumes it.
+		bufptr []byte
 
 		// FEC codec
 		fecDecoder *fecDecoder
+		// Optional outgoing coding state, absent when redundancy is disabled.
 		fecEncoder *fecEncoder
 
 		// settings
@@ -154,17 +185,23 @@ type (
 		dup        int          // duplicate udp packets(testing purpose)
 
 		// notifications
-		die          chan struct{} // notify current session has Closed
+		die chan struct{} // notify current session has Closed
+		// Closes lifecycle signals once so failure/explicit close can race safely.
 		dieOnce      sync.Once
 		chReadEvent  chan struct{} // notify Read() can be called without blocking
 		chWriteEvent chan struct{} // notify Write() can be called without blocking
 
 		// socket error handling
-		socketReadError      atomic.Value
-		socketWriteError     atomic.Value
-		chSocketReadError    chan struct{}
-		chSocketWriteError   chan struct{}
-		socketReadErrorOnce  sync.Once
+		socketReadError atomic.Value
+		// Published carrier output failure waking pending work instead of silently losing ownership.
+		socketWriteError atomic.Value
+		// Broadcasts permanent carrier input failure to blocked operations.
+		chSocketReadError chan struct{}
+		// Broadcasts permanent carrier output failure to blocked operations.
+		chSocketWriteError chan struct{}
+		// Publishes the first read failure only once.
+		socketReadErrorOnce sync.Once
+		// Publishes the first output failure only once.
 		socketWriteErrorOnce sync.Once
 
 		// packets waiting to be sent on wire
@@ -176,25 +213,37 @@ type (
 		// rate limiter (bytes per second)
 		rateLimiter atomic.Value
 
+		// Protects reliable protocol state, buffers and timer/window changes; callbacks leave it
+		// before entering mux state.
 		mu sync.Mutex
 
 		// callbackForOOB is an optional callback for handling received out-of-band (OOB) data.
 		//
 		// OOB data bypasses the KCP reliable data path and is delivered unreliably.
 		// The callback is invoked synchronously from the KCP input processing path.
-		callbackForOOB    atomic.Value
+		callbackForOOB atomic.Value
+		// Atomically published callback invoked outside the protocol mutex to avoid lock inversion.
 		creditHintHandler atomic.Value
 	}
 
+	// setReadBuffer detects whether the underlying packet connection supports a receive storage
+	// request.
 	setReadBuffer interface {
+		// Requests underlying receive storage when supported by the selected packet adapter.
 		SetReadBuffer(bytes int) error
 	}
 
+	// setWriteBuffer detects whether the underlying packet connection supports a transmit storage
+	// request.
 	setWriteBuffer interface {
+		// Requests underlying output storage when supported by the selected packet adapter.
 		SetWriteBuffer(bytes int) error
 	}
 
+	// setDSCP detects optional socket-level traffic class configuration without requiring it on
+	// custom raw transports.
 	setDSCP interface {
+		// Requests traffic class when the underlying adapter supports socket-level configuration.
 		SetDSCP(int) error
 	}
 )
@@ -466,6 +515,8 @@ RESET_TIMER:
 	}
 }
 
+// isClosed tests the carrier close signal without allocating or retaining another lifecycle
+// timer.
 func (s *UDPSession) isClosed() bool {
 	select {
 	case <-s.die:
@@ -952,6 +1003,7 @@ func (s *UDPSession) SendOOB(data []byte) error {
 	return nil
 }
 
+// notifyReadEvent wakes blocked readers without blocking the protocol input path.
 func (s *UDPSession) notifyReadEvent() {
 	select {
 	case s.chReadEvent <- struct{}{}:
@@ -959,6 +1011,7 @@ func (s *UDPSession) notifyReadEvent() {
 	}
 }
 
+// notifyWriteEvent wakes writers after send capacity or deadline state changes.
 func (s *UDPSession) notifyWriteEvent() {
 	select {
 	case s.chWriteEvent <- struct{}{}:
@@ -966,6 +1019,7 @@ func (s *UDPSession) notifyWriteEvent() {
 	}
 }
 
+// notifyReadError publishes the first socket-input failure and releases blocked readers.
 func (s *UDPSession) notifyReadError(err error) {
 	s.socketReadErrorOnce.Do(func() {
 		s.socketReadError.Store(err)
@@ -973,6 +1027,8 @@ func (s *UDPSession) notifyReadError(err error) {
 	})
 }
 
+// notifyWriteError publishes output failure so blocked writers cannot remain asleep
+// indefinitely.
 func (s *UDPSession) notifyWriteError(err error) {
 	s.socketWriteErrorOnce.Do(func() {
 		s.socketWriteError.Store(err)
@@ -1157,8 +1213,10 @@ func (s *UDPSession) kcpInput(data []byte) {
 type (
 	// Listener defines a server which will be waiting to accept incoming connections
 	Listener struct {
-		batchACK     atomic.Bool
-		pendingACK   map[*UDPSession]struct{} // owned by the single packet monitor
+		// Marks batched input so feedback can coalesce safely before the batch ends.
+		batchACK   atomic.Bool
+		pendingACK map[*UDPSession]struct{} // owned by the single packet monitor
+		// Atomic pre-accept conversation ceiling limiting unknown-session allocation.
 		maxSessions  atomic.Int64
 		block        BlockCrypt     // block encryption
 		dataShards   int            // FEC data shard
@@ -1166,16 +1224,20 @@ type (
 		conn         net.PacketConn // the underlying packet connection
 		ownConn      bool           // true if we created conn internally, false if provided by caller
 
-		sessions    map[string]*UDPSession // all sessions accepted by this Listener
+		sessions map[string]*UDPSession // all sessions accepted by this Listener
+		// Protects the incoming conversation table and acceptance state.
 		sessionLock sync.RWMutex
 		chAccepts   chan *UDPSession // Listen() backlog
 
-		die     chan struct{} // notify the listener has closed
+		die chan struct{} // notify the listener has closed
+		// Closes lifecycle signals once so failure/explicit close can race safely.
 		dieOnce sync.Once
 
 		// socket error handling
-		socketReadError     atomic.Value
-		chSocketReadError   chan struct{}
+		socketReadError atomic.Value
+		// Broadcasts permanent carrier input failure to blocked operations.
+		chSocketReadError chan struct{}
+		// Publishes the first read failure only once.
 		socketReadErrorOnce sync.Once
 
 		rd atomic.Value // read deadline for Accept()
@@ -1325,6 +1387,7 @@ func (l *Listener) packetInput(data []byte, addr net.Addr) {
 	l.chAccepts <- s
 }
 
+// notifyReadError publishes a listener input failure and wakes pending accepts.
 func (l *Listener) notifyReadError(err error) {
 	l.socketReadErrorOnce.Do(func() {
 		l.socketReadError.Store(err)
@@ -1511,6 +1574,8 @@ func ServeConn(block BlockCrypt, dataShards, parityShards int, conn net.PacketCo
 	return serveConn(block, dataShards, parityShards, conn, false)
 }
 
+// serveConn constructs listener state around a supplied packet connection and its explicit
+// ownership policy.
 func serveConn(block BlockCrypt, dataShards, parityShards int, conn net.PacketConn, ownConn bool) (*Listener, error) {
 	l := new(Listener)
 	l.conn = conn

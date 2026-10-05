@@ -1,5 +1,8 @@
 //go:build linux
 
+// File relay.go: relays TCP directions with lazy scratch storage and distinguishes write EOF
+// from full connection abandonment.
+
 package engine
 
 import (
@@ -14,8 +17,12 @@ import (
 	"paqet/internal/tnet"
 )
 
+// copyPools reuse five power-of-two TCP/UDP scratch sizes; idle flows do not retain a checked-
+// out buffer.
 var copyPools [5]sync.Pool
 
+// getBuffer reuses a power-of-two scratch class sized to queued bytes rather than allocating
+// per idle flow.
 func getBuffer(size int) (*[]byte, int) {
 	class := 0
 	for 4096<<class < size && class < len(copyPools)-1 {
@@ -89,17 +96,25 @@ func tcpToStream(dst io.Writer, src *net.TCPConn) (int64, error) {
 	}
 }
 
+// countedWriter wraps a destination and credits only bytes actually accepted by its Write
+// call.
 type countedWriter struct {
+	// Embedded destination writer; this wrapper owns counting, not independent transport
+	// storage.
 	io.Writer
+	// Destination-accepted byte counter, not attempted buffer length.
 	count *atomic.Int64
 }
 
+// Write counts bytes actually accepted by its destination, including short writes.
 func (w countedWriter) Write(p []byte) (int, error) {
 	n, err := w.Writer.Write(p)
 	w.count.Add(int64(n))
 	return n, err
 }
 
+// relay copies both TCP directions, propagates directional EOF and waits for the opposite copy
+// task before full teardown.
 func (e *Engine) relay(tcp *net.TCPConn, strm tnet.Strm, traces ...uint64) {
 	var trace uint64
 	var conv uint32

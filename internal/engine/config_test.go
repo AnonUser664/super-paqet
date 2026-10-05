@@ -1,5 +1,8 @@
 //go:build linux
 
+// File config_test.go: exercises config regressions; fixtures must preserve cleanup and expose
+// byte/lifecycle failures explicitly.
+
 package engine
 
 import (
@@ -9,6 +12,8 @@ import (
 	"testing"
 )
 
+// TestRejectOverflowingResourceBudgets checks Reject Overflowing Resource Budgets so a change
+// cannot silently weaken the recorded regression contract.
 func TestRejectOverflowingResourceBudgets(t *testing.T) {
 	for _, limits := range []Limits{{Connections: math.MaxInt64}, {MemoryMiB: math.MaxInt64}} {
 		c := Config{Peers: map[string]Endpoint{"remote": {}}, Limits: limits}
@@ -18,6 +23,8 @@ func TestRejectOverflowingResourceBudgets(t *testing.T) {
 	}
 }
 
+// TestStrictSchemaRejectsOldSocksAndUnknownFields checks Strict Schema Rejects Old Socks And
+// Unknown Fields so a change cannot silently weaken the recorded regression contract.
 func TestStrictSchemaRejectsOldSocksAndUnknownFields(t *testing.T) {
 	for _, text := range []string{"socks5: [{listen: '127.0.0.1:1080'}]\n", "peers: {}\nunknown: true\n", "role: client\n"} {
 		path := filepath.Join(t.TempDir(), "config.yaml")
@@ -30,6 +37,8 @@ func TestStrictSchemaRejectsOldSocksAndUnknownFields(t *testing.T) {
 	}
 }
 
+// TestRejectBadForwardBeforeDiscovery checks Reject Bad Forward Before Discovery so a change
+// cannot silently weaken the recorded regression contract.
 func TestRejectBadForwardBeforeDiscovery(t *testing.T) {
 	for _, f := range []Forward{{Listen: "127.0.0.1:8080", Peer: "missing", Target: "127.0.0.1:80"}, {Listen: "127.0.0.1:8080", Peer: "remote", Target: "127.0.0.1:70000"}, {Listen: "invalid", Peer: "remote", Target: "127.0.0.1:80"}} {
 		c := Config{Peers: map[string]Endpoint{"remote": {}}, Forwards: []Forward{f}}

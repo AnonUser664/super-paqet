@@ -1,3 +1,6 @@
+// File send_queue_test.go: exercises send queue regressions; fixtures must preserve cleanup
+// and expose byte/lifecycle failures explicitly.
+
 package kcp
 
 import (
@@ -6,6 +9,8 @@ import (
 	"testing"
 )
 
+// TestSendQueueGrowthBudgetAndClose checks Send Queue Growth Budget And Close so a change
+// cannot silently weaken the recorded regression contract.
 func TestSendQueueGrowthBudgetAndClose(t *testing.T) {
 	q := newSendQueue()
 	const window = 8192
@@ -38,6 +43,8 @@ func TestSendQueueGrowthBudgetAndClose(t *testing.T) {
 	}
 }
 
+// TestSendQueueConcurrentOrdering checks Send Queue Concurrent Ordering so a change cannot
+// silently weaken the recorded regression contract.
 func TestSendQueueConcurrentOrdering(t *testing.T) {
 	q := newSendQueue()
 	const count = 20000

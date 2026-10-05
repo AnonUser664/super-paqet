@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Module purpose: Run the older WAN profiles sequentially and retain real command/exit/cleanup
+# evidence.
 """Run the WAN matrix sequentially; retain each command, binary hash and cleanup."""
 import argparse
 import json
@@ -9,6 +11,8 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 
+# main: Run the older WAN profiles sequentially and retain real command/exit/cleanup
+# evidence.
 def main():
     p=argparse.ArgumentParser()
     p.add_argument('--binary',default='build/super-paqet')

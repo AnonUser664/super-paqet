@@ -1,3 +1,6 @@
+// File kcp.go: prepares lower-level KCP settings; enterprise endpoint defaults are applied
+// earlier by engine configuration.
+
 package conf
 
 import (
@@ -8,45 +11,86 @@ import (
 	"github.com/xtaci/kcp-go/v5"
 )
 
+// KCP holds low-level reliability, packet, cipher and mux configuration; endpoint preparation
+// supplies enterprise defaults first.
 type KCP struct {
-	WriteBatchMS            int    `yaml:"write_batch_ms"`
-	ACKDelayMaxMS           int    `yaml:"ack_delay_max_ms"`
-	CreditHints             *bool  `yaml:"credit_hints"`
-	ACKTimestamps           *bool  `yaml:"ack_timestamps"`
-	AdaptiveBuffersOverride *bool  `yaml:"adaptive_buffers"`
-	AdaptiveBuffers         bool   `yaml:"-"`
-	PacketWorkers           int    `yaml:"-"`
-	MaxSessions             int    `yaml:"-"`
-	HalfClose               bool   `yaml:"-"`
-	Mode                    string `yaml:"mode"`
-	NoDelay                 int    `yaml:"nodelay"`
-	Interval                int    `yaml:"interval"`
-	Resend                  int    `yaml:"resend"`
-	NoCongestion            int    `yaml:"nocongestion"`
-	WDelay                  bool   `yaml:"wdelay"`
-	AckNoDelay              bool   `yaml:"acknodelay"`
+	// Maximum paced mux-frame duration in milliseconds; it bounds bulk work ahead of new
+	// controls.
+	WriteBatchMS int `yaml:"write_batch_ms"`
+	// Maximum adaptive ACK deferral in milliseconds, separate from the chosen live delay.
+	ACKDelayMaxMS int `yaml:"ack_delay_max_ms"`
+	// Optional expedited cumulative credit; nil selects the default and reliable updates remain
+	// required.
+	CreditHints *bool `yaml:"credit_hints"`
+	// Optional inner ACK timing used to distinguish peer scheduling from queue delay.
+	ACKTimestamps *bool `yaml:"ack_timestamps"`
+	// Independent configuration override for receive-window adaptation.
+	AdaptiveBuffersOverride *bool `yaml:"adaptive_buffers"`
+	// Prepared receive-window adaptation choice, not another YAML input.
+	AdaptiveBuffers bool `yaml:"-"`
+	// Fixed incoming packet-worker count established before conversations are accepted.
+	PacketWorkers int `yaml:"-"`
+	// Prepared listener conversation admission ceiling; outgoing pool limits belong to Endpoint.
+	MaxSessions int `yaml:"-"`
+	// Enables directional FIN semantics at both enterprise mux endpoints.
+	HalfClose bool `yaml:"-"`
+	// Preset selector; manual knobs are applied only for the manual mode.
+	Mode string `yaml:"mode"`
+	// Manual retry-floor/backoff mode, not a promise of zero network delay.
+	NoDelay int `yaml:"nodelay"`
+	// Manual protocol update interval in milliseconds; this is not the retransmission timeout.
+	Interval int `yaml:"interval"`
+	// Manual fast-gap evidence threshold, not a maximum retry count.
+	Resend int `yaml:"resend"`
+	// Manual native KCP congestion-window switch; enterprise pacing is a separate controller.
+	NoCongestion int `yaml:"nocongestion"`
+	// Allows output batching until an update rather than forcing every application write
+	// immediately.
+	WDelay bool `yaml:"wdelay"`
+	// Requests immediate ACK behavior when batching/deferred scheduling does not require
+	// coalescing.
+	AckNoDelay bool `yaml:"acknodelay"`
 
-	MTU    int `yaml:"mtu"`
+	// Maximum inner transport datagram budget; cipher/FEC/core overhead consumes usable MSS.
+	MTU int `yaml:"mtu"`
+	// Receive capacity in segments, separate from outer TCP window and mux byte credit.
 	Rcvwnd int `yaml:"rcvwnd"`
+	// Send-window ceiling in segments; the live controller can use a smaller window.
 	Sndwnd int `yaml:"sndwnd"`
+	// FEC data-shard count; paired parity/data settings must agree across endpoints.
 	Dshard int `yaml:"dshard"`
+	// FEC parity-shard count; redundancy costs extra wire bytes and coding work.
 	Pshard int `yaml:"pshard"`
 
+	// Highest-priority configured cipher name; the trailing underscore distinguishes its parsed
+	// object.
 	Block_ string `yaml:"block"`
-	Enc    string `yaml:"enc"`
-	Key    string `yaml:"key"`
+	// Configuration alias for cipher mode; precedence is resolved before transport construction.
+	Enc string `yaml:"enc"`
+	// Shared secret supplied by configuration/environment, never diagnostic payload.
+	Key string `yaml:"key"`
 
-	Smuxbuf   int `yaml:"smuxbuf"`
+	// Aggregate mux receive budget per carrier, in bytes rather than per idle stream
+	// preallocation.
+	Smuxbuf int `yaml:"smuxbuf"`
+	// Per-stream advertised receive-window ceiling in bytes.
 	Streambuf int `yaml:"streambuf"`
 
-	Smuxkalive_   int `yaml:"smuxkalive"`
+	// Configured keepalive interval in integer seconds.
+	Smuxkalive_ int `yaml:"smuxkalive"`
+	// Configured no-inbound-traffic timeout in integer seconds.
 	Smuxktimeout_ int `yaml:"smuxktimeout"`
 
-	Smuxkalive   time.Duration  `yaml:"-"`
-	Smuxktimeout time.Duration  `yaml:"-"`
-	Block        kcp.BlockCrypt `yaml:"-"`
+	// Prepared keepalive duration used when the mux session is constructed.
+	Smuxkalive time.Duration `yaml:"-"`
+	// Prepared no-inbound-traffic duration used by mux keepalive handling.
+	Smuxktimeout time.Duration `yaml:"-"`
+	// Prepared packet cipher; nil selects the no-envelope null path.
+	Block kcp.BlockCrypt `yaml:"-"`
 }
 
+// setDefaults fills absent transport values after endpoint preparation; it preserves role-
+// specific legacy windows when the engine did not override them.
 func (k *KCP) setDefaults(role string) {
 	if k.WriteBatchMS == 0 {
 		k.WriteBatchMS = 20
@@ -105,6 +149,8 @@ func (k *KCP) setDefaults(role string) {
 	}
 }
 
+// validate checks supported modes, windows, cipher/key and receive budgets before creating a
+// carrier.
 func (k *KCP) validate() []error {
 	var errors []error
 

@@ -1,3 +1,6 @@
+// File conn.go: wraps one KCP/mux carrier; accepted carriers deliberately do not own the
+// listener packet socket.
+
 package kcp
 
 import (
@@ -13,12 +16,18 @@ import (
 	"paqet/internal/tnet"
 )
 
+// Conn wraps one KCP/mux carrier; only outgoing instances own their PacketConn.
 type Conn struct {
+	// Owned only by outgoing carriers; accepted carriers leave this nil to preserve shared
+	// listener ownership.
 	PacketConn *socket.PacketConn
+	// Reliable KCP conversation and its packet/FEC/crypto/update state.
 	UDPSession *kcp.UDPSession
-	Session    *smux.Session
+	// Mux carrier state hosting many logical application/control streams.
+	Session *smux.Session
 }
 
+// OpenStrm opens one logical mux stream on this carrier without creating another raw socket.
 func (c *Conn) OpenStrm() (tnet.Strm, error) {
 	strm, err := c.Session.OpenStream()
 	if err != nil {
@@ -27,6 +36,7 @@ func (c *Conn) OpenStrm() (tnet.Strm, error) {
 	return &Strm{strm}, nil
 }
 
+// AcceptStrm accepts a logical mux stream while the shared carrier remains active.
 func (c *Conn) AcceptStrm() (tnet.Strm, error) {
 	strm, err := c.Session.AcceptStream()
 	if err != nil {
@@ -35,6 +45,7 @@ func (c *Conn) AcceptStrm() (tnet.Strm, error) {
 	return &Strm{strm}, nil
 }
 
+// Ping creates a short control stream and optionally requires the matching pong response.
 func (c *Conn) Ping(wait bool) error {
 	strm, err := c.Session.OpenStream()
 	if err != nil {
@@ -58,6 +69,8 @@ func (c *Conn) Ping(wait bool) error {
 	return nil
 }
 
+// Close closes mux/KCP state and only the packet socket owned by an outgoing connection;
+// accepted carriers share listener sockets.
 func (c *Conn) Close() error {
 	var err error
 	if c.Session != nil {
@@ -78,8 +91,20 @@ func (c *Conn) Close() error {
 	return err
 }
 
-func (c *Conn) LocalAddr() net.Addr                { return c.Session.LocalAddr() }
-func (c *Conn) RemoteAddr() net.Addr               { return c.Session.RemoteAddr() }
-func (c *Conn) SetDeadline(t time.Time) error      { return c.UDPSession.SetDeadline(t) }
-func (c *Conn) SetReadDeadline(t time.Time) error  { return c.UDPSession.SetReadDeadline(t) }
+// LocalAddr reports this object's local endpoint without transferring packet socket ownership.
+func (c *Conn) LocalAddr() net.Addr { return c.Session.LocalAddr() }
+
+// RemoteAddr reports the carrier/stream remote endpoint used for diagnostics and routing.
+func (c *Conn) RemoteAddr() net.Addr { return c.Session.RemoteAddr() }
+
+// SetDeadline updates both read and write deadlines and delegates cancellation to the
+// underlying connection.
+func (c *Conn) SetDeadline(t time.Time) error { return c.UDPSession.SetDeadline(t) }
+
+// SetReadDeadline sets input expiry and wakes blocked I/O through the underlying connection
+// contract.
+func (c *Conn) SetReadDeadline(t time.Time) error { return c.UDPSession.SetReadDeadline(t) }
+
+// SetWriteDeadline sets output expiry so backpressure cannot ignore caller cancellation
+// indefinitely.
 func (c *Conn) SetWriteDeadline(t time.Time) error { return c.UDPSession.SetWriteDeadline(t) }

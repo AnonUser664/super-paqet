@@ -1,3 +1,6 @@
+// File ack_coalescing_test.go: exercises ack coalescing regressions; fixtures must preserve
+// cleanup and expose byte/lifecycle failures explicitly.
+
 package kcp
 
 import (
@@ -5,6 +8,8 @@ import (
 	"testing"
 )
 
+// TestDelayedACKSurvivesDataFlush checks Delayed ACK Survives Data Flush so a change cannot
+// silently weaken the recorded regression contract.
 func TestDelayedACKSurvivesDataFlush(t *testing.T) {
 	for _, start := range []uint32{0, 0xfffffffe} {
 		now := start

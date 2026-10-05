@@ -1,3 +1,6 @@
+// File credit_test.go: exercises credit regressions; fixtures must preserve cleanup and expose
+// byte/lifecycle failures explicitly.
+
 package smux
 
 import (
@@ -71,6 +74,8 @@ func TestAsyncCreditReadDoesNotWaitForCarrier(t *testing.T) {
 	}
 }
 
+// TestAsyncCreditFullDuplexIntegrity checks Async Credit Full Duplex Integrity so a change
+// cannot silently weaken the recorded regression contract.
 func TestAsyncCreditFullDuplexIntegrity(t *testing.T) {
 	a, b := net.Pipe()
 	cfg := DefaultConfig()
@@ -122,6 +127,8 @@ func TestAsyncCreditFullDuplexIntegrity(t *testing.T) {
 	s.Close()
 }
 
+// TestCreditHintsCannotRewindOrGrantUnsentBytes checks Credit Hints Cannot Rewind Or Grant
+// Unsent Bytes so a change cannot silently weaken the recorded regression contract.
 func TestCreditHintsCannotRewindOrGrantUnsentBytes(t *testing.T) {
 	cfg := DefaultConfig()
 	cfg.CreditHints = true
@@ -145,11 +152,15 @@ func TestCreditHintsCannotRewindOrGrantUnsentBytes(t *testing.T) {
 	sess.receiveCreditHint(999, 1, 1)
 }
 
+// brokenCreditCarrier retains the broken Credit Carrier fixture state used to expose failures
+// without production network side effects.
 type brokenCreditCarrier struct {
 	closed chan struct{}
 	once   sync.Once
 }
 
+// creditFaultCarrier retains the credit Fault Carrier fixture state used to expose failures
+// without production network side effects.
 type creditFaultCarrier struct {
 	net.Conn
 	peer        *creditFaultCarrier
@@ -161,7 +172,12 @@ type creditFaultCarrier struct {
 	hasPrevious bool
 }
 
+// SetCreditHintHandler stores the optional callback used to simulate expedited feedback
+// without changing reliable carrier bytes.
 func (c *creditFaultCarrier) SetCreditHintHandler(f func(uint32, uint32, uint32)) { c.handler.Store(f) }
+
+// SendCreditHint injects configured hint faults so reliable update fallback remains
+// independently testable.
 func (c *creditFaultCarrier) SendCreditHint(sid, consumed, window uint32) error {
 	n := c.count.Add(1)
 	if c.dropAll || n%5 == 0 {
@@ -188,6 +204,8 @@ func (c *creditFaultCarrier) SendCreditHint(sid, consumed, window uint32) error 
 	return nil
 }
 
+// TestCreditHintFaultsPreserveReliableFullDuplex checks Credit Hint Faults Preserve Reliable
+// Full Duplex so a change cannot silently weaken the recorded regression contract.
 func TestCreditHintFaultsPreserveReliableFullDuplex(t *testing.T) {
 	for _, dropAll := range []bool{true, false} {
 		a, b := net.Pipe()
@@ -243,10 +261,18 @@ func TestCreditHintFaultsPreserveReliableFullDuplex(t *testing.T) {
 	}
 }
 
-func (c *brokenCreditCarrier) Read([]byte) (int, error)  { <-c.closed; return 0, io.ErrClosedPipe }
-func (c *brokenCreditCarrier) Write([]byte) (int, error) { return 0, io.ErrClosedPipe }
-func (c *brokenCreditCarrier) Close() error              { c.once.Do(func() { close(c.closed) }); return nil }
+// Read simulates carrier input failure for cancellation/credit wakeup tests.
+func (c *brokenCreditCarrier) Read([]byte) (int, error) { <-c.closed; return 0, io.ErrClosedPipe }
 
+// Write simulates carrier output failure so blocked mux operations must wake rather than hang.
+func (c *brokenCreditCarrier) Write([]byte) (int, error) { return 0, io.ErrClosedPipe }
+
+// Close releases this object's owned resources or signals its lifecycle once; shared listener
+// ownership is handled by its wrapper.
+func (c *brokenCreditCarrier) Close() error { c.once.Do(func() { close(c.closed) }); return nil }
+
+// TestAsyncCreditWriteFailureWakesBlockedReader checks Async Credit Write Failure Wakes
+// Blocked Reader so a change cannot silently weaken the recorded regression contract.
 func TestAsyncCreditWriteFailureWakesBlockedReader(t *testing.T) {
 	cfg := DefaultConfig()
 	cfg.Version, cfg.AsyncWindowUpdates, cfg.KeepAliveDisabled = 2, true, true
@@ -274,6 +300,8 @@ func TestAsyncCreditWriteFailureWakesBlockedReader(t *testing.T) {
 	}
 }
 
+// TestAsyncCreditReadCountWrap checks Async Credit Read Count Wrap so a change cannot silently
+// weaken the recorded regression contract.
 func TestAsyncCreditReadCountWrap(t *testing.T) {
 	for _, writerTo := range []bool{false, true} {
 		cfg := DefaultConfig()

@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File session.go: demultiplexes logical streams and coordinates shared receive tokens, output
+// scheduling and session failures.
+
 package smux
 
 import (
@@ -34,10 +37,15 @@ import (
 )
 
 const (
+	// defaultAcceptBacklog bounds streams awaiting application acceptance without one unbounded
+	// admission queue.
 	defaultAcceptBacklog = 1024
-	minShaperNotifySize  = 16
-	maxShaperSize        = 1024
-	openCloseTimeout     = 30 * time.Second // Timeout for opening/closing streams
+	// minShaperNotifySize defines when pending output should wake the shared sender rather than
+	// notifying for every byte.
+	minShaperNotifySize = 16
+	// maxShaperSize bounds queued sender requests and propagates backpressure to writers.
+	maxShaperSize    = 1024
+	openCloseTimeout = 30 * time.Second // Timeout for opening/closing streams
 )
 
 // resultChanPool reduces allocation of result channels
@@ -52,6 +60,8 @@ type CLASSID int
 
 const (
 	CLSCTRL CLASSID = iota // prioritized control signal
+	// CLSDATA labels ordered application/lifecycle work separately from prioritized control
+	// requests.
 	CLSDATA
 )
 
@@ -63,43 +73,71 @@ const (
 // For more details, see https://github.com/xtaci/smux/pull/99.
 type timeoutError struct{}
 
-func (timeoutError) Error() string   { return "timeout" }
+// Error formats the stored failure for callers without changing its error classification.
+func (timeoutError) Error() string { return "timeout" }
+
+// Temporary exposes the error's transient classification through the compatibility network-
+// error contract.
 func (timeoutError) Temporary() bool { return true }
-func (timeoutError) Timeout() bool   { return true }
+
+// Timeout identifies deadline expiry for callers that distinguish timeouts from permanent
+// transport failures.
+func (timeoutError) Timeout() bool { return true }
 
 var (
-	ErrInvalidProtocol           = errors.New("invalid protocol")
-	ErrConsumed                  = errors.New("peer consumed more than sent")
-	ErrGoAway                    = errors.New("stream id overflows, should start a new connection")
-	ErrTimeout         net.Error = &timeoutError{}
-	ErrWouldBlock                = errors.New("operation would block on IO")
+	// ErrInvalidProtocol reports a mux version/command/layout violation that prevents safe
+	// continued parsing.
+	ErrInvalidProtocol = errors.New("invalid protocol")
+	// ErrConsumed reports a peer consumed-byte count inconsistent with sent data.
+	ErrConsumed = errors.New("peer consumed more than sent")
+	// ErrGoAway reports rejection of further session work after the session stops accepting
+	// streams.
+	ErrGoAway = errors.New("stream id overflows, should start a new connection")
+	// ErrTimeout reports logical stream deadline expiry rather than silently abandoning queued
+	// work.
+	ErrTimeout net.Error = &timeoutError{}
+	// ErrWouldBlock lets nonblocking stream readers distinguish no available bytes from EOF.
+	ErrWouldBlock = errors.New("operation would block on IO")
 )
 
 // writeRequest represents a request to write a frame
 type writeRequest struct {
-	class  CLASSID
-	frame  Frame
-	seq    uint32
+	// Scheduling category separating control from ordered data work.
+	class CLASSID
+	// Output frame retained until the shared sender reports completion.
+	frame Frame
+	// Scheduling sequence preserving order among comparable requests.
+	seq uint32
+	// One request completion signal reporting accepted bytes or a carrier error.
 	result chan writeResult
 }
 
 // writeResult represents the result of a write request
 type writeResult struct {
-	n   int
+	// Accepted output byte count, not the size of an attempted buffer.
+	n int
+	// Failure propagated with the result rather than silently dropping lifecycle/output errors.
 	err error
 }
 
 // Session defines a multiplexed connection for streams
 type Session struct {
-	flowWaitCount       atomic.Uint64
+	// Cumulative waits for per-stream remote credit.
+	flowWaitCount atomic.Uint64
+	// Cumulative credit-blocked duration without a dedicated per-stream timer.
 	flowWaitNanoseconds atomic.Uint64
-	creditHintsSent     atomic.Uint64
+	// Count of expedited feedback attempts; reliable fallback remains independently queued.
+	creditHintsSent atomic.Uint64
+	// Count of decoded feedback hints, subject to cumulative-credit validation.
 	creditHintsReceived atomic.Uint64
-	conn                io.ReadWriteCloser
+	// Shared carrier owned by this mux session; logical streams do not close it individually.
+	conn io.ReadWriteCloser
 
-	config           *Config
-	goAway           int32  // flag id exhausted
-	nextStreamID     uint32 // next stream identifier
+	// Prepared mux configuration treated as immutable after session construction.
+	config       *Config
+	goAway       int32  // flag id exhausted
+	nextStreamID uint32 // next stream identifier
+	// Serializes new stream-ID assignment across concurrent opens.
 	nextStreamIDLock sync.Mutex
 
 	bucket       int32         // token bucket
@@ -108,39 +146,58 @@ type Session struct {
 	streams    map[uint32]*stream // all streams in this session
 	streamLock sync.Mutex         // locks streams
 
-	die     chan struct{} // flag session has died
+	die chan struct{} // flag session has died
+	// Closes lifecycle signals once so failure/explicit close can race safely.
 	dieOnce sync.Once
 
 	// socket error handling
-	socketReadError      atomic.Value
-	socketWriteError     atomic.Value
-	chSocketReadError    chan struct{}
-	chSocketWriteError   chan struct{}
-	socketReadErrorOnce  sync.Once
+	socketReadError atomic.Value
+	// Published carrier output failure waking pending work instead of silently losing ownership.
+	socketWriteError atomic.Value
+	// Broadcasts permanent carrier input failure to blocked operations.
+	chSocketReadError chan struct{}
+	// Broadcasts permanent carrier output failure to blocked operations.
+	chSocketWriteError chan struct{}
+	// Publishes the first read failure only once.
+	socketReadErrorOnce sync.Once
+	// Publishes the first output failure only once.
 	socketWriteErrorOnce sync.Once
 
 	// smux protocol errors
-	protoError     atomic.Value
-	chProtoError   chan struct{}
+	protoError atomic.Value
+	// Broadcasts an unsafe mux framing/version error.
+	chProtoError chan struct{}
+	// Publishes the first protocol violation once.
 	protoErrorOnce sync.Once
 
+	// Bounded queue of streams awaiting application acceptance.
 	chAccepts chan *stream
 
 	sessionIsActive int32        // flag session is active
 	acceptDeadline  atomic.Value // deadline for Accept()
 
-	requestID        uint32            // Monotonic increasing write request ID
-	shaper           chan writeRequest // a shaper for writing
-	sq               *shaperQueue
-	chShaperPending  chan struct{}
+	requestID uint32            // Monotonic increasing write request ID
+	shaper    chan writeRequest // a shaper for writing
+	// Shared output scheduler used by the sole carrier-writing loop.
+	sq *shaperQueue
+	// Coalesces signals that the sender has queued data/control work.
+	chShaperPending chan struct{}
+	// Signals scheduler capacity released so blocked enqueue operations can progress.
 	chShaperConsumed chan struct{}
-	creditMu         sync.Mutex
-	credits          map[uint32]*creditUpdate
-	creditHead       *creditUpdate
-	creditTail       *creditUpdate
-	creditTransport  creditHintTransport
+	// Protects pending update membership and intrusive FIFO links, not carrier I/O.
+	creditMu sync.Mutex
+	// At most one coalesced cumulative update per live stream.
+	credits map[uint32]*creditUpdate
+	// Oldest pending update selected by the shared sender.
+	creditHead *creditUpdate
+	// Newest pending update, allowing constant-time admission/unlink.
+	creditTail *creditUpdate
+	// Optional expedited feedback adapter; absence retains ordinary reliable controls.
+	creditTransport creditHintTransport
 }
 
+// newSession initializes mux queues/credits/lifecycle and launches shared session tasks around
+// one carrier.
 func newSession(config *Config, conn io.ReadWriteCloser, client bool) *Session {
 	s := new(Session)
 	s.die = make(chan struct{})
@@ -309,6 +366,7 @@ func (s *Session) notifyBucket() {
 	}
 }
 
+// notifyReadError publishes input failure and releases pending stream reads/accepts.
 func (s *Session) notifyReadError(err error) {
 	s.socketReadErrorOnce.Do(func() {
 		s.socketReadError.Store(err)
@@ -316,6 +374,8 @@ func (s *Session) notifyReadError(err error) {
 	})
 }
 
+// notifyWriteError publishes asynchronous carrier failure and wakes blocked readers/writers
+// while clearing pending work.
 func (s *Session) notifyWriteError(err error) {
 	s.socketWriteErrorOnce.Do(func() {
 		s.socketWriteError.Store(err)
@@ -323,6 +383,8 @@ func (s *Session) notifyWriteError(err error) {
 	})
 }
 
+// notifyProtoError reports invalid frame semantics so malformed input does not continue on an
+// ambiguous session.
 func (s *Session) notifyProtoError(err error) {
 	s.protoErrorOnce.Do(func() {
 		s.protoError.Store(err)

@@ -1,7 +1,12 @@
+// File control_priority_test.go: exercises control priority regressions; fixtures must
+// preserve cleanup and expose byte/lifecycle failures explicitly.
+
 package smux
 
 import "testing"
 
+// TestControlPriorityAcrossStreamsAndDataFairness checks Control Priority Across Streams And
+// Data Fairness so a change cannot silently weaken the recorded regression contract.
 func TestControlPriorityAcrossStreamsAndDataFairness(t *testing.T) {
 	sq := NewShaperQueue()
 	sq.prioritizeControl = true
@@ -28,6 +33,8 @@ func TestControlPriorityAcrossStreamsAndDataFairness(t *testing.T) {
 	}
 }
 
+// TestTransportFrameLimitUsesLiveWindow checks Transport Frame Limit Uses Live Window so a
+// change cannot silently weaken the recorded regression contract.
 func TestTransportFrameLimitUsesLiveWindow(t *testing.T) {
 	cfg := DefaultConfig()
 	budget := 4096

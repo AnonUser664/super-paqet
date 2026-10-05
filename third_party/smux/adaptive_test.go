@@ -1,3 +1,6 @@
+// File adaptive_test.go: exercises adaptive regressions; fixtures must preserve cleanup and
+// expose byte/lifecycle failures explicitly.
+
 package smux
 
 import (
@@ -5,6 +8,8 @@ import (
 	"time"
 )
 
+// TestAdaptiveReceiveGrowthAndCeiling checks Adaptive Receive Growth And Ceiling so a change
+// cannot silently weaken the recorded regression contract.
 func TestAdaptiveReceiveGrowthAndCeiling(t *testing.T) {
 	cfg := DefaultConfig()
 	cfg.AdaptiveReceive = true

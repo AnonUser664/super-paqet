@@ -1,5 +1,8 @@
 //go:build linux
 
+// File relay_test.go: exercises relay regressions; fixtures must preserve cleanup and expose
+// byte/lifecycle failures explicitly.
+
 package engine
 
 import (
@@ -12,6 +15,8 @@ import (
 	"time"
 )
 
+// TestTCPHalfClose checks TCP Half Close so a change cannot silently weaken the recorded
+// regression contract.
 func TestTCPHalfClose(t *testing.T) {
 	left, right := net.Pipe()
 	cfg := smux.DefaultConfig()
@@ -96,6 +101,8 @@ func TestTCPHalfClose(t *testing.T) {
 	}
 }
 
+// TestDatagramBoundaries checks Datagram Boundaries so a change cannot silently weaken the
+// recorded regression contract.
 func TestDatagramBoundaries(t *testing.T) {
 	packets := [][]byte{nil, []byte("hello"), bytes.Repeat([]byte{0x89}, 65507), []byte("last")}
 	var wire bytes.Buffer
@@ -123,6 +130,8 @@ func TestDatagramBoundaries(t *testing.T) {
 	}
 }
 
+// TestRejectTruncatedDatagram checks Reject Truncated Datagram so a change cannot silently
+// weaken the recorded regression contract.
 func TestRejectTruncatedDatagram(t *testing.T) {
 	for _, b := range [][]byte{{0}, {0, 4, 1, 2}, {255, 255}} {
 		if _, err := readDatagram(bytes.NewReader(b)); err == nil {

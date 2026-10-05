@@ -1,3 +1,6 @@
+// File filter.go: scopes packet capture to configured local tunnel addresses/ports before
+// kernel TCP handling.
+
 package socket
 
 import (
@@ -6,6 +9,8 @@ import (
 	"strings"
 )
 
+// captureFilter restricts capture to local tunnel addresses and ports while allowing the
+// original outer flag behavior.
 func captureFilter(cfg *conf.Network) string {
 	var hosts []string
 	if cfg.IPv4.Addr != nil {

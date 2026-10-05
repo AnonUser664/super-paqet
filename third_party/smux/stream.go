@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File stream.go: provides logical connection reads/writes, pooled buffers, modular credits
+// and directional/full-close semantics.
+
 package smux
 
 import (
@@ -33,41 +36,53 @@ import (
 
 // wrapper for GC
 type Stream struct {
+	// Embedded internal stream state; the exported wrapper retains the same shared session.
 	*stream
 }
 
 // Stream implements net.Conn
 type stream struct {
-	id   uint32 // Stream identifier
+	id uint32 // Stream identifier
+	// Owning mux session; individual streams do not own or close its carrier socket.
 	sess *Session
 
 	bufferRing bufferRing // ring buffer for ordered incoming data
 
-	bufferLock    sync.Mutex // Mutex to protect access to buffers
+	bufferLock sync.Mutex // Mutex to protect access to buffers
+	// Current advertised byte capacity, bounded by the configured stream ceiling.
 	receiveWindow uint32
-	windowLast    time.Time
-	windowBytes   uint64
-	frameSize     int // Maximum frame size for the stream
+	// Last drain-rate observation time; no dedicated timer is retained per idle stream.
+	windowLast time.Time
+	// Bytes consumed during the current receive-window observation interval.
+	windowBytes uint64
+	frameSize   int // Maximum frame size for the stream
 
 	// wakeup channels
 	chReaderWakeup chan struct{}
+	// Coalesced wakeup for credit/close changes, avoiding sender busy loops.
 	chWriterWakeup chan struct{}
 
 	// stream closing
-	die            chan struct{}
-	dieOnce        sync.Once // Ensures die channel is closed only once
-	writeClosed    atomic.Bool
-	finSent        atomic.Bool
-	resetReceived  atomic.Bool
+	die     chan struct{}
+	dieOnce sync.Once // Ensures die channel is closed only once
+	// Rejects later application writes after directional EOF begins.
+	writeClosed atomic.Bool
+	// Records accepted ordered FIN so full close can distinguish graceful completion from reset.
+	finSent atomic.Bool
+	// Records remote full abandonment; later frames must not resurrect the stream.
+	resetReceived atomic.Bool
+	// Ensures concurrent directional-close attempts send at most one ordered FIN.
 	writeCloseOnce sync.Once
-	writeCloseErr  error
+	// Retains the first directional-close result for subsequent callers.
+	writeCloseErr error
 
 	// to handle FIN event(i.e. EOF)
 	chFinEvent   chan struct{}
 	finEventOnce sync.Once // Ensures chFinEvent is closed only once
 
 	// read/write deadline
-	readDeadline  atomic.Value
+	readDeadline atomic.Value
+	// Atomic output deadline retained independently of the read direction.
 	writeDeadline atomic.Value
 
 	// v2 stream fields(flow control)
@@ -81,14 +96,23 @@ type stream struct {
 	chUpdate     chan struct{} // notify of remote data consuming and window update
 }
 
+// bufferRing retains pooled receive slices in FIFO order with small on-demand metadata
+// capacity.
 type bufferRing struct {
-	bufs  [][]byte
+	// Unread payload slices in FIFO order; their allocator handles live in heads.
+	bufs [][]byte
+	// Original allocator handles used to recycle partially consumed slices correctly.
 	heads []*[]byte
-	head  int
-	tail  int
-	size  int
+	// Index of the oldest unread slice.
+	head int
+	// Next insertion slot; growth preserves logical FIFO order.
+	tail int
+	// Number of live retained slices, separate from ring capacity.
+	size int
 }
 
+// newBufferRing starts with small metadata storage so idle streams do not retain the full
+// receive ceiling.
 func newBufferRing(capacity int) bufferRing {
 	if capacity < 1 {
 		capacity = 1
@@ -99,10 +123,12 @@ func newBufferRing(capacity int) bufferRing {
 	}
 }
 
+// len reports retained slices; callers use the stream buffer lock to protect mutation.
 func (r *bufferRing) len() int {
 	return r.size
 }
 
+// grow expands metadata while preserving unread FIFO order and pooled slice ownership.
 func (r *bufferRing) grow() {
 	newCap := len(r.bufs) * 2
 	if newCap < 1 {
@@ -121,6 +147,7 @@ func (r *bufferRing) grow() {
 	r.tail = r.size
 }
 
+// push enqueues a received slice and its allocator handle without copying the payload.
 func (r *bufferRing) push(buf []byte, head *[]byte) {
 	if r.size == len(r.bufs) {
 		r.grow()
@@ -131,6 +158,7 @@ func (r *bufferRing) push(buf []byte, head *[]byte) {
 	r.size++
 }
 
+// pop releases the oldest retained slice/reference and keeps empty-ring indices consistent.
 func (r *bufferRing) pop() (buf []byte, head *[]byte, ok bool) {
 	if r.size == 0 {
 		return nil, nil, false
@@ -203,6 +231,8 @@ func (s *stream) Read(b []byte) (n int, err error) {
 	}
 }
 
+// tryReadV1 copies available legacy-version data and returns tokens without waiting for a
+// future frame.
 func (s *stream) tryReadV1(b []byte) (n int, err error) {
 	if len(b) == 0 {
 		return 0, nil
@@ -696,6 +726,8 @@ func (s *stream) writeV2(b []byte) (n int, err error) {
 	}
 }
 
+// waitCredit waits for credit, deadline or closure and records blocked duration without
+// spinning.
 func (s *stream) waitCredit(deadline <-chan time.Time) error {
 	started := time.Now()
 	s.sess.flowWaitCount.Add(1)
@@ -764,6 +796,8 @@ func (s *stream) CloseWrite() error {
 	return s.closeWrite()
 }
 
+// closeWrite sends ordered directional EOF once, after prior writes, while leaving read
+// ownership intact.
 func (s *stream) closeWrite() error {
 	s.writeCloseOnce.Do(func() {
 		s.writeClosed.Store(true)
@@ -778,6 +812,7 @@ func (s *stream) closeWrite() error {
 	return s.writeCloseErr
 }
 
+// writeFIN returns the legacy full-close signal only when directional half-close is disabled.
 func (s *stream) writeFIN() <-chan struct{} {
 	if s.sess.config.HalfClose {
 		return nil
@@ -825,6 +860,8 @@ func (s *stream) SetDeadline(t time.Time) error {
 // session closes
 func (s *stream) sessionClose() { s.dieOnce.Do(func() { close(s.die) }) }
 
+// reset marks remote abandonment and unblocks both directions without advertising undelivered
+// bytes.
 func (s *stream) reset() {
 	s.resetReceived.Store(true)
 	s.writeClosed.Store(true)

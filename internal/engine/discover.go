@@ -1,5 +1,8 @@
 //go:build linux
 
+// File discover.go: discovers missing physical route/source/neighbor information at startup;
+// explicit overrides handle policy-routing ambiguity.
+
 package engine
 
 import (
@@ -12,12 +15,19 @@ import (
 	"time"
 )
 
+// route decodes only the route attributes needed to select a physical interface/source/next
+// hop.
 type route struct {
-	Dev     string `json:"dev"`
+	// Route-selected interface name before explicit override resolution.
+	Dev string `json:"dev"`
+	// Route next-hop IP whose neighbor entry supplies an Ethernet destination.
 	Gateway string `json:"gateway"`
-	Source  string `json:"prefsrc"`
+	// Route-preferred local IP; multi-address hosts may require an explicit override.
+	Source string `json:"prefsrc"`
 }
 
+// discover fills missing interface, source address and next-hop MAC; it is startup discovery
+// rather than continuous route tracking.
 func discover(n *conf.Network, endpoint *net.UDPAddr, listener bool) error {
 	addr := &n.IPv6
 	if endpoint.IP.To4() != nil {

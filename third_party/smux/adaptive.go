@@ -1,7 +1,12 @@
+// File adaptive.go: bounds stream receive windows/frame sizes from drain rate and current
+// carrier budget.
+
 package smux
 
 import "time"
 
+// writeFrameLimit caps mux payload to current carrier capacity so one bulk frame cannot bury
+// newly queued controls.
 func (s *stream) writeFrameLimit() int {
 	limit := s.frameSize
 	if budget := s.sess.config.TransportWriteLimit; budget != nil {
@@ -10,6 +15,8 @@ func (s *stream) writeFrameLimit() int {
 	return limit
 }
 
+// windowUpdateThreshold uses the advertised live window rather than its ceiling when deciding
+// when readers return credit.
 func (s *stream) windowUpdateThreshold() uint32 {
 	if s.sess.config.AdaptiveReceive {
 		return max(1, s.receiveWindow/4)

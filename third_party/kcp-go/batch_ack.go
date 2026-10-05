@@ -1,7 +1,12 @@
+// File batch_ack.go: coalesces/deadlines ACK output while ensuring control feedback is not
+// trapped behind bulk pacing.
+
 package kcp
 
 import "time"
 
+// SetACKDelay bounds deferred ACK scheduling under the carrier lock; control feedback must
+// still progress when data is paced.
 func (s *UDPSession) SetACKDelay(delay time.Duration) {
 	s.mu.Lock()
 	limit := s.ackDelayLimit
@@ -13,15 +18,21 @@ func (s *UDPSession) SetACKDelay(delay time.Duration) {
 	s.mu.Unlock()
 }
 
+// SetACKDelayLimit sets the maximum ACK deferral separately from the adaptive chosen delay.
 func (s *UDPSession) SetACKDelayLimit(limit time.Duration) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.ackDelayLimit = min(20*time.Millisecond, max(time.Millisecond, limit))
 }
 
+// ackImmediately checks whether configured immediate ACKs are compatible with batch and
+// delayed-ACK state.
 func (s *UDPSession) ackImmediately() bool {
 	return s.ackNoDelay && s.ackDelay == 0 && !s.batchACK.Load() && (s.l == nil || !s.l.batchACK.Load())
 }
+
+// flushBatchACK flushes accumulated feedback after a receive batch rather than emitting one
+// syscall per received datagram.
 func (s *UDPSession) flushBatchACK() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -37,6 +48,8 @@ func (s *UDPSession) flushBatchACK() {
 	}
 }
 
+// sendDelayedACK services a scheduled feedback deadline without requiring another application
+// write.
 func (s *UDPSession) sendDelayedACK() {
 	s.mu.Lock()
 	defer s.mu.Unlock()

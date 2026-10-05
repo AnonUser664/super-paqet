@@ -1,3 +1,6 @@
+// File protocol_test.go: exercises protocol regressions; fixtures must preserve cleanup and
+// expose byte/lifecycle failures explicitly.
+
 package protocol
 
 import (
@@ -8,6 +11,8 @@ import (
 	"testing"
 )
 
+// TestRoundTripAndMalformedControls checks Round Trip And Malformed Controls so a change
+// cannot silently weaken the recorded regression contract.
 func TestRoundTripAndMalformedControls(t *testing.T) {
 	for _, p := range []Proto{{Type: PPING}, {Type: PPONG}, {Type: PTCP2, Addr: &tnet.Addr{Host: "example.com", Port: 443}}, {Type: PUDP2, Addr: &tnet.Addr{Host: "::1", Port: 53}}, {Type: PTCPF, TCPF: []conf.TCPF{{PSH: true, ACK: true}, {SYN: true}}}} {
 		var wire bytes.Buffer
@@ -37,15 +42,23 @@ func TestRoundTripAndMalformedControls(t *testing.T) {
 	}
 }
 
+// shortWriter retains the short Writer fixture state used to expose failures without
+// production network side effects.
 type shortWriter struct{}
 
+// Write simulates a partial successful write so control framing must reject silent truncation.
 func (shortWriter) Write(p []byte) (int, error) { return len(p) - 1, nil }
+
+// TestControlShortWrite checks Control Short Write so a change cannot silently weaken the
+// recorded regression contract.
 func TestControlShortWrite(t *testing.T) {
 	if err := (&Proto{Type: PPING}).Write(shortWriter{}); err != io.ErrShortWrite {
 		t.Fatal(err)
 	}
 }
 
+// FuzzControlRead exercises Control Read with generated inputs to catch malformed-input
+// crashes and unsafe boundary assumptions.
 func FuzzControlRead(f *testing.F) {
 	f.Add([]byte{MAGIC, VERSION, PPING, 0, 0})
 	f.Fuzz(func(t *testing.T, b []byte) { var p Proto; _ = p.Read(bytes.NewReader(b)) })

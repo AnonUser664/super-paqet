@@ -1,5 +1,8 @@
 //go:build linux
 
+// File pcap_tx_test.go: exercises pcap tx regressions; fixtures must preserve cleanup and
+// expose byte/lifecycle failures explicitly.
+
 package socket
 
 import (
@@ -16,12 +19,16 @@ import (
 	"paqet/internal/conf"
 )
 
+// faultInjector retains the fault Injector fixture state used to expose failures without
+// production network side effects.
 type faultInjector struct {
 	faults  []error
 	packets [][]byte
 	closed  bool
 }
 
+// WritePacketData injects scripted queue/permanent failures before retaining successful bytes,
+// isolating error handling from kernel scheduling.
 func (f *faultInjector) WritePacketData(data []byte) error {
 	if len(f.faults) > 0 {
 		err := f.faults[0]
@@ -33,8 +40,12 @@ func (f *faultInjector) WritePacketData(data []byte) error {
 	f.packets = append(f.packets, append([]byte(nil), data...))
 	return nil
 }
+
+// Close records resource closure so the fault test can reject leaked injector ownership.
 func (f *faultInjector) Close() { f.closed = true }
 
+// TestPCAPQueuePressureDoesNotBreakPacketConn checks PCAP Queue Pressure Does Not Break Packet
+// Conn so a change cannot silently weaken the recorded regression contract.
 func TestPCAPQueuePressureDoesNotBreakPacketConn(t *testing.T) {
 	for _, drop := range []error{syscall.ENOBUFS, fmt.Errorf("injection: %w", syscall.ENOBUFS), errors.New("send: No buffer space available")} {
 		t.Run(drop.Error(), func(t *testing.T) {
@@ -72,6 +83,9 @@ func TestPCAPQueuePressureDoesNotBreakPacketConn(t *testing.T) {
 		})
 	}
 }
+
+// TestOnlyRecognizedPCAPQueueErrorsAreRecoverable checks Only Recognized PCAP Queue Errors Are
+// Recoverable so a change cannot silently weaken the recorded regression contract.
 func TestOnlyRecognizedPCAPQueueErrorsAreRecoverable(t *testing.T) {
 	for _, err := range []error{nil, syscall.EIO, syscall.ENETDOWN, net.ErrClosed, errors.New("packet injection is not supported"), errors.New("send: Permission denied"), errors.New("capture failed: No buffer space available")} {
 		if transientTXDrop(err) {

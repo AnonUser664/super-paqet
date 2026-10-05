@@ -22,12 +22,16 @@
 
 //go:build !linux
 
+// File tx_generic.go: uses individual packet sends on platforms without Linux batching.
+
 package kcp
 
 import (
 	"golang.org/x/net/ipv4"
 )
 
+// tx sends a prepared output batch using the available platform path and accounts
+// attempts/errors.
 func (s *UDPSession) tx(txqueue []ipv4.Message) {
 	s.defaultTx(txqueue)
 }

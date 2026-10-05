@@ -1,3 +1,6 @@
+// File send_handle.go: builds fabricated outer headers and serializes pcap injection; KCP
+// alone provides reliable byte delivery.
+
 package socket
 
 import (
@@ -18,42 +21,79 @@ import (
 	"paqet/internal/pkg/iterator"
 )
 
+// tcpF keeps default/per-peer flag iterators and conversation ownership under one registration
+// lock.
 type tcpF struct {
-	tcpF       iterator.Iterator[conf.TCPF]
+	// Default outer flag cycle; peer-specific overrides and ownership are tracked separately.
+	tcpF iterator.Iterator[conf.TCPF]
+	// Per-remote flag cycle overrides, guarded with conversation ownership.
 	clientTCPF map[netip.AddrPort]*iterator.Iterator[conf.TCPF]
-	owners     map[netip.AddrPort]uint32
-	mu         sync.RWMutex
+	// Current conversation generation per remote key, preventing stale setup/cleanup from
+	// changing replacements.
+	owners map[netip.AddrPort]uint32
+	// Protects peer flag maps and owner generations; iterators maintain their own atomic
+	// positions.
+	mu sync.RWMutex
 }
 
+// encoder reuses Ethernet/IP/TCP serialization storage; encoded bytes must be consumed before
+// the object returns to its pool.
 type encoder struct {
+	// Ethernet header metadata; source/destination MAC ownership belongs to the selected
+	// physical path.
 	eth layers.Ethernet
+	// IPv4 header storage used by the retained raw envelope.
 	ip4 layers.IPv4
+	// IPv6 header storage used by the retained raw envelope.
 	ip6 layers.IPv6
+	// TCP header representation; its fabricated fields do not provide application reliability.
 	tcp layers.TCP
 
+	// Reusable TCP option slots retaining the original SYN/ordinary header layout.
 	opts [5]layers.TCPOption
-	ts   [8]byte
-	mss  [2]byte
-	ws   [1]byte
+	// TCP timestamp option bytes encoded in network order.
+	ts [8]byte
+	// Advertised SYN MSS bytes; this is outer header shape rather than KCP's usable payload
+	// size.
+	mss [2]byte
+	// Advertised SYN window-scale option bytes retained for wire compatibility.
+	ws [1]byte
 
+	// Reusable serialized frame storage; it cannot outlive a returned encoder pool object.
 	buf gopacket.SerializeBuffer
 }
 
+// SendHandle owns injection state, shared fabricated counters and generation-checked peer flag
+// cycles.
 type SendHandle struct {
-	handle      packetInjector
-	txDrops     atomic.Uint64
-	writeMu     sync.Mutex
-	srcIPv4     net.IP
+	// Owned injection handle, serialized with writers/close; raw encoders have no pcap handle.
+	handle packetInjector
+	// Atomic local transmit-queue loss count, separate from network retransmission statistics.
+	txDrops atomic.Uint64
+	// Serializes injection and closure because pcap writes are not guaranteed concurrently safe.
+	writeMu sync.Mutex
+	// Configured local IPv4 source; raw injection does not ask kernel IP routing to choose it.
+	srcIPv4 net.IP
+	// Configured IPv4 next-hop MAC, which can differ from IPv6 routing.
 	srcIPv4RHWA net.HardwareAddr
-	srcIPv6     net.IP
+	// Configured local IPv6 source for raw header construction.
+	srcIPv6 net.IP
+	// Configured IPv6 next-hop hardware address.
 	srcIPv6RHWA net.HardwareAddr
-	srcPort     uint16
-	time        uint32
-	tsCounter   atomic.Uint32
-	tcpF        tcpF
-	ePool       sync.Pool
+	// Reserved local tunnel source port shared by configured address families.
+	srcPort uint16
+	// Retained initial fabricated timestamp/number seed; it is not a synchronized peer clock.
+	time uint32
+	// Atomic original outer counter shared where packet-worker semantics require it.
+	tsCounter atomic.Uint32
+	// Default/per-peer flag cycles and generation ownership shared by packet writers.
+	tcpF tcpF
+	// Reuses complete serializer state; each borrowed encoder is returned after injection.
+	ePool sync.Pool
 }
 
+// NewSendHandle prepares outgoing injection, reusable encoders and generation-owned peer flag
+// state.
 func NewSendHandle(cfg *conf.Network) (*SendHandle, error) {
 	handle, err := newHandle(cfg, 256*1024, 128, pcap.BlockForever)
 	if err != nil {
@@ -105,6 +145,8 @@ func NewSendHandle(cfg *conf.Network) (*SendHandle, error) {
 	return sh, nil
 }
 
+// buildIPv4Header fills the retained IPv4 TCP/TTL/TOS/DF envelope; this is raw framing rather
+// than kernel routing.
 func (h *SendHandle) buildIPv4Header(e *encoder, dstIP net.IP) {
 	e.ip4 = layers.IPv4{
 		Version:  4,
@@ -118,6 +160,7 @@ func (h *SendHandle) buildIPv4Header(e *encoder, dstIP net.IP) {
 	}
 }
 
+// buildIPv6Header fills the corresponding IPv6 TCP/hop-limit/traffic-class envelope.
 func (h *SendHandle) buildIPv6Header(e *encoder, dstIP net.IP) {
 	e.ip6 = layers.IPv6{
 		Version:      6,
@@ -129,6 +172,8 @@ func (h *SendHandle) buildIPv6Header(e *encoder, dstIP net.IP) {
 	}
 }
 
+// buildTCPHeader fills fabricated flags, options and number fields; KCP reliability must not
+// depend on outer TCP sequence semantics.
 func (h *SendHandle) buildTCPHeader(e *encoder, dstPort uint16, f conf.TCPF) {
 	e.tcp = layers.TCP{
 		SrcPort: layers.TCPPort(h.srcPort),
@@ -137,6 +182,7 @@ func (h *SendHandle) buildTCPHeader(e *encoder, dstPort uint16, f conf.TCPF) {
 		Window: 65535,
 	}
 
+	// These retained counters imitate outer TCP fields; their increments are not delivered application byte counts. Changing them needs wire/detectability qualification.
 	counter := h.tsCounter.Add(1)
 	tsVal := h.time + (counter >> 3)
 	opts := e.opts[:0]
@@ -171,6 +217,8 @@ func (h *SendHandle) buildTCPHeader(e *encoder, dstPort uint16, f conf.TCPF) {
 	e.tcp.Options = opts
 }
 
+// Write serializes an outer frame and injects it under the writer lock; recognized queue
+// pressure is counted as recoverable loss.
 func (h *SendHandle) Write(payload []byte, addr *net.UDPAddr) error {
 	e := h.ePool.Get().(*encoder)
 	defer func() {
@@ -218,6 +266,8 @@ func (h *SendHandle) Write(payload []byte, addr *net.UDPAddr) error {
 	return err
 }
 
+// getClientTCPF selects the peer cycle or default cycle while protecting concurrent flag
+// registration.
 func (h *SendHandle) getClientTCPF(dstIP net.IP, dstPort uint16) conf.TCPF {
 	h.tcpF.mu.RLock()
 	defer h.tcpF.mu.RUnlock()
@@ -227,6 +277,7 @@ func (h *SendHandle) getClientTCPF(dstIP net.IP, dstPort uint16) conf.TCPF {
 	return h.tcpF.tcpF.Next()
 }
 
+// setClientTCPF updates the compatibility flag cycle for one remote endpoint.
 func (h *SendHandle) setClientTCPF(addr net.Addr, f []conf.TCPF) {
 	a, ok := addr.(*net.UDPAddr)
 	if !ok {
@@ -237,6 +288,8 @@ func (h *SendHandle) setClientTCPF(addr net.Addr, f []conf.TCPF) {
 	h.tcpF.mu.Unlock()
 }
 
+// registerClient records the active conversation generation so stale cleanup cannot remove a
+// newer peer configuration.
 func (h *SendHandle) registerClient(addr net.Addr, owner uint32) {
 	a, ok := addr.(*net.UDPAddr)
 	if !ok {
@@ -251,6 +304,9 @@ func (h *SendHandle) registerClient(addr net.Addr, owner uint32) {
 	h.tcpF.owners[key] = owner
 	delete(h.tcpF.clientTCPF, key)
 }
+
+// setClientTCPFSession applies requested flags only if the calling conversation still owns
+// that remote endpoint.
 func (h *SendHandle) setClientTCPFSession(addr net.Addr, owner uint32, f []conf.TCPF) {
 	a, ok := addr.(*net.UDPAddr)
 	if !ok {
@@ -264,6 +320,9 @@ func (h *SendHandle) setClientTCPFSession(addr net.Addr, owner uint32, f []conf.
 	}
 	h.tcpF.clientTCPF[key] = &iterator.Iterator[conf.TCPF]{Items: f}
 }
+
+// deleteClientSession removes peer state only for its current owner, preventing teardown races
+// across reconnects.
 func (h *SendHandle) deleteClientSession(addr net.Addr, owner uint32) {
 	a, ok := addr.(*net.UDPAddr)
 	if !ok {
@@ -279,6 +338,7 @@ func (h *SendHandle) deleteClientSession(addr net.Addr, owner uint32) {
 	delete(h.tcpF.clientTCPF, key)
 }
 
+// deleteClientTCPF removes the compatibility flag override without changing the default cycle.
 func (h *SendHandle) deleteClientTCPF(addr net.Addr) {
 	a, ok := addr.(*net.UDPAddr)
 	if !ok {
@@ -289,6 +349,8 @@ func (h *SendHandle) deleteClientTCPF(addr net.Addr) {
 	h.tcpF.mu.Unlock()
 }
 
+// Close serializes injection-handle closure with writers; raw callers may have no pcap handle
+// to release.
 func (h *SendHandle) Close() {
 	h.writeMu.Lock()
 	defer h.writeMu.Unlock()
@@ -298,6 +360,8 @@ func (h *SendHandle) Close() {
 	}
 }
 
+// peerAddress canonicalizes IPv4-mapped and native endpoint keys so registration and lookup
+// refer to the same peer.
 func peerAddress(ip net.IP, port uint16) netip.AddrPort {
 	addr, ok := netip.AddrFromSlice(ip)
 	if !ok {

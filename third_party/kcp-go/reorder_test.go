@@ -1,7 +1,12 @@
+// File reorder_test.go: exercises reorder regressions; fixtures must preserve cleanup and
+// expose byte/lifecycle failures explicitly.
+
 package kcp
 
 import "testing"
 
+// TestGapGraceAvoidsImmediateSpuriousRetransmission checks Gap Grace Avoids Immediate Spurious
+// Retransmission so a change cannot silently weaken the recorded regression contract.
 func TestGapGraceAvoidsImmediateSpuriousRetransmission(t *testing.T) {
 	var now uint32
 	k := NewKCP(1, func([]byte, int) {})
@@ -25,6 +30,8 @@ func TestGapGraceAvoidsImmediateSpuriousRetransmission(t *testing.T) {
 	}
 }
 
+// TestTimerRetransmissionIgnoresReorderGrace checks Timer Retransmission Ignores Reorder Grace
+// so a change cannot silently weaken the recorded regression contract.
 func TestTimerRetransmissionIgnoresReorderGrace(t *testing.T) {
 	var now uint32
 	k := NewKCP(1, func([]byte, int) {})
@@ -42,6 +49,9 @@ func TestTimerRetransmissionIgnoresReorderGrace(t *testing.T) {
 	}
 }
 
+// TestDelayedACKFlushPreservesCumulativeAcknowledgment checks Delayed ACK Flush Preserves
+// Cumulative Acknowledgment so a change cannot silently weaken the recorded regression
+// contract.
 func TestDelayedACKFlushPreservesCumulativeAcknowledgment(t *testing.T) {
 	packets := 0
 	s := &UDPSession{die: make(chan struct{}), ackNoDelay: true}

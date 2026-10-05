@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Module purpose: Read recorded benchmark outputs only; summarization must not rerun tests or
+# imply missing results passed.
 """Summarize saved benchmark artifacts without rerunning a workload."""
 import argparse
 import json

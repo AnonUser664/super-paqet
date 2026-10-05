@@ -1,3 +1,6 @@
+// File handle.go: activates libpcap with bounded capture settings and releases inactive
+// handles on every setup failure.
+
 package socket
 
 import (
@@ -10,6 +13,8 @@ import (
 	"paqet/internal/conf"
 )
 
+// newHandle sets capture limits before activation and releases the inactive handle on each
+// error path.
 func newHandle(cfg *conf.Network, sockbuf int, snapLen int, timeout time.Duration) (*pcap.Handle, error) {
 	// On Windows, use the GUID field to construct the NPF device name
 	// On other platforms, use the interface name directly

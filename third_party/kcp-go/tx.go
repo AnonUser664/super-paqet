@@ -20,6 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File tx.go: provides shared output accounting and individual-send fallback.
+
 package kcp
 
 import (

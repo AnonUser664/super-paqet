@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File ringbuffer.go: keeps reliable queues in logical FIFO order across growth and
+// wraparound.
+
 package kcp
 
 const (

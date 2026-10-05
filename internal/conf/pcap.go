@@ -1,13 +1,20 @@
+// File pcap.go: bounds capture/socket buffer requests; these buffers are separate from Go heap
+// limits.
+
 package conf
 
 import (
 	"fmt"
 )
 
+// PCAP bounds driver socket/capture storage separately from application and mux buffers.
 type PCAP struct {
+	// Requested driver receive/transmit storage in bytes, outside the Go heap budget.
 	Sockbuf int `yaml:"sockbuf"`
 }
 
+// setDefaults chooses client/server capture budgets without allocating them per application
+// stream.
 func (p *PCAP) setDefaults(role string) {
 	if p.Sockbuf == 0 {
 		if role == "server" {
@@ -18,6 +25,7 @@ func (p *PCAP) setDefaults(role string) {
 	}
 }
 
+// validate rejects unusable or excessive socket storage requests before handle activation.
 func (p *PCAP) validate() []error {
 	var errors []error
 

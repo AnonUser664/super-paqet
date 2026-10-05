@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Module purpose: Run the expanded profile/seed matrix with integrity and conservative
+# regression gates, not just peak bitrate.
 """Expanded sequential link qualification. Never runs two measured cases together."""
 import argparse
 import json
@@ -42,6 +44,8 @@ PROFILES={
 BULK_FLOORS_MBIT={'random':40,'loss5':15,'loss20':2,'burst':20,'reorder':10,'jitter':10,'mobile':.5,'tiny-queue':1,'mtu576':5,'ipv6':30,'ipv6-mtu1280':20,'harsh':.5}
 IPERF_FLOORS_MBIT={'clean':2000,'wan100':700,'satellite':50}
 
+# main: Run the expanded profile/seed matrix with integrity and conservative regression
+# gates, not just peak bitrate.
 def main():
     p=argparse.ArgumentParser()
     p.add_argument('--binary',default='build/super-paqet')

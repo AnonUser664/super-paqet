@@ -1,3 +1,6 @@
+// File pcap_tx.go: recognizes only known Linux queue-full injection failures as recoverable
+// loss; other errors remain fatal.
+
 package socket
 
 import (
@@ -10,10 +13,15 @@ import (
 // packetInjector is the write side of a pcap handle. Receive handles remain
 // concrete; this small interface also permits deterministic injection faults.
 type packetInjector interface {
+	// Injects one complete Ethernet frame; recognized queue-full loss is handled by the
+	// surrounding adapter.
 	WritePacketData([]byte) error
+	// Releases owned resources; accepted carrier wrappers never own the listener packet socket.
 	Close()
 }
 
+// transientTXDrop recognizes typed or known libpcap-text Linux ENOBUFS only, allowing KCP
+// recovery without hiding permanent injection failures.
 func transientTXDrop(err error) bool {
 	if err == nil || runtime.GOOS != "linux" {
 		return false

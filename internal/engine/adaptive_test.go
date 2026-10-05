@@ -1,5 +1,8 @@
 //go:build linux
 
+// File adaptive_test.go: exercises adaptive regressions; fixtures must preserve cleanup and
+// expose byte/lifecycle failures explicitly.
+
 package engine
 
 import (
@@ -8,6 +11,8 @@ import (
 	"time"
 )
 
+// TestAdaptiveBoundsAndQueueResponse checks Adaptive Bounds And Queue Response so a change
+// cannot silently weaken the recorded regression contract.
 func TestAdaptiveBoundsAndQueueResponse(t *testing.T) {
 	c := newController(1024, 4096)
 	now := time.Now()
@@ -31,6 +36,8 @@ func TestAdaptiveBoundsAndQueueResponse(t *testing.T) {
 	}
 }
 
+// TestAdaptiveLowBandwidthAndIdle checks Adaptive Low Bandwidth And Idle so a change cannot
+// silently weaken the recorded regression contract.
 func TestAdaptiveLowBandwidthAndIdle(t *testing.T) {
 	c := newController(4096, 4096)
 	now := time.Now()
@@ -51,6 +58,8 @@ func TestAdaptiveLowBandwidthAndIdle(t *testing.T) {
 	}
 }
 
+// TestControlTrafficPreservesLearnedCapacity checks Control Traffic Preserves Learned Capacity
+// so a change cannot silently weaken the recorded regression contract.
 func TestControlTrafficPreservesLearnedCapacity(t *testing.T) {
 	c := newController(32768, 32768)
 	now := time.Now()
@@ -73,6 +82,9 @@ func TestControlTrafficPreservesLearnedCapacity(t *testing.T) {
 	}
 }
 
+// TestDeliveryGapDoesNotEraseCapacityAndSustainedDropConverges checks Delivery Gap Does Not
+// Erase Capacity And Sustained Drop Converges so a change cannot silently weaken the recorded
+// regression contract.
 func TestDeliveryGapDoesNotEraseCapacityAndSustainedDropConverges(t *testing.T) {
 	c := newController(32768, 32768)
 	now := time.Unix(100, 0)
@@ -100,6 +112,9 @@ func TestDeliveryGapDoesNotEraseCapacityAndSustainedDropConverges(t *testing.T) 
 	}
 }
 
+// TestControlSamplesLearnRTTBeforeBulkWithoutGrowingWindow checks Control Samples Learn RTT
+// Before Bulk Without Growing Window so a change cannot silently weaken the recorded
+// regression contract.
 func TestControlSamplesLearnRTTBeforeBulkWithoutGrowingWindow(t *testing.T) {
 	c := newController(32768, 32768)
 	now := time.Unix(100, 0)
@@ -119,6 +134,8 @@ func TestControlSamplesLearnRTTBeforeBulkWithoutGrowingWindow(t *testing.T) {
 	}
 }
 
+// TestReverseQueueDoesNotThrottleForwardPacing checks Reverse Queue Does Not Throttle Forward
+// Pacing so a change cannot silently weaken the recorded regression contract.
 func TestReverseQueueDoesNotThrottleForwardPacing(t *testing.T) {
 	c := newController(32768, 32768)
 	now := time.Unix(100, 0)
@@ -144,6 +161,9 @@ func TestReverseQueueDoesNotThrottleForwardPacing(t *testing.T) {
 	}
 }
 
+// TestSmallControlPacketRateGrowsCreditWithoutDataPacing checks Small Control Packet Rate
+// Grows Credit Without Data Pacing so a change cannot silently weaken the recorded regression
+// contract.
 func TestSmallControlPacketRateGrowsCreditWithoutDataPacing(t *testing.T) {
 	c := newController(1024, 4096)
 	now := time.Unix(100, 0)
@@ -161,6 +181,9 @@ func TestSmallControlPacketRateGrowsCreditWithoutDataPacing(t *testing.T) {
 	}
 }
 
+// TestReorderTransitMinimumDoesNotCreatePermanentCongestion checks Reorder Transit Minimum
+// Does Not Create Permanent Congestion so a change cannot silently weaken the recorded
+// regression contract.
 func TestReorderTransitMinimumDoesNotCreatePermanentCongestion(t *testing.T) {
 	c := newController(32768, 32768)
 	now := time.Unix(100, 0)
@@ -186,6 +209,8 @@ func TestReorderTransitMinimumDoesNotCreatePermanentCongestion(t *testing.T) {
 	}
 }
 
+// TestReportedACKDelayDoesNotCausePacingBackoff checks Reported ACK Delay Does Not Cause
+// Pacing Backoff so a change cannot silently weaken the recorded regression contract.
 func TestReportedACKDelayDoesNotCausePacingBackoff(t *testing.T) {
 	c := newController(32768, 32768)
 	now := time.Unix(100, 0)
@@ -203,6 +228,8 @@ func TestReportedACKDelayDoesNotCausePacingBackoff(t *testing.T) {
 	}
 }
 
+// TestLargeQueueBackoffDrainsFasterThanSmallQueue checks Large Queue Backoff Drains Faster
+// Than Small Queue so a change cannot silently weaken the recorded regression contract.
 func TestLargeQueueBackoffDrainsFasterThanSmallQueue(t *testing.T) {
 	c := newController(1024, 1024)
 	c.minRTT, c.rate, c.bulkSeen, c.congested = 50, 100000, true, true

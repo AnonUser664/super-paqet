@@ -1,3 +1,6 @@
+// File dial.go: constructs an owned outgoing raw socket, KCP conversation and client mux
+// session with failure cleanup.
+
 package kcp
 
 import (
@@ -12,6 +15,8 @@ import (
 	"paqet/internal/tnet"
 )
 
+// Dial builds an owned outgoing raw/KCP/mux stack and closes previously created layers if
+// construction fails.
 func Dial(addr *net.UDPAddr, cfg *conf.KCP, netCfg conf.Network) (tnet.Conn, error) {
 	nCfg := netCfg
 	packetConn, err := socket.New(&nCfg)

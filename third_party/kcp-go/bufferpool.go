@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File bufferpool.go: reuses packet byte storage; returned buffers must not remain referenced
+// by queued work.
+
 package kcp
 
 import (
@@ -34,7 +37,11 @@ var errBufferSizeMismatch = errors.New("buffer size mismatch")
 // to mitigate high-frequency memory allocation of packets.
 var defaultBufferPool = newBufferPool(mtuLimit)
 
+// bufferPool owns reusable transport packet storage so allocation cost is independent of each
+// emitted datagram.
 type bufferPool struct {
+	// Pool of reusable packet slices returned only after queued transmission no longer
+	// references them.
 	xmitBuf sync.Pool
 }
 

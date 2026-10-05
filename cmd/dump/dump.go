@@ -1,3 +1,6 @@
+// File dump.go: captures raw tunnel payloads for diagnosis; null-mode output can contain
+// plaintext control metadata.
+
 package dump
 
 import (
@@ -11,14 +14,20 @@ import (
 	"syscall"
 )
 
+// path selects the YAML file used by the capture command.
 var path string
+
+// listener selects the configured incoming endpoint to inspect.
 var listener int
 
+// init registers command options or initializes module-wide lookup/pool state once before
+// runtime work begins.
 func init() {
 	Cmd.Flags().StringVarP(&path, "config", "c", "config.yaml", "Configuration file")
 	Cmd.Flags().IntVar(&listener, "listener", 0, "Listener index to capture")
 }
 
+// Cmd registers the dump command, including its options and explicit error propagation.
 var Cmd = &cobra.Command{Use: "dump", Short: "Captures raw TCP payloads for a configured listener", RunE: func(cmd *cobra.Command, args []string) error {
 	cfg, err := engine.Load(path)
 	if err != nil {

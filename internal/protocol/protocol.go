@@ -1,3 +1,6 @@
+// File protocol.go: frames bounded inner opening/control messages; application reliability
+// remains with the surrounding KCP stream.
+
 package protocol
 
 import (
@@ -10,48 +13,79 @@ import (
 	"paqet/internal/tnet"
 )
 
+// PType names bounded inner control request kinds without changing the outer transport.
 type PType = byte
 
 const (
-	MAGIC   byte = 0x50
+	// MAGIC identifies an inner control record before its body is interpreted.
+	MAGIC byte = 0x50
+	// VERSION selects the retained control-header version, separate from enterprise request type
+	// semantics.
 	VERSION byte = 0x01
 
+	// PPING requests a carrier response without dialing an application target.
 	PPING PType = 0x01
+	// PPONG acknowledges a control ping; it does not prove sustained target delivery.
 	PPONG PType = 0x02
+	// PTCPF carries the requested peer outer flag cycle inside the reliable carrier.
 	PTCPF PType = 0x03
-	PTCP  PType = 0x04
-	PUDP  PType = 0x05
+	// PTCP names the legacy TCP request type; the enterprise dispatcher uses the directional-
+	// close type instead.
+	PTCP PType = 0x04
+	// PUDP names the legacy UDP request type; enterprise UDP requires explicit datagram framing.
+	PUDP PType = 0x05
 	// Enterprise streams require directional FIN and framed UDP respectively.
 	PTCP2 PType = 0x06
+	// PUDP2 selects enterprise length-framed UDP relay while retaining reliable carrier delivery.
 	PUDP2 PType = 0x07
 )
 
 const (
-	headerLen    = 5 // MAGIC, VERSION, TYPE, LENGTH(2)
-	maxHostLen   = 253
+	headerLen = 5 // MAGIC, VERSION, TYPE, LENGTH(2)
+	// maxHostLen bounds transmitted target names to limit control allocation and reject malformed
+	// input.
+	maxHostLen = 253
+	// maxTCPFCount bounds the remote outer flag cycle carried by one control request.
 	maxTCPFCount = 64
-	maxBodyLen   = 4096
-	maxPort      = 0xFFFF
+	// maxBodyLen caps declared inner control storage before reading attacker-provided lengths.
+	maxBodyLen = 4096
+	// maxPort bounds target ports to their 16-bit wire representation.
+	maxPort = 0xFFFF
 )
 
 const (
+	// bFIN assigns the FIN bit in inner peer flag setup; its wire value must remain stable.
 	bFIN = 1 << 0
+	// bSYN assigns the SYN bit in inner peer flag setup; its wire value must remain stable.
 	bSYN = 1 << 1
+	// bRST assigns the RST bit in inner peer flag setup; its wire value must remain stable.
 	bRST = 1 << 2
+	// bPSH assigns the PSH bit in inner peer flag setup; its wire value must remain stable.
 	bPSH = 1 << 3
+	// bACK assigns the ACK bit in inner peer flag setup; its wire value must remain stable.
 	bACK = 1 << 4
+	// bURG assigns the URG bit in inner peer flag setup; its wire value must remain stable.
 	bURG = 1 << 5
+	// bECE assigns the ECE bit in inner peer flag setup; its wire value must remain stable.
 	bECE = 1 << 6
+	// bCWR assigns the CWR bit in inner peer flag setup; its wire value must remain stable.
 	bCWR = 1 << 7
-	bNS  = 1 << 8
+	// bNS assigns the NS bit in inner peer flag setup; its wire value must remain stable.
+	bNS = 1 << 8
 )
 
+// Proto holds one validated inner ping/flag/target request; application bytes follow on the
+// same mux stream.
 type Proto struct {
+	// Validated inner control kind used by engine dispatch.
 	Type PType
+	// Target hostname/port to be interpreted only for target-opening request kinds.
 	Addr *tnet.Addr
+	// Requested peer outer flag cycle, carried inside the reliable stream.
 	TCPF []conf.TCPF
 }
 
+// encodeTCPF packs configured TCP flag bits into the bounded inner setup message.
 func encodeTCPF(f conf.TCPF) uint16 {
 	var v uint16
 	if f.FIN {
@@ -84,6 +118,7 @@ func encodeTCPF(f conf.TCPF) uint16 {
 	return v
 }
 
+// decodeTCPF restores outer flag choices from the inner setup bit mask.
 func decodeTCPF(v uint16) conf.TCPF {
 	return conf.TCPF{
 		FIN: v&bFIN != 0, SYN: v&bSYN != 0, RST: v&bRST != 0,
@@ -92,6 +127,7 @@ func decodeTCPF(v uint16) conf.TCPF {
 	}
 }
 
+// readFull allocates only the requested bounded control region and rejects truncated input.
 func readFull(r io.Reader, n int) ([]byte, error) {
 	b := make([]byte, n)
 	if _, err := io.ReadFull(r, b); err != nil {
@@ -100,6 +136,8 @@ func readFull(r io.Reader, n int) ([]byte, error) {
 	return b, nil
 }
 
+// Write serializes the bounded control header/body and uses priority when available so opening
+// metadata is not hidden behind bulk.
 func (p *Proto) Write(w io.Writer) error {
 	body := make([]byte, 0, 64)
 
@@ -157,6 +195,8 @@ func (p *Proto) Write(w io.Writer) error {
 	return err
 }
 
+// Read validates magic, version, declared lengths and message-specific fields before control
+// dispatch.
 func (p *Proto) Read(r io.Reader) error {
 	hdr, err := readFull(r, headerLen)
 	if err != nil {

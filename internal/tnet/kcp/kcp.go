@@ -1,3 +1,6 @@
+// File kcp.go: maps presets/manual knobs to KCP and enables the enterprise mux extensions
+// inside the raw envelope.
+
 package kcp
 
 import (
@@ -9,6 +12,8 @@ import (
 	"github.com/xtaci/smux"
 )
 
+// aplConf maps preset or manual parameters to KCP and configures the retained
+// reliability/ACK/packet-size behavior.
 func aplConf(conn *kcp.UDPSession, cfg *conf.KCP) error {
 	var noDelay, interval, resend, noCongestion int
 	var wDelay, ackNoDelay bool
@@ -45,6 +50,8 @@ func aplConf(conn *kcp.UDPSession, cfg *conf.KCP) error {
 	return nil
 }
 
+// smuxConf enables enterprise half-close, credit/priority and buffer ceilings above the same
+// reliable KCP carrier.
 func smuxConf(cfg *conf.KCP, conn *kcp.UDPSession) *smux.Config {
 	var sconf = smux.DefaultConfig()
 	sconf.HalfClose = cfg.HalfClose

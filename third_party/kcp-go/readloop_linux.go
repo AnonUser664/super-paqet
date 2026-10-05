@@ -22,6 +22,9 @@
 
 //go:build linux
 
+// File readloop_linux.go: receives batched datagrams and coalesces feedback while preserving
+// conversation routing.
+
 package kcp
 
 import (

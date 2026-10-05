@@ -1,3 +1,5 @@
+// This module owns the application runtime and its local reliable/mux forks.
+// Dependency changes require the owning module suites; these comments change no versions.
 module paqet
 
 go 1.27

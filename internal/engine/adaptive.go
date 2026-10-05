@@ -1,5 +1,8 @@
 //go:build linux
 
+// File adaptive.go: uses per-carrier delivery and queue feedback to bound windows/pacing
+// without allocating a controller per customer stream.
+
 package engine
 
 import (
@@ -13,36 +16,64 @@ import (
 // lowest observed RTT. It does not confuse random loss with queue congestion.
 // Limits remain explicit ceilings. These heuristics require link-matrix testing.
 type controller struct {
-	queueSignal              float64
-	packetRate               float64
-	bulkSeen                 bool
+	// Forward-attributed queue growth used to distinguish congestion from reverse ACK pressure.
+	queueSignal float64
+	// Recent delivered segment rate, including small control observations before bulk begins.
+	packetRate float64
+	// Keeps tiny keepalive/opening traffic from being treated as a fresh bulk capacity estimate.
+	bulkSeen bool
+	// Configured send ceiling, receive setting and currently selected send window, in segments.
 	maximum, receive, window int
-	previous                 kcplib.TransportStats
-	last                     time.Time
-	minRTT                   float64
-	rate                     float64
-	samples                  int
-	startup                  bool
-	peakRate                 float64
-	plateau                  int
-	lossRatio                float64
-	passive                  bool
-	delivery                 [32]deliverySample
-	deliveryNext             int
-	congested                bool
-	slot                     *slot
-	hotUntil                 time.Time
+	// Prior observation retained for counter deltas rather than cumulative-rate errors.
+	previous kcplib.TransportStats
+	// Time of the previous delivery/activity observation.
+	last time.Time
+	// Observed propagation/ACK-adjusted RTT floor in milliseconds.
+	minRTT float64
+	// Estimated payload delivery rate in bytes per second.
+	rate float64
+	// Observation count used for bounded probing cadence.
+	samples int
+	// Allows bounded window/rate growth while learning a new path.
+	startup bool
+	// Retains peak recent delivery so temporary ordered-delivery gaps do not collapse capacity.
+	peakRate float64
+	// Counts periods without capacity growth to end aggressive startup probing.
+	plateau int
+	// Estimated retransmission fraction, separate from attributed queue congestion.
+	lossRatio float64
+	// Keeps diagnostics registered while disabling controller mutations for static endpoints.
+	passive bool
+	// Recent timestamped rates, retained only per carrier rather than per application stream.
+	delivery [32]deliverySample
+	// Next bounded history slot; old rate samples are replaced rather than accumulated.
+	deliveryNext int
+	// Hysteretic queue classification used to avoid reacting permanently to reorder/jitter
+	// noise.
+	congested bool
+	// Optional outgoing pool member receiving cached pressure scores from this controller.
+	slot *slot
+	// Keeps a carrier's cached busy score alive briefly after a bulk observation.
+	hotUntil time.Time
 }
 
+// deliverySample retains a timestamped delivery rate so one short delivery gap does not erase
+// a learned path capacity.
 type deliverySample struct {
-	at   time.Time
+	// Timestamp for delta/rate expiry calculations.
+	at time.Time
+	// Estimated payload delivery rate in bytes per second.
 	rate float64
 }
 
+// newController starts with a small in-flight budget so startup probes do not allocate or
+// flood the full configured ceiling.
 func newController(maximum, receive int) *controller {
 	return &controller{maximum: maximum, receive: receive, window: min(4, maximum), startup: true}
 }
 
+// update updates delivery/window estimates while separating idle control traffic, noisy RTT
+// and sustained capacity changes.
 func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 	if c.last.IsZero() {
 		c.previous = s
@@ -184,6 +215,8 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 	return c.window
 }
 
+// pacingRate chooses a bounded send rate from delivery and queue pressure; exempt controls can
+// still release backpressure.
 func (c *controller) pacingRate() uint64 {
 	if c.minRTT < 10 || c.rate <= 0 || !c.bulkSeen {
 		return 0
@@ -199,6 +232,8 @@ func (c *controller) pacingRate() uint64 {
 	return uint64(max(1024, c.rate*gain))
 }
 
+// addTuner registers adaptive carrier state under the tuner lock and installs its initial
+// receive/send limits.
 func (e *Engine) addTuner(conn *kcp.Conn, maximum, receive int, slots ...*slot) {
 	c := newController(maximum, receive)
 	if len(slots) > 0 {
@@ -210,6 +245,8 @@ func (e *Engine) addTuner(conn *kcp.Conn, maximum, receive int, slots ...*slot) 
 	e.tuneMu.Unlock()
 }
 
+// addPassive registers telemetry without enabling adaptive changes, preserving explicit static
+// endpoint behavior.
 func (e *Engine) addPassive(conn *kcp.Conn) {
 	s := conn.UDPSession.TransportStats()
 	e.tuneMu.Lock()
@@ -217,6 +254,8 @@ func (e *Engine) addPassive(conn *kcp.Conn) {
 	e.tuneMu.Unlock()
 }
 
+// tune samples every carrier on one shared ticker and applies bounded
+// pacing/window/ACK/reordering/timer adjustments.
 func (e *Engine) tune() {
 	ticker := time.NewTicker(250 * time.Millisecond)
 	defer ticker.Stop()

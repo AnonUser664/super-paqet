@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File alloc.go: reuses bounded power-of-two frame slices while preserving allocator handle
+// ownership.
+
 package smux
 
 import (
@@ -28,16 +31,22 @@ import (
 )
 
 var (
+	// defaultAllocator shares reusable bounded mux frame storage across stream operations.
 	defaultAllocator *Allocator
-	debruijinPos     = [...]byte{0, 9, 1, 10, 13, 21, 2, 29, 11, 14, 16, 18, 22, 25, 3, 30, 8, 12, 20, 28, 15, 17, 24, 7, 19, 27, 23, 6, 26, 5, 4, 31}
+	// debruijinPos maps bit patterns to size classes so buffer selection avoids a per-allocation
+	// search.
+	debruijinPos = [...]byte{0, 9, 1, 10, 13, 21, 2, 29, 11, 14, 16, 18, 22, 25, 3, 30, 8, 12, 20, 28, 15, 17, 24, 7, 19, 27, 23, 6, 26, 5, 4, 31}
 )
 
+// init registers command options or initializes module-wide lookup/pool state once before
+// runtime work begins.
 func init() {
 	defaultAllocator = NewAllocator()
 }
 
 // Allocator for incoming frames, optimized to prevent overwriting after zeroing
 type Allocator struct {
+	// Power-of-two frame pools whose slice handles must be returned after consumption.
 	buffers []sync.Pool
 }
 

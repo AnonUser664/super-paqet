@@ -1,3 +1,4 @@
+# Workflow purpose: Run the configured build workflow on its self-hosted runner; it does not replace real-link qualification.
 name: Build Linux Self-Hosted
 
 on:

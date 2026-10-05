@@ -1,3 +1,6 @@
+// File idle_close.go: retires a mux carrier only when stream registration cannot race the idle
+// decision.
+
 package smux
 
 // CloseIfIdle atomically excludes new stream registration before closing an

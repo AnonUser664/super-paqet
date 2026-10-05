@@ -1,3 +1,6 @@
+// File stream_credit_test.go: exercises stream credit regressions; fixtures must preserve
+// cleanup and expose byte/lifecycle failures explicitly.
+
 package kcp
 
 import (
@@ -7,6 +10,9 @@ import (
 	"time"
 )
 
+// TestEncryptedCreditControlCallbackOutsideCarrierLock checks Encrypted Credit Control
+// Callback Outside Carrier Lock so a change cannot silently weaken the recorded regression
+// contract.
 func TestEncryptedCreditControlCallbackOutsideCarrierLock(t *testing.T) {
 	for _, fec := range [][2]int{{0, 0}, {10, 3}} {
 		block, _ := NewAESGCMCrypt(make([]byte, 16))
@@ -57,6 +63,8 @@ func TestEncryptedCreditControlCallbackOutsideCarrierLock(t *testing.T) {
 	}
 }
 
+// TestControlCannotCreateOrReplaceCarrierGeneration checks Control Cannot Create Or Replace
+// Carrier Generation so a change cannot silently weaken the recorded regression contract.
 func TestControlCannotCreateOrReplaceCarrierGeneration(t *testing.T) {
 	packet, err := net.ListenPacket("udp", "127.0.0.1:0")
 	if err != nil {
@@ -105,6 +113,8 @@ func TestControlCannotCreateOrReplaceCarrierGeneration(t *testing.T) {
 	}
 }
 
+// TestWriteBudgetTracksWindowAndPacing checks Write Budget Tracks Window And Pacing so a
+// change cannot silently weaken the recorded regression contract.
 func TestWriteBudgetTracksWindowAndPacing(t *testing.T) {
 	k := NewKCP(1, func([]byte, int) {})
 	s := &UDPSession{kcp: k}

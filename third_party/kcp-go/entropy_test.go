@@ -1,3 +1,6 @@
+// File entropy_test.go: exercises entropy regressions; fixtures must preserve cleanup and
+// expose byte/lifecycle failures explicitly.
+
 package kcp
 
 import (
@@ -8,6 +11,8 @@ import (
 	"testing"
 )
 
+// TestEntropyAES checks Entropy AES so a change cannot silently weaken the recorded regression
+// contract.
 func TestEntropyAES(t *testing.T) {
 	r := NewEntropyAES()
 	buf := make([]byte, 16)
@@ -29,6 +34,8 @@ func TestEntropyAES(t *testing.T) {
 	}
 }
 
+// TestEntropyChacha8 checks Entropy Chacha8 so a change cannot silently weaken the recorded
+// regression contract.
 func TestEntropyChacha8(t *testing.T) {
 	r := NewEntropyChacha8()
 	buf := make([]byte, 32)
@@ -50,6 +57,8 @@ func TestEntropyChacha8(t *testing.T) {
 	}
 }
 
+// TestSetEntropy checks Set Entropy so a change cannot silently weaken the recorded regression
+// contract.
 func TestSetEntropy(t *testing.T) {
 	// Save original entropy
 	orig := entropy
@@ -69,6 +78,8 @@ func TestSetEntropy(t *testing.T) {
 	// We can't easily verify the content is from custom, but we can verify it didn't panic
 }
 
+// TestFillRand checks Fill Rand so a change cannot silently weaken the recorded regression
+// contract.
 func TestFillRand(t *testing.T) {
 	buf := make([]byte, 100)
 	fillRand(buf)
@@ -89,8 +100,12 @@ func TestFillRand(t *testing.T) {
 	fillRand(nil)
 }
 
+// mockReader retains the mock Reader fixture state used to expose failures without production
+// network side effects.
 type mockReader struct{}
 
+// Read fills predictable entropy bytes so nonce buffering/refill behavior can be checked
+// independently of randomness.
 func (m *mockReader) Read(p []byte) (n int, err error) {
 	for i := range p {
 		p[i] = 0xAA
@@ -98,6 +113,8 @@ func (m *mockReader) Read(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
+// TestSetEntropyMock checks Set Entropy Mock so a change cannot silently weaken the recorded
+// regression contract.
 func TestSetEntropyMock(t *testing.T) {
 	orig := entropy
 	defer SetEntropy(orig)
@@ -112,6 +129,8 @@ func TestSetEntropyMock(t *testing.T) {
 	}
 }
 
+// BenchmarkCsprngSystem measures Csprng System with the fixture's workload; results must be
+// interpreted with its buffer and transport settings.
 func BenchmarkCsprngSystem(b *testing.B) {
 	data := make([]byte, md5.Size)
 	b.SetBytes(int64(len(data)))
@@ -121,6 +140,8 @@ func BenchmarkCsprngSystem(b *testing.B) {
 	}
 }
 
+// BenchmarkCsprngAES128 measures Csprng AES128 with the fixture's workload; results must be
+// interpreted with its buffer and transport settings.
 func BenchmarkCsprngAES128(b *testing.B) {
 	var data [aes.BlockSize]byte
 	b.SetBytes(aes.BlockSize)
@@ -131,6 +152,8 @@ func BenchmarkCsprngAES128(b *testing.B) {
 	}
 }
 
+// BenchmarkCsprngChacha8 measures Csprng Chacha8 with the fixture's workload; results must be
+// interpreted with its buffer and transport settings.
 func BenchmarkCsprngChacha8(b *testing.B) {
 	var data [8]byte
 	b.SetBytes(8)

@@ -1,5 +1,8 @@
 //go:build linux
 
+// File codec_linux.go: encodes/checksums and bounds-checks Ethernet/IP/TCP frames without
+// imposing outer TCP stream semantics.
+
 package socket
 
 import (
@@ -9,6 +12,7 @@ import (
 	"net/netip"
 )
 
+// sum16 adds network-order words for the Internet checksum, including an odd trailing byte.
 func sum16(b []byte) uint32 {
 	var sum uint32
 	for len(b) >= 8 {
@@ -24,6 +28,9 @@ func sum16(b []byte) uint32 {
 	}
 	return sum
 }
+
+// checksum folds carries and complements the checksum accumulator used by manually encoded
+// headers.
 func checksum(sum uint32) uint16 {
 	for sum>>16 != 0 {
 		sum = (sum & 65535) + (sum >> 16)

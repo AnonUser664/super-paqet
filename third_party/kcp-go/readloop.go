@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File readloop.go: shares packet/address dispatch helpers across platform receive
+// implementations.
+
 package kcp
 
 import (
@@ -29,6 +32,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+// sameUDPAddr compares endpoint values so session lookup does not depend on mutable address
+// slice identity.
 func sameUDPAddr(a, b *net.UDPAddr) bool {
 	if a == nil || b == nil {
 		return false

@@ -20,6 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File mux.go: defines mux configuration constraints and client/server session construction.
+
 package smux
 
 import (
@@ -42,11 +44,13 @@ type Config struct {
 	// TransportWriteLimit bounds data frames to the current carrier budget.
 	// PrioritizeControl schedules control across streams before bulk data.
 	TransportWriteLimit func() int
-	PrioritizeControl   bool
+	// Enables bounded control-first scheduling without allowing unlimited data starvation.
+	PrioritizeControl bool
 	// AdaptiveReceive grows advertised stream windows from measured drain rate
 	// and transport RTT. MaxStreamBuffer remains a hard advertised ceiling.
 	AdaptiveReceive bool
-	TransportRTT    func() time.Duration
+	// Optional carrier RTT source used by receive-window adaptation.
+	TransportRTT func() time.Duration
 	// HalfClose treats FIN as a directional EOF. Both endpoints must enable it.
 	// Disabled by default to preserve upstream behavior.
 	HalfClose bool

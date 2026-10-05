@@ -1,5 +1,8 @@
 //go:build linux
 
+// File engine.go: owns runtime startup, admission, incoming control dispatch and ordered
+// shutdown of one tunnel instance.
+
 package engine
 
 import (
@@ -26,23 +29,48 @@ import (
 	"paqet/internal/tnet/kcp"
 )
 
-type Stats struct{ Active, Accepted, Rejected, Errors, Aborted, Sent, Received, Sessions atomic.Int64 }
-type Engine struct {
-	tuneMu          sync.Mutex
-	tuners          map[*kcp.Conn]*controller
-	packetObservers []observedPacket
-	cfg             *Config
-	ctx             context.Context
-	cancel          context.CancelFunc
-	stats           Stats
-	peers           map[string]*peer
-	closers         []io.Closer
-	fw              firewall
-	wg              sync.WaitGroup
-	diagnostics     *diagnostics
-	flowIDs         atomic.Uint64
+// Stats stores atomic process counters so concurrent flows can report lifecycle and accepted
+// bytes without one global relay lock.
+type Stats struct {
+	// Atomic live/admission/failure/byte/carrier counters; control streams can briefly count as
+	// active work.
+	Active, Accepted, Rejected, Errors, Aborted, Sent, Received, Sessions atomic.Int64
 }
 
+// Engine owns one process runtime and its resource lifetimes; carrier and flow state remain
+// separate objects.
+type Engine struct {
+	// Protects controller registration and listener-observer snapshots shared by
+	// tuning/diagnostic tasks.
+	tuneMu sync.Mutex
+	// Per-carrier controller/telemetry registry; closed sessions are removed by the shared loop.
+	tuners map[*kcp.Conn]*controller
+	// Listener-owned worker sockets registered under tuneMu for shared drop telemetry.
+	packetObservers []observedPacket
+	// Prepared runtime configuration treated as immutable during this engine run.
+	cfg *Config
+	// Engine cancellation propagated to endpoint/flow work.
+	ctx context.Context
+	// Cancels the engine child context before resource teardown.
+	cancel context.CancelFunc
+	// Atomic lifecycle/byte/admission counters shared by concurrent flows and diagnostics.
+	stats Stats
+	// Published named outgoing pools created during startup.
+	peers map[string]*peer
+	// Startup-owned resources released in reverse order after cancellation.
+	closers []io.Closer
+	// This instance's owned-rule journal and cleanup state.
+	fw firewall
+	// Tracks engine tasks so rules/resources are not finalized while relays still run.
+	wg sync.WaitGroup
+	// Bounded asynchronous diagnostic output and its shutdown/drop state.
+	diagnostics *diagnostics
+	// Atomic debug correlation IDs; absent debug tracing avoids per-flow records.
+	flowIDs atomic.Uint64
+}
+
+// Run owns one engine lifecycle, including admission resources and cleanup after partial
+// startup or cancellation.
 func Run(ctx context.Context, cfg *Config) (err error) {
 	d := newDiagnostics(cfg.Log, nil)
 	defer d.close()
@@ -155,7 +183,11 @@ func Run(ctx context.Context, cfg *Config) (err error) {
 	return nil
 }
 
+// launch adds a task to the engine wait group so shutdown waits for its completion.
 func (e *Engine) launch(fn func()) { e.wg.Add(1); go func() { defer e.wg.Done(); fn() }() }
+
+// close closes peers and registered resources in reverse order; firewall teardown happens
+// after engine tasks settle.
 func (e *Engine) close() {
 	for _, p := range e.peers {
 		p.close()
@@ -165,6 +197,8 @@ func (e *Engine) close() {
 	}
 }
 
+// acquire atomically admits active work up to the process limit, preventing concurrent accepts
+// from overshooting capacity.
 func (e *Engine) acquire() bool {
 	for {
 		n := e.stats.Active.Load()
@@ -179,6 +213,8 @@ func (e *Engine) acquire() bool {
 	}
 }
 
+// report records a failed operation and its diagnostic cause without terminating unrelated
+// healthy carriers.
 func (e *Engine) report(err error) {
 	n := e.stats.Errors.Add(1)
 	if n <= 5 {
@@ -247,8 +283,12 @@ func reserve(n conf.Network) (io.Closer, conf.Network, error) {
 	return guard, n, nil
 }
 
+// portGuards retains kernel listeners used only to reserve tunnel source ports, not to carry
+// application data.
 type portGuards []*net.TCPListener
 
+// Close releases every reserved kernel port and combines failures so dual-family reservations
+// do not leak.
 func (g portGuards) Close() error {
 	var errs []error
 	for _, l := range g {
@@ -259,6 +299,8 @@ func (g portGuards) Close() error {
 	return errors.Join(errs...)
 }
 
+// forward accepts local TCP flows, applies admission/opening deadlines and relays each
+// successful remote stream.
 func (e *Engine) forward(listener *net.TCPListener, f Forward) {
 	for {
 		conn, err := listener.AcceptTCP()
@@ -305,6 +347,8 @@ func (e *Engine) forward(listener *net.TCPListener, f Forward) {
 	}
 }
 
+// serve accepts incoming carriers and dispatches their mux streams while preserving
+// generation-owned flag state.
 func (e *Engine) serve(listener tnet.Listener, endpoint Endpoint) {
 	for {
 		conn, err := listener.Accept()
@@ -321,6 +365,7 @@ func (e *Engine) serve(listener tnet.Listener, endpoint Endpoint) {
 			conn.Close()
 			continue
 		}
+		// Accepted carriers share listener sockets. Conversation ownership protects peer flags, not ownership of that socket.
 		owner := conn.(*kcp.Conn).UDPSession.GetConv()
 		e.log().Debug("session.accepted", "conv", owner, "remote", conn.RemoteAddr().String(), "listener", endpoint.Address)
 		listener.RegisterClient(conn.RemoteAddr(), owner)
@@ -350,6 +395,8 @@ func (e *Engine) serve(listener tnet.Listener, endpoint Endpoint) {
 	}
 }
 
+// handle validates one inner request, acknowledges transport receipt, dials the target and
+// reports its actual opening outcome.
 func (e *Engine) handle(listener tnet.Listener, strm tnet.Strm, owner uint32) {
 	trace := e.flowTrace()
 	strm.SetDeadline(time.Now().Add(e.cfg.Limits.OpenDuration))
@@ -376,6 +423,7 @@ func (e *Engine) handle(listener tnet.Listener, strm tnet.Strm, owner uint32) {
 	// Confirm transport delivery before the potentially slow target dial. This
 	// lets the client recover a stale KCP slot without disrupting healthy slots
 	// merely because a destination is slow or unreachable.
+	// The receipt status proves this carrier delivered the request before a potentially slow target dial.
 	if err := writeOpeningAck(strm, 2); err != nil {
 		return
 	}
@@ -405,6 +453,8 @@ func (e *Engine) handle(listener tnet.Listener, strm tnet.Strm, owner uint32) {
 	}
 }
 
+// writeOpeningAck sends the one-byte receipt/success/failure status with control priority and
+// rejects partial writes.
 func writeOpeningAck(strm tnet.Strm, code byte) error {
 	var n int
 	var err error
@@ -419,6 +469,8 @@ func writeOpeningAck(strm tnet.Strm, code byte) error {
 	return err
 }
 
+// startMetrics starts the optional loopback HTTP diagnostics listener and ties its closure to
+// engine cancellation.
 func (e *Engine) startMetrics() error {
 	mux := http.NewServeMux()
 	if e.cfg.Profiling {

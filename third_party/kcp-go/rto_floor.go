@@ -1,3 +1,6 @@
+// File rto_floor.go: sets a bounded retransmission floor without changing KCP wire format or
+// fast retry thresholds.
+
 package kcp
 
 // SetMinRTO changes the retransmission floor without changing KCP wire format.

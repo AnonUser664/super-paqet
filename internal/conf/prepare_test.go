@@ -1,7 +1,12 @@
+// File prepare_test.go: exercises prepare regressions; fixtures must preserve cleanup and
+// expose byte/lifecycle failures explicitly.
+
 package conf
 
 import "testing"
 
+// TestMTUIncludesEncryptionFECAndCoreMinimum checks MTU Includes Encryption FEC And Core
+// Minimum so a change cannot silently weaken the recorded regression contract.
 func TestMTUIncludesEncryptionFECAndCoreMinimum(t *testing.T) {
 	for _, tc := range []struct {
 		block   string

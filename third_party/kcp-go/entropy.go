@@ -20,6 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File entropy.go: supplies reusable nonce entropy for packet encryption.
+
 package kcp
 
 import (
@@ -37,13 +39,25 @@ import (
 const reseedInterval = 1 << 24 // reseed after ~16M reads to limit key exposure
 
 var (
+	// hasAESAsmAMD64 records available hardware AES acceleration for nonce generation
+	// implementation selection.
 	hasAESAsmAMD64 = cpu.X86.HasAES && cpu.X86.HasSSE41 && cpu.X86.HasSSSE3
+	// hasAESAsmARM64 records available hardware AES acceleration for nonce generation
+	// implementation selection.
 	hasAESAsmARM64 = cpu.ARM64.HasAES
+	// hasAESAsmS390X records available hardware AES acceleration for nonce generation
+	// implementation selection.
 	hasAESAsmS390X = cpu.S390X.HasAES
+	// hasAESAsmPPC64 records available hardware AES acceleration for nonce generation
+	// implementation selection.
 	hasAESAsmPPC64 = runtime.GOARCH == "ppc64" || runtime.GOARCH == "ppc64le"
 
+	// hasAESHardwareSupport records available hardware AES acceleration for nonce generation
+	// implementation selection.
 	hasAESHardwareSupport = hasAESAsmAMD64 || hasAESAsmARM64 || hasAESAsmS390X || hasAESAsmPPC64
 
+	// entropy owns reusable nonce generation state rather than reading new entropy for every
+	// small packet.
 	entropy io.Reader = NewEntropy()
 )
 
@@ -71,9 +85,13 @@ func fillRand(p []byte) {
 
 // rngAES is an AES-based random number generator.
 type rngAES struct {
+	// Serializes mutation of the nonce generator state shared by encryption tasks.
 	mutex sync.Mutex
+	// Prepared block cipher used by the compatibility packet mode.
 	block cipher.Block
-	seed  [16]byte
+	// Generator seed/state refreshed according to the entropy implementation.
+	seed [16]byte
+	// Tracks generated AES-based nonce material before the generator refreshes its state.
 	count uint64
 }
 
@@ -128,8 +146,11 @@ func (r *rngAES) Read(p []byte) (int, error) {
 
 // rngChacha8 is a ChaCha8-based random number generator.
 type rngChacha8 struct {
+	// Serializes mutation of the nonce generator state shared by encryption tasks.
 	mutex sync.Mutex
-	rand  *rand.ChaCha8
+	// Reusable ChaCha generator used when hardware AES nonce generation is unavailable.
+	rand *rand.ChaCha8
+	// Tracks generated nonce material before the generator refreshes its state.
 	count uint64
 }
 

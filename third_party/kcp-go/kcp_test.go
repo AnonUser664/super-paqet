@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File kcp_test.go: exercises kcp regressions; fixtures must preserve cleanup and expose
+// byte/lifecycle failures explicitly.
+
 package kcp
 
 import (
@@ -33,8 +36,11 @@ import (
 	"github.com/xtaci/lossyconn"
 )
 
+// repeat bounds repeated fixture operations so protocol tests have a defined workload.
 const repeat = 16
 
+// TestLossyConn1 checks Lossy Conn1 so a change cannot silently weaken the recorded regression
+// contract.
 func TestLossyConn1(t *testing.T) {
 	t.Log("testing loss rate 10%, rtt 200ms")
 	t.Log("testing link with nodelay parameters:1 10 2 1")
@@ -52,6 +58,8 @@ func TestLossyConn1(t *testing.T) {
 	testlink(t, client, server, 1, 10, 2, 1)
 }
 
+// TestLossyConn2 checks Lossy Conn2 so a change cannot silently weaken the recorded regression
+// contract.
 func TestLossyConn2(t *testing.T) {
 	t.Log("testing loss rate 20%, rtt 200ms")
 	t.Log("testing link with nodelay parameters:1 10 2 1")
@@ -69,6 +77,8 @@ func TestLossyConn2(t *testing.T) {
 	testlink(t, client, server, 1, 10, 2, 1)
 }
 
+// TestLossyConn3 checks Lossy Conn3 so a change cannot silently weaken the recorded regression
+// contract.
 func TestLossyConn3(t *testing.T) {
 	t.Log("testing loss rate 30%, rtt 200ms")
 	t.Log("testing link with nodelay parameters:1 10 2 1")
@@ -86,6 +96,8 @@ func TestLossyConn3(t *testing.T) {
 	testlink(t, client, server, 1, 10, 2, 1)
 }
 
+// TestLossyConn4 checks Lossy Conn4 so a change cannot silently weaken the recorded regression
+// contract.
 func TestLossyConn4(t *testing.T) {
 	t.Log("testing loss rate 10%, rtt 200ms")
 	t.Log("testing link with nodelay parameters:1 10 2 0")
@@ -103,6 +115,8 @@ func TestLossyConn4(t *testing.T) {
 	testlink(t, client, server, 1, 10, 2, 0)
 }
 
+// testlink runs a reliable conversation through the lossy test link with explicit
+// retransmission parameters.
 func testlink(t *testing.T, client *lossyconn.LossyConn, server *lossyconn.LossyConn, nodelay, interval, resend, nc int) {
 	t.Log("testing with nodelay parameters:", nodelay, interval, resend, nc)
 	sess, _ := NewConn2(server.LocalAddr(), nil, 0, 0, client)
@@ -148,6 +162,8 @@ func testlink(t *testing.T, client *lossyconn.LossyConn, server *lossyconn.Lossy
 	echoTester(sess)
 }
 
+// BenchmarkFlush measures Flush with the fixture's workload; results must be interpreted with
+// its buffer and transport settings.
 func BenchmarkFlush(b *testing.B) {
 	kcp := NewKCP(1, func(buf []byte, size int) {})
 	kcp.snd_buf = NewRingBuffer[segment](1024)

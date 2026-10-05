@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File alloc_test.go: exercises alloc regressions; fixtures must preserve cleanup and expose
+// byte/lifecycle failures explicitly.
+
 package smux
 
 import (
@@ -28,6 +31,8 @@ import (
 	"testing"
 )
 
+// TestAllocGet checks Alloc Get so a change cannot silently weaken the recorded regression
+// contract.
 func TestAllocGet(t *testing.T) {
 	alloc := NewAllocator()
 	if alloc.Get(0) != nil {
@@ -68,6 +73,8 @@ func TestAllocGet(t *testing.T) {
 	}
 }
 
+// TestAllocPut checks Alloc Put so a change cannot silently weaken the recorded regression
+// contract.
 func TestAllocPut(t *testing.T) {
 	alloc := NewAllocator()
 	if err := alloc.Put(nil); err == nil {
@@ -101,6 +108,8 @@ func TestAllocPut(t *testing.T) {
 	}
 }
 
+// TestAllocPutThenGet checks Alloc Put Then Get so a change cannot silently weaken the
+// recorded regression contract.
 func TestAllocPutThenGet(t *testing.T) {
 	alloc := NewAllocator()
 	data := alloc.Get(4)
@@ -112,12 +121,16 @@ func TestAllocPutThenGet(t *testing.T) {
 	}
 }
 
+// BenchmarkMSB measures MSB with the fixture's workload; results must be interpreted with its
+// buffer and transport settings.
 func BenchmarkMSB(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		msb(rand.Int())
 	}
 }
 
+// BenchmarkAlloc measures Alloc with the fixture's workload; results must be interpreted with
+// its buffer and transport settings.
 func BenchmarkAlloc(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		pbuf := defaultAllocator.Get(i % 65536)
@@ -125,6 +138,8 @@ func BenchmarkAlloc(b *testing.B) {
 	}
 }
 
+// TestDebrujin checks Debrujin so a change cannot silently weaken the recorded regression
+// contract.
 func TestDebrujin(t *testing.T) {
 	for i := 1; i <= 65536; i++ {
 		a := int(msb(i))
@@ -136,6 +151,8 @@ func TestDebrujin(t *testing.T) {
 	}
 }
 
+// TestAllocPutSizeMismatch checks Alloc Put Size Mismatch so a change cannot silently weaken
+// the recorded regression contract.
 func TestAllocPutSizeMismatch(t *testing.T) {
 	alloc := NewAllocator()
 	data := alloc.Get(1024)

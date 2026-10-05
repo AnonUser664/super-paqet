@@ -1,3 +1,6 @@
+// File transit_test.go: exercises transit regressions; fixtures must preserve cleanup and
+// expose byte/lifecycle failures explicitly.
+
 package kcp
 
 import (
@@ -5,6 +8,9 @@ import (
 	"testing"
 )
 
+// TestTransitSeparatesForwardReverseQueuesAcrossClockOffsets checks Transit Separates Forward
+// Reverse Queues Across Clock Offsets so a change cannot silently weaken the recorded
+// regression contract.
 func TestTransitSeparatesForwardReverseQueuesAcrossClockOffsets(t *testing.T) {
 	for _, offset := range []uint32{1000, 0xfffffff0, 0x7fffffff} {
 		k := NewKCP(1, func([]byte, int) {})
@@ -25,6 +31,8 @@ func TestTransitSeparatesForwardReverseQueuesAcrossClockOffsets(t *testing.T) {
 	}
 }
 
+// TestACKTimestampOptionalInteroperability checks ACK Timestamp Optional Interoperability so a
+// change cannot silently weaken the recorded regression contract.
 func TestACKTimestampOptionalInteroperability(t *testing.T) {
 	for _, enabled := range [][2]bool{{true, true}, {true, false}, {false, true}, {false, false}} {
 		var fromLeft, fromRight []byte
@@ -60,6 +68,8 @@ func TestACKTimestampOptionalInteroperability(t *testing.T) {
 	}
 }
 
+// TestACKCoalescingDelayIsNotReverseNetworkQueue checks ACK Coalescing Delay Is Not Reverse
+// Network Queue so a change cannot silently weaken the recorded regression contract.
 func TestACKCoalescingDelayIsNotReverseNetworkQueue(t *testing.T) {
 	k := NewKCP(1, func([]byte, int) {})
 	k.recordTransitWithACKDelay(100, 10110, 10110, 120)

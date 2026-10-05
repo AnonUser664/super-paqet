@@ -1,5 +1,8 @@
 //go:build linux
 
+// File peer.go: owns outgoing carrier pools and bounded opening recovery while retaining
+// healthy established stream ownership.
+
 package engine
 
 import (
@@ -17,28 +20,53 @@ import (
 	"time"
 )
 
+// peer owns the outgoing carrier pool; pool membership and growth are serialized separately
+// from each carrier reconnect.
 type peer struct {
-	mu          sync.RWMutex
-	growMu      sync.Mutex
-	closed      bool
-	growRetry   time.Time
+	// Protects pool membership and closed state; expensive creation also uses growMu.
+	mu sync.RWMutex
+	// Serializes expensive pool expansion separately from read-only carrier selection.
+	growMu sync.Mutex
+	// Rejects future work after lifecycle shutdown has begun.
+	closed bool
+	// Next permitted pool growth attempt after an allocation failure.
+	growRetry time.Time
+	// Bounded growth retry delay to prevent repeated failure from consuming resources.
 	growBackoff time.Duration
-	createSlot  func(context.Context) (*slot, error)
-	engine      *Engine
-	endpoint    Endpoint
-	slots       []*slot
-	next        atomic.Uint64
+	// Optional test seam for allocation/growth races; normal runtime uses allocateSlot.
+	createSlot func(context.Context) (*slot, error)
+	// Owning runtime for limits, cancellation, firewall and diagnostics.
+	engine *Engine
+	// Prepared peer configuration inherited by newly allocated slots.
+	endpoint Endpoint
+	// Carrier reservations owned by this pool, bounded by max_sessions.
+	slots []*slot
+	// Atomic selection cursor used to distribute equal-pressure choices.
+	next atomic.Uint64
 }
+
+// slot retains a source reservation and an atomically published carrier generation, plus
+// pressure score/backoff.
 type slot struct {
-	score   atomic.Uint64
-	guard   io.Closer
-	mu      sync.Mutex
-	conn    atomic.Pointer[kcp.Conn]
+	// Cached stream/traffic pressure; selection need not scan every stream or packet counter.
+	score atomic.Uint64
+	// Kernel port reservation owned by this slot until pool teardown.
+	guard io.Closer
+	// Serializes cached-generation replacement and reconnect backoff.
+	mu sync.Mutex
+	// Atomically published owned outgoing carrier generation; readers validate it before
+	// invalidation.
+	conn atomic.Pointer[kcp.Conn]
+	// Prepared source reservation for this carrier; replacement reuses this endpoint contract.
 	network conf.Network
-	retry   time.Time
+	// Earliest reconnect after a failed carrier creation.
+	retry time.Time
+	// Bounded reconnect delay; successful creation resets it.
 	backoff time.Duration
 }
 
+// connection lazily creates or reuses a slot carrier, sends its flag setup and preserves
+// reconnect backoff.
 func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
 	if c := s.conn.Load(); c != nil && !c.Session.IsClosed() {
 		return c, nil
@@ -85,6 +113,7 @@ func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
 		c.Close()
 		return nil, err
 	}
+	// Publish only after control setup succeeded; other opens may now reuse this complete carrier generation.
 	s.conn.Store(c)
 	p.engine.log().Debug("session.connected", "conv", c.UDPSession.GetConv(), "remote", p.endpoint.Address, "local", c.LocalAddr().String())
 	if p.endpoint.Adaptive == nil || *p.endpoint.Adaptive {
@@ -97,6 +126,8 @@ func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
 	return c, nil
 }
 
+// open opens one target stream, separates transport receipt from target failure and bounds
+// carrier retry selection.
 func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, error) {
 	a, err := tnet.NewAddr(target)
 	if err != nil {
@@ -188,6 +219,8 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 	return nil, fmt.Errorf("peer unavailable: %w", last)
 }
 
+// invalidate retires only the cached generation that failed so an old operation cannot close
+// its replacement.
 func (p *peer) invalidate(s *slot, c *kcp.Conn) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -199,6 +232,7 @@ func (p *peer) invalidate(s *slot, c *kcp.Conn) {
 	}
 }
 
+// invalidateIdle retires stale carriers only when they have no established streams to disrupt.
 func (p *peer) invalidateIdle(s *slot, c *kcp.Conn) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -210,6 +244,8 @@ func (p *peer) invalidateIdle(s *slot, c *kcp.Conn) {
 	}
 }
 
+// close marks the pool closed and releases every published carrier/guard while excluding
+// concurrent growth.
 func (p *peer) close() {
 	p.mu.Lock()
 	p.closed = true
@@ -227,6 +263,8 @@ func (p *peer) close() {
 	}
 }
 
+// busyCarrier adds a cached pressure penalty so new short streams prefer capacity away from
+// sustained bulk work.
 const busyCarrier = uint64(1) << 63
 
 // Admission reads cached pressure, avoiding KCP locks and snapshot allocations
@@ -246,6 +284,8 @@ func (p *peer) bestSlotLocked(excluded map[*slot]bool) *slot {
 	return best
 }
 
+// selectSlot chooses low-pressure carriers and serializes bounded pool growth so concurrent
+// opens do not create duplicate spares.
 func (p *peer) selectSlot(ctx context.Context, exclusions ...map[*slot]bool) (*slot, error) {
 	var excluded map[*slot]bool
 	if len(exclusions) > 0 {
@@ -321,6 +361,8 @@ func (p *peer) selectSlot(ctx context.Context, exclusions ...map[*slot]bool) (*s
 	return s, nil
 }
 
+// allocateSlot reserves source-port/firewall resources without opening the remote carrier
+// until traffic needs it.
 func (p *peer) allocateSlot(ctx context.Context) (*slot, error) {
 	guard, n, err := reserve(p.endpoint.Network)
 	if err != nil {

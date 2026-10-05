@@ -1,3 +1,6 @@
+// File secret.go: generates a random shared secret for encrypted endpoints without embedding
+// deployment credentials.
+
 package secret
 
 import (
@@ -8,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Cmd registers the secret command, including its options and explicit error propagation.
 var Cmd = &cobra.Command{
 	Use:   "secret",
 	Short: "Generates a secure, random 32-byte secret key",

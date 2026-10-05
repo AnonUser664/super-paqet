@@ -1,7 +1,12 @@
+// File bufferpool_test.go: exercises bufferpool regressions; fixtures must preserve cleanup
+// and expose byte/lifecycle failures explicitly.
+
 package kcp
 
 import "testing"
 
+// TestBufferPoolGetSize checks Buffer Pool Get Size so a change cannot silently weaken the
+// recorded regression contract.
 func TestBufferPoolGetSize(t *testing.T) {
 	bp := newBufferPool(mtuLimit)
 
@@ -20,6 +25,8 @@ func TestBufferPoolGetSize(t *testing.T) {
 	}
 }
 
+// TestBufferPoolPutAndReuse checks Buffer Pool Put And Reuse so a change cannot silently
+// weaken the recorded regression contract.
 func TestBufferPoolPutAndReuse(t *testing.T) {
 	bp := newBufferPool(mtuLimit)
 
@@ -45,6 +52,8 @@ func TestBufferPoolPutAndReuse(t *testing.T) {
 	}
 }
 
+// TestBufferPoolPutWrongSizeIgnored checks Buffer Pool Put Wrong Size Ignored so a change
+// cannot silently weaken the recorded regression contract.
 func TestBufferPoolPutWrongSizeIgnored(t *testing.T) {
 	bp := newBufferPool(mtuLimit)
 
@@ -62,6 +71,8 @@ func TestBufferPoolPutWrongSizeIgnored(t *testing.T) {
 	}
 }
 
+// TestBufferPoolPutReturnsError checks Buffer Pool Put Returns Error so a change cannot
+// silently weaken the recorded regression contract.
 func TestBufferPoolPutReturnsError(t *testing.T) {
 	bp := newBufferPool(mtuLimit)
 

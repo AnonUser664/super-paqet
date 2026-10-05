@@ -1,3 +1,6 @@
+// File prepare.go: combines defaults and validation at the boundary between public endpoint
+// configuration and transport construction.
+
 package conf
 
 import (
@@ -7,6 +10,8 @@ import (
 	"time"
 )
 
+// writeErr joins configuration failures for the caller instead of starting a partly valid
+// transport.
 func writeErr(errs []error) error {
 	if len(errs) == 0 {
 		return nil

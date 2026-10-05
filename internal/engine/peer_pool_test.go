@@ -1,5 +1,8 @@
 //go:build linux
 
+// File peer_pool_test.go: exercises peer pool regressions; fixtures must preserve cleanup and
+// expose byte/lifecycle failures explicitly.
+
 package engine
 
 import (
@@ -10,10 +13,16 @@ import (
 	"testing"
 )
 
+// poolGuard retains the pool Guard fixture state used to expose failures without production
+// network side effects.
 type poolGuard struct{ closed atomic.Int32 }
 
+// Close counts guard releases so pool growth/close races can detect duplicate or missing
+// cleanup.
 func (g *poolGuard) Close() error { g.closed.Add(1); return nil }
 
+// TestConcurrentPoolGrowthCreatesOneSpareAndCleansIt checks Concurrent Pool Growth Creates One
+// Spare And Cleans It so a change cannot silently weaken the recorded regression contract.
 func TestConcurrentPoolGrowthCreatesOneSpareAndCleansIt(t *testing.T) {
 	base := &slot{}
 	base.score.Store(busyCarrier)
@@ -52,6 +61,8 @@ func TestConcurrentPoolGrowthCreatesOneSpareAndCleansIt(t *testing.T) {
 	}
 }
 
+// TestPoolGrowthFailureUsesExistingCarrierAndBacksOff checks Pool Growth Failure Uses Existing
+// Carrier And Backs Off so a change cannot silently weaken the recorded regression contract.
 func TestPoolGrowthFailureUsesExistingCarrierAndBacksOff(t *testing.T) {
 	base := &slot{}
 	base.score.Store(busyCarrier)
@@ -69,6 +80,8 @@ func TestPoolGrowthFailureUsesExistingCarrierAndBacksOff(t *testing.T) {
 	}
 }
 
+// TestPoolCloseDuringGrowthClosesUnpublishedGuard checks Pool Close During Growth Closes
+// Unpublished Guard so a change cannot silently weaken the recorded regression contract.
 func TestPoolCloseDuringGrowthClosesUnpublishedGuard(t *testing.T) {
 	base := &slot{}
 	base.score.Store(busyCarrier)
@@ -90,6 +103,8 @@ func TestPoolCloseDuringGrowthClosesUnpublishedGuard(t *testing.T) {
 	}
 }
 
+// TestOpeningRetrySkipsFailedLowPressureCarrier checks Opening Retry Skips Failed Low Pressure
+// Carrier so a change cannot silently weaken the recorded regression contract.
 func TestOpeningRetrySkipsFailedLowPressureCarrier(t *testing.T) {
 	failed, healthy := &slot{}, &slot{}
 	healthy.score.Store(busyCarrier)

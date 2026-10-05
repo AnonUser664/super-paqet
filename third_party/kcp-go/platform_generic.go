@@ -22,8 +22,15 @@
 
 //go:build !linux
 
+// File platform_generic.go: preserves carrier behavior on platforms without the Linux packet
+// batch path.
+
 package kcp
 
+// platform retains optional platform batch state; generic builds can have no additional
+// platform data.
 type platform struct{}
 
+// initPlatform selects platform batch support; custom PacketConn implementations keep raw
+// framing rather than UDP substitution.
 func (sess *UDPSession) initPlatform() {}

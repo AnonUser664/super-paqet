@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Module purpose: Own disposable links/processes, emulate directional faults and verify
+# payload/resources/cleanup for one workload.
 """Root-only, isolated raw TCP tunnel benchmark. Never changes host firewall/routes."""
 import argparse
 import json
@@ -15,9 +17,13 @@ import math
 
 ROOT = Path(__file__).resolve().parents[1]
 
+# run: Run one command with a checked exit status so failures cannot silently enter
+# acceptance evidence.
 def run(*args, **kwargs):
     return subprocess.run(args, check=True, text=True, **kwargs)
 
+# main: Own disposable links/processes, emulate directional faults and verify
+# payload/resources/cleanup for one workload.
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--binary', default='build/paqet-baseline')
@@ -102,12 +108,15 @@ def main():
     schedule_threads=[]
     schedule_errors=[]
     shaping=[]
+    # ns: Execute inside the owned test namespace; target changes must not alter unrelated host
+    # networking.
     def ns(n, *args):
         try:
             return run('ip', 'netns', 'exec', n, *args, capture_output=True)
         except subprocess.CalledProcessError as err:
             (out/'last-error.log').write_text((err.stdout or '')+(err.stderr or ''))
             raise
+    # spawn: Start a fixture process with retained log/ownership handles for bounded teardown.
     def spawn(n, name, *args):
         f = open(out / (name+'.log'), 'w'); files.append(f)
         proc = subprocess.Popen(['ip', 'netns', 'exec', n, *args], stdout=f, stderr=subprocess.STDOUT)
@@ -116,11 +125,15 @@ def main():
         if name=='restarted-server': tracked['server']=proc
         if name in ('server','client','second-client','restarted-server'): tunnel_procs.append(proc)
         return proc
+    # stop: Terminate the owned fixture and record expected crash cases separately from
+    # unexpected failures.
     def stop(*_):
         raise KeyboardInterrupt()
     signal.signal(signal.SIGTERM, stop)
     peaks = {}
     next_fd_sample={}
+    # sample: Record process CPU/RSS/FD state while limiting the observer cost charged to the
+    # workload.
     def sample():
         for name, proc in tracked.items():
             try:
@@ -204,8 +217,12 @@ def main():
                 if a.seed is not None: args += ['seed',str(a.seed)]
                 ns(shaping_ns,*args)
                 shaping.append((shaping_ns,shaping_if,down))
+        # start_epochs: Start the configured fault schedule relative to this workload's actual start
+        # time.
         def start_epochs(workload):
             if not epochs:return
+            # apply_epochs: Apply each owned link change at its recorded relative time; cancellation
+            # prevents teardown races.
             def apply_epochs():
                 started=time.monotonic()
                 values={'rate_mbit':a.rate_mbit,'down_rate_mbit':a.down_rate_mbit,'delay_ms':a.delay_ms,'jitter_ms':a.jitter_ms,'loss':a.loss,'reorder':a.reorder,'queue_packets':a.queue_packets}

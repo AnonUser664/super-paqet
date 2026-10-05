@@ -1,3 +1,6 @@
+// File kcp_block.go: builds the selected cipher using the retained key derivation and keeps
+// null distinct from the nonce/CRC none envelope.
+
 package conf
 
 import (
@@ -8,11 +11,16 @@ import (
 	"golang.org/x/crypto/pbkdf2"
 )
 
+// blockCrypt wraps a legacy block cipher and reusable mode scratch; packet authentication
+// properties depend on the mode.
 type blockCrypt struct {
 	keySize int // required key size; if 0, the entire key is used
-	build   func(key []byte) (kcp.BlockCrypt, error)
+	// Constructor applied to the selected derived key length.
+	build func(key []byte) (kcp.BlockCrypt, error)
 }
 
+// blockCrypts maps accepted configuration modes to their derived key lengths and packet cipher
+// constructors.
 var blockCrypts = map[string]blockCrypt{
 	"aes":         {0, func(key []byte) (kcp.BlockCrypt, error) { return kcp.NewAESBlockCrypt(key) }},
 	"aes-128":     {16, func(key []byte) (kcp.BlockCrypt, error) { return kcp.NewAESBlockCrypt(key) }},
@@ -31,6 +39,8 @@ var blockCrypts = map[string]blockCrypt{
 	"null":        {0, func(key []byte) (kcp.BlockCrypt, error) { return nil, nil }},
 }
 
+// newBlock derives the retained shared-key material and selects the configured cipher or null
+// path; peers must agree on this envelope.
 func newBlock(block, key string) (kcp.BlockCrypt, error) {
 	dkey := pbkdf2.Key([]byte(key), []byte("paqet"), 100_000, 32, sha256.New)
 

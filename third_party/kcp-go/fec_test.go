@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File fec_test.go: exercises fec regressions; fixtures must preserve cleanup and expose
+// byte/lifecycle failures explicitly.
+
 package kcp
 
 import (
@@ -30,6 +33,8 @@ import (
 	"time"
 )
 
+// TestFECEncodeConsecutive checks FEC Encode Consecutive so a change cannot silently weaken
+// the recorded regression contract.
 func TestFECEncodeConsecutive(t *testing.T) {
 	const dataSize = 10
 	const paritySize = 3
@@ -72,6 +77,8 @@ func TestFECEncodeConsecutive(t *testing.T) {
 	}
 }
 
+// TestFECDecodeLoss checks FEC Decode Loss so a change cannot silently weaken the recorded
+// regression contract.
 func TestFECDecodeLoss(t *testing.T) {
 	// This function lose 3 random packet from 10 datashards and 3 parity shards.
 	// so each group of 13 packets should be able to recover from the loss.
@@ -140,6 +147,8 @@ func TestFECDecodeLoss(t *testing.T) {
 	t.Log("Total parity lost:", totalParityLost)
 }
 
+// TestFECDecodeVariablePacketSizes checks FEC Decode Variable Packet Sizes so a change cannot
+// silently weaken the recorded regression contract.
 func TestFECDecodeVariablePacketSizes(t *testing.T) {
 	const (
 		dataShards   = 8
@@ -231,6 +240,8 @@ func TestFECDecodeVariablePacketSizes(t *testing.T) {
 	}
 }
 
+// BenchmarkFECDecode measures FEC Decode with the fixture's workload; results must be
+// interpreted with its buffer and transport settings.
 func BenchmarkFECDecode(b *testing.B) {
 	const dataSize = 10
 	const paritySize = 3
@@ -253,6 +264,8 @@ func BenchmarkFECDecode(b *testing.B) {
 	}
 }
 
+// BenchmarkFECEncode measures FEC Encode with the fixture's workload; results must be
+// interpreted with its buffer and transport settings.
 func BenchmarkFECEncode(b *testing.B) {
 	const dataSize = 10
 	const paritySize = 3
@@ -267,6 +280,8 @@ func BenchmarkFECEncode(b *testing.B) {
 	}
 }
 
+// TestFECPAWS checks FECPAWS so a change cannot silently weaken the recorded regression
+// contract.
 func TestFECPAWS(t *testing.T) {
 	const dataShards = 10
 	const parityShards = 3
@@ -397,6 +412,8 @@ func TestFECPAWS(t *testing.T) {
 	t.Log("PAWS wrap test passed")
 }
 
+// TestFECRTOAndSkipParity checks FECRTO And Skip Parity so a change cannot silently weaken the
+// recorded regression contract.
 func TestFECRTOAndSkipParity(t *testing.T) {
 	const dataShards = 3
 	const parityShards = 2

@@ -1,5 +1,8 @@
 //go:build linux
 
+// File firewall.go: creates and removes only instance-owned chains, preserving unrelated host
+// firewall and VPN rules.
+
 package engine
 
 import (
@@ -15,11 +18,16 @@ import (
 
 // firewall owns only rules it created, with rollback on partial startup failure.
 type firewall struct {
+	// Private journal directory and this instance's atomic intent-file path.
 	directory, path string
-	journal         firewallJournal
-	mu              sync.Mutex
+	// Owned chains and owner identity retained until cleanup succeeds.
+	journal firewallJournal
+	// Serializes journal/rule mutation and teardown.
+	mu sync.Mutex
 }
 
+// add journals and installs scoped notrack, reset suppression and input isolation; partial
+// failure rolls back owned additions.
 func (f *firewall) add(n *conf.Network) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -81,6 +89,8 @@ func (f *firewall) add(n *conf.Network) error {
 	return nil
 }
 
+// close removes recorded owned chains and retains recovery intent until all cleanup steps
+// succeed.
 func (f *firewall) close() error {
 	f.mu.Lock()
 	defer f.mu.Unlock()

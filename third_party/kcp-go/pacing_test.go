@@ -1,3 +1,6 @@
+// File pacing_test.go: exercises pacing regressions; fixtures must preserve cleanup and expose
+// byte/lifecycle failures explicitly.
+
 package kcp
 
 import (
@@ -6,6 +9,8 @@ import (
 	"time"
 )
 
+// TestPacingKeepsInitialSendsInOrder checks Pacing Keeps Initial Sends In Order so a change
+// cannot silently weaken the recorded regression contract.
 func TestPacingKeepsInitialSendsInOrder(t *testing.T) {
 	var now uint32
 	var sequences []uint32
@@ -41,6 +46,8 @@ func TestPacingKeepsInitialSendsInOrder(t *testing.T) {
 	}
 }
 
+// TestPacingBringsPeriodicWakeForward checks Pacing Brings Periodic Wake Forward so a change
+// cannot silently weaken the recorded regression contract.
 func TestPacingBringsPeriodicWakeForward(t *testing.T) {
 	k := NewKCP(1, func([]byte, int) {})
 	// Hold protocol time fixed: real millisecond clock rounding can legitimately
@@ -69,6 +76,9 @@ func TestPacingBringsPeriodicWakeForward(t *testing.T) {
 	}
 }
 
+// TestPacingDeferralDoesNotCountOrSuppressRetransmission checks Pacing Deferral Does Not Count
+// Or Suppress Retransmission so a change cannot silently weaken the recorded regression
+// contract.
 func TestPacingDeferralDoesNotCountOrSuppressRetransmission(t *testing.T) {
 	var now uint32
 	k := NewKCP(1, func([]byte, int) {})

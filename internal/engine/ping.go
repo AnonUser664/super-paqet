@@ -1,5 +1,8 @@
 //go:build linux
 
+// File ping.go: creates a temporary configured peer probe and releases its sockets/owned rules
+// afterward.
+
 package engine
 
 import (
@@ -11,6 +14,8 @@ import (
 	"paqet/internal/tnet/kcp"
 )
 
+// Ping opens a temporary peer control stream and waits for a pong within the configured
+// opening deadline.
 func Ping(ctx context.Context, cfg *Config, name string) (err error) {
 	if cfg.Firewall == nil || *cfg.Firewall {
 		if err := RecoverFirewall(); err != nil {

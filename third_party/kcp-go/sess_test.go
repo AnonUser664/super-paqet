@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File sess_test.go: exercises sess regressions; fixtures must preserve cleanup and expose
+// byte/lifecycle failures explicitly.
+
 package kcp
 
 import (
@@ -47,16 +50,24 @@ import (
 )
 
 var (
+	// baseport allocates distinct loopback fixture ports across repeated session tests.
 	baseport = uint32(10000)
-	key      = []byte("testkey")
-	pass     = pbkdf2.Key(key, []byte("testsalt"), 4096, 32, sha1.New)
+	// key retains fixture key bytes for test encryption, unrelated to deployed endpoint secrets.
+	key = []byte("testkey")
+	// pass retains fixture passphrase material for cipher/session comparisons, not deployment
+	// credentials.
+	pass = pbkdf2.Key(key, []byte("testsalt"), 4096, 32, sha1.New)
 )
 
+// init registers command options or initializes module-wide lookup/pool state once before
+// runtime work begins.
 func init() {
 
 	log.Println("beginning tests, encryption:salsa20, fec:10/3")
 }
 
+// nextPort selects separate nonprivileged loopback ports for session tests to reduce fixture
+// collisions.
 func nextPort() int {
 	port := int(atomic.AddUint32(&baseport, 1))
 	port %= 65536
@@ -66,6 +77,7 @@ func nextPort() int {
 	return port
 }
 
+// dialEcho creates a configured loopback echo client for the selected packet cipher.
 func dialEcho(port int, block BlockCrypt) (*UDPSession, error) {
 	// block, _ := NewNoneBlockCrypt(pass)
 	// block, _ := NewSimpleXORBlockCrypt(pass)
@@ -91,6 +103,7 @@ func dialEcho(port int, block BlockCrypt) (*UDPSession, error) {
 	return sess, nil
 }
 
+// dialSink creates a loopback client for the discard-only throughput fixture.
 func dialSink(port int) (*UDPSession, error) {
 	sess, err := DialWithOptions(fmt.Sprintf("127.0.0.1:%v", port), nil, 0, 0)
 	if err != nil {
@@ -108,6 +121,8 @@ func dialSink(port int) (*UDPSession, error) {
 	return sess, nil
 }
 
+// dialTinyBufferEcho creates a client whose small read/write pieces stress buffering
+// boundaries.
 func dialTinyBufferEcho(port int) (*UDPSession, error) {
 	// block, _ := NewNoneBlockCrypt(pass)
 	// block, _ := NewSimpleXORBlockCrypt(pass)
@@ -130,6 +145,7 @@ func listenEcho(port int, block BlockCrypt) (net.Listener, error) {
 	return ListenWithOptions(fmt.Sprintf("127.0.0.1:%v", port), block, 10, 1)
 }
 
+// listenTinyBufferEcho creates the matching listener for tiny-chunk echo tests.
 func listenTinyBufferEcho(port int) (net.Listener, error) {
 	// block, _ := NewNoneBlockCrypt(pass)
 	// block, _ := NewSimpleXORBlockCrypt(pass)
@@ -139,10 +155,12 @@ func listenTinyBufferEcho(port int) (net.Listener, error) {
 	return ListenWithOptions(fmt.Sprintf("127.0.0.1:%v", port), block, 10, 3)
 }
 
+// listenSink creates the loopback discard listener used by throughput tests.
 func listenSink(port int) (net.Listener, error) {
 	return ListenWithOptions(fmt.Sprintf("127.0.0.1:%v", port), nil, 0, 0)
 }
 
+// echoServer starts the loopback echo acceptor and returns its listener for explicit teardown.
 func echoServer(port int, block BlockCrypt) net.Listener {
 	l, err := listenEcho(port, block)
 	if err != nil {
@@ -170,6 +188,8 @@ func echoServer(port int, block BlockCrypt) net.Listener {
 	return l
 }
 
+// sinkServer starts the loopback discard acceptor and returns its listener for explicit
+// teardown.
 func sinkServer(port int) net.Listener {
 	l, err := listenSink(port)
 	if err != nil {
@@ -194,6 +214,8 @@ func sinkServer(port int) net.Listener {
 	return l
 }
 
+// tinyBufferEchoServer starts the small-buffer acceptor to exercise stream aggregation and
+// partial reads.
 func tinyBufferEchoServer(port int) net.Listener {
 	l, err := listenTinyBufferEcho(port)
 	if err != nil {
@@ -214,6 +236,8 @@ func tinyBufferEchoServer(port int) net.Listener {
 
 ///////////////////////////
 
+// handleEcho echoes reliable stream bytes under the fixture's configured window/packet
+// settings.
 func handleEcho(conn *UDPSession) {
 	conn.SetStreamMode(true)
 	conn.SetWindowSize(1024, 1024)
@@ -234,6 +258,8 @@ func handleEcho(conn *UDPSession) {
 	}
 }
 
+// handleSink drains reliable stream input so the benchmark measures sending without echo
+// output.
 func handleSink(conn *UDPSession) {
 	conn.SetStreamMode(true)
 	conn.SetWindowSize(1024, 1024)
@@ -252,6 +278,8 @@ func handleSink(conn *UDPSession) {
 	}
 }
 
+// handleTinyBufferEcho echoes tiny pieces to expose truncation or boundary assumptions in
+// stream buffering.
 func handleTinyBufferEcho(conn *UDPSession) {
 	conn.SetStreamMode(true)
 	buf := make([]byte, 2)
@@ -266,6 +294,8 @@ func handleTinyBufferEcho(conn *UDPSession) {
 
 ///////////////////////////
 
+// TestTimeout checks Timeout so a change cannot silently weaken the recorded regression
+// contract.
 func TestTimeout(t *testing.T) {
 	port := nextPort()
 	block1, _ := NewSalsa20BlockCrypt(pass)
@@ -291,6 +321,8 @@ func TestTimeout(t *testing.T) {
 	}
 }
 
+// TestCFBSendRecv checks CFB Send Recv so a change cannot silently weaken the recorded
+// regression contract.
 func TestCFBSendRecv(t *testing.T) {
 	port := nextPort()
 	block1, _ := NewTripleDESBlockCrypt(pass)
@@ -308,6 +340,8 @@ func TestCFBSendRecv(t *testing.T) {
 	randomEchoTest(t, cli, 100*1024*1024)
 }
 
+// TestSalsa20SendRecv checks Salsa20 Send Recv so a change cannot silently weaken the recorded
+// regression contract.
 func TestSalsa20SendRecv(t *testing.T) {
 	port := nextPort()
 	block1, _ := NewSalsa20BlockCrypt(pass)
@@ -325,6 +359,8 @@ func TestSalsa20SendRecv(t *testing.T) {
 	randomEchoTest(t, cli, 100*1024*1024)
 }
 
+// TestAEADSendRecv checks AEAD Send Recv so a change cannot silently weaken the recorded
+// regression contract.
 func TestAEADSendRecv(t *testing.T) {
 	port := nextPort()
 	block1, _ := NewAESGCMCrypt(pass)
@@ -342,6 +378,8 @@ func TestAEADSendRecv(t *testing.T) {
 	randomEchoTest(t, cli, 100*1024*1024)
 }
 
+// TestPlainTextSendRecv checks Plain Text Send Recv so a change cannot silently weaken the
+// recorded regression contract.
 func TestPlainTextSendRecv(t *testing.T) {
 	port := nextPort()
 	l := echoServer(port, nil)
@@ -357,6 +395,8 @@ func TestPlainTextSendRecv(t *testing.T) {
 	randomEchoTest(t, cli, 100*1024*1024)
 }
 
+// Test1GBEcho checks 1 GB Echo so a change cannot silently weaken the recorded regression
+// contract.
 func Test1GBEcho(t *testing.T) {
 	port := nextPort()
 	l := echoServer(port, nil)
@@ -371,6 +411,8 @@ func Test1GBEcho(t *testing.T) {
 	randomEchoTest(t, cli, 1*1024*1024*1024)
 }
 
+// Test6GBEcho checks 6 GB Echo so a change cannot silently weaken the recorded regression
+// contract.
 func Test6GBEcho(t *testing.T) {
 	port := nextPort()
 	l := echoServer(port, nil)
@@ -385,6 +427,8 @@ func Test6GBEcho(t *testing.T) {
 	randomEchoTest(t, cli, 6*1024*1024*1024)
 }
 
+// randomEchoTest varies stream write/read boundaries and checks returned bytes across the
+// reliable session.
 func randomEchoTest(t *testing.T, cli *UDPSession, N int64) {
 	seed := time.Now().UnixNano()
 	writerSrc := mrand.NewSource(seed)
@@ -459,6 +503,8 @@ func randomEchoTest(t *testing.T, cli *UDPSession, N int64) {
 	}
 }
 
+// TestSendVector checks Send Vector so a change cannot silently weaken the recorded regression
+// contract.
 func TestSendVector(t *testing.T) {
 	port := nextPort()
 	block1, _ := NewSalsa20BlockCrypt(pass)
@@ -475,6 +521,8 @@ func TestSendVector(t *testing.T) {
 	randomEchoVectorTest(t, cli)
 }
 
+// randomEchoVectorTest exercises scatter/gather echo writes so vector boundaries cannot
+// corrupt application ordering.
 func randomEchoVectorTest(t *testing.T, cli *UDPSession) {
 	seed := time.Now().UnixNano()
 	writerSrc := mrand.NewSource(seed)
@@ -560,6 +608,8 @@ func randomEchoVectorTest(t *testing.T, cli *UDPSession) {
 	}
 }
 
+// TestTinyBufferReceiver checks Tiny Buffer Receiver so a change cannot silently weaken the
+// recorded regression contract.
 func TestTinyBufferReceiver(t *testing.T) {
 	port := nextPort()
 	l := tinyBufferEchoServer(port)
@@ -608,6 +658,7 @@ func TestTinyBufferReceiver(t *testing.T) {
 	}
 }
 
+// TestClose checks Close so a change cannot silently weaken the recorded regression contract.
 func TestClose(t *testing.T) {
 	var n int
 	var err error
@@ -670,6 +721,8 @@ func TestClose(t *testing.T) {
 	}
 }
 
+// TestParallel1024CLIENT_64BMSG_64CNT checks Parallel1024 CLIENT 64 BMSG 64 CNT so a change
+// cannot silently weaken the recorded regression contract.
 func TestParallel1024CLIENT_64BMSG_64CNT(t *testing.T) {
 	port := nextPort()
 	block, _ := NewSalsa20BlockCrypt(pass)
@@ -684,6 +737,8 @@ func TestParallel1024CLIENT_64BMSG_64CNT(t *testing.T) {
 	wg.Wait()
 }
 
+// parallel_client owns one concurrent client task and signals completion to the test wait
+// group.
 func parallel_client(wg *sync.WaitGroup, port int) (err error) {
 	block, _ := NewSalsa20BlockCrypt(pass)
 	cli, err := dialEcho(port, block)
@@ -697,22 +752,31 @@ func parallel_client(wg *sync.WaitGroup, port int) (err error) {
 	return
 }
 
+// BenchmarkEchoSpeed4K measures Echo Speed4 K with the fixture's workload; results must be
+// interpreted with its buffer and transport settings.
 func BenchmarkEchoSpeed4K(b *testing.B) {
 	speedclient(b, 4096)
 }
 
+// BenchmarkEchoSpeed64K measures Echo Speed64 K with the fixture's workload; results must be
+// interpreted with its buffer and transport settings.
 func BenchmarkEchoSpeed64K(b *testing.B) {
 	speedclient(b, 65536)
 }
 
+// BenchmarkEchoSpeed512K measures Echo Speed512 K with the fixture's workload; results must be
+// interpreted with its buffer and transport settings.
 func BenchmarkEchoSpeed512K(b *testing.B) {
 	speedclient(b, 524288)
 }
 
+// BenchmarkEchoSpeed1M measures Echo Speed1 M with the fixture's workload; results must be
+// interpreted with its buffer and transport settings.
 func BenchmarkEchoSpeed1M(b *testing.B) {
 	speedclient(b, 1048576)
 }
 
+// speedclient sets up the echo benchmark and measures its configured payload transfer size.
 func speedclient(b *testing.B, nbytes int) {
 	port := nextPort()
 	block1, _ := NewSalsa20BlockCrypt(pass)
@@ -734,22 +798,31 @@ func speedclient(b *testing.B, nbytes int) {
 	b.SetBytes(int64(nbytes))
 }
 
+// BenchmarkSinkSpeed4K measures Sink Speed4 K with the fixture's workload; results must be
+// interpreted with its buffer and transport settings.
 func BenchmarkSinkSpeed4K(b *testing.B) {
 	sinkclient(b, 4096)
 }
 
+// BenchmarkSinkSpeed64K measures Sink Speed64 K with the fixture's workload; results must be
+// interpreted with its buffer and transport settings.
 func BenchmarkSinkSpeed64K(b *testing.B) {
 	sinkclient(b, 65536)
 }
 
+// BenchmarkSinkSpeed256K measures Sink Speed256 K with the fixture's workload; results must be
+// interpreted with its buffer and transport settings.
 func BenchmarkSinkSpeed256K(b *testing.B) {
 	sinkclient(b, 524288)
 }
 
+// BenchmarkSinkSpeed1M measures Sink Speed1 M with the fixture's workload; results must be
+// interpreted with its buffer and transport settings.
 func BenchmarkSinkSpeed1M(b *testing.B) {
 	sinkclient(b, 1048576)
 }
 
+// sinkclient sets up the discard benchmark to isolate output throughput from response traffic.
 func sinkclient(b *testing.B, nbytes int) {
 	port := nextPort()
 	l := sinkServer(port)
@@ -766,6 +839,8 @@ func sinkclient(b *testing.B, nbytes int) {
 	b.SetBytes(int64(nbytes))
 }
 
+// echo_tester sends and validates repeated echo payloads so dropped/truncated bytes are not
+// counted as successful traffic.
 func echo_tester(cli net.Conn, msglen, msgcount int) error {
 	go func() {
 		buf := make([]byte, msglen)
@@ -793,6 +868,7 @@ func echo_tester(cli net.Conn, msglen, msgcount int) error {
 	return nil
 }
 
+// sink_tester sends the sink workload used to measure accepted output without echo overhead.
 func sink_tester(cli *UDPSession, msglen, msgcount int) error {
 	// sender
 	buf := make([]byte, msglen)
@@ -804,6 +880,7 @@ func sink_tester(cli *UDPSession, msglen, msgcount int) error {
 	return nil
 }
 
+// TestSNMP checks SNMP so a change cannot silently weaken the recorded regression contract.
 func TestSNMP(t *testing.T) {
 	t.Log(DefaultSnmp.Copy())
 	t.Log(DefaultSnmp.Header())
@@ -812,6 +889,8 @@ func TestSNMP(t *testing.T) {
 	t.Log(DefaultSnmp.ToSlice())
 }
 
+// TestListenerClose checks Listener Close so a change cannot silently weaken the recorded
+// regression contract.
 func TestListenerClose(t *testing.T) {
 	port := nextPort()
 	l, err := ListenWithOptions(fmt.Sprintf("127.0.0.1:%v", port), nil, 10, 3)
@@ -843,11 +922,15 @@ type closedFlagPacketConn struct {
 	Closed bool
 }
 
+// Close records close ownership before delegating socket shutdown in listener/client lifecycle
+// tests.
 func (c *closedFlagPacketConn) Close() error {
 	c.Closed = true
 	return c.PacketConn.Close()
 }
 
+// newClosedFlagPacketConn constructs a socket wrapper whose closure can be asserted after
+// transport teardown.
 func newClosedFlagPacketConn(c net.PacketConn) *closedFlagPacketConn {
 	return &closedFlagPacketConn{c, false}
 }
@@ -958,6 +1041,8 @@ func TestReliability(t *testing.T) {
 	}
 }
 
+// TestControl checks Control so a change cannot silently weaken the recorded regression
+// contract.
 func TestControl(t *testing.T) {
 	port := nextPort()
 	block, _ := NewSalsa20BlockCrypt(pass)
@@ -997,6 +1082,8 @@ func TestControl(t *testing.T) {
 	}
 }
 
+// TestSessionReadAfterClosed checks Session Read After Closed so a change cannot silently
+// weaken the recorded regression contract.
 func TestSessionReadAfterClosed(t *testing.T) {
 	us, _ := net.ListenPacket("udp", "127.0.0.1:0")
 	uc, _ := net.ListenPacket("udp", "127.0.0.1:0")
@@ -1076,6 +1163,8 @@ func TestSessionReadAfterClosed(t *testing.T) {
 	c2.Close()
 }
 
+// TestSetMTU checks Set MTU so a change cannot silently weaken the recorded regression
+// contract.
 func TestSetMTU(t *testing.T) {
 	port := nextPort()
 	block1, _ := NewSalsa20BlockCrypt(pass)
@@ -1138,6 +1227,8 @@ func TestSetMTU(t *testing.T) {
 	}
 }
 
+// newLoggerWithMilliseconds creates the test trace format needed to inspect retransmission
+// timing.
 func newLoggerWithMilliseconds() *slog.Logger {
 	timeFormat := "2006-01-02 15:04:05.000"
 	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
@@ -1194,18 +1285,24 @@ func TestSetLogger(t *testing.T) {
 	}
 }
 
+// largeNonceAEAD retains the large Nonce AEAD fixture state used to expose failures without
+// production network side effects.
 type largeNonceAEAD struct {
 	cipher.AEAD
 }
 
+// NonceSize advertises an intentionally large nonce to exercise transport-overhead validation.
 func (*largeNonceAEAD) NonceSize() int {
 	return 1400
 }
 
+// Overhead reports authentication expansion for the oversized-nonce fixture.
 func (*largeNonceAEAD) Overhead() int {
 	return 0
 }
 
+// TestLargeNonce checks Large Nonce so a change cannot silently weaken the recorded regression
+// contract.
 func TestLargeNonce(t *testing.T) {
 	port := nextPort()
 
@@ -1226,18 +1323,24 @@ func TestLargeNonce(t *testing.T) {
 	defer cli.Close()
 }
 
+// largeOverheadAEAD retains the large Overhead AEAD fixture state used to expose failures
+// without production network side effects.
 type largeOverheadAEAD struct {
 	cipher.AEAD
 }
 
+// NonceSize reports the fixture nonce size for oversized authentication overhead tests.
 func (*largeOverheadAEAD) NonceSize() int {
 	return 0
 }
 
+// Overhead advertises deliberately oversized expansion so invalid MTU budgets are rejected.
 func (*largeOverheadAEAD) Overhead() int {
 	return 1400
 }
 
+// TestLargeOverhead checks Large Overhead so a change cannot silently weaken the recorded
+// regression contract.
 func TestLargeOverhead(t *testing.T) {
 	port := nextPort()
 
@@ -1258,10 +1361,14 @@ func TestLargeOverhead(t *testing.T) {
 	defer cli.Close()
 }
 
+// checkAllocatedAEAD retains the check Allocated AEAD fixture state used to expose failures
+// without production network side effects.
 type checkAllocatedAEAD struct {
 	cipher.AEAD
 }
 
+// Seal checks destination capacity during encryption so MTU/nonce overhead mistakes become
+// visible test failures.
 func (aead *checkAllocatedAEAD) Seal(dst, nonce, plaintext, additionalData []byte) []byte {
 	if dst == nil || cap(dst)-len(dst) < len(plaintext)+aead.AEAD.Overhead() {
 		panic("AEAD Seal will allocate new slice")
@@ -1274,6 +1381,8 @@ func (aead *checkAllocatedAEAD) Seal(dst, nonce, plaintext, additionalData []byt
 	return ciphertext
 }
 
+// TestSealAllocated checks Seal Allocated so a change cannot silently weaken the recorded
+// regression contract.
 func TestSealAllocated(t *testing.T) {
 	aes, err := aes.NewCipher(pass[:16])
 	if err != nil {
@@ -1301,6 +1410,8 @@ func TestSealAllocated(t *testing.T) {
 	cli.Write(b)
 }
 
+// TestSessionGetters checks Session Getters so a change cannot silently weaken the recorded
+// regression contract.
 func TestSessionGetters(t *testing.T) {
 	sess := new(UDPSession)
 	sess.kcp = NewKCP(1, func(buf []byte, size int) {})
@@ -1314,11 +1425,15 @@ func TestSessionGetters(t *testing.T) {
 	sess.GetSRTTVar()
 }
 
+// TestTimedSchedClose checks Timed Sched Close so a change cannot silently weaken the recorded
+// regression contract.
 func TestTimedSchedClose(t *testing.T) {
 	ts := NewTimedSched(1)
 	ts.Close()
 }
 
+// TestListenDial checks Listen Dial so a change cannot silently weaken the recorded regression
+// contract.
 func TestListenDial(t *testing.T) {
 	l, err := Listen("127.0.0.1:0")
 	if err != nil {
@@ -1566,6 +1681,8 @@ func TestOOB_OneSideHandler(t *testing.T) {
 	}
 }
 
+// TestSetOOBHandler_Basic checks Set OOB Handler Basic so a change cannot silently weaken the
+// recorded regression contract.
 func TestSetOOBHandler_Basic(t *testing.T) {
 	sess := new(UDPSession)
 	sess.kcp = NewKCP(1, func(buf []byte, size int) {})
@@ -1616,6 +1733,8 @@ func TestSetOOBHandler_Basic(t *testing.T) {
 	}
 }
 
+// TestGetOOBMaxSize checks Get OOB Max Size so a change cannot silently weaken the recorded
+// regression contract.
 func TestGetOOBMaxSize(t *testing.T) {
 	sess := new(UDPSession)
 	sess.kcp = NewKCP(1, func(buf []byte, size int) {})
@@ -1631,6 +1750,8 @@ func TestGetOOBMaxSize(t *testing.T) {
 	}
 }
 
+// TestSendOOB_Errors checks Send OOB Errors so a change cannot silently weaken the recorded
+// regression contract.
 func TestSendOOB_Errors(t *testing.T) {
 	sess := new(UDPSession)
 	sess.kcp = NewKCP(1, func(buf []byte, size int) {})

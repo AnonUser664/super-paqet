@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File kcp.go: implements the pure reliable segment state machine; socket I/O remains in
+// session/platform code.
+
 package kcp
 
 import (
@@ -64,42 +67,74 @@ const (
 	IKCP_SN_OFFSET   = 12     // byte offset of sequence number (sn) within the segment header
 )
 
+// PacketType distinguishes decoded regular/FEC input for protocol accounting and dispatch.
 type PacketType int8
 
 const (
+	// IKCP_PACKET_REGULAR classifies direct KCP input separately from reconstructed FEC packets.
 	IKCP_PACKET_REGULAR PacketType = iota
+	// IKCP_PACKET_FEC classifies reconstructed shard input for reliable protocol handling and
+	// accounting.
 	IKCP_PACKET_FEC
 )
 
+// FlushType selects ACK-only, full or new-data work so feedback need not scan/retransmit every
+// outstanding segment.
 type FlushType int8
 
 const (
+	// IKCP_FLUSH_ACKONLY allows feedback without advancing queued application data into the send
+	// window.
 	IKCP_FLUSH_ACKONLY FlushType = 1 << iota
+	// IKCP_FLUSH_FULL selects normal send-window and outstanding retransmission processing.
 	IKCP_FLUSH_FULL
+	// IKCP_FLUSH_NEW limits the new-data path to newly queued segments; periodic/fast recovery
+	// retains outstanding state.
 	IKCP_FLUSH_NEW
 )
 
+// KCPLogType selects optional protocol trace categories without changing packet state.
 type KCPLogType int32
 
 const (
+	// IKCP_LOG_OUTPUT selects output protocol trace categories without changing reliable state.
 	IKCP_LOG_OUTPUT KCPLogType = 1 << iota
+	// IKCP_LOG_INPUT selects input protocol trace categories without changing reliable state.
 	IKCP_LOG_INPUT
+	// IKCP_LOG_SEND selects send protocol trace categories without changing reliable state.
 	IKCP_LOG_SEND
+	// IKCP_LOG_RECV selects recv protocol trace categories without changing reliable state.
 	IKCP_LOG_RECV
+	// IKCP_LOG_OUT_ACK selects out ack protocol trace categories without changing reliable state.
 	IKCP_LOG_OUT_ACK
+	// IKCP_LOG_OUT_PUSH selects out push protocol trace categories without changing reliable
+	// state.
 	IKCP_LOG_OUT_PUSH
+	// IKCP_LOG_OUT_WASK selects out wask protocol trace categories without changing reliable
+	// state.
 	IKCP_LOG_OUT_WASK
+	// IKCP_LOG_OUT_WINS selects out wins protocol trace categories without changing reliable
+	// state.
 	IKCP_LOG_OUT_WINS
+	// IKCP_LOG_IN_ACK selects in ack protocol trace categories without changing reliable state.
 	IKCP_LOG_IN_ACK
+	// IKCP_LOG_IN_PUSH selects in push protocol trace categories without changing reliable state.
 	IKCP_LOG_IN_PUSH
+	// IKCP_LOG_IN_WASK selects in wask protocol trace categories without changing reliable state.
 	IKCP_LOG_IN_WASK
+	// IKCP_LOG_IN_WINS selects in wins protocol trace categories without changing reliable state.
 	IKCP_LOG_IN_WINS
 )
 
 const (
+	// IKCP_LOG_OUTPUT_ALL selects output all protocol trace categories without changing reliable
+	// state.
 	IKCP_LOG_OUTPUT_ALL = IKCP_LOG_OUTPUT | IKCP_LOG_OUT_ACK | IKCP_LOG_OUT_PUSH | IKCP_LOG_OUT_WASK | IKCP_LOG_OUT_WINS
-	IKCP_LOG_INPUT_ALL  = IKCP_LOG_INPUT | IKCP_LOG_IN_ACK | IKCP_LOG_IN_PUSH | IKCP_LOG_IN_WASK | IKCP_LOG_IN_WINS
-	IKCP_LOG_ALL        = IKCP_LOG_OUTPUT_ALL | IKCP_LOG_INPUT_ALL | IKCP_LOG_SEND | IKCP_LOG_RECV
+	// IKCP_LOG_INPUT_ALL selects input all protocol trace categories without changing reliable
+	// state.
+	IKCP_LOG_INPUT_ALL = IKCP_LOG_INPUT | IKCP_LOG_IN_ACK | IKCP_LOG_IN_PUSH | IKCP_LOG_IN_WASK | IKCP_LOG_IN_WINS
+	// IKCP_LOG_ALL selects all protocol trace categories without changing reliable state.
+	IKCP_LOG_ALL = IKCP_LOG_OUTPUT_ALL | IKCP_LOG_INPUT_ALL | IKCP_LOG_SEND | IKCP_LOG_RECV
 )
 
 // monotonic reference time point
@@ -114,26 +149,42 @@ type output_callback func(buf []byte, size int)
 // logoutput_callback is a prototype which logging kcp trace output
 type logoutput_callback func(msg string, args ...any)
 
+// _itimediff compares wrapping 32-bit sequence/time values using signed modular distance.
 func _itimediff(later, earlier uint32) int32 {
 	return (int32)(later - earlier)
 }
 
 // segment defines a KCP segment
 type segment struct {
-	conv     uint32
-	cmd      uint8
-	frg      uint8
-	wnd      uint16
-	ts       uint32
-	sn       uint32
-	una      uint32
-	rto      uint32
-	xmit     uint32
+	// Reliable conversation ID carried inside the raw envelope.
+	conv uint32
+	// Reliable protocol command selecting data, ACK or window-control handling.
+	cmd uint8
+	// Message-fragment position; stream mode has different aggregation semantics.
+	frg uint8
+	// Advertised peer receive space in segments, not application byte credit.
+	wnd uint16
+	// Reliable transmit timestamp carried in KCP feedback, independent of fabricated outer
+	// timestamps.
+	ts uint32
+	// Reliable segment sequence number compared with wrap-aware arithmetic.
+	sn uint32
+	// Cumulative next-expected sequence acknowledging the received prefix.
+	una uint32
+	// Current segment retry delay in milliseconds, adjusted after timeout.
+	rto uint32
+	// Number of transmission attempts retained for retry/dead-link accounting.
+	xmit uint32
+	// Next timeout retry deadline in the wrapping protocol clock.
 	resendts uint32
-	fastack  uint32
-	gapAt    uint32
-	acked    uint32 // mark if the seg has acked
-	data     []byte
+	// Later-ACK evidence for gap recovery; a sentinel suppresses repeated fast firing until
+	// timeout.
+	fastack uint32
+	// First gap-evidence time used by the independent reordering grace.
+	gapAt uint32
+	acked uint32 // mark if the seg has acked
+	// Owned segment payload retained until reliable delivery or explicit recycling.
+	data []byte
 }
 
 // encode a segment header into buffer
@@ -153,10 +204,13 @@ func (seg *segment) encode(ptr []byte) []byte {
 
 // segmentHeap is a min-heap of segments, used for receiving segments in order
 type segmentHeap struct {
+	// Ordered reliable segment storage with separate membership metadata.
 	segments []segment
 	marks    map[uint32]struct{} // to avoid duplicates
 }
 
+// newSegmentHeap initializes ordered segment tracking and membership lookup for the reliable
+// protocol.
 func newSegmentHeap() *segmentHeap {
 	h := &segmentHeap{
 		marks: make(map[uint32]struct{}),
@@ -165,18 +219,26 @@ func newSegmentHeap() *segmentHeap {
 	return h
 }
 
+// Len reports retained heap entries for the standard heap interface.
 func (h *segmentHeap) Len() int { return len(h.segments) }
 
+// Less orders heap entries according to this queue's sequence or deadline comparator.
 func (h *segmentHeap) Less(i, j int) bool {
 	return _itimediff(h.segments[j].sn, h.segments[i].sn) > 0
 }
 
+// Swap exchanges entries and maintains the heap's indexing/ownership invariants.
 func (h *segmentHeap) Swap(i, j int) { h.segments[i], h.segments[j] = h.segments[j], h.segments[i] }
+
+// Push accepts a heap element through the standard interface; callers retain the queue's
+// synchronization contract.
 func (h *segmentHeap) Push(x any) {
 	h.segments = append(h.segments, x.(segment))
 	h.marks[x.(segment).sn] = struct{}{}
 }
 
+// Pop removes the final heap slot and releases membership/reference state as required by the
+// queue.
 func (h *segmentHeap) Pop() any {
 	n := len(h.segments)
 	x := h.segments[n-1]
@@ -186,6 +248,7 @@ func (h *segmentHeap) Pop() any {
 	return x
 }
 
+// Has checks indexed membership to avoid repeated linear scans or duplicate queue insertion.
 func (h *segmentHeap) Has(sn uint32) bool {
 	_, exists := h.marks[sn]
 	return exists
@@ -194,29 +257,52 @@ func (h *segmentHeap) Has(sn uint32) bool {
 // KCP defines a single KCP connection's protocol state machine.
 // It is a pure ARQ (Automatic Repeat reQuest) implementation with no I/O.
 type KCP struct {
-	peerACKDelayEstimate                                float64
-	peerACKDelay                                        uint32
-	ackedSegments                                       uint64
-	creditHints                                         bool
-	receivedCredits                                     []streamCredit
-	ackTimestamps                                       bool
-	forwardTransit, reverseTransit                      transitMinimum
-	forwardQueue, reverseQueue                          uint32
-	transitSamples                                      uint64
-	clock                                               func() uint32 // nil in production; deterministic protocol simulations own their clock
-	pacingRate                                          uint64
-	pacingTokens                                        float64
-	pacingLast                                          uint32
-	pacingDeferred                                      bool
-	pacingDue                                           uint32
-	ackDelay, ackDue                                    uint32
-	reorderGrace                                        uint32
-	spuriousRetransmissions                             uint64
-	observedReorderDelay                                uint32
-	sendNext                                            uint32 // next initial send, including deferred paced segments
-	ackedBytes, sentSegments, retransmittedSegments     uint64
+	// Smoothed peer ACK scheduling cost, separated from path queue growth.
+	peerACKDelayEstimate float64
+	// Reported peer scheduling delay in milliseconds.
+	peerACKDelay uint32
+	// Cumulative acknowledged segments used for packet-rate/window estimation.
+	ackedSegments uint64
+	// Enables optional WINS credit processing without removing reliable mux feedback.
+	creditHints bool
+	// Decoded updates dispatched only after releasing the carrier mutex.
+	receivedCredits []streamCredit
+	// Enables optional inner ACK timing fields; outer fabricated timestamps stay independent.
+	ackTimestamps bool
+	// Relative directional timing baselines that do not require synchronized wall clocks.
+	forwardTransit, reverseTransit transitMinimum
+	// Estimated directional queue growth in milliseconds, not one-way propagation.
+	forwardQueue, reverseQueue uint32
+	// Number of observations supporting directional estimates; zero requires RTT fallback.
+	transitSamples uint64
+	clock          func() uint32 // nil in production; deterministic protocol simulations own their clock
+	// Configured data byte rate per second; ACK/window-control emission remains exempt.
+	pacingRate uint64
+	// Bounded accumulated data-send credit, preventing unlimited bursts after idle.
+	pacingTokens float64
+	// Protocol clock instant of the last pacing refill.
+	pacingLast uint32
+	// Records data waiting for pacing credit so an earlier timer can resume it.
+	pacingDeferred bool
+	// Next pacing-eligible protocol clock instant.
+	pacingDue uint32
+	// Chosen ACK deferral and its deadline in protocol milliseconds.
+	ackDelay, ackDue uint32
+	// Bounded allowance before gap-based retries; timer recovery is independent.
+	reorderGrace uint32
+	// Observed retries whose later evidence suggests the original was reordered rather than
+	// lost.
+	spuriousRetransmissions uint64
+	// Measured reorder allowance input exposed to the controller.
+	observedReorderDelay uint32
+	sendNext             uint32 // next initial send, including deferred paced segments
+	// Cumulative delivered-byte, first-send and retry counters for rate/loss estimates.
+	ackedBytes, sentSegments, retransmittedSegments uint64
+	// Emitted packet/byte/control/ACK-attempt counters; they are not unique application goodput.
 	outputPackets, outputBytes, ackPackets, ackSegments uint64
-	receivedBytes, enqueuedBytes                        uint64
+	// Cumulative accepted input and queued application data used for coherent transport
+	// snapshots.
+	receivedBytes, enqueuedBytes uint64
 	// Connection identity and framing
 	conv  uint32 // conversation id, must be equal on both sides
 	mtu   uint32 // maximum transmission unit (bytes)
@@ -272,9 +358,13 @@ type KCP struct {
 	log logoutput_callback // trace log callback
 }
 
+// ackItem retains sequence and timing needed for batched ACK emission/directional telemetry.
 type ackItem struct {
-	sn         uint32
-	ts         uint32
+	// Reliable segment sequence number compared with wrap-aware arithmetic.
+	sn uint32
+	// Peer transmit timestamp echoed by the ACK for RTT estimation.
+	ts uint32
+	// Local arrival clock used when peer ACK scheduling is reported.
 	receivedAt uint32
 }
 
@@ -801,6 +891,8 @@ func (kcp *KCP) Input(data []byte, pktType PacketType, ackNoDelay bool) int {
 	return 0
 }
 
+// wnd_unused advertises remaining receive capacity while respecting the wire window
+// representation.
 func (kcp *KCP) wnd_unused() uint16 {
 	if kcp.rcv_queue.Len() < int(kcp.rcv_wnd) {
 		return uint16(int(kcp.rcv_wnd) - kcp.rcv_queue.Len())

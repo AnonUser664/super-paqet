@@ -1,5 +1,8 @@
 //go:build linux
 
+// File metrics.go: exports counters and bounded snapshots on a local HTTP server; liveness and
+// byte attempts are not delivery proof.
+
 package engine
 
 import (
@@ -11,6 +14,8 @@ import (
 	"strconv"
 )
 
+// metrics exports process and carrier snapshots; expensive stream scans are bounded separately
+// by mux telemetry.
 func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; version=0.0.4")
 	if e.diagnostics != nil {

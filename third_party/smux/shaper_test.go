@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File shaper_test.go: exercises shaper regressions; fixtures must preserve cleanup and expose
+// byte/lifecycle failures explicitly.
+
 package smux
 
 import (
@@ -31,6 +34,8 @@ import (
 	"time"
 )
 
+// TestShaper checks Shaper so a change cannot silently weaken the recorded regression
+// contract.
 func TestShaper(t *testing.T) {
 	w1 := writeRequest{seq: 1}
 	w2 := writeRequest{seq: 2}
@@ -51,6 +56,8 @@ func TestShaper(t *testing.T) {
 	}
 }
 
+// TestShaper2 checks Shaper2 so a change cannot silently weaken the recorded regression
+// contract.
 func TestShaper2(t *testing.T) {
 	w1 := writeRequest{class: CLSDATA, seq: 1} // stream 0
 	w2 := writeRequest{class: CLSDATA, seq: 2}
@@ -75,6 +82,8 @@ func TestShaper2(t *testing.T) {
 	}
 }
 
+// TestShaperQueueFairness checks Shaper Queue Fairness so a change cannot silently weaken the
+// recorded regression contract.
 func TestShaperQueueFairness(t *testing.T) {
 	rand.Seed(time.Now().UnixNano())
 
@@ -175,6 +184,8 @@ func TestShaperQueueFairness(t *testing.T) {
 	}
 }
 
+// TestShaperQueue_FastWriteSlowRead checks Shaper Queue Fast Write Slow Read so a change
+// cannot silently weaken the recorded regression contract.
 func TestShaperQueue_FastWriteSlowRead(t *testing.T) {
 	rand.Seed(time.Now().UnixNano())
 
@@ -277,6 +288,8 @@ func TestShaperQueue_FastWriteSlowRead(t *testing.T) {
 	}
 }
 
+// TestShaperQueue_PopBoundary checks Shaper Queue Pop Boundary so a change cannot silently
+// weaken the recorded regression contract.
 func TestShaperQueue_PopBoundary(t *testing.T) {
 	sq := NewShaperQueue()
 
@@ -329,6 +342,8 @@ func TestShaperQueue_PopBoundary(t *testing.T) {
 	}
 }
 
+// TestShaperQueue_MultiStreamRemoval checks Shaper Queue Multi Stream Removal so a change
+// cannot silently weaken the recorded regression contract.
 func TestShaperQueue_MultiStreamRemoval(t *testing.T) {
 	sq := NewShaperQueue()
 
@@ -400,6 +415,8 @@ func TestShaperQueue_MultiStreamRemoval(t *testing.T) {
 	}
 }
 
+// TestShaperHeap_MemoryLeak checks Shaper Heap Memory Leak so a change cannot silently weaken
+// the recorded regression contract.
 func TestShaperHeap_MemoryLeak(t *testing.T) {
 	// Verify the fix for memory leak in Pop
 	h := &shaperHeap{}
@@ -428,6 +445,8 @@ func TestShaperHeap_MemoryLeak(t *testing.T) {
 	}
 }
 
+// TestShaperIsEmpty checks Shaper Is Empty so a change cannot silently weaken the recorded
+// regression contract.
 func TestShaperIsEmpty(t *testing.T) {
 	sq := NewShaperQueue()
 	if !sq.IsEmpty() {

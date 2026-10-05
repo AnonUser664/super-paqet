@@ -1,7 +1,12 @@
+// File stream_test.go: exercises stream regressions; fixtures must preserve cleanup and expose
+// byte/lifecycle failures explicitly.
+
 package smux
 
 import "testing"
 
+// TestBufferRingPushPopOrder checks Buffer Ring Push Pop Order so a change cannot silently
+// weaken the recorded regression contract.
 func TestBufferRingPushPopOrder(t *testing.T) {
 	r := newBufferRing(2)
 	b1 := []byte{1}
@@ -30,6 +35,8 @@ func TestBufferRingPushPopOrder(t *testing.T) {
 	}
 }
 
+// TestBufferRingGrow checks Buffer Ring Grow so a change cannot silently weaken the recorded
+// regression contract.
 func TestBufferRingGrow(t *testing.T) {
 	r := newBufferRing(2)
 	b1 := []byte{1}
@@ -60,6 +67,8 @@ func TestBufferRingGrow(t *testing.T) {
 	}
 }
 
+// TestBufferRingEmptyPop checks Buffer Ring Empty Pop so a change cannot silently weaken the
+// recorded regression contract.
 func TestBufferRingEmptyPop(t *testing.T) {
 	r := newBufferRing(2)
 	if buf, head, ok := r.pop(); ok || buf != nil || head != nil {

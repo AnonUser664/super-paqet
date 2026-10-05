@@ -1,3 +1,6 @@
+// File ringbuffer_test.go: exercises ringbuffer regressions; fixtures must preserve cleanup
+// and expose byte/lifecycle failures explicitly.
+
 package kcp
 
 import (
@@ -5,6 +8,8 @@ import (
 	"testing"
 )
 
+// TestRingSize checks Ring Size so a change cannot silently weaken the recorded regression
+// contract.
 func TestRingSize(t *testing.T) {
 	r := NewRingBuffer[int](1)
 	if r.Len() != 0 {
@@ -48,6 +53,8 @@ func TestRingSize(t *testing.T) {
 	}
 }
 
+// TestRingSize2 checks Ring Size2 so a change cannot silently weaken the recorded regression
+// contract.
 func TestRingSize2(t *testing.T) {
 	// emulate a condition where head = 32， tail=31, and Len() = 63
 	r := NewRingBuffer[int](64)
@@ -98,6 +105,8 @@ func TestRingSize2(t *testing.T) {
 	}
 }
 
+// TestRingBuffer checks Ring Buffer so a change cannot silently weaken the recorded regression
+// contract.
 func TestRingBuffer(t *testing.T) {
 	r := NewRingBuffer[int](1)
 	if r.Len() != 0 {
@@ -155,6 +164,8 @@ func TestRingBuffer(t *testing.T) {
 	}
 }
 
+// TestRingBufferGrow checks Ring Buffer Grow so a change cannot silently weaken the recorded
+// regression contract.
 func TestRingBufferGrow(t *testing.T) {
 	initialSize := 4
 	r := NewRingBuffer[int](initialSize)
@@ -204,6 +215,8 @@ func TestRingBufferGrow(t *testing.T) {
 	}
 }
 
+// TestRingForEach checks Ring For Each so a change cannot silently weaken the recorded
+// regression contract.
 func TestRingForEach(t *testing.T) {
 	r := NewRingBuffer[int](10)
 	for i := range 10 {
@@ -268,6 +281,8 @@ func TestRingBufferDiscardBoundary(t *testing.T) {
 	}
 }
 
+// TestRingForEachReverse checks Ring For Each Reverse so a change cannot silently weaken the
+// recorded regression contract.
 func TestRingForEachReverse(t *testing.T) {
 	r := NewRingBuffer[int](10)
 	for i := range 10 {

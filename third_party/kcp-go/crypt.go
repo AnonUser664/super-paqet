@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File crypt.go: provides packet cipher wrappers and their nonce/tag or legacy buffer
+// contracts.
+
 package kcp
 
 import (
@@ -48,7 +51,9 @@ var (
 	// actually initial vector is not used in this package, we prepend a random nonce to each outgoing packets.
 	// though IV is fixed, the first 8 bytes of the encrypted data is always random.
 	initialVector = []byte{167, 115, 79, 156, 18, 172, 27, 1, 164, 21, 242, 193, 252, 120, 230, 107}
-	saltxor       = `sH3CIVoF#rWLtJo6`
+	// saltxor retains the compatibility XOR key-expansion salt; this mode does not authenticate
+	// traffic.
+	saltxor = `sH3CIVoF#rWLtJo6`
 )
 
 // BlockCrypt defines encryption/decryption methods for a given byte slice.
@@ -64,21 +69,30 @@ type BlockCrypt interface {
 	Decrypt(dst, src []byte)
 }
 
+// _ asserts implementation of the expected interface at compile time, catching adapter drift
+// before runtime.
 var _ BlockCrypt = &aeadCrypt{}
 
 // aeadCrypt implements BlockCrypt interface using cipher.AEAD
 type aeadCrypt struct {
+	// Authenticated cipher with explicit nonce/tag overhead used in packet budgeting.
 	aead cipher.AEAD
 }
 
+// Encrypt deliberately rejects the legacy entry point: AEAD requires Seal with explicit
+// nonce/tag storage instead of the unauthenticated block API.
 func (aeadCrypt) Encrypt(_, _ []byte) {
 	panic("called Encrypt on AEAD crypt")
 }
 
+// Decrypt deliberately rejects the legacy entry point: callers must use Open and handle
+// authentication failure explicitly.
 func (aeadCrypt) Decrypt(_, _ []byte) {
 	panic("called Decrypt on AEAD crypt")
 }
 
+// Seal delegates authenticated encryption while retaining the caller's nonce and destination-
+// buffer contract.
 func (a *aeadCrypt) Seal(dst, nonce, plaintext, additionalData []byte) []byte {
 	if dst == nil || cap(dst)-len(dst) < len(plaintext)+a.aead.Overhead() {
 		panic("AEAD Seal allocated new slice, please increase MTU size")
@@ -87,14 +101,18 @@ func (a *aeadCrypt) Seal(dst, nonce, plaintext, additionalData []byte) []byte {
 	return a.aead.Seal(dst, nonce, plaintext, additionalData)
 }
 
+// Open authenticates/decrypts into caller-provided storage and propagates verification
+// failure.
 func (a *aeadCrypt) Open(dst, nonce, ciphertext, additionalData []byte) ([]byte, error) {
 	return a.aead.Open(dst, nonce, ciphertext, additionalData)
 }
 
+// NonceSize reports the required nonce bytes so the session reserves correct packet overhead.
 func (a *aeadCrypt) NonceSize() int {
 	return a.aead.NonceSize()
 }
 
+// Overhead reports authentication-tag overhead so MTU calculations include it.
 func (a *aeadCrypt) Overhead() int {
 	return a.aead.Overhead()
 }
@@ -124,14 +142,19 @@ func NewAESGCMCrypt(key []byte) (BlockCrypt, error) {
 	return &aeadCrypt{aesgcm}, nil
 }
 
+// _ asserts implementation of the expected interface at compile time, catching adapter drift
+// before runtime.
 var _ BlockCrypt = &blockCrypt{}
 
 // blockCrypt implements BlockCrypt interface using a cipher.Block
 type blockCrypt struct {
-	encMu     sync.Mutex
-	decMu     sync.Mutex
-	encbuf    []byte // encryption working buffer
-	decbuf    []byte // decryption working buffer
+	// Serializes reusable encryption scratch independently of decrypt operations.
+	encMu sync.Mutex
+	// Serializes reusable decryption scratch independently of encrypt operations.
+	decMu  sync.Mutex
+	encbuf []byte // encryption working buffer
+	decbuf []byte // decryption working buffer
+	// Prepared block cipher used by the compatibility packet mode.
 	block     cipher.Block
 	blockSize int // cached block size
 }
@@ -150,6 +173,8 @@ func (c *blockCrypt) Decrypt(dst, src []byte) {
 	c.decMu.Unlock()
 }
 
+// newBlockCrypt wraps a block cipher and reusable scratch storage for the retained legacy
+// packet cipher path.
 func newBlockCrypt(block cipher.Block) BlockCrypt {
 	blockSize := block.BlockSize()
 	return &blockCrypt{
@@ -160,7 +185,9 @@ func newBlockCrypt(block cipher.Block) BlockCrypt {
 	}
 }
 
+// salsa20BlockCrypt retains the derived Salsa20 key for the compatibility packet cipher.
 type salsa20BlockCrypt struct {
+	// Derived fixture/cipher key bytes; their size is fixed by this implementation.
 	key [32]byte
 }
 
@@ -265,7 +292,10 @@ func NewXTEABlockCrypt(key []byte) (BlockCrypt, error) {
 	return newBlockCrypt(block), nil
 }
 
+// simpleXORBlockCrypt retains the expanded XOR table; this compatibility mode has no
+// authentication guarantee.
 type simpleXORBlockCrypt struct {
+	// Expanded compatibility XOR keystream table, not an authentication primitive.
 	xortbl []byte
 }
 
@@ -276,12 +306,16 @@ func NewSimpleXORBlockCrypt(key []byte) (BlockCrypt, error) {
 	return c, nil
 }
 
+// Encrypt applies the configured XOR transformation; this compatibility mode is not
+// authenticated encryption.
 func (c *simpleXORBlockCrypt) Encrypt(dst, src []byte) {
 	if len(src) == 0 {
 		return
 	}
 	subtle.XORBytes(dst, src, c.xortbl)
 }
+
+// Decrypt reverses the same XOR transformation without adding authentication guarantees.
 func (c *simpleXORBlockCrypt) Decrypt(dst, src []byte) {
 	if len(src) == 0 {
 		return
@@ -289,6 +323,8 @@ func (c *simpleXORBlockCrypt) Decrypt(dst, src []byte) {
 	subtle.XORBytes(dst, src, c.xortbl)
 }
 
+// noneBlockCrypt copies bytes unchanged while session framing still retains the nonce/CRC
+// envelope.
 type noneBlockCrypt struct{}
 
 // NewNoneBlockCrypt does nothing but copying

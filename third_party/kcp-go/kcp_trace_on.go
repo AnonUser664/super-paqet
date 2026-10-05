@@ -1,8 +1,13 @@
 //go:build debug
 
 // only build tag debug is set, then debugLog will be enabled in compile time
+// File kcp_trace_on.go: enables protocol tracing only in builds requesting the trace
+// implementation.
+
 package kcp
 
+// debugLog routes protocol trace records only when the build's trace implementation enables
+// them.
 func (kcp *KCP) debugLog(logtype KCPLogType, args ...any) {
 	if kcp.logmask&logtype == 0 {
 		return

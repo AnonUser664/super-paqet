@@ -1,3 +1,6 @@
+// File recv_handle.go: captures and decodes incoming pcap frames while protecting zero-copy
+// buffer lifetime with a read lock.
+
 package socket
 
 import (
@@ -15,21 +18,36 @@ import (
 	"paqet/internal/conf"
 )
 
+// decoder reuses layer parser storage while borrowed pcap packet data remains protected by the
+// read lock.
 type decoder struct {
-	parser  *gopacket.DecodingLayerParser
-	eth     layers.Ethernet
-	ip4     layers.IPv4
-	ip6     layers.IPv6
-	tcp     layers.TCP
+	// Reusable layer decoder operating on the protected borrowed pcap frame.
+	parser *gopacket.DecodingLayerParser
+	// Ethernet header metadata; source/destination MAC ownership belongs to the selected
+	// physical path.
+	eth layers.Ethernet
+	// IPv4 header storage used by the retained raw envelope.
+	ip4 layers.IPv4
+	// IPv6 header storage used by the retained raw envelope.
+	ip6 layers.IPv6
+	// TCP header representation; its fabricated fields do not provide application reliability.
+	tcp layers.TCP
+	// Layer IDs produced by the reusable parser, not an owned copy of packet payload.
 	decoded []gopacket.LayerType
 }
 
+// RecvHandle owns the incoming pcap handle and its borrowed-buffer lifetime.
 type RecvHandle struct {
+	// Owned capture handle whose borrowed data lifetime is protected by mu.
 	handle *pcap.Handle
-	dPool  sync.Pool
-	mu     sync.Mutex
+	// Reuses decoder metadata while the capture read lock protects underlying borrowed bytes.
+	dPool sync.Pool
+	// Serializes capture reads and close so borrowed frame memory cannot be reused concurrently.
+	mu sync.Mutex
 }
 
+// NewRecvHandle activates incoming-only pcap capture and installs the endpoint filter before
+// exposing the handle.
 func NewRecvHandle(cfg *conf.Network) (*RecvHandle, error) {
 	handle, err := newHandle(cfg, cfg.PCAP.Sockbuf, 65536, 100*time.Millisecond)
 	if err != nil {
@@ -66,6 +84,8 @@ func NewRecvHandle(cfg *conf.Network) (*RecvHandle, error) {
 	return h, nil
 }
 
+// Read holds the capture lock while decoding/copying borrowed packet bytes so the next read
+// cannot overwrite them.
 func (h *RecvHandle) Read(data []byte) (int, net.Addr, error) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -106,6 +126,8 @@ func (h *RecvHandle) Read(data []byte) (int, net.Addr, error) {
 	return copy(data, payload), addr, nil
 }
 
+// Close serializes handle destruction with reads so shutdown cannot free a borrowed capture
+// buffer.
 func (h *RecvHandle) Close() {
 	h.mu.Lock()
 	defer h.mu.Unlock()

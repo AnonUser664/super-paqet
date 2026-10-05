@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File autotune.go: retains the fork's automatic packet/FEC tuning helpers; enterprise
+// controller state lives outside this library.
+
 package kcp
 
 import (

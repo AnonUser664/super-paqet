@@ -22,12 +22,18 @@
 
 //go:build !linux
 
+// File readloop_generic.go: provides portable individual-datagram receive/dispatch semantics.
+
 package kcp
 
+// readLoop receives and dispatches packet input until close/error, retaining the carrier's
+// address and buffer ownership.
 func (s *UDPSession) readLoop() {
 	s.defaultReadLoop()
 }
 
+// monitor dispatches incoming datagrams to their conversation state and applies admission
+// before allocating unknown sessions.
 func (l *Listener) monitor() {
 	l.defaultMonitor()
 }

@@ -22,6 +22,9 @@
 
 //go:build linux
 
+// File platform_linux.go: selects Linux batch support including custom raw PacketConn
+// interfaces.
+
 package kcp
 
 import (
@@ -33,20 +36,27 @@ import (
 )
 
 type (
+	// platform retains optional platform batch state; generic builds can have no additional
+	// platform data.
 	platform struct {
+		// Optional platform/custom batch adapter retaining the same packet transport.
 		batchConn batchConn
 	}
 
 	// udpConn is an interface implemented by net.UDPConn.
 	// It can be used for interface assertions to check if a net.Conn is a UDP connection.
 	udpConn interface {
+		// Exposes netpoll-compatible descriptor access when the underlying socket supports it.
 		SyscallConn() (syscall.RawConn, error)
+		// Reads packet/address/control metadata for the UDP compatibility adapter.
 		ReadMsgUDP(b, oob []byte) (n, oobn, flags int, addr *net.UDPAddr, err error)
 	}
 
 	// batchConn defines the interface used in batch IO
 	batchConn interface {
+		// Submits packet vectors without converting a custom raw connection into wire UDP.
 		WriteBatch(ms []ipv4.Message, flags int) (int, error)
+		// Receives packet vectors while preserving individual payload/address boundaries.
 		ReadBatch(ms []ipv4.Message, flags int) (int, error)
 	}
 )
@@ -75,6 +85,8 @@ func newBatchConn(conn net.PacketConn) batchConn {
 	return ipv6.NewPacketConn(conn)
 }
 
+// initPlatform selects platform batch support; custom PacketConn implementations keep raw
+// framing rather than UDP substitution.
 func (sess *UDPSession) initPlatform() {
 	sess.platform.batchConn = newBatchConn(sess.conn)
 }

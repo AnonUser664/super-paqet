@@ -1,3 +1,4 @@
+# Workflow purpose: Check Linux source/module suites and namespace behavior on an isolated CI runner.
 name: Linux tests
 on:
   push:

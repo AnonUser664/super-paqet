@@ -37,6 +37,9 @@
 // Correct Erasures:Determine values for E1 (M2) and E2 (P2).
 // Corrected:       | M1 | M2 | M3 | M4 | P1 | P2 |
 
+// File fec.go: encodes/reconstructs packet shards with bounded recovery groups and explicit
+// buffer recycling.
+
 package kcp
 
 import (
@@ -61,16 +64,23 @@ const (
 // fecPacket is a decoded FEC packet
 type fecPacket []byte
 
+// seqid reads the FEC sequence identifier used to group/recover data and parity shards.
 func (bts fecPacket) seqid() uint32 { return binary.LittleEndian.Uint32(bts) }
-func (bts fecPacket) flag() uint16  { return binary.LittleEndian.Uint16(bts[4:]) }
-func (bts fecPacket) data() []byte  { return bts[6:] }
+
+// flag reads the shard kind before FEC dispatch.
+func (bts fecPacket) flag() uint16 { return binary.LittleEndian.Uint16(bts[4:]) }
+
+// data returns the shard payload after its FEC header without copying ownership.
+func (bts fecPacket) data() []byte { return bts[6:] }
 
 // shardHeap holds a corelated set of datashards from the peers
 type shardHeap struct {
+	// Heap-owned packet references retained until shard recovery or expiry.
 	elements []fecPacket
 	marks    map[uint32]struct{} // to avoid duplicates
 }
 
+// newShardHeap initializes FEC shard ordering and its membership index.
 func newShardHeap() *shardHeap {
 	h := &shardHeap{
 		marks: make(map[uint32]struct{}),
@@ -79,18 +89,26 @@ func newShardHeap() *shardHeap {
 	return h
 }
 
+// Len reports retained heap entries for the standard heap interface.
 func (h *shardHeap) Len() int { return len(h.elements) }
 
+// Less orders heap entries according to this queue's sequence or deadline comparator.
 func (h *shardHeap) Less(i, j int) bool {
 	return _itimediff(h.elements[j].seqid(), h.elements[i].seqid()) > 0
 }
 
+// Swap exchanges entries and maintains the heap's indexing/ownership invariants.
 func (h *shardHeap) Swap(i, j int) { h.elements[i], h.elements[j] = h.elements[j], h.elements[i] }
+
+// Push accepts a heap element through the standard interface; callers retain the queue's
+// synchronization contract.
 func (h *shardHeap) Push(x any) {
 	h.elements = append(h.elements, x.(fecPacket))
 	h.marks[x.(fecPacket).seqid()] = struct{}{}
 }
 
+// Pop removes the final heap slot and releases membership/reference state as required by the
+// queue.
 func (h *shardHeap) Pop() any {
 	n := len(h.elements)
 	x := h.elements[n-1]
@@ -100,6 +118,7 @@ func (h *shardHeap) Pop() any {
 	return x
 }
 
+// Has checks indexed membership to avoid repeated linear scans or duplicate queue insertion.
 func (h *shardHeap) Has(sn uint32) bool {
 	_, exists := h.marks[sn]
 	return exists
@@ -109,11 +128,14 @@ func (h *shardHeap) Has(sn uint32) bool {
 // It collects shards grouped by shard ID and attempts Reed-Solomon recovery
 // when enough shards have been received.
 type fecDecoder struct {
-	dataShards   int
+	// Number of source shards needed by the selected FEC coding layout.
+	dataShards int
+	// Number of redundant coded shards; these consume extra bandwidth/CPU.
 	parityShards int
-	shardSize    int
-	shardSet     map[uint32]*shardHeap // shardMap[initial shard id] = shardHeap
-	paws         uint32                // Protect Against Wrapped Sequence numbers
+	// Total source/parity group width used for consistent sequence grouping.
+	shardSize int
+	shardSet  map[uint32]*shardHeap // shardMap[initial shard id] = shardHeap
+	paws      uint32                // Protect Against Wrapped Sequence numbers
 
 	// record the latest recovered shard id
 	// the shards smaller than this one will be discarded
@@ -121,7 +143,8 @@ type fecDecoder struct {
 
 	// caches
 	decodeCache [][]byte
-	flagCache   []bool
+	// Reusable shard-presence flags used during recovery instead of reallocating each group.
+	flagCache []bool
 
 	// RS decoder
 	codec reedsolomon.Encoder
@@ -132,6 +155,7 @@ type fecDecoder struct {
 	shouldTune bool // true when a type mismatch is detected, triggering auto-tune
 }
 
+// newFECDecoder prepares bounded shard recovery state for the configured data/parity layout.
 func newFECDecoder(dataShards, parityShards int) *fecDecoder {
 	if dataShards <= 0 || parityShards <= 0 {
 		return nil
@@ -352,11 +376,14 @@ func (dec *fecDecoder) discardShards() {
 type (
 	// fecEncoder for encoding outgoing packets
 	fecEncoder struct {
-		dataShards   int
+		// Number of source shards needed by the selected FEC coding layout.
+		dataShards int
+		// Number of redundant coded shards; these consume extra bandwidth/CPU.
 		parityShards int
-		shardSize    int
-		paws         uint32 // Protect Against Wrapped Sequence numbers
-		next         uint32 // next seqid
+		// Total source/parity group width used for consistent sequence grouping.
+		shardSize int
+		paws      uint32 // Protect Against Wrapped Sequence numbers
+		next      uint32 // next seqid
 
 		shardCount int // count the number of datashards collected
 		maxSize    int // track maximum data length in datashard
@@ -365,8 +392,10 @@ type (
 		payloadOffset int // FEC payload offset
 
 		// caches
-		shardCache     [][]byte
-		encodeCache    [][]byte
+		shardCache [][]byte
+		// Reusable source/parity slices; their lifetime extends through FEC output construction.
+		encodeCache [][]byte
+		// Last group input time used to bound how long incomplete coding state is retained.
 		tsLatestPacket int64
 
 		// RS encoder
@@ -374,6 +403,8 @@ type (
 	}
 )
 
+// newFECEncoder prepares shard grouping and parity generation for the configured packet
+// budget.
 func newFECEncoder(dataShards, parityShards, offset int) *fecEncoder {
 	if dataShards <= 0 || parityShards <= 0 {
 		return nil
@@ -488,6 +519,8 @@ func (enc *fecEncoder) sealData(data []byte) {
 	enc.next = (enc.next + 1) % enc.paws
 }
 
+// sealParity fills parity metadata after coding so every parity shard has the expected
+// sequence/type header.
 func (enc *fecEncoder) sealParity(data []byte) {
 	binary.LittleEndian.PutUint32(data, enc.next)
 	binary.LittleEndian.PutUint16(data[4:], typeParity)

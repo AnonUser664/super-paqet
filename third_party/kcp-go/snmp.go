@@ -20,6 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// File snmp.go: records cumulative protocol counters and coherent copies for diagnostics.
+
 package kcp
 
 import (
@@ -61,6 +63,7 @@ type Snmp struct {
 	OOBPackets          uint64 // number of OOB packets received
 }
 
+// newSnmp creates an independent statistics container for cumulative protocol diagnostics.
 func newSnmp() *Snmp {
 	return new(Snmp)
 }
@@ -211,6 +214,8 @@ func (s *Snmp) Reset() {
 // DefaultSnmp is the global KCP connection statistics collector
 var DefaultSnmp *Snmp
 
+// init registers command options or initializes module-wide lookup/pool state once before
+// runtime work begins.
 func init() {
 	DefaultSnmp = newSnmp()
 }
