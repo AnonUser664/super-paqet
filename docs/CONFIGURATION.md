@@ -128,6 +128,7 @@ Both use the same endpoint object. Some fields only affect outgoing peers.
 | `sessions` | `min(8, max(2, GOMAXPROCS))` | Initial outgoing KCP carrier count, 1–256. Not the customer TCP connection count. |
 | `max_sessions` | `min(256, max(sessions, 2 × GOMAXPROCS))` | Maximum outgoing carrier pool. Must be at least `sessions`. Defaults to `sessions` for fixed source ports or `adaptive: false`. |
 | `source_ports` | Optional list, empty | Peer-only ordered distinct ports, 1–65535, at most 256. Carrier i reserves entry i. Requires port 0 in the network address. Initial and maximum session counts cannot exceed the list. With a list, initial defaults to `min(list length, 8, max(2, GOMAXPROCS))`, maximum to list length. |
+| `shared_source` | Boolean, `false` | Both listener and peer opt into independent KCP conversations on one peer source tuple. Permits multiple `sessions` with a fixed source port. Uses one physical receive socket/encoder/reservation per peer pool, distinct KCP/mux queues and schedules per lane. Requires FEC disabled and no `source_ports` list. Changing it replaces that endpoint. |
 | `packet_workers` | Listener `min(4, GOMAXPROCS)` for `packet`; otherwise 1 | Incoming packet workers, 1–64. A peer cannot use more than one; use multiple `sessions` for outgoing parallelism. Pcap requires 1. |
 | `network` | Discovery plus defaults | Physical interface, source address, next-hop MAC, driver and outer flags. |
 | `kcp` | Defaults below | Reliability, windows, packet size, encryption aliases and mux ceilings. |

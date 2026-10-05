@@ -3,6 +3,14 @@ Based on github.com/xtaci/kcp-go/v5 v5.6.72; MIT license retained.
 * Linux batch I/O accepts a PacketConn implementing WriteBatch/ReadBatch,
   allowing raw TCP datagrams to use sendmmsg/recvmmsg without UDP encapsulation.
 * ACK lookup indexes the send ring by sequence offset, including wraparound.
+* Fast-gap evidence walks an allocation-free list of outstanding sequence
+  numbers rather than acknowledged send-ring tombstones. Selective/cumulative
+  ACKs unlink in constant time; ring growth and sequence wrap retain numeric
+  links. The linear algorithm is the deterministic differential-test oracle.
+* Explicit shared-source mode demultiplexes by address and conversation, so
+  independent lanes retain one raw source tuple. Outgoing groups reject unknown
+  input. Default address/reset behavior and FEC are unchanged; shared mode rejects
+  parity-only FEC because those frames cannot identify their conversation.
 * New-data flushes visit only newly queued segments. Timer flushes and fast
   retransmission still visit outstanding segments. ACK-only flushes do not move
   queued data into the send window.

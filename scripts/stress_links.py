@@ -49,6 +49,9 @@ IPERF_FLOORS_MBIT={'clean':2000,'wan100':700,'satellite':50}
 def main():
     p=argparse.ArgumentParser()
     p.add_argument('--binary',default='build/super-paqet')
+    p.add_argument('--shared-source',action='store_true')
+    p.add_argument('--block',default='aes-128-gcm')
+    p.add_argument('--kcp-options',default='{}')
     p.add_argument('--output',default='build/expanded-links')
     p.add_argument('--cases',nargs='+',choices=list(PROFILES),default=list(PROFILES))
     p.add_argument('--seeds',nargs='+',type=int,default=[42])
@@ -65,6 +68,8 @@ def main():
             flags=PROFILES[case]
             command=[sys.executable,str(ROOT/'scripts/netns_bench.py'),'--enterprise','--binary',a.binary,'--debug','--bridge','--seed',str(seed),'--duration',str(a.duration),'--sessions','4','--output',str(directory),*flags]
             if '--iperf' in flags:command+=['--warmup','8']
+            command+=['--block',a.block,'--kcp-options',a.kcp_options]
+            if a.shared_source:command+=['--shared-source']
             if a.profile:command+=['--profile']
             print('Starting '+case+' seed '+str(seed),flush=True)
             with (out/(case+'-'+str(seed)+'-console.log')).open('w') as log:

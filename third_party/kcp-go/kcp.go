@@ -183,6 +183,9 @@ type segment struct {
 	// First gap-evidence time used by the independent reordering grace.
 	gapAt uint32
 	acked uint32 // mark if the seg has acked
+	// Sequence links skip acknowledged tombstones during gap-ACK processing.
+	// Ring offsets stay authoritative, so growth cannot invalidate pointers.
+	pendingPrev, pendingNext uint32
 	// Owned segment payload retained until reliable delivery or explicit recycling.
 	data []byte
 }
@@ -257,6 +260,10 @@ func (h *segmentHeap) Has(sn uint32) bool {
 // KCP defines a single KCP connection's protocol state machine.
 // It is a pure ARQ (Automatic Repeat reQuest) implementation with no I/O.
 type KCP struct {
+	// Ordered outstanding-segment index; head/tail comparisons avoid reserving
+	// a sentinel sequence number, including at uint32 wraparound.
+	pendingHead, pendingTail   uint32
+	pendingIndexed, hasPending bool
 	// Smoothed peer ACK scheduling cost, separated from path queue growth.
 	peerACKDelayEstimate float64
 	// Reported peer scheduling delay in milliseconds.
@@ -605,6 +612,7 @@ func (kcp *KCP) parse_ack(sn uint32) {
 	}
 
 	if seg, ok := kcp.snd_buf.At(int(sn - kcp.snd_una)); ok && seg.sn == sn && seg.acked == 0 {
+		kcp.unlinkPending(seg)
 		kcp.ackedBytes += uint64(len(seg.data))
 		kcp.ackedSegments++
 		seg.acked = 1
@@ -620,10 +628,18 @@ func (kcp *KCP) parse_fastack(sn, ts uint32) int {
 		return 0
 	}
 
-	for seg := range kcp.snd_buf.ForEach {
-		if _itimediff(sn, seg.sn) < 0 {
+	if !kcp.pendingIndexed {
+		kcp.indexPending()
+	}
+	if !kcp.hasPending {
+		return 0
+	}
+	for next := kcp.pendingHead; ; {
+		seg, ok := kcp.pendingSegment(next)
+		if !ok || _itimediff(sn, seg.sn) <= 0 {
 			break
-		} else if sn != seg.sn && seg.xmit > 0 && seg.acked == 0 && _itimediff(seg.ts, ts) <= 0 {
+		}
+		if seg.xmit > 0 && _itimediff(seg.ts, ts) <= 0 {
 			if seg.fastack != 0xFFFFFFFF {
 				if seg.fastack == 0 {
 					seg.gapAt = kcp.now()
@@ -634,6 +650,10 @@ func (kcp *KCP) parse_fastack(sn, ts uint32) int {
 				}
 			}
 		}
+		if next == kcp.pendingTail {
+			break
+		}
+		next = seg.pendingNext
 	}
 
 	return shouldFastAck
@@ -646,6 +666,7 @@ func (kcp *KCP) parse_una(una uint32) int {
 	for seg := range kcp.snd_buf.ForEach {
 		if _itimediff(una, seg.sn) > 0 {
 			if seg.acked == 0 {
+				kcp.unlinkPending(seg)
 				kcp.ackedBytes += uint64(len(seg.data))
 				kcp.ackedSegments++
 			}
@@ -1047,6 +1068,10 @@ func (kcp *KCP) flush(flushType FlushType) (nextUpdate uint32) {
 		newseg.cmd = IKCP_CMD_PUSH
 		newseg.sn = kcp.snd_nxt
 		kcp.snd_buf.Push(newseg)
+		if kcp.pendingIndexed {
+			seg, _ := kcp.snd_buf.At(kcp.snd_buf.Len() - 1)
+			kcp.linkPending(seg)
+		}
 		kcp.snd_nxt++
 		newSegsCount++
 	}
