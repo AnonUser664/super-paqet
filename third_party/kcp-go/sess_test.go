@@ -1517,6 +1517,13 @@ func TestOOB_OneSideHandler(t *testing.T) {
 	defer cli.Close()
 	cli.SetWriteDelay(false)
 
+	// Unknown control/OOB packets must not allocate listener sessions. A
+	// reliable round trip establishes the session and confirms that Accept
+	// installed the server handler before the unreliable OOB flood begins.
+	cli.SetDeadline(time.Now().Add(5 * time.Second))
+	randomEchoTest(t, cli, 1)
+	cli.SetDeadline(time.Time{})
+
 	size := cli.GetOOBMaxSize()
 	sizePlus1 := size + 1
 
