@@ -56,6 +56,11 @@ async def echo_servers():
         try:
             while True:
                 size, = struct.unpack('!I', await reader.readexactly(4))
+                if size == 0xffffffff:
+                    # Explicit directional EOF while keeping the write side idle.
+                    writer.write_eof()
+                    await reader.read()
+                    return
                 if size > 2 << 20:
                     raise ValueError('fixture frame too large')
                 payload = await reader.readexactly(size)
@@ -149,7 +154,7 @@ class TrafficGroup:
 
 def traffic_worker():
     """Expose local namespace probes over JSON stdin/stdout, keeping groups alive."""
-    groups, busy = {}, {}
+    groups, busy, idle = {}, {}, []
     try:
         for line in sys.stdin:
             command = json.loads(line)
@@ -163,6 +168,14 @@ def traffic_worker():
                 elif op == 'remove':
                     result = groups[command['name']].snapshot()
                     groups.pop(command['name']).close()
+                elif op == 'halfidle':
+                    for _ in range(command['count']):
+                        conn = socket.create_connection(('127.0.0.1', command['port']), timeout=6)
+                        conn.sendall(struct.pack('!I', 0xffffffff))
+                        if conn.recv(1):
+                            raise RuntimeError('fixture directional EOF missing')
+                        idle.append(conn)
+                    result = len(idle)
                 elif op == 'probe':
                     with socket.create_connection(('127.0.0.1', command['port']), timeout=6) as conn:
                         result = dict(bytes=exchange(conn, command['tag'], command.get('size', 512)))
@@ -195,6 +208,8 @@ def traffic_worker():
         for group in groups.values():
             group.close()
         for conn in busy.values():
+            conn.close()
+        for conn in idle:
             conn.close()
 
 
@@ -369,6 +384,7 @@ def main():
                       metrics='127.0.0.1:29090', log=dict(level='debug', interval='100ms', flow_sample=1000), reload=reload)
         write('server', server)
         write('client', client)
+        report['validation_prestart'] = {side: json.loads(ns(namespace, str(binary), 'config', 'validate', '-c', str(out/(side+'.yaml')), '--json').stdout) for side, namespace in (('client', client_ns), ('server', server_ns))}
         spawn(server_ns, 'echo', sys.executable, str(Path(__file__).resolve()), '--echo')
         server_proc = spawn(server_ns, 'server', str(binary), 'run', '-c', str(out/'server.yaml'))
         client_proc = spawn(client_ns, 'client', str(binary), 'run', '-c', str(out/'client.yaml'))
@@ -379,6 +395,7 @@ def main():
         request('udp', port=28082, tag='A')
         request('udp', port=28083, tag='B')
         continuity('initial TCP and UDP')
+        report['validation_while_running'] = json.loads(ns(client_ns, str(binary), 'config', 'validate', '-c', str(out/'client.yaml'), '--json').stdout)
         (out/'client.yaml').write_text('unknown: true\nkey: SECRET-DO-NOT-LOG\n')
         wait_until(lambda: counter(client_ns, 'config_reload_rejected_total') >= 1, 'invalid YAML rejection')
         continuity('invalid config retains active paths')
@@ -451,10 +468,14 @@ def main():
         server['listeners'][0]['kcp'].update(mode='manual', nodelay=1, interval=30, resend=1, nocongestion=1)
         apply('server', server)
         continuity('listener retransmission settings update established carriers')
+        request('halfidle', port=28080, count=4)
+        wait_until(lambda: counter(client_ns, 'active_connections') >= args.streams*2+4, 'half-closed streams were not retained')
         client['peers']['a']['kcp']['sndwnd'] = 2048
         apply('client', client)
         wait_until(lambda: request('stats')['a']['errors'] > 0, 'changed peer did not retire affected streams')
         report['affected_peer_closed'] = request('remove', name='a')
+        wait_until(lambda: counter(client_ns, 'active_connections') <= args.streams+2, 'retired peer retained idle half-closed relays')
+        report['half_closed_relays_released'] = True
         wait_until(lambda: bool(request('probe', port=28080, tag='A')), 'changed KCP peer recovery')
         continuity('structural window edit replaces only affected peer', ('b',))
         server['listeners'][0]['kcp'].update(mode='fast2', sndwnd=2048)

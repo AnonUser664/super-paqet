@@ -37,6 +37,10 @@ type peer struct {
 	createSlot func(context.Context) (*slot, error)
 	// Owning runtime for limits, cancellation, firewall and diagnostics.
 	engine *Engine
+	// Pool generation cancellation also releases half-closed application relays.
+	ctx context.Context
+	// Cancels generation-owned opening and relay work on replacement/removal.
+	cancel context.CancelFunc
 	// Endpoint-owned firewall journal; growth and close serialize their rule mutation.
 	fw firewall
 	// Firewall policy belongs to this generation, even during a global policy reload.
@@ -268,6 +272,9 @@ func (p *peer) close() {
 	p.closed = true
 	slots := p.slots
 	p.mu.Unlock()
+	if p.cancel != nil {
+		p.cancel()
+	}
 	for _, s := range slots {
 		s.mu.Lock()
 		if c := s.conn.Swap(nil); c != nil {
@@ -415,4 +422,12 @@ func (p *peer) configuration() *Endpoint {
 		}
 	}
 	return &p.endpoint
+}
+
+// lifecycle is the pool generation's context, with a fallback for unit fixtures.
+func (p *peer) lifecycle() context.Context {
+	if p.ctx != nil {
+		return p.ctx
+	}
+	return p.engine.ctx
 }

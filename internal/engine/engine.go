@@ -279,7 +279,7 @@ func (e *Engine) forward(listener *net.TCPListener, key string) {
 			}
 			defer e.stats.Active.Add(-1)
 			defer conn.Close()
-			ctx, cancel := context.WithTimeout(e.ctx, e.current().Limits.OpenDuration)
+			ctx, cancel := context.WithTimeout(p.lifecycle(), e.current().Limits.OpenDuration)
 			strm, err := p.open(ctx, protocol.PTCP2, f.Target)
 			cancel()
 			if err != nil {
@@ -287,7 +287,7 @@ func (e *Engine) forward(listener *net.TCPListener, key string) {
 				e.report(fmt.Errorf("open %s via %s: %w", f.Target, f.Peer, err))
 				return
 			}
-			e.relay(conn, strm, trace)
+			e.relayContext(p.lifecycle(), conn, strm, trace)
 		})
 	}
 }
@@ -331,7 +331,7 @@ func (e *Engine) serve(ctx context.Context, listener tnet.Listener, resource *li
 					strm.Close()
 					continue
 				}
-				e.launch(func() { defer e.stats.Active.Add(-1); defer strm.Close(); e.handle(listener, strm, owner) })
+				e.launch(func() { defer e.stats.Active.Add(-1); defer strm.Close(); e.handle(ctx, listener, strm, owner) })
 			}
 		})
 	}
@@ -339,7 +339,7 @@ func (e *Engine) serve(ctx context.Context, listener tnet.Listener, resource *li
 
 // handle validates one inner request, acknowledges transport receipt, dials the target and
 // reports its actual opening outcome.
-func (e *Engine) handle(listener tnet.Listener, strm tnet.Strm, owner uint32) {
+func (e *Engine) handle(ctx context.Context, listener tnet.Listener, strm tnet.Strm, owner uint32) {
 	trace := e.flowTrace()
 	strm.SetDeadline(time.Now().Add(e.current().Limits.OpenDuration))
 	var p protocol.Proto
@@ -369,13 +369,13 @@ func (e *Engine) handle(listener tnet.Listener, strm tnet.Strm, owner uint32) {
 	if err := writeOpeningAck(strm, 2); err != nil {
 		return
 	}
-	ctx, cancel := context.WithTimeout(e.ctx, e.current().Limits.DialDuration)
+	dialCtx, cancel := context.WithTimeout(ctx, e.current().Limits.DialDuration)
 	proto := "tcp"
 	if p.Type == protocol.PUDP2 {
 		proto = "udp"
 	}
 	dialer := net.Dialer{KeepAlive: 30 * time.Second}
-	conn, err := dialer.DialContext(ctx, proto, p.Addr.String())
+	conn, err := dialer.DialContext(dialCtx, proto, p.Addr.String())
 	cancel()
 	if err != nil {
 		e.log().Debug("flow.target_failed", "flow_id", trace, "conv", owner, "stream_id", strm.SID(), "target", p.Addr.String(), "error", err)
@@ -389,7 +389,7 @@ func (e *Engine) handle(listener tnet.Listener, strm tnet.Strm, owner uint32) {
 	}
 	strm.SetDeadline(time.Time{})
 	if proto == "tcp" {
-		e.relay(conn.(*net.TCPConn), strm, trace)
+		e.relayContext(ctx, conn.(*net.TCPConn), strm, trace)
 	} else {
 		e.relayUDP(conn.(*net.UDPConn), strm)
 	}

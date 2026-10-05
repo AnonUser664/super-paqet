@@ -6,6 +6,7 @@
 package engine
 
 import (
+	"context"
 	"errors"
 	"io"
 	"net"
@@ -116,6 +117,13 @@ func (w countedWriter) Write(p []byte) (int, error) {
 // relay copies both TCP directions, propagates directional EOF and waits for the opposite copy
 // task before full teardown.
 func (e *Engine) relay(tcp *net.TCPConn, strm tnet.Strm, traces ...uint64) {
+	e.relayContext(e.ctx, tcp, strm, traces...)
+}
+
+// relayContext retains directional EOF while honoring an explicitly removed
+// endpoint generation. It waits on existing lifecycle channels, adding no
+// per-flow cancellation callbacks, timers or extra goroutines.
+func (e *Engine) relayContext(ctx context.Context, tcp *net.TCPConn, strm tnet.Strm, traces ...uint64) {
 	var trace uint64
 	var conv uint32
 	var started time.Time
@@ -156,12 +164,34 @@ func (e *Engine) relay(tcp *net.TCPConn, strm tnet.Strm, traces ...uint64) {
 	}
 	if err == nil {
 		err = tcp.CloseWrite()
+
 	}
 	if err != nil {
 		tcp.Close()
 		strm.Close()
 	}
-	other := <-result
+	// Directional EOF permits the opposite writer to remain idle. Full mux
+	// closure or endpoint cancellation means it can no longer make progress;
+	// wake TCP netpoll instead of retaining its relay indefinitely.
+	var canceled, streamClosed <-chan struct{}
+	if ctx != nil {
+		canceled = ctx.Done()
+	}
+	if lifecycle, ok := strm.(interface{ GetDieCh() <-chan struct{} }); ok {
+		streamClosed = lifecycle.GetDieCh()
+	}
+	var other error
+	select {
+	case other = <-result:
+	case <-canceled:
+		tcp.Close()
+		strm.Close()
+		other = <-result
+	case <-streamClosed:
+		tcp.Close()
+		strm.Close()
+		other = <-result
+	}
 	if e.traceFlow(trace) {
 		e.log().Debug("flow.closed", "flow_id", trace, "conv", conv, "stream_id", strm.SID(), "elapsed_ms", time.Since(started).Milliseconds(), "sent_bytes", uplinkBytes, "received_bytes", downlinkBytes, "read_error", err, "write_error", other)
 	}

@@ -191,7 +191,8 @@ func (e *Engine) prepareResource(spec resourceSpec) (_ *liveResource, err error)
 	switch spec.kind {
 	case "peer":
 		r.settings.Store(&spec.endpoint)
-		p := &peer{engine: e, endpoint: spec.endpoint, settings: &r.settings, manageFirewall: spec.firewall}
+		ctx, cancel := context.WithCancel(e.ctx)
+		p := &peer{engine: e, ctx: ctx, cancel: cancel, endpoint: spec.endpoint, settings: &r.settings, manageFirewall: spec.firewall}
 		r.peer, r.fw, r.release = p, &p.fw, p.close
 		for i := 0; i < spec.endpoint.Sessions; i++ {
 			s, allocErr := p.allocateSlot(e.ctx)

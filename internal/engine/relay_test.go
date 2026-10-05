@@ -7,6 +7,7 @@ package engine
 
 import (
 	"bytes"
+	"context"
 	"github.com/xtaci/smux"
 	"io"
 	"net"
@@ -138,4 +139,82 @@ func TestRejectTruncatedDatagram(t *testing.T) {
 			t.Fatalf("accepted malformed %x", b)
 		}
 	}
+}
+
+// TestHalfClosedRelayEndsOnGenerationCancellation leaves the application's
+// write direction deliberately idle after remote EOF. Removing its generation
+// must release the relay without imposing a new normal half-close deadline.
+func TestHalfClosedRelayEndsOnGenerationCancellation(t *testing.T) {
+	for _, cause := range []string{"context", "carrier"} {
+		t.Run(cause, func(t *testing.T) {
+			left, right := net.Pipe()
+			cfg := smux.DefaultConfig()
+			cfg.Version = 2
+			cfg.HalfClose = true
+			client, err := smux.Client(left, cfg)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer client.Close()
+			server, err := smux.Server(right, cfg)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer server.Close()
+			a, err := client.OpenStream()
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer a.Close()
+			b, err := server.AcceptStream()
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer b.Close()
+			listener, err := net.ListenTCP("tcp", &net.TCPAddr{IP: net.IPv4(127, 0, 0, 1)})
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer listener.Close()
+			local, err := net.DialTCP("tcp", nil, listener.Addr().(*net.TCPAddr))
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer local.Close()
+			tcp, err := listener.AcceptTCP()
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer tcp.Close()
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			e := &Engine{}
+			done := make(chan struct{})
+			go func() { e.relayContext(ctx, tcp, &kcp.Strm{Stream: a}); close(done) }()
+			if err = b.CloseWrite(); err != nil {
+				t.Fatal(err)
+			}
+			local.SetReadDeadline(time.Now().Add(time.Second))
+			var buf [1]byte
+			if _, err = local.Read(buf[:]); err != io.EOF {
+				t.Fatalf("directional EOF missing: %v", err)
+			}
+			select {
+			case <-done:
+				t.Fatal("ordinary directional EOF prematurely closed opposite leg")
+			case <-time.After(25 * time.Millisecond):
+			}
+			if cause == "context" {
+				cancel()
+			} else {
+				client.Close()
+			}
+			select {
+			case <-done:
+			case <-time.After(time.Second):
+				t.Fatal("generation cancellation retained idle half-closed relay")
+			}
+		})
+	}
+
 }
