@@ -120,16 +120,28 @@ def main():
         raise KeyboardInterrupt()
     signal.signal(signal.SIGTERM, stop)
     peaks = {}
+    next_fd_sample={}
     def sample():
         for name, proc in tracked.items():
             try:
                 status = Path(f'/proc/{proc.pid}/status').read_text()
                 rss = int(next(x for x in status.splitlines() if x.startswith('VmRSS:')).split()[1])
-                fd = len(list(Path(f'/proc/{proc.pid}/fd').iterdir()))
+                now=time.monotonic()
                 stat = Path(f'/proc/{proc.pid}/stat').read_text().split()
                 rec = peaks.setdefault(name, {'peak_rss_kib':0, 'peak_fds':0})
                 rec['peak_rss_kib'] = max(rec['peak_rss_kib'], rss)
-                rec['peak_fds'] = max(rec['peak_fds'], fd)
+                values={line.split(':',1)[0]:int(line.split()[1]) for line in status.splitlines() if line.startswith(('VmSwap:','VmHWM:'))}
+                swap=values.get('VmSwap',0)
+                rec['peak_swap_kib']=max(rec.get('peak_swap_kib',0),swap)
+                rec['peak_rss_plus_swap_kib']=max(rec.get('peak_rss_plus_swap_kib',0),rss+swap)
+                rec['rss_high_water_kib']=max(rec.get('rss_high_water_kib',0),values.get('VmHWM',rss))
+                # Scanning 100k descriptors every 250 ms makes the observer a
+                # significant load generator itself. Keep CPU/RSS sampling fast
+                # but enumerate descriptors at most once every two seconds.
+                if now>=next_fd_sample.get(proc.pid,0):
+                    fd=sum(1 for _ in Path(f'/proc/{proc.pid}/fd').iterdir())
+                    rec['peak_fds'] = max(rec['peak_fds'], fd)
+                    next_fd_sample[proc.pid]=now+2
                 rec['cpu_seconds'] = (int(stat[13])+int(stat[14])) / os.sysconf('SC_CLK_TCK')
             except (FileNotFoundError, StopIteration, ProcessLookupError):
                 pass
