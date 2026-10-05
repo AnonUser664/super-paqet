@@ -527,3 +527,42 @@ func TestResourceComparisonNormalizesPreparedDefaults(t *testing.T) {
 		t.Fatal("effective buffer behavior change ignored")
 	}
 }
+
+// TestWatcherSymlinkRotationAndPreservedMtime detects changes by bytes even when
+// editors preserve timestamps, and follows an atomically replaced config symlink.
+func TestWatcherSymlinkRotationAndPreservedMtime(t *testing.T) {
+	e := reloadFixture(t)
+	initial := watcherYAML(t)
+	c, err := parseConfig([]byte(initial))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = e.apply(c); err != nil {
+		t.Fatal(err)
+	}
+	dir := t.TempDir()
+	first, second, path := filepath.Join(dir, "first.yaml"), filepath.Join(dir, "second.yaml"), filepath.Join(dir, "config.yaml")
+	os.WriteFile(first, []byte(initial+"limits: {connections: 1234}\n"), 0600)
+	os.WriteFile(second, []byte(initial+"limits: {connections: 5678}\n"), 0600)
+	if err = os.Symlink(first, path); err != nil {
+		t.Fatal(err)
+	}
+	e.launch(func() { e.watchConfig(path, []byte(initial), make(chan os.Signal)) })
+	waitReload(t, func() bool { return e.current().Limits.Connections == 1234 })
+	stat, err := os.Stat(first)
+	if err != nil {
+		t.Fatal(err)
+	}
+	os.WriteFile(first, []byte(initial+"limits: {connections: 2345}\n"), 0600)
+	if err = os.Chtimes(first, stat.ModTime(), stat.ModTime()); err != nil {
+		t.Fatal(err)
+	}
+	waitReload(t, func() bool { return e.current().Limits.Connections == 2345 })
+	if err = os.Symlink(second, path+".tmp"); err != nil {
+		t.Fatal(err)
+	}
+	if err = os.Rename(path+".tmp", path); err != nil {
+		t.Fatal(err)
+	}
+	waitReload(t, func() bool { return e.current().Limits.Connections == 5678 })
+}

@@ -314,6 +314,15 @@ func (e *Engine) apply(c *Config) (err error) {
 	if e.resources == nil {
 		e.resources = make(map[string]*liveResource)
 	}
+	// Raise descriptor capacity before staging potentially large pools. Failure
+	// leaves all existing routes intact and no provisional resources to clean.
+	if err = ensureFileLimit(c.Limits.Connections); err != nil {
+		return err
+	}
+	var fileLimit unix.Rlimit
+	if unix.Getrlimit(unix.RLIMIT_NOFILE, &fileLimit) == nil && fileLimit.Cur < uint64(c.Limits.Connections*2+4096) {
+		e.log().Warn("config.file_limit", "files", fileLimit.Cur, "required", c.Limits.Connections*2+4096)
+	}
 	previous := e.current()
 	initial := e.view.Load() == nil
 	wanted := specifications(c)
@@ -358,7 +367,16 @@ func (e *Engine) apply(c *Config) (err error) {
 	for key := range wanted {
 		keys = append(keys, key)
 	}
-	sort.Strings(keys)
+	// Stage rule-owning transport resources before local admission sockets;
+	// a later bind failure must exercise and unwind provisional firewall state.
+	rank := map[string]int{"listener": 0, "peer": 1, "forward": 2, "metrics": 3}
+	sort.Slice(keys, func(i, j int) bool {
+		a, b := rank[wanted[keys[i]].kind], rank[wanted[keys[j]].kind]
+		if a != b {
+			return a < b
+		}
+		return keys[i] < keys[j]
+	})
 	for _, key := range keys {
 		spec := wanted[key]
 		if old := e.resources[key]; old != nil {
@@ -379,11 +397,6 @@ func (e *Engine) apply(c *Config) (err error) {
 			return fmt.Errorf("prepare %s: %w", key, buildErr)
 		}
 		staged[key] = r
-	}
-	// Raising NOFILE is process-wide but does not affect established routes. Do
-	// this before teardown so a failed privilege check cannot interrupt traffic.
-	if err = ensureFileLimit(c.Limits.Connections); err != nil {
-		return err
 	}
 	if len(deferred) > 0 {
 		e.log().Warn("config.replacing", "affected_resources", sortedResourceKeys(retiring), "reason", "occupied bind requires scoped restart")

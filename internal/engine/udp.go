@@ -134,8 +134,8 @@ func (e *Engine) relayUDP(conn *net.UDPConn, strm tnet.Strm) {
 	<-done
 }
 
-// startUDP owns a local UDP source-flow map, bounded per-flow queues and expiry; unadmitted
-// datagrams are not KCP-recoverable.
+// serveUDP owns one staged local UDP bind's source-flow map, bounded queues and
+// expiry. New flows capture current routing; existing sources retain their target.
 func (e *Engine) serveUDP(ctx context.Context, conn *net.UDPConn, key string) {
 	flows := map[netip.AddrPort]*udpFlow{}
 	var mu sync.Mutex

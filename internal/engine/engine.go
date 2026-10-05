@@ -118,8 +118,8 @@ func run(ctx context.Context, cfg *Config, watch func(*Engine)) (err error) {
 // launch adds a task to the engine wait group so shutdown waits for its completion.
 func (e *Engine) launch(fn func()) { e.wg.Add(1); go func() { defer e.wg.Done(); fn() }() }
 
-// close closes peers and registered resources in reverse order; firewall teardown happens
-// after engine tasks settle.
+// close releases each endpoint-owned socket/guard and rule journal under the
+// reload lock, including earlier failed cleanups; run then joins tracked work.
 func (e *Engine) close() error {
 	e.reloadMu.Lock()
 	defer e.reloadMu.Unlock()
@@ -411,8 +411,8 @@ func writeOpeningAck(strm tnet.Strm, code byte) error {
 	return err
 }
 
-// startMetrics starts the optional loopback HTTP diagnostics listener and ties its closure to
-// engine cancellation.
+// serveMetrics runs an already staged loopback bind. Its resource context closes
+// HTTP connections on replacement; profiling availability follows live settings.
 func (e *Engine) serveMetrics(ctx context.Context, listener net.Listener) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/debug/pprof/", func(w http.ResponseWriter, r *http.Request) {

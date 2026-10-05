@@ -298,12 +298,21 @@ def main():
     def continuity(label, names=('a', 'b')):
         """Require verified byte progress and zero errors on unaffected groups."""
         before = request('stats')
-        time.sleep(.3 + args.delay_ms/1000)
-        after = request('stats')
-        for name in names:
-            if after[name]['errors'] or after[name]['running'] != after[name]['established'] or after[name]['responses'] <= before[name]['responses']:
-                raise RuntimeError('unaffected group failed at '+label+': '+str(after[name]))
-        report['steps'].append(dict(name=label, groups=after))
+        start = time.monotonic()
+        # KCP recovery on a capped/reordered link can exceed one RTT. Require
+        # progress within the fixture's existing 8s application read deadline,
+        # while every reset, corruption or timed-out stream remains a failure.
+        while True:
+            time.sleep(.1)
+            after = request('stats')
+            for name in names:
+                if after[name]['errors'] or after[name]['running'] != after[name]['established']:
+                    raise RuntimeError('unaffected group failed at '+label+': '+str(after[name]))
+            if all(after[name]['responses'] > before[name]['responses'] for name in names):
+                break
+            if time.monotonic()-start > 8:
+                raise RuntimeError('unaffected group made no progress at '+label)
+        report['steps'].append(dict(name=label, groups=after, continuity_wait_ms=round((time.monotonic()-start)*1000, 3)))
         print(label, flush=True)
 
     def endpoint(address, iface, source, mac):
