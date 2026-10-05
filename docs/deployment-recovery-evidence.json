@@ -1,0 +1,958 @@
+{
+  "date": "2026-10-05",
+  "enterprise_source_commit": "1c77c55",
+  "enterprise_binary_sha256": "ecb8e002173f6f80cd3f403d3ee3080190f0e49889fa2ba9f883b893f96318f3",
+  "upstream_source_commit": "b9fa0bd93bf93b2eff27197742562ed82201f16e",
+  "scope": "Four persistent paths recovered, with eight complete 10 MiB transfers and two public-domain 1 MiB checks. This establishes forwarding, not enterprise WAN scale qualification.",
+  "experiments": {
+    "conservative_aes_29999": [
+      {
+        "exit_code": 0,
+        "http": "200 209",
+        "seconds": 0.7578737760195509,
+        "error": "",
+        "client": "89.45.68.14",
+        "backend": "116.202.177.233"
+      },
+      {
+        "exit_code": 0,
+        "http": "200 210",
+        "seconds": 0.8917347129900008,
+        "error": "",
+        "client": "89.45.68.14",
+        "backend": "171.22.132.226"
+      },
+      {
+        "exit_code": 0,
+        "http": "200 209",
+        "seconds": 0.751939307898283,
+        "error": "",
+        "client": "89.45.68.118",
+        "backend": "116.202.177.233"
+      },
+      {
+        "exit_code": 0,
+        "http": "200 210",
+        "seconds": 0.955454496666789,
+        "error": "",
+        "client": "89.45.68.118",
+        "backend": "171.22.132.226"
+      }
+    ],
+    "only_port_changed_to_2052": [
+      {
+        "exit_code": 28,
+        "http": "000 0",
+        "seconds": 12.028574884054251,
+        "error": "curl: (28) SSL connection timeout\n",
+        "client": "89.45.68.14",
+        "backend": "116.202.177.233"
+      },
+      {
+        "exit_code": 28,
+        "http": "000 0",
+        "seconds": 12.034193733008578,
+        "error": "curl: (28) SSL connection timeout\n",
+        "client": "89.45.68.14",
+        "backend": "171.22.132.226"
+      },
+      {
+        "exit_code": 28,
+        "http": "000 0",
+        "seconds": 12.032428579870611,
+        "error": "curl: (28) SSL connection timeout\n",
+        "client": "89.45.68.118",
+        "backend": "116.202.177.233"
+      },
+      {
+        "exit_code": 28,
+        "http": "000 0",
+        "seconds": 12.02647889778018,
+        "error": "curl: (28) SSL connection timeout\n",
+        "client": "89.45.68.118",
+        "backend": "171.22.132.226"
+      }
+    ],
+    "conservative_null_29999": [
+      {
+        "exit_code": 0,
+        "http": "200 209",
+        "seconds": 0.7329309050692245,
+        "error": "",
+        "client": "89.45.68.14",
+        "backend": "116.202.177.233"
+      },
+      {
+        "exit_code": 0,
+        "http": "200 210",
+        "seconds": 0.8897007890045643,
+        "error": "",
+        "client": "89.45.68.14",
+        "backend": "171.22.132.226"
+      },
+      {
+        "exit_code": 0,
+        "http": "200 209",
+        "seconds": 0.6963684703223407,
+        "error": "",
+        "client": "89.45.68.118",
+        "backend": "116.202.177.233"
+      },
+      {
+        "exit_code": 0,
+        "http": "200 210",
+        "seconds": 0.887259918730706,
+        "error": "",
+        "client": "89.45.68.118",
+        "backend": "171.22.132.226"
+      }
+    ],
+    "adaptive_defaults_29999": [
+      {
+        "exit_code": 28,
+        "http": "000 0",
+        "seconds": 12.033145913039334,
+        "error": "curl: (28) SSL connection timeout\n",
+        "client": "89.45.68.14",
+        "backend": "116.202.177.233"
+      },
+      {
+        "exit_code": 28,
+        "http": "000 0",
+        "seconds": 12.035629621008411,
+        "error": "curl: (28) SSL connection timeout\n",
+        "client": "89.45.68.14",
+        "backend": "171.22.132.226"
+      },
+      {
+        "exit_code": 28,
+        "http": "000 0",
+        "seconds": 12.030091043096036,
+        "error": "curl: (28) SSL connection timeout\n",
+        "client": "89.45.68.118",
+        "backend": "116.202.177.233"
+      },
+      {
+        "exit_code": 28,
+        "http": "000 0",
+        "seconds": 12.01818318804726,
+        "error": "curl: (28) SSL connection timeout\n",
+        "client": "89.45.68.118",
+        "backend": "171.22.132.226"
+      }
+    ],
+    "persistent_small_requests": {
+      "89.45.68.14": [
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 209",
+              "error": "",
+              "seconds": 0.7389820839744061
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 209",
+              "error": "",
+              "seconds": 0.6152789859334007
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 209",
+              "error": "",
+              "seconds": 0.5992353949695826
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 209",
+              "error": "",
+              "seconds": 0.5893003799719736
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 209",
+              "error": "",
+              "seconds": 0.5517118970165029
+            }
+          ],
+          "passed": 5,
+          "port": 9001
+        },
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 210",
+              "error": "",
+              "seconds": 0.8974822829477489
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 210",
+              "error": "",
+              "seconds": 0.8019542029360309
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 210",
+              "error": "",
+              "seconds": 0.7496426589787006
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 210",
+              "error": "",
+              "seconds": 0.8222560650901869
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 210",
+              "error": "",
+              "seconds": 0.8912431830540299
+            }
+          ],
+          "passed": 5,
+          "port": 9003
+        }
+      ],
+      "89.45.68.118": [
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 209",
+              "error": "",
+              "seconds": 0.7191410479135811
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 209",
+              "error": "",
+              "seconds": 0.5464212987571955
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 209",
+              "error": "",
+              "seconds": 0.5497035635635257
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 209",
+              "error": "",
+              "seconds": 0.6152101140469313
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 209",
+              "error": "",
+              "seconds": 0.5258346009068191
+            }
+          ],
+          "passed": 5,
+          "port": 9001
+        },
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 210",
+              "error": "",
+              "seconds": 0.8111690562218428
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 210",
+              "error": "",
+              "seconds": 0.7841050536371768
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 210",
+              "error": "",
+              "seconds": 0.8221866311505437
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 210",
+              "error": "",
+              "seconds": 0.8018548069521785
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 210",
+              "error": "",
+              "seconds": 0.8433650839142501
+            }
+          ],
+          "passed": 5,
+          "port": 9003
+        }
+      ]
+    },
+    "public_domain_small_requests": [
+      {
+        "host": "deir.cloudnet1.ir",
+        "port": 9001,
+        "exit_code": 0,
+        "http_status": "200",
+        "seconds": 2.2419209819927346,
+        "error": ""
+      },
+      {
+        "host": "deir.cloudnet1.ir",
+        "port": 9003,
+        "exit_code": 0,
+        "http_status": "200",
+        "seconds": 1.06752835700172,
+        "error": ""
+      }
+    ],
+    "persistent_bulk_before_capture": {
+      "89.45.68.14": [
+        {
+          "requests": [
+            {
+              "exit_code": 28,
+              "http_status": "000 0",
+              "error": "curl: (28) SSL connection timeout\n",
+              "seconds": 10.033804483013228
+            }
+          ],
+          "passed": 0,
+          "port": 9001
+        },
+        {
+          "requests": [
+            {
+              "exit_code": 28,
+              "http_status": "000 0",
+              "error": "curl: (28) SSL connection timeout\n",
+              "seconds": 10.036061296937987
+            }
+          ],
+          "passed": 0,
+          "port": 9003
+        }
+      ],
+      "89.45.68.118": [
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 1048576",
+              "error": "",
+              "seconds": 1.3910473329015076
+            }
+          ],
+          "passed": 1,
+          "port": 9001
+        },
+        {
+          "requests": [
+            {
+              "exit_code": 28,
+              "http_status": "000 0",
+              "error": "curl: (28) SSL connection timeout\n",
+              "seconds": 10.029212050139904
+            }
+          ],
+          "passed": 0,
+          "port": 9003
+        }
+      ]
+    },
+    "direct_backend_bulk": {
+      "116.202.177.233": [
+        {
+          "exit_code": 0,
+          "http_status": "200 1048576",
+          "error": "",
+          "seconds": 0.4764155140146613,
+          "port": 2096
+        }
+      ],
+      "171.22.132.226": [
+        {
+          "exit_code": 0,
+          "http_status": "200 1048576",
+          "error": "",
+          "seconds": 0.5169757781550288,
+          "port": 2096
+        }
+      ]
+    },
+    "persistent_aes_bulk": {
+      "89.45.68.14": [
+        {
+          "requests": [
+            {
+              "exit_code": 28,
+              "http_status": "000 0",
+              "error": "curl: (28) SSL connection timeout\n",
+              "seconds": 10.037694256054237
+            }
+          ],
+          "passed": 0,
+          "port": 9001
+        },
+        {
+          "requests": [
+            {
+              "exit_code": 28,
+              "http_status": "000 0",
+              "error": "curl: (28) SSL connection timeout\n",
+              "seconds": 10.027711191098206
+            }
+          ],
+          "passed": 0,
+          "port": 9003
+        }
+      ],
+      "89.45.68.118": [
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 1048576",
+              "error": "",
+              "seconds": 1.1988406558521092
+            }
+          ],
+          "passed": 1,
+          "port": 9001
+        },
+        {
+          "requests": [
+            {
+              "exit_code": 28,
+              "http_status": "000 0",
+              "error": "curl: (28) SSL connection timeout\n",
+              "seconds": 10.033699625171721
+            }
+          ],
+          "passed": 0,
+          "port": 9003
+        }
+      ]
+    },
+    "unmodified_upstream_bulk": [
+      {
+        "exit_code": 28,
+        "http": "000 0",
+        "seconds": 12.020806940970942,
+        "error": "curl: (28) SSL connection timeout\n",
+        "client": "89.45.68.14",
+        "backend": "116.202.177.233"
+      },
+      {
+        "exit_code": 28,
+        "http": "000 0",
+        "seconds": 12.041083529940806,
+        "error": "curl: (28) SSL connection timeout\n",
+        "client": "89.45.68.14",
+        "backend": "171.22.132.226"
+      },
+      {
+        "exit_code": 0,
+        "http": "200 1048576",
+        "seconds": 1.264920855872333,
+        "error": "",
+        "client": "89.45.68.118",
+        "backend": "116.202.177.233"
+      },
+      {
+        "exit_code": 28,
+        "http": "000 0",
+        "seconds": 12.021470772102475,
+        "error": "curl: (28) SSL connection timeout\n",
+        "client": "89.45.68.118",
+        "backend": "171.22.132.226"
+      }
+    ],
+    "fresh_source_bulk": {
+      "89.45.68.14": [
+        {
+          "requests": [
+            {
+              "exit_code": 28,
+              "http_status": "000 0",
+              "error": "curl: (28) SSL connection timeout\n",
+              "seconds": 10.03519820200745
+            }
+          ],
+          "passed": 0,
+          "port": 9001
+        },
+        {
+          "requests": [
+            {
+              "exit_code": 28,
+              "http_status": "000 0",
+              "error": "curl: (28) SSL connection timeout\n",
+              "seconds": 10.02907709905412
+            }
+          ],
+          "passed": 0,
+          "port": 9003
+        }
+      ],
+      "89.45.68.118": [
+        {
+          "requests": [
+            {
+              "exit_code": 28,
+              "http_status": "000 0",
+              "error": "curl: (28) SSL connection timeout\n",
+              "seconds": 10.01428399514407
+            }
+          ],
+          "passed": 0,
+          "port": 9001
+        },
+        {
+          "requests": [
+            {
+              "exit_code": 28,
+              "http_status": "000 0",
+              "error": "curl: (28) SSL connection timeout\n",
+              "seconds": 10.02428451133892
+            }
+          ],
+          "passed": 0,
+          "port": 9003
+        }
+      ]
+    },
+    "restored_source_small_requests": {
+      "89.45.68.14": [
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 209",
+              "error": "",
+              "seconds": 0.7742414959939197
+            }
+          ],
+          "passed": 1,
+          "port": 9001
+        },
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 210",
+              "error": "",
+              "seconds": 0.8869622880592942
+            }
+          ],
+          "passed": 1,
+          "port": 9003
+        }
+      ],
+      "89.45.68.118": [
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 209",
+              "error": "",
+              "seconds": 0.6737523400224745
+            }
+          ],
+          "passed": 1,
+          "port": 9001
+        },
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 210",
+              "error": "",
+              "seconds": 0.833219529595226
+            }
+          ],
+          "passed": 1,
+          "port": 9003
+        }
+      ]
+    },
+    "ipv6_bulk": [
+      {
+        "exit_code": 28,
+        "http": "000 0",
+        "seconds": 12.040215183980763,
+        "error": "curl: (28) SSL connection timeout\n",
+        "client": "89.45.68.14",
+        "backend": "116.202.177.233"
+      },
+      {
+        "exit_code": 28,
+        "http": "000 0",
+        "seconds": 12.038947010994889,
+        "error": "curl: (28) SSL connection timeout\n",
+        "client": "89.45.68.14",
+        "backend": "171.22.132.226"
+      },
+      {
+        "exit_code": 28,
+        "http": "000 0",
+        "seconds": 12.030710088089108,
+        "error": "curl: (28) SSL connection timeout\n",
+        "client": "89.45.68.118",
+        "backend": "116.202.177.233"
+      },
+      {
+        "exit_code": 28,
+        "http": "000 0",
+        "seconds": 12.033454570919275,
+        "error": "curl: (28) SSL connection timeout\n",
+        "client": "89.45.68.118",
+        "backend": "171.22.132.226"
+      }
+    ],
+    "mtu128_bulk": {
+      "89.45.68.14": [
+        {
+          "requests": [
+            {
+              "exit_code": 28,
+              "http_status": "000 0",
+              "error": "curl: (28) SSL connection timeout\n",
+              "seconds": 10.030536498059519
+            }
+          ],
+          "passed": 0,
+          "port": 9001
+        },
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 1048576",
+              "error": "",
+              "seconds": 3.742900472949259
+            }
+          ],
+          "passed": 1,
+          "port": 9003
+        }
+      ],
+      "89.45.68.118": [
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 1048576",
+              "error": "",
+              "seconds": 4.463745594955981
+            }
+          ],
+          "passed": 1,
+          "port": 9001
+        },
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 1048576",
+              "error": "",
+              "seconds": 3.895693438127637
+            }
+          ],
+          "passed": 1,
+          "port": 9003
+        }
+      ]
+    },
+    "sequence_candidate_bulk": [
+      {
+        "exit_code": 28,
+        "http": "000 0",
+        "seconds": 12.03462660301011,
+        "error": "curl: (28) SSL connection timeout\n",
+        "client": "89.45.68.14",
+        "backend": "116.202.177.233"
+      },
+      {
+        "exit_code": 0,
+        "http": "200 1048576",
+        "seconds": 1.3267527479911223,
+        "error": "",
+        "client": "89.45.68.14",
+        "backend": "171.22.132.226"
+      },
+      {
+        "exit_code": 0,
+        "http": "200 1048576",
+        "seconds": 1.00876868609339,
+        "error": "",
+        "client": "89.45.68.118",
+        "backend": "116.202.177.233"
+      },
+      {
+        "exit_code": 0,
+        "http": "200 1048576",
+        "seconds": 1.3938633417710662,
+        "error": "",
+        "client": "89.45.68.118",
+        "backend": "171.22.132.226"
+      }
+    ],
+    "german_primary_address": [
+      {
+        "exit_code": 0,
+        "http": "200 209",
+        "seconds": 0.7619293839670718,
+        "error": ""
+      },
+      {
+        "exit_code": 0,
+        "http": "200 1048576",
+        "seconds": 1.4278901839861646,
+        "error": ""
+      }
+    ],
+    "final_repeated_10mib": {
+      "89.45.68.14": [
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 10485760",
+              "error": "",
+              "seconds": 2.663002911955118
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 10485760",
+              "error": "",
+              "seconds": 2.8005591860273853
+            }
+          ],
+          "passed": 2,
+          "port": 9001
+        },
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 10485760",
+              "error": "",
+              "seconds": 5.458593494957313
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 10485760",
+              "error": "",
+              "seconds": 5.975499703083187
+            }
+          ],
+          "passed": 2,
+          "port": 9003
+        }
+      ],
+      "89.45.68.118": [
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 10485760",
+              "error": "",
+              "seconds": 2.946742122992873
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 10485760",
+              "error": "",
+              "seconds": 2.7551917787641287
+            }
+          ],
+          "passed": 2,
+          "port": 9001
+        },
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 10485760",
+              "error": "",
+              "seconds": 6.129584189038724
+            },
+            {
+              "exit_code": 0,
+              "http_status": "200 10485760",
+              "error": "",
+              "seconds": 5.74385955510661
+            }
+          ],
+          "passed": 2,
+          "port": 9003
+        }
+      ]
+    },
+    "final_public_1mib": [
+      {
+        "host": "deir.cloudnet1.ir",
+        "port": 9001,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 2.2278778239851817,
+        "error": ""
+      },
+      {
+        "host": "deir.cloudnet1.ir",
+        "port": 9003,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.401892563997535,
+        "error": ""
+      }
+    ],
+    "window4_10mib": {
+      "89.45.68.14": [
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 10485760",
+              "error": "",
+              "seconds": 10.241702329949476
+            }
+          ],
+          "passed": 1,
+          "port": 9003
+        }
+      ],
+      "89.45.68.118": [
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 10485760",
+              "error": "",
+              "seconds": 14.267657555639744
+            }
+          ],
+          "passed": 1,
+          "port": 9003
+        }
+      ]
+    },
+    "window13_10mib": {
+      "89.45.68.14": [
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 10485760",
+              "error": "",
+              "seconds": 6.1103860980365425
+            }
+          ],
+          "passed": 1,
+          "port": 9003
+        }
+      ],
+      "89.45.68.118": [
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 10485760",
+              "error": "",
+              "seconds": 8.280949948821217
+            }
+          ],
+          "passed": 1,
+          "port": 9003
+        }
+      ]
+    },
+    "packet_backend_10mib": {
+      "89.45.68.14": [
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 10485760",
+              "error": "",
+              "seconds": 6.024124966934323
+            }
+          ],
+          "passed": 1,
+          "port": 9003
+        }
+      ],
+      "89.45.68.118": [
+        {
+          "requests": [
+            {
+              "exit_code": 0,
+              "http_status": "200 10485760",
+              "error": "",
+              "seconds": 5.800511807203293
+            }
+          ],
+          "passed": 1,
+          "port": 9003
+        }
+      ]
+    },
+    "pcap_resources": {
+      "171.22.132.226": {
+        "elapsed_seconds": 14.702243194915354,
+        "cpu_seconds": 5.53,
+        "average_cpu_cores": 0.3761330789244803,
+        "rss_mib": 129.6328125,
+        "lifetime_peak_rss_mib": 129.6328125
+      },
+      "89.45.68.14": {
+        "elapsed_seconds": 14.71050271205604,
+        "cpu_seconds": 5.37,
+        "average_cpu_cores": 0.3650453084515595,
+        "rss_mib": 55.25,
+        "lifetime_peak_rss_mib": 55.25
+      },
+      "89.45.68.118": {
+        "elapsed_seconds": 15.387030743993819,
+        "cpu_seconds": 5.33,
+        "average_cpu_cores": 0.34639561645644434,
+        "rss_mib": 55.609375,
+        "lifetime_peak_rss_mib": 55.609375
+      }
+    },
+    "packet_resources": {
+      "171.22.132.226": {
+        "elapsed_seconds": 13.615846954286098,
+        "cpu_seconds": 3.6500000000000004,
+        "average_cpu_cores": 0.2680699931671181,
+        "rss_mib": 96.48828125,
+        "lifetime_peak_rss_mib": 96.48828125
+      },
+      "89.45.68.14": {
+        "elapsed_seconds": 13.166869971086271,
+        "cpu_seconds": 4.24,
+        "average_cpu_cores": 0.3220203441904423,
+        "rss_mib": 45.953125,
+        "lifetime_peak_rss_mib": 45.953125
+      },
+      "89.45.68.118": {
+        "elapsed_seconds": 12.868819131981581,
+        "cpu_seconds": 3.9700000000000006,
+        "average_cpu_cores": 0.3084976142165025,
+        "rss_mib": 45.8046875,
+        "lifetime_peak_rss_mib": 45.8046875
+      }
+    }
+  },
+  "local_functional_diagnostic": {
+    "profile": "null, pcap, adaptation disabled, one carrier, 100 Mbit/s, 80 ms RTT, multiple clients/peers",
+    "baseline": "second-client HTTP body timed out after 30s",
+    "sequence_candidate": "same failure",
+    "promotion": "candidate excluded pending this regression diagnosis; ordinary race tests and vet passed",
+    "root_cause": "pcap send reports ENOBUFS; fatal propagation aborted the stream. A code fix is under qualification."
+  }
+}

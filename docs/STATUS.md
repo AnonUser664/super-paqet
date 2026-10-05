@@ -51,14 +51,17 @@ The generic `build/super-paqet` was rebuilt with separate workspace changes;
 use the qualified named binary for reviewing these results. Incorporating those
 edits requires their own review and relevant qualification before deployment.
 
-## Subsequent real deployment
+## Subsequent real deployment and code qualification
 
-The initial five-host null/2052 deployment installed successfully but failed
-real-link forwarding. The excluded backend/9002 direct route remains unchanged.
-A four-host recovery now uses null/29999 with a conservative legacy profile.
-Twenty authenticated small requests passed through persistent 9001/9003 on both
-clients; both public-domain ports passed from the laptop. However, three of
-four 1 MiB downloads stalled, with successful direct backend controls. AES did
-not resolve sustained transfers. Recovery is partial and diagnosis continues;
-this is not real-WAN production qualification. See [DEPLOYMENT.md](DEPLOYMENT.md)
-for exact settings, hashes, rollback backups and controlled evidence.
+The initial null/2052 deployment failed real-link forwarding. Four surviving
+paths now pass repeated complete 10 MiB authenticated transfers after selecting
+29999, the German primary address for client .14, and the smaller Netherlands
+packet profile with scaled windows/AF_PACKET. The excluded backend/9002 route
+remains unchanged. This is functional recovery, not enterprise WAN scale
+qualification. See [DEPLOYMENT.md](DEPLOYMENT.md) and its committed evidence.
+
+A mixed-client static null/pcap capped-link test exposed fatal propagation of
+transient transmit ENOBUFS. A source fix is under qualification, together with
+stale firewall-journal recovery for absent chains. The byte-sequence experiment
+at `4c7aa6a` is separate and has not been deployed. Pending timeout/packet edits
+in the main workspace remain preserved and excluded.
