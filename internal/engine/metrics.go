@@ -32,6 +32,7 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 	} {
 		fmt.Fprintf(w, "super_paqet_%s %d\n", v.name, v.value)
 	}
+	fmt.Fprintf(w, "super_paqet_config_revision %d\nsuper_paqet_config_reload_applied_total %d\nsuper_paqet_config_reload_rejected_total %d\n", e.revision.Load(), e.reloadApplied.Load(), e.reloadRejected.Load())
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 	fmt.Fprintf(w, "super_paqet_heap_bytes %d\nsuper_paqet_heap_sys_bytes %d\nsuper_paqet_gc_total %d\n", m.HeapAlloc, m.HeapSys, m.NumGC)
@@ -71,7 +72,11 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "super_paqet_session_receive_window_min{%s} %d\nsuper_paqet_session_receive_window_max{%s} %d\n", labels, minWindow, labels, maxWindow)
 		}
 	}
-	for name, p := range e.peers {
+	view := e.view.Load()
+	if view == nil {
+		return
+	}
+	for name, p := range view.peers {
 		p.mu.RLock()
 		for i, s := range p.slots {
 			if c := s.conn.Load(); c != nil && !c.Session.IsClosed() {
@@ -90,12 +95,12 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 		}
 		p.mu.RUnlock()
 	}
-	for i, closer := range e.closers {
-		if l, ok := closer.(*tkcp.Listener); ok {
-			for worker, packet := range l.PacketConnections() {
-				packets, drops := packet.PacketStats()
-				fmt.Fprintf(w, "super_paqet_listener_tx_queue_drops{listener=\"%d\",worker=\"%d\"} %d\nsuper_paqet_listener_capture_packets{listener=\"%d\",worker=\"%d\"} %d\nsuper_paqet_listener_capture_drops{listener=\"%d\",worker=\"%d\"} %d\n", i, worker, packet.TXDrops(), i, worker, packets, i, worker, drops)
-			}
-		}
+	e.tuneMu.Lock()
+	packets := append([]observedPacket(nil), e.packetObservers...)
+	e.tuneMu.Unlock()
+	for _, observed := range packets {
+		i, worker, packet := observed.index, observed.worker, observed.packet
+		packets, drops := packet.PacketStats()
+		fmt.Fprintf(w, "super_paqet_listener_tx_queue_drops{listener=\"%d\",worker=\"%d\"} %d\nsuper_paqet_listener_capture_packets{listener=\"%d\",worker=\"%d\"} %d\nsuper_paqet_listener_capture_drops{listener=\"%d\",worker=\"%d\"} %d\n", i, worker, packet.TXDrops(), i, worker, packets, i, worker, drops)
 	}
 }

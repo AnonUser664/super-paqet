@@ -59,7 +59,7 @@ type observedState struct {
 // observe snapshots controller/listener state under ownership locks and reports sampled queue
 // and delivery changes.
 func (e *Engine) observe() {
-	ticker := time.NewTicker(e.cfg.Log.duration)
+	ticker := time.NewTicker(e.current().Log.duration)
 	defer ticker.Stop()
 	previous := make(map[*kcp.Conn]observedState)
 	previousDrops := make(map[*socket.PacketConn]uint64)
@@ -68,6 +68,8 @@ func (e *Engine) observe() {
 		case <-e.ctx.Done():
 			e.log().Info("engine.stopping", "active", e.stats.Active.Load(), "errors", e.stats.Errors.Load(), "aborted", e.stats.Aborted.Load(), "log_dropped", e.diagnostics.dropped.Load())
 			return
+		case <-e.observeChanged:
+			ticker.Reset(e.current().Log.duration)
 		case now := <-ticker.C:
 			e.log().Info("engine.summary", "active", e.stats.Active.Load(), "accepted", e.stats.Accepted.Load(), "rejected", e.stats.Rejected.Load(), "errors", e.stats.Errors.Load(), "aborted", e.stats.Aborted.Load(), "sent_bytes", e.stats.Sent.Load(), "received_bytes", e.stats.Received.Load(), "goroutines", runtime.NumGoroutine(), "log_dropped", e.diagnostics.dropped.Load())
 			if !e.log().Enabled(e.ctx, slog.LevelDebug) {
@@ -81,12 +83,19 @@ func (e *Engine) observe() {
 			}
 			packets := append([]observedPacket(nil), e.packetObservers...)
 			e.tuneMu.Unlock()
+			livePackets := make(map[*socket.PacketConn]bool, len(packets))
 			for _, observed := range packets {
+				livePackets[observed.packet] = true
 				packet := observed.packet
 				total := packet.TXDrops()
 				if total != previousDrops[packet] {
 					e.log().Debug("packet.tx_queue", "listener", observed.index, "worker", observed.worker, "local", packet.LocalAddr().String(), "drops_total", total, "drops_delta", total-previousDrops[packet])
 					previousDrops[packet] = total
+				}
+			}
+			for packet := range previousDrops {
+				if !livePackets[packet] {
+					delete(previousDrops, packet)
 				}
 			}
 			live := make(map[*kcp.Conn]struct{}, len(connections))
@@ -109,7 +118,7 @@ func (e *Engine) observe() {
 				}
 				seconds := now.Sub(old.at).Seconds()
 				if old.at.IsZero() {
-					seconds = e.cfg.Log.duration.Seconds()
+					seconds = e.current().Log.duration.Seconds()
 				}
 				previous[conn] = observedState{s, flowWait, drops, now}
 				e.log().Debug("transport.sample", "conv", conn.UDPSession.GetConv(), "remote", conn.RemoteAddr().String(), "pacing_mbit", float64(s.PacingBytesPerSecond)*8/1e6, "startup", v.startup, "peak_mbit", v.peakRate*8/1e6, "loss_ratio", v.lossRatio,

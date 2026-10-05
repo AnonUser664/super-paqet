@@ -79,6 +79,10 @@ type logItem struct {
 type diagnostics struct {
 	// Engine diagnostic entry point backed by the bounded queue.
 	logger *slog.Logger
+	// Published logger changes format/level without replacing or draining the queue.
+	liveLogger atomic.Pointer[slog.Logger]
+	// Immutable output sink shared by successive formatting handlers.
+	out io.Writer
 	// Bounded asynchronous records; a slow sink causes counted drops rather than forwarding
 	// backpressure.
 	queue chan logItem
@@ -144,7 +148,9 @@ func newDiagnostics(cfg LogConfig, out io.Writer) *diagnostics {
 		backend = slog.NewTextHandler(out, options)
 	}
 	d := &diagnostics{queue: make(chan logItem, 1024), done: make(chan struct{})}
+	d.out = out
 	d.logger = slog.New(&queuedHandler{backend, d})
+	d.liveLogger.Store(d.logger)
 	go func() {
 		defer close(d.done)
 		for item := range d.queue {
@@ -174,7 +180,7 @@ func (d *diagnostics) close() {
 
 // flowTrace allocates correlation IDs only when debug flow tracing is enabled.
 func (e *Engine) flowTrace() uint64 {
-	if e.diagnostics == nil || !e.diagnostics.logger.Enabled(e.ctx, slog.LevelDebug) {
+	if e.diagnostics == nil || !e.log().Enabled(e.ctx, slog.LevelDebug) {
 		return 0
 	}
 	id := e.flowIDs.Add(1)
@@ -182,7 +188,7 @@ func (e *Engine) flowTrace() uint64 {
 }
 
 // traceFlow selects lifecycle records deterministically from the configured sampling divisor.
-func (e *Engine) traceFlow(id uint64) bool { return id != 0 && id%e.cfg.Log.FlowSample == 0 }
+func (e *Engine) traceFlow(id uint64) bool { return id != 0 && id%e.current().Log.FlowSample == 0 }
 
 // log returns the engine logger, with a standard fallback for small tests or uninitialized
 // diagnostics.
@@ -190,5 +196,19 @@ func (e *Engine) log() *slog.Logger {
 	if e.diagnostics == nil {
 		return slog.Default()
 	}
+	if logger := e.diagnostics.liveLogger.Load(); logger != nil {
+		return logger
+	}
 	return e.diagnostics.logger
+}
+
+// configure publishes a new handler while queued records retain their original
+// formatter; sink writes still run on the single bounded consumer.
+func (d *diagnostics) configure(cfg LogConfig) {
+	options := &slog.HandlerOptions{Level: cfg.level}
+	var handler slog.Handler = slog.NewJSONHandler(d.out, options)
+	if cfg.Format == "text" {
+		handler = slog.NewTextHandler(d.out, options)
+	}
+	d.liveLogger.Store(slog.New(&queuedHandler{handler, d}))
 }

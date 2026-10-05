@@ -101,7 +101,7 @@ func (e *Engine) relayUDP(conn *net.UDPConn, strm tnet.Strm) {
 		defer conn.Close()
 		buf := make([]byte, 65508)
 		for {
-			conn.SetReadDeadline(time.Now().Add(e.cfg.Limits.UDPDuration))
+			conn.SetReadDeadline(time.Now().Add(e.current().Limits.UDPDuration))
 			n, err := conn.Read(buf)
 			if err != nil {
 				return
@@ -117,7 +117,7 @@ func (e *Engine) relayUDP(conn *net.UDPConn, strm tnet.Strm) {
 		}
 	}()
 	for {
-		strm.SetReadDeadline(time.Now().Add(e.cfg.Limits.UDPDuration))
+		strm.SetReadDeadline(time.Now().Add(e.current().Limits.UDPDuration))
 		p, err := readDatagram(strm)
 		if err != nil {
 			break
@@ -136,16 +136,7 @@ func (e *Engine) relayUDP(conn *net.UDPConn, strm tnet.Strm) {
 
 // startUDP owns a local UDP source-flow map, bounded per-flow queues and expiry; unadmitted
 // datagrams are not KCP-recoverable.
-func (e *Engine) startUDP(f Forward) error {
-	a, err := net.ResolveUDPAddr("udp", f.Listen)
-	if err != nil {
-		return err
-	}
-	conn, err := net.ListenUDP("udp", a)
-	if err != nil {
-		return err
-	}
-	e.closers = append(e.closers, conn)
+func (e *Engine) serveUDP(ctx context.Context, conn *net.UDPConn, key string) {
 	flows := map[netip.AddrPort]*udpFlow{}
 	var mu sync.Mutex
 	e.launch(func() {
@@ -153,7 +144,7 @@ func (e *Engine) startUDP(f Forward) error {
 		defer ticker.Stop()
 		for {
 			select {
-			case <-e.ctx.Done():
+			case <-ctx.Done():
 				mu.Lock()
 				for _, v := range flows {
 					v.close()
@@ -163,7 +154,7 @@ func (e *Engine) startUDP(f Forward) error {
 			case now := <-ticker.C:
 				mu.Lock()
 				for addr, v := range flows {
-					if now.UnixNano()-v.last.Load() > int64(e.cfg.Limits.UDPDuration) {
+					if now.UnixNano()-v.last.Load() > int64(e.current().Limits.UDPDuration) {
 						delete(flows, addr)
 						v.close()
 					}
@@ -186,6 +177,12 @@ func (e *Engine) startUDP(f Forward) error {
 			mu.Lock()
 			flow := flows[addr]
 			if flow == nil {
+				binding, ok := e.route(key)
+				if !ok {
+					mu.Unlock()
+					continue
+				}
+				f, peer := binding.forward, binding.peer
 				if !e.acquire() {
 					mu.Unlock()
 					continue
@@ -212,22 +209,22 @@ func (e *Engine) startUDP(f Forward) error {
 							}
 						}
 					}()
-					ctx, cancel := context.WithTimeout(e.ctx, e.cfg.Limits.OpenDuration)
-					strm, err := e.peers[f.Peer].open(ctx, protocol.PUDP2, f.Target)
+					ctx, cancel := context.WithTimeout(ctx, e.current().Limits.OpenDuration)
+					strm, err := peer.open(ctx, protocol.PUDP2, f.Target)
 					cancel()
 					if err != nil {
 						e.stats.Errors.Add(1)
 						return
 					}
 					defer strm.Close()
-					stop := context.AfterFunc(e.ctx, func() { strm.Close() })
+					stop := context.AfterFunc(ctx, func() { strm.Close() })
 					defer stop()
 					readDone := make(chan struct{})
 					go func() {
 						defer close(readDone)
 						defer v.close()
 						for {
-							strm.SetReadDeadline(time.Now().Add(e.cfg.Limits.UDPDuration))
+							strm.SetReadDeadline(time.Now().Add(e.current().Limits.UDPDuration))
 							p, err := readDatagram(strm)
 							if err != nil {
 								return
@@ -246,7 +243,7 @@ func (e *Engine) startUDP(f Forward) error {
 						select {
 						case <-v.done:
 							return
-						case <-e.ctx.Done():
+						case <-ctx.Done():
 							return
 						case p := <-v.queue:
 							err := writeDatagram(strm, (*p.b)[:p.n])
@@ -280,5 +277,4 @@ func (e *Engine) startUDP(f Forward) error {
 			mu.Unlock()
 		}
 	})
-	return nil
 }

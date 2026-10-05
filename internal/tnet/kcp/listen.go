@@ -239,3 +239,15 @@ func (l *Listener) PacketConnections() []*socket.PacketConn {
 	}
 	return out
 }
+
+// SetMaxSessions updates admission on each fixed worker without rebuilding its
+// conversation table; existing carriers continue when the ceiling is lowered.
+func (l *Listener) SetMaxSessions(maximum int) {
+	if len(l.children) > 0 {
+		for _, child := range l.children {
+			child.SetMaxSessions(maximum)
+		}
+		return
+	}
+	l.listener.SetMaxSessions(maximum)
+}

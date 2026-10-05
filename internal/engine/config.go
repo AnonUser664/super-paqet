@@ -36,6 +36,8 @@ type Config struct {
 	Profiling bool `yaml:"profiling"`
 	// Structured diagnostic levels, cadence and lifecycle sampling.
 	Log LogConfig `yaml:"log"`
+	// File polling/debounce settings; explicit SIGHUP remains available when disabled.
+	Reload ReloadConfig `yaml:"reload"`
 }
 
 // Endpoint describes either an incoming listener or an outgoing peer, with explicit
@@ -103,10 +105,16 @@ type Limits struct {
 // Load strictly parses public YAML and prepares endpoint contracts before any forwarding
 // socket is created.
 func Load(path string) (*Config, error) {
-	b, err := os.ReadFile(path)
+	b, err := readConfigBytes(path)
 	if err != nil {
 		return nil, err
 	}
+	return parseConfig(b)
+}
+
+// parseConfig prepares the exact bytes observed by the watcher, avoiding a second
+// file read racing with an editor's rename or partial write.
+func parseConfig(b []byte) (*Config, error) {
 	var c Config
 	if err := yaml.UnmarshalWithOptions(b, &c, yaml.Strict()); err != nil {
 		return nil, err
@@ -120,6 +128,9 @@ func Load(path string) (*Config, error) {
 // prepare fills process defaults and rejects invalid forwards, limits and metrics exposure
 // before network startup.
 func (c *Config) prepare() error {
+	if err := c.Reload.prepare(); err != nil {
+		return err
+	}
 	if err := c.Log.prepare(); err != nil {
 		return err
 	}
@@ -190,7 +201,12 @@ func (c *Config) prepare() error {
 		}
 		seen[key] = true
 	}
+	listenerAddresses := make(map[string]bool)
 	for i := range c.Listeners {
+		if listenerAddresses[c.Listeners[i].Address] {
+			return fmt.Errorf("duplicate listener address")
+		}
+		listenerAddresses[c.Listeners[i].Address] = true
 		if err := c.Listeners[i].prepare(true); err != nil {
 			return fmt.Errorf("listeners[%d]: %w", i, err)
 		}

@@ -37,6 +37,12 @@ type peer struct {
 	createSlot func(context.Context) (*slot, error)
 	// Owning runtime for limits, cancellation, firewall and diagnostics.
 	engine *Engine
+	// Endpoint-owned firewall journal; growth and close serialize their rule mutation.
+	fw firewall
+	// Firewall policy belongs to this generation, even during a global policy reload.
+	manageFirewall bool
+	// Serializes real slot allocation with final firewall teardown.
+	allocationMu sync.Mutex
 	// Prepared peer configuration inherited by newly allocated slots.
 	endpoint Endpoint
 	// Carrier reservations owned by this pool, bounded by max_sessions.
@@ -73,6 +79,12 @@ func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	p.mu.RLock()
+	closed := p.closed
+	p.mu.RUnlock()
+	if closed {
+		return nil, net.ErrClosed
+	}
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -105,7 +117,7 @@ func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
 	c := conn.(*kcp.Conn)
 	strm, err := c.OpenStrm()
 	if err == nil {
-		strm.SetDeadline(time.Now().Add(p.engine.cfg.Limits.OpenDuration))
+		strm.SetDeadline(time.Now().Add(p.engine.current().Limits.OpenDuration))
 		err = (&protocol.Proto{Type: protocol.PTCPF, TCPF: p.endpoint.Network.TCP.RF}).Write(strm)
 		strm.Close()
 	}
@@ -364,6 +376,14 @@ func (p *peer) selectSlot(ctx context.Context, exclusions ...map[*slot]bool) (*s
 // allocateSlot reserves source-port/firewall resources without opening the remote carrier
 // until traffic needs it.
 func (p *peer) allocateSlot(ctx context.Context) (*slot, error) {
+	p.allocationMu.Lock()
+	defer p.allocationMu.Unlock()
+	p.mu.RLock()
+	closed := p.closed
+	p.mu.RUnlock()
+	if closed {
+		return nil, net.ErrClosed
+	}
 	guard, n, err := reserve(p.endpoint.Network)
 	if err != nil {
 		return nil, err
@@ -372,8 +392,8 @@ func (p *peer) allocateSlot(ctx context.Context) (*slot, error) {
 		guard.Close()
 		return nil, err
 	}
-	if p.engine.cfg.Firewall == nil || *p.engine.cfg.Firewall {
-		if err := p.engine.fw.add(&n); err != nil {
+	if p.manageFirewall {
+		if err := p.fw.add(&n); err != nil {
 			guard.Close()
 			return nil, err
 		}

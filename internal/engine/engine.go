@@ -22,7 +22,6 @@ import (
 	"syscall"
 	"time"
 
-	"golang.org/x/sys/unix"
 	"paqet/internal/conf"
 	"paqet/internal/protocol"
 	"paqet/internal/tnet"
@@ -47,7 +46,7 @@ type Engine struct {
 	tuners map[*kcp.Conn]*controller
 	// Listener-owned worker sockets registered under tuneMu for shared drop telemetry.
 	packetObservers []observedPacket
-	// Prepared runtime configuration treated as immutable during this engine run.
+	// Initial immutable configuration; current() uses the atomically published runtime view.
 	cfg *Config
 	// Engine cancellation propagated to endpoint/flow work.
 	ctx context.Context
@@ -55,12 +54,22 @@ type Engine struct {
 	cancel context.CancelFunc
 	// Atomic lifecycle/byte/admission counters shared by concurrent flows and diagnostics.
 	stats Stats
-	// Published named outgoing pools created during startup.
-	peers map[string]*peer
-	// Startup-owned resources released in reverse order after cancellation.
-	closers []io.Closer
-	// This instance's owned-rule journal and cleanup state.
-	fw firewall
+	// Serializes resource transactions and shutdown, never per-packet forwarding.
+	reloadMu sync.Mutex
+	// One atomic publication keeps configuration and route-to-pool selection coherent.
+	view atomic.Pointer[runtimeView]
+	// Endpoint and local bind ownership, mutated only under reloadMu.
+	resources map[string]*liveResource
+	// Optional deterministic resource fault seam; production uses prepareResource.
+	resourceFactory func(resourceSpec) (*liveResource, error)
+	// Retains failed rule cleanups for retries and final shutdown.
+	retired []*liveResource
+	// Wakes diagnostics immediately when the configured sample interval changes.
+	observeChanged chan struct{}
+	// Reload admission, outcome and revision counters exported by metrics.
+	reloadApplied, reloadRejected, revision atomic.Uint64
+	// Health is degraded only if rollback could not reconstruct an old resource.
+	degraded atomic.Bool
 	// Tracks engine tasks so rules/resources are not finalized while relays still run.
 	wg sync.WaitGroup
 	// Bounded asynchronous diagnostic output and its shutdown/drop state.
@@ -71,113 +80,36 @@ type Engine struct {
 
 // Run owns one engine lifecycle, including admission resources and cleanup after partial
 // startup or cancellation.
-func Run(ctx context.Context, cfg *Config) (err error) {
+func Run(ctx context.Context, cfg *Config) error { return run(ctx, cfg, nil) }
+
+// run owns startup, optional file watching and ordered endpoint teardown. Runtime
+// generations retain immutable settings; only current admission settings are shared.
+func run(ctx context.Context, cfg *Config, watch func(*Engine)) (err error) {
 	d := newDiagnostics(cfg.Log, nil)
 	defer d.close()
-	if cfg.Firewall == nil || *cfg.Firewall {
+	if firewallEnabled(cfg) {
 		if err := RecoverFirewall(); err != nil {
 			return err
 		}
 	}
 	ctx, cancel := context.WithCancel(ctx)
-	e := &Engine{cfg: cfg, ctx: ctx, cancel: cancel, peers: make(map[string]*peer), tuners: make(map[*kcp.Conn]*controller)}
-	e.diagnostics = d
-	e.log().Info("engine.start", "cpus", runtime.GOMAXPROCS(0), "connection_limit", cfg.Limits.Connections, "session_limit", cfg.Limits.Sessions, "log_flow_sample", cfg.Log.FlowSample)
+	e := &Engine{cfg: cfg, ctx: ctx, cancel: cancel, resources: make(map[string]*liveResource), tuners: make(map[*kcp.Conn]*controller), diagnostics: d, observeChanged: make(chan struct{}, 1)}
+	oldMemory := debug.SetMemoryLimit(-1)
+	defer debug.SetMemoryLimit(oldMemory)
 	defer func() {
 		cancel()
-		e.close()
+		err = errors.Join(err, e.close())
 		e.wg.Wait()
-		cleanupErr := e.fw.close()
-		err = errors.Join(err, cleanupErr)
-		e.log().Info("engine.stopped", "active", e.stats.Active.Load(), "errors", e.stats.Errors.Load(), "aborted", e.stats.Aborted.Load(), "firewall_cleanup_error", cleanupErr, "log_dropped", d.dropped.Load())
+		e.log().Info("engine.stopped", "active", e.stats.Active.Load(), "errors", e.stats.Errors.Load(), "aborted", e.stats.Aborted.Load(), "cleanup_error", err, "log_dropped", d.dropped.Load())
 	}()
-	e.launch(e.tune)
-	e.launch(e.observe)
-	if cfg.Limits.MemoryMiB > 0 {
-		old := debug.SetMemoryLimit(cfg.Limits.MemoryMiB << 20)
-		defer debug.SetMemoryLimit(old)
-	}
-	var limit unix.Rlimit
-	if err := unix.Getrlimit(unix.RLIMIT_NOFILE, &limit); err != nil {
+	if err := e.apply(cfg); err != nil {
 		return err
 	}
-	required := uint64(cfg.Limits.Connections*2 + 4096)
-	if limit.Cur < required {
-		limit.Cur = min(required, limit.Max)
-		if err := unix.Setrlimit(unix.RLIMIT_NOFILE, &limit); err != nil {
-			return fmt.Errorf("raise file limit: %w", err)
-		}
-		if limit.Cur < required {
-			e.log().Warn("file limit below configured connection capacity", "files", limit.Cur, "required", required)
-		}
-	}
-	for _, endpoint := range cfg.Listeners {
-		endpoint.KCP.MaxSessions = int(cfg.Limits.Sessions)
-		guard, n, err := reserve(endpoint.Network)
-		if err != nil {
-			return err
-		}
-		e.closers = append(e.closers, guard)
-		if cfg.Firewall == nil || *cfg.Firewall {
-			if err := e.fw.add(&n); err != nil {
-				return err
-			}
-		}
-		listener, err := kcp.Listen(&endpoint.KCP, n)
-		if err != nil {
-			return err
-		}
-		e.closers = append(e.closers, listener)
-		e.tuneMu.Lock()
-		if observed, ok := listener.(*kcp.Listener); ok {
-			for worker, packet := range observed.PacketConnections() {
-				e.packetObservers = append(e.packetObservers, observedPacket{len(e.closers) - 1, worker, packet})
-			}
-		}
-		e.tuneMu.Unlock()
-		e.launch(func() { e.serve(listener, endpoint) })
-		e.log().Info("listener.ready", "address", endpoint.Address, "interface", n.Interface.Name)
-	}
-	for name, endpoint := range cfg.Peers {
-		p := &peer{engine: e, endpoint: endpoint}
-		for i := 0; i < endpoint.Sessions; i++ {
-			guard, n, err := reserve(endpoint.Network)
-			if err != nil {
-				return err
-			}
-			e.closers = append(e.closers, guard)
-			if cfg.Firewall == nil || *cfg.Firewall {
-				if err := e.fw.add(&n); err != nil {
-					return err
-				}
-			}
-			p.slots = append(p.slots, &slot{network: n})
-		}
-		e.peers[name] = p
-	}
-	for _, f := range cfg.Forwards {
-		if f.Protocol == "udp" {
-			if err := e.startUDP(f); err != nil {
-				return err
-			}
-			continue
-		}
-		addr, err := net.ResolveTCPAddr("tcp", f.Listen)
-		if err != nil {
-			return err
-		}
-		listener, err := net.ListenTCP("tcp", addr)
-		if err != nil {
-			return err
-		}
-		e.closers = append(e.closers, listener)
-		e.launch(func() { e.forward(listener, f) })
-		e.log().Info("forward.ready", "listen", f.Listen, "peer", f.Peer, "target", f.Target)
-	}
-	if cfg.Metrics != "" {
-		if err := e.startMetrics(); err != nil {
-			return err
-		}
+	e.log().Info("engine.start", "cpus", runtime.GOMAXPROCS(0), "connection_limit", cfg.Limits.Connections, "session_limit", cfg.Limits.Sessions, "log_flow_sample", cfg.Log.FlowSample)
+	e.launch(e.tune)
+	e.launch(e.observe)
+	if watch != nil {
+		e.launch(func() { watch(e) })
 	}
 	<-ctx.Done()
 	return nil
@@ -188,13 +120,18 @@ func (e *Engine) launch(fn func()) { e.wg.Add(1); go func() { defer e.wg.Done();
 
 // close closes peers and registered resources in reverse order; firewall teardown happens
 // after engine tasks settle.
-func (e *Engine) close() {
-	for _, p := range e.peers {
-		p.close()
+func (e *Engine) close() error {
+	e.reloadMu.Lock()
+	defer e.reloadMu.Unlock()
+	var errs []error
+	for key, resource := range e.resources {
+		errs = append(errs, resource.close())
+		delete(e.resources, key)
 	}
-	for i := len(e.closers) - 1; i >= 0; i-- {
-		e.closers[i].Close()
+	for _, resource := range e.retired {
+		errs = append(errs, resource.close())
 	}
+	return errors.Join(errs...)
 }
 
 // acquire atomically admits active work up to the process limit, preventing concurrent accepts
@@ -202,7 +139,7 @@ func (e *Engine) close() {
 func (e *Engine) acquire() bool {
 	for {
 		n := e.stats.Active.Load()
-		if n >= e.cfg.Limits.Connections {
+		if n >= e.current().Limits.Connections {
 			e.stats.Rejected.Add(1)
 			return false
 		}
@@ -220,7 +157,7 @@ func (e *Engine) report(err error) {
 	if n <= 5 {
 		e.log().Warn("connection.failed", "error", err)
 	}
-	if e.diagnostics != nil && uint64(n)%e.cfg.Log.FlowSample == 0 {
+	if e.diagnostics != nil && uint64(n)%e.current().Log.FlowSample == 0 {
 		e.log().Debug("connection.failure_sample", "error_id", n, "error", err)
 	}
 }
@@ -301,7 +238,7 @@ func (g portGuards) Close() error {
 
 // forward accepts local TCP flows, applies admission/opening deadlines and relays each
 // successful remote stream.
-func (e *Engine) forward(listener *net.TCPListener, f Forward) {
+func (e *Engine) forward(listener *net.TCPListener, key string) {
 	for {
 		conn, err := listener.AcceptTCP()
 		if err != nil {
@@ -323,6 +260,14 @@ func (e *Engine) forward(listener *net.TCPListener, f Forward) {
 			}
 			return
 		}
+		// Capture target and pool together at acceptance; later edits cannot redirect
+		// an established stream or accidentally combine two config generations.
+		binding, ok := e.route(key)
+		if !ok {
+			conn.Close()
+			continue
+		}
+		f, p := binding.forward, binding.peer
 		if !e.acquire() {
 			conn.Close()
 			continue
@@ -334,8 +279,8 @@ func (e *Engine) forward(listener *net.TCPListener, f Forward) {
 			}
 			defer e.stats.Active.Add(-1)
 			defer conn.Close()
-			ctx, cancel := context.WithTimeout(e.ctx, e.cfg.Limits.OpenDuration)
-			strm, err := e.peers[f.Peer].open(ctx, protocol.PTCP2, f.Target)
+			ctx, cancel := context.WithTimeout(e.ctx, e.current().Limits.OpenDuration)
+			strm, err := p.open(ctx, protocol.PTCP2, f.Target)
 			cancel()
 			if err != nil {
 				e.log().Debug("flow.open_failed", "flow_id", trace, "peer", f.Peer, "target", f.Target, "error", err)
@@ -349,17 +294,17 @@ func (e *Engine) forward(listener *net.TCPListener, f Forward) {
 
 // serve accepts incoming carriers and dispatches their mux streams while preserving
 // generation-owned flag state.
-func (e *Engine) serve(listener tnet.Listener, endpoint Endpoint) {
+func (e *Engine) serve(ctx context.Context, listener tnet.Listener, endpoint Endpoint) {
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			if e.ctx.Err() != nil || errors.Is(err, net.ErrClosed) {
+			if ctx.Err() != nil || errors.Is(err, net.ErrClosed) {
 				return
 			}
 			e.stats.Errors.Add(1)
 			continue
 		}
-		if e.stats.Sessions.Add(1) > e.cfg.Limits.Sessions {
+		if e.stats.Sessions.Add(1) > e.current().Limits.Sessions {
 			e.stats.Sessions.Add(-1)
 			e.stats.Rejected.Add(1)
 			conn.Close()
@@ -378,7 +323,7 @@ func (e *Engine) serve(listener tnet.Listener, endpoint Endpoint) {
 				e.addPassive(conn.(*kcp.Conn))
 			}
 			defer listener.DeleteClientSession(conn.RemoteAddr(), owner)
-			stop := context.AfterFunc(e.ctx, func() { conn.Close() })
+			stop := context.AfterFunc(ctx, func() { conn.Close() })
 			defer stop()
 			for {
 				strm, err := conn.AcceptStrm()
@@ -399,7 +344,7 @@ func (e *Engine) serve(listener tnet.Listener, endpoint Endpoint) {
 // reports its actual opening outcome.
 func (e *Engine) handle(listener tnet.Listener, strm tnet.Strm, owner uint32) {
 	trace := e.flowTrace()
-	strm.SetDeadline(time.Now().Add(e.cfg.Limits.OpenDuration))
+	strm.SetDeadline(time.Now().Add(e.current().Limits.OpenDuration))
 	var p protocol.Proto
 	if err := p.Read(strm); err != nil {
 		e.report(fmt.Errorf("read stream control: %w", err))
@@ -427,7 +372,7 @@ func (e *Engine) handle(listener tnet.Listener, strm tnet.Strm, owner uint32) {
 	if err := writeOpeningAck(strm, 2); err != nil {
 		return
 	}
-	ctx, cancel := context.WithTimeout(e.ctx, e.cfg.Limits.DialDuration)
+	ctx, cancel := context.WithTimeout(e.ctx, e.current().Limits.DialDuration)
 	proto := "tcp"
 	if p.Type == protocol.PUDP2 {
 		proto = "udp"
@@ -471,30 +416,32 @@ func writeOpeningAck(strm tnet.Strm, code byte) error {
 
 // startMetrics starts the optional loopback HTTP diagnostics listener and ties its closure to
 // engine cancellation.
-func (e *Engine) startMetrics() error {
+func (e *Engine) serveMetrics(ctx context.Context, listener net.Listener) {
 	mux := http.NewServeMux()
-	if e.cfg.Profiling {
-		mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
-		mux.HandleFunc("/debug/pprof/", pprof.Index)
-	}
+	mux.HandleFunc("/debug/pprof/", func(w http.ResponseWriter, r *http.Request) {
+		if !e.current().Profiling {
+			http.NotFound(w, r)
+			return
+		}
+		if r.URL.Path == "/debug/pprof/profile" {
+			pprof.Profile(w, r)
+		} else {
+			pprof.Index(w, r)
+		}
+	})
 	mux.HandleFunc("/metrics", e.metrics)
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
-		if e.ctx.Err() != nil {
+		if e.ctx.Err() != nil || e.degraded.Load() {
 			w.WriteHeader(503)
 		} else {
 			io.WriteString(w, "ok\n")
 		}
 	})
-	s := &http.Server{Addr: e.cfg.Metrics, Handler: mux, ReadHeaderTimeout: 5 * time.Second}
-	listener, err := net.Listen("tcp", e.cfg.Metrics)
-	if err != nil {
-		return err
+	s := &http.Server{Handler: mux, ReadHeaderTimeout: 5 * time.Second}
+	stop := context.AfterFunc(ctx, func() { s.Close() })
+	defer stop()
+	defer s.Close()
+	if err := s.Serve(listener); err != nil && !errors.Is(err, net.ErrClosed) && !errors.Is(err, http.ErrServerClosed) {
+		e.log().Error("metrics.stopped", "error", err)
 	}
-	e.closers = append(e.closers, listener)
-	e.launch(func() {
-		if err := s.Serve(listener); err != nil && e.ctx.Err() == nil {
-			e.log().Error("metrics.stopped", "error", err)
-		}
-	})
-	return nil
 }
