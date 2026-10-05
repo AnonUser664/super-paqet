@@ -42,5 +42,5 @@ func Dial(addr *net.UDPAddr, cfg *conf.KCP, netCfg conf.Network) (tnet.Conn, err
 		return nil, fmt.Errorf("kcp: failed to create smux session: %w", err)
 	}
 
-	return &Conn{packetConn, conn, sess}, nil
+	return &Conn{PacketConn: packetConn, UDPSession: conn, Session: sess}, nil
 }

@@ -25,6 +25,8 @@ type Conn struct {
 	UDPSession *kcp.UDPSession
 	// Mux carrier state hosting many logical application/control streams.
 	Session *smux.Session
+	// Shared dialer owns the packet socket; individual lane closure must retain it.
+	sharedPacket bool
 }
 
 // OpenStrm opens one logical mux stream on this carrier without creating another raw socket.
@@ -83,7 +85,7 @@ func (c *Conn) Close() error {
 			err = e
 		}
 	}
-	if c.PacketConn != nil {
+	if c.PacketConn != nil && !c.sharedPacket {
 		if e := c.PacketConn.Close(); e != nil && err == nil {
 			err = e
 		}

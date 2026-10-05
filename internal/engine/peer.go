@@ -53,6 +53,12 @@ type peer struct {
 	settings *atomic.Pointer[Endpoint]
 	// Carrier reservations owned by this pool, bounded by max_sessions.
 	slots []*slot
+	// Optional generation-owned demultiplexer for a single verified source tuple.
+	shared *kcp.SharedDialer
+	// One kernel reservation belongs to the pool rather than any individual lane.
+	sharedGuard io.Closer
+	// Prepared shared source tuple retained across lane reconnects and growth.
+	sharedNetwork conf.Network
 	// Atomic selection cursor used to distribute equal-pressure choices.
 	next atomic.Uint64
 }
@@ -110,7 +116,12 @@ func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
 		return nil, err
 	}
 	endpoint := p.configuration()
-	conn, err := kcp.Dial(a, &endpoint.KCP, s.network)
+	var conn tnet.Conn
+	if p.shared != nil {
+		conn, err = p.shared.Dial(a, &endpoint.KCP)
+	} else {
+		conn, err = kcp.Dial(a, &endpoint.KCP, s.network)
+	}
 	if err != nil {
 		if s.backoff == 0 {
 			s.backoff = 100 * time.Millisecond
@@ -285,6 +296,16 @@ func (p *peer) close() {
 		}
 		s.mu.Unlock()
 	}
+	// Allocation and final journal teardown already serialize on this lock.
+	// Taking it here also excludes a first shared socket being staged during close.
+	p.allocationMu.Lock()
+	if p.shared != nil {
+		p.shared.Close()
+	}
+	if p.sharedGuard != nil {
+		p.sharedGuard.Close()
+	}
+	p.allocationMu.Unlock()
 }
 
 // busyCarrier adds a cached pressure penalty so new short streams prefer capacity away from
@@ -398,6 +419,9 @@ func (p *peer) allocateSlot(ctx context.Context) (*slot, error) {
 		return nil, net.ErrClosed
 	}
 	endpoint := p.configuration()
+	if endpoint.SharedSource && p.shared != nil {
+		return &slot{network: p.sharedNetwork}, nil
+	}
 	network := endpoint.Network
 	if len(endpoint.SourcePorts) > 0 {
 		if index >= len(endpoint.SourcePorts) {
@@ -418,6 +442,15 @@ func (p *peer) allocateSlot(ctx context.Context) (*slot, error) {
 			guard.Close()
 			return nil, err
 		}
+	}
+	if endpoint.SharedSource {
+		shared, err := kcp.NewSharedDialer(&endpoint.KCP, n, endpoint.MaxSessions)
+		if err != nil {
+			guard.Close()
+			return nil, err
+		}
+		p.shared, p.sharedGuard, p.sharedNetwork = shared, guard, n
+		return &slot{network: n}, nil
 	}
 	return &slot{network: n, guard: guard}, nil
 }

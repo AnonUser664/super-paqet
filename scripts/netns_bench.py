@@ -38,6 +38,7 @@ def main():
     p.add_argument('--rate-mbit', type=int, default=0)
     p.add_argument('--down-rate-mbit', type=int, help='reverse direction bandwidth cap')
     p.add_argument('--sessions', type=int, default=4)
+    p.add_argument('--shared-source', action='store_true', help='independent KCP lanes on one peer source tuple')
     p.add_argument('--hold', type=int, default=0)
     p.add_argument('--enterprise', action='store_true')
     p.add_argument('--profile', action='store_true')
@@ -286,6 +287,11 @@ def main():
             if a.backend=='pcap':
                 client=client.replace('network: {interface:', 'network: {backend: pcap, interface:')
                 server=server.replace('network: {interface:', 'network: {backend: pcap, interface:')
+        if a.shared_source:
+            if not a.enterprise:
+                p.error('--shared-source requires --enterprise')
+            client = client.replace('    address:', '    shared_source: true\n    address:')
+            server = server.replace('  - address:', '  - shared_source: true\n    address:')
         (out/'client.yaml').write_text(client); (out/'server.yaml').write_text(server)
         if a.socket_buffer_mib:
             client = client.replace('network: {interface:',f'network: {{pcap: {{sockbuf: {a.socket_buffer_mib<<20}}}, interface:')

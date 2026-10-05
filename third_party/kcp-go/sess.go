@@ -547,7 +547,7 @@ func (s *UDPSession) Close() error {
 	s.mu.Unlock()
 
 	if s.l != nil { // belongs to listener
-		s.l.closeSession(s.remote)
+		s.l.closeSession(s.remote, s.kcp.conv)
 		return nil
 	}
 
@@ -1224,7 +1224,11 @@ type (
 		conn         net.PacketConn // the underlying packet connection
 		ownConn      bool           // true if we created conn internally, false if provided by caller
 
-		sessions map[string]*UDPSession // all sessions accepted by this Listener
+		sessions map[conversationKey]*UDPSession // all sessions owned by this Listener
+		// Opt-in address/conversation routing permits several carriers on a fixed tuple.
+		multiConversation bool
+		// Outgoing shared sockets never allocate unsolicited incoming conversations.
+		dialOnly bool
 		// Protects the incoming conversation table and acceptance state.
 		sessionLock sync.RWMutex
 		chAccepts   chan *UDPSession // Listen() backlog
@@ -1290,11 +1294,6 @@ func (l *Listener) packetInput(data []byte, addr net.Addr) {
 		return
 	}
 
-	// look for existing session
-	l.sessionLock.RLock()
-	s, exist := l.sessions[addr.String()]
-	l.sessionLock.RUnlock()
-
 	var conv, sn uint32
 	hasConv := false
 	initialData := false
@@ -1335,6 +1334,14 @@ func (l *Listener) packetInput(data []byte, addr net.Addr) {
 		initialData = isData && sn == 0
 	}
 
+	if l.multiConversation && !hasConv {
+		return
+	}
+	key := l.conversationKey(addr, conv)
+	l.sessionLock.RLock()
+	s, exist := l.sessions[key]
+	l.sessionLock.RUnlock()
+
 	// on an existing connection
 	if exist {
 		// If we have a valid conversation id or we cannot get conversation id from the packet,
@@ -1356,6 +1363,9 @@ func (l *Listener) packetInput(data []byte, addr net.Addr) {
 	}
 
 	// The connection does not exist, try to create a new one.
+	if l.dialOnly || (l.multiConversation && !initialData) {
+		return
+	}
 	// But if we don't have a valid conversation id, nothing we can do here except dropping the packet.
 	if !hasConv || !isData {
 		return
@@ -1376,15 +1386,25 @@ func (l *Listener) packetInput(data []byte, addr net.Addr) {
 	}
 
 	// new session
+	l.sessionLock.Lock()
+	select {
+	case <-l.die:
+		l.sessionLock.Unlock()
+		return
+	default:
+	}
 	s = newUDPSession(conv, l.dataShards, l.parityShards, l, l.conn, false, addr, l.block)
+	l.sessions[key] = s
+	l.sessionLock.Unlock()
 	s.kcpInput(data)
 	if l.batchACK.Load() {
 		l.pendingACK[s] = struct{}{}
 	}
-	l.sessionLock.Lock()
-	l.sessions[addr.String()] = s
-	l.sessionLock.Unlock()
-	l.chAccepts <- s
+	select {
+	case l.chAccepts <- s:
+	case <-l.die:
+		s.Close()
+	}
 }
 
 // notifyReadError publishes a listener input failure and wakes pending accepts.
@@ -1505,6 +1525,17 @@ func (l *Listener) Close() error {
 	if !once {
 		return errors.WithStack(io.ErrClosedPipe)
 	}
+	if l.multiConversation {
+		l.sessionLock.RLock()
+		owned := make([]*UDPSession, 0, len(l.sessions))
+		for _, session := range l.sessions {
+			owned = append(owned, session)
+		}
+		l.sessionLock.RUnlock()
+		for _, session := range owned {
+			session.Close()
+		}
+	}
 
 	if l.ownConn {
 		return l.conn.Close()
@@ -1523,12 +1554,17 @@ func (l *Listener) Control(f func(conn net.PacketConn) error) error {
 }
 
 // closeSession notify the listener that a session has closed
-func (l *Listener) closeSession(remote net.Addr) (ret bool) {
+func (l *Listener) closeSession(remote net.Addr, conv ...uint32) (ret bool) {
 	l.sessionLock.Lock()
 	defer l.sessionLock.Unlock()
 
-	if _, ok := l.sessions[remote.String()]; ok {
-		delete(l.sessions, remote.String())
+	var id uint32
+	if len(conv) > 0 {
+		id = conv[0]
+	}
+	key := l.conversationKey(remote, id)
+	if _, ok := l.sessions[key]; ok {
+		delete(l.sessions, key)
 		return true
 	}
 	return false
@@ -1577,10 +1613,17 @@ func ServeConn(block BlockCrypt, dataShards, parityShards int, conn net.PacketCo
 // serveConn constructs listener state around a supplied packet connection and its explicit
 // ownership policy.
 func serveConn(block BlockCrypt, dataShards, parityShards int, conn net.PacketConn, ownConn bool) (*Listener, error) {
+	return serveConversationConn(block, dataShards, parityShards, conn, ownConn, false, false)
+}
+
+// serveConversationConn publishes immutable demultiplexing policy before the
+// receive goroutine starts. FEC-free packets already carry their conversation ID.
+func serveConversationConn(block BlockCrypt, dataShards, parityShards int, conn net.PacketConn, ownConn, multi, dialOnly bool) (*Listener, error) {
 	l := new(Listener)
 	l.conn = conn
 	l.ownConn = ownConn
-	l.sessions = make(map[string]*UDPSession)
+	l.sessions = make(map[conversationKey]*UDPSession)
+	l.multiConversation, l.dialOnly = multi, dialOnly
 	l.chAccepts = make(chan *UDPSession, acceptBacklog)
 	l.die = make(chan struct{})
 	l.dataShards = dataShards

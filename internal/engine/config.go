@@ -61,6 +61,9 @@ type Endpoint struct {
 	// Optional ordered, distinct peer source ports: carrier i reserves port i.
 	// This permits parallel carriers on paths requiring reproducible source ports.
 	SourcePorts []int `yaml:"source_ports"`
+	// Shares one peer raw socket/source tuple across independent KCP conversations.
+	// Both peers and listeners must enable this; parity-only FEC is incompatible.
+	SharedSource bool `yaml:"shared_source"`
 	// Physical interface/source/next-hop metadata prepared before raw socket construction.
 	Network conf.Network `yaml:"network"`
 	// Reliability/cipher/mux settings for each carrier at this endpoint.
@@ -264,6 +267,10 @@ func (e *Endpoint) prepare(listener bool) error {
 		return fmt.Errorf("pcap backend requires packet_workers: 1")
 	}
 	e.KCP.PacketWorkers = e.PacketWorkers
+	e.KCP.SharedSource = e.SharedSource
+	if e.SharedSource && (len(e.SourcePorts) > 0 || e.KCP.Dshard != 0 || e.KCP.Pshard != 0) {
+		return fmt.Errorf("shared_source requires FEC disabled and no source_ports list")
+	}
 	a, err := net.ResolveUDPAddr("udp", e.Address)
 	if err != nil {
 		return err
@@ -335,7 +342,7 @@ func (e *Endpoint) prepare(listener bool) error {
 	}
 	if e.MaxSessions == 0 {
 		e.MaxSessions = min(256, max(e.Sessions, runtime.GOMAXPROCS(0)*2))
-		if e.Network.Port != 0 || (e.Adaptive != nil && !*e.Adaptive) {
+		if (e.Network.Port != 0 && !e.SharedSource) || (e.Adaptive != nil && !*e.Adaptive) {
 			e.MaxSessions = e.Sessions
 		}
 	}
@@ -348,10 +355,10 @@ func (e *Endpoint) prepare(listener bool) error {
 	if len(e.SourcePorts) > 0 && e.Network.Port != 0 {
 		return fmt.Errorf("source_ports requires a zero port in network address")
 	}
-	if !listener && e.Network.Port != 0 && e.Sessions != 1 {
+	if !listener && e.Network.Port != 0 && !e.SharedSource && e.Sessions != 1 {
 		return fmt.Errorf("a fixed source port requires sessions: 1")
 	}
-	if !listener && e.Network.Port != 0 && e.MaxSessions != 1 {
+	if !listener && e.Network.Port != 0 && !e.SharedSource && e.MaxSessions != 1 {
 		return fmt.Errorf("a fixed source port requires max_sessions: 1")
 	}
 	if e.KCP.MTU == 0 {

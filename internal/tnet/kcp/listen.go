@@ -53,7 +53,7 @@ func Listen(cfg *conf.KCP, netCfg conf.Network) (tnet.Listener, error) {
 		return nil, fmt.Errorf("kcp: failed to create packetconn: %w", err)
 	}
 
-	l, err := kcp.ServeConn(cfg.Block, cfg.Dshard, cfg.Pshard, packetConn)
+	l, err := servePacketConn(cfg, packetConn)
 	if err != nil {
 		packetConn.Close()
 		return nil, fmt.Errorf("kcp: failed to serve connection: %w", err)
@@ -88,7 +88,7 @@ func (l *Listener) Accept() (tnet.Conn, error) {
 		conn.Close()
 		return nil, fmt.Errorf("kcp: failed to create smux session: %w", err)
 	}
-	return &Conn{nil, conn, sess}, nil
+	return &Conn{UDPSession: conn, Session: sess}, nil
 }
 
 // Close stops accept workers and shared listener sockets; individual accepted carriers are
@@ -140,6 +140,10 @@ func (l *Listener) DeleteClientTCPF(addr net.Addr) {
 // RegisterClient records conversation ownership for peer flag state shared by listener
 // workers.
 func (l *Listener) RegisterClient(addr net.Addr, owner uint32) {
+	if l.cfg.SharedSource {
+		l.PacketConn.RegisterClientGroup(addr, owner)
+		return
+	}
 	l.PacketConn.RegisterClient(addr, owner)
 }
 
@@ -193,7 +197,7 @@ func listenFanout(cfg *conf.KCP, netCfg conf.Network) (tnet.Listener, error) {
 		group.children = append(group.children, &Listener{PacketConn: packet, cfg: cfg})
 	}
 	for _, child := range group.children {
-		l, err := kcp.ServeConn(cfg.Block, cfg.Dshard, cfg.Pshard, child.PacketConn)
+		l, err := servePacketConn(cfg, child.PacketConn)
 		if err != nil {
 			for _, c := range group.children {
 				if c.listener != nil {
@@ -229,6 +233,15 @@ func listenFanout(cfg *conf.KCP, netCfg conf.Network) (tnet.Listener, error) {
 		}()
 	}
 	return group, nil
+}
+
+// servePacketConn selects the explicit conversation-routing contract while
+// keeping the ordinary address/reset and FEC path unchanged by default.
+func servePacketConn(cfg *conf.KCP, packet *socket.PacketConn) (*kcp.Listener, error) {
+	if cfg.SharedSource {
+		return kcp.ServeConversationConn(cfg.Block, cfg.Dshard, cfg.Pshard, packet, false)
+	}
+	return kcp.ServeConn(cfg.Block, cfg.Dshard, cfg.Pshard, packet)
 }
 
 // PacketConnections exposes listener-owned worker sockets for telemetry, not ownership

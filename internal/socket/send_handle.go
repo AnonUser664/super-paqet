@@ -31,6 +31,9 @@ type tcpF struct {
 	// Current conversation generation per remote key, preventing stale setup/cleanup from
 	// changing replacements.
 	owners map[netip.AddrPort]uint32
+	// Shared-source tuples retain every live lane, so one closure cannot clear
+	// flags used by its siblings. Empty sets are deleted on final lane closure.
+	groups map[netip.AddrPort]map[uint32]struct{}
 	// Protects peer flag maps and owner generations; iterators maintain their own atomic
 	// positions.
 	mu sync.RWMutex
@@ -315,7 +318,9 @@ func (h *SendHandle) setClientTCPFSession(addr net.Addr, owner uint32, f []conf.
 	key := peerAddress(a.IP, uint16(a.Port))
 	h.tcpF.mu.Lock()
 	defer h.tcpF.mu.Unlock()
-	if h.tcpF.owners[key] != owner {
+	_, groupOwner := h.tcpF.groups[key][owner]
+	current, registered := h.tcpF.owners[key]
+	if !groupOwner && (!registered || current != owner) {
 		return
 	}
 	h.tcpF.clientTCPF[key] = &iterator.Iterator[conf.TCPF]{Items: f}
@@ -331,11 +336,39 @@ func (h *SendHandle) deleteClientSession(addr net.Addr, owner uint32) {
 	key := peerAddress(a.IP, uint16(a.Port))
 	h.tcpF.mu.Lock()
 	defer h.tcpF.mu.Unlock()
+	if owners := h.tcpF.groups[key]; owners != nil {
+		delete(owners, owner)
+		if len(owners) != 0 {
+			return
+		}
+		delete(h.tcpF.groups, key)
+		delete(h.tcpF.clientTCPF, key)
+		return
+	}
 	if h.tcpF.owners[key] != owner {
 		return
 	}
 	delete(h.tcpF.owners, key)
 	delete(h.tcpF.clientTCPF, key)
+}
+
+// registerClientGroup retains independent lanes sharing a tuple. Reconnect
+// teardown removes its exact owner without resetting sibling flag iterators.
+func (h *SendHandle) registerClientGroup(addr net.Addr, owner uint32) {
+	a, ok := addr.(*net.UDPAddr)
+	if !ok {
+		return
+	}
+	key := peerAddress(a.IP, uint16(a.Port))
+	h.tcpF.mu.Lock()
+	defer h.tcpF.mu.Unlock()
+	if h.tcpF.groups == nil {
+		h.tcpF.groups = make(map[netip.AddrPort]map[uint32]struct{})
+	}
+	if h.tcpF.groups[key] == nil {
+		h.tcpF.groups[key] = make(map[uint32]struct{})
+	}
+	h.tcpF.groups[key][owner] = struct{}{}
 }
 
 // deleteClientTCPF removes the compatibility flag override without changing the default cycle.

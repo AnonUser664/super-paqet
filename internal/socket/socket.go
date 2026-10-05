@@ -224,3 +224,8 @@ func (c *PacketConn) SetClientTCPFSession(addr net.Addr, owner uint32, f []conf.
 func (c *PacketConn) DeleteClientSession(addr net.Addr, owner uint32) {
 	c.sendState().deleteClientSession(addr, owner)
 }
+
+// RegisterClientGroup retains per-tuple flags until all shared lanes retire.
+func (c *PacketConn) RegisterClientGroup(addr net.Addr, owner uint32) {
+	c.sendState().registerClientGroup(addr, owner)
+}

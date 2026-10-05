@@ -32,6 +32,8 @@ type KCP struct {
 	PacketWorkers int `yaml:"-"`
 	// Prepared listener conversation admission ceiling; outgoing pool limits belong to Endpoint.
 	MaxSessions int `yaml:"-"`
+	// Prepared opt-in conversation demultiplexing on a shared source tuple.
+	SharedSource bool `yaml:"-"`
 	// Enables directional FIN semantics at both enterprise mux endpoints.
 	HalfClose bool `yaml:"-"`
 	// Preset selector; manual knobs are applied only for the manual mode.

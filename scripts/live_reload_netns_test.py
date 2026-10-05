@@ -220,6 +220,7 @@ def main():
     parser.add_argument('--output', default='build/live-reload-netns')
     parser.add_argument('--streams', type=int, default=32, help='active streams per original peer')
     parser.add_argument('--carriers', type=int, default=1, help='deterministic source-port carriers per original peer, 1..8')
+    parser.add_argument('--shared-source', action='store_true', help='keep one fixed source port for all original peer carriers')
     parser.add_argument('--delay-ms', type=int, default=0, help='one-way virtual link delay')
     parser.add_argument('--loss', type=float, default=0)
     parser.add_argument('--reverse-delay-ms', type=int)
@@ -383,12 +384,18 @@ def main():
                                 dict(listen='127.0.0.1:28082', peer='a', target='127.0.0.1:18082', protocol='udp'),
                                 dict(listen='127.0.0.1:28083', peer='b', target='127.0.0.1:18083', protocol='udp')],
                       metrics='127.0.0.1:29090', log=dict(level='debug', interval='100ms', flow_sample=1000), reload=reload)
-        if args.carriers > 1:
+        if args.shared_source:
+            for peer in client['peers'].values():
+                peer.update(sessions=args.carriers, max_sessions=args.carriers, shared_source=True)
+            for listener in server['listeners']:
+                listener['shared_source'] = True
+        elif args.carriers > 1:
             for index, peer in enumerate(client['peers'].values()):
                 peer.update(sessions=args.carriers, max_sessions=args.carriers,
                             source_ports=list(range(31000+index*16, 31000+index*16+args.carriers)))
                 peer['network']['ipv4']['addr'] = '198.19.1.1:0'
         report['carriers_per_original_peer'] = args.carriers
+        report['shared_source'] = args.shared_source
         write('server', server)
         write('client', client)
         report['validation_prestart'] = {side: json.loads(ns(namespace, str(binary), 'config', 'validate', '-c', str(out/(side+'.yaml')), '--json').stdout) for side, namespace in (('client', client_ns), ('server', server_ns))}
