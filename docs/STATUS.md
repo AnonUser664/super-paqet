@@ -50,3 +50,15 @@ change opening-timeout handling and impose a five-second half-close read deadlin
 The generic `build/super-paqet` was rebuilt with separate workspace changes;
 use the qualified named binary for reviewing these results. Incorporating those
 edits requires their own review and relevant qualification before deployment.
+
+## Subsequent real deployment
+
+The initial five-host null/2052 deployment installed successfully but failed
+real-link forwarding. The excluded backend/9002 direct route remains unchanged.
+A four-host recovery now uses null/29999 with a conservative legacy profile.
+Twenty authenticated small requests passed through persistent 9001/9003 on both
+clients; both public-domain ports passed from the laptop. However, three of
+four 1 MiB downloads stalled, with successful direct backend controls. AES did
+not resolve sustained transfers. Recovery is partial and diagnosis continues;
+this is not real-WAN production qualification. See [DEPLOYMENT.md](DEPLOYMENT.md)
+for exact settings, hashes, rollback backups and controlled evidence.
