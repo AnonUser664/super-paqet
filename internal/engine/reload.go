@@ -444,6 +444,7 @@ func (e *Engine) apply(c *Config) (err error) {
 		for conn, controller := range e.tuners {
 			if controller.endpoint == &resource.settings && !conn.Session.IsClosed() {
 				kcp.ReconfigureReliability(conn.UDPSession, &spec.endpoint.KCP)
+				controller.ackScheduleBudget = reliabilityACKBudget(spec.endpoint.KCP)
 			}
 		}
 	}

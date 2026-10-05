@@ -7,9 +7,59 @@ package engine
 
 import (
 	kcp "github.com/xtaci/kcp-go/v5"
+	"paqet/internal/conf"
 	"testing"
 	"time"
 )
+
+// TestLegacyACKCadenceIsNotNetworkCongestion models immediate application
+// replies followed by bulk with timer-batched ACKs. True queue growth beyond
+// the known scheduling bound must still suppress probing and reduce pacing.
+func TestLegacyACKCadenceIsNotNetworkCongestion(t *testing.T) {
+	c := newController(1024, 4096)
+	c.ackScheduleBudget = reliabilityACKBudget(conf.KCP{Mode: "manual", Interval: 30, ACKDelayMaxMS: 20})
+	now := time.Unix(100, 0)
+	s := kcp.TransportStats{SRTT: 90, MSS: 1326, Pending: 10000}
+	c.update(s, now)
+	for range 12 {
+		now = now.Add(250 * time.Millisecond)
+		s.SRTT = 130
+		s.AckedBytes += 500000
+		s.AckedSegments += 400
+		c.update(s, now)
+		if c.congested {
+			t.Fatal("known ACK cadence collapsed startup")
+		}
+	}
+	if c.window < 512 {
+		t.Fatal("healthy timer-batched path failed to grow", c.window)
+	}
+	before := c.pacingRate()
+	s.SRTT = 240
+	s.AckedBytes += 500000
+	now = now.Add(250 * time.Millisecond)
+	c.update(s, now)
+	if !c.congested || c.pacingRate() >= before {
+		t.Fatal("real queue failed to reduce pacing")
+	}
+}
+
+// TestACKBudgetFollowsPresetsAndManual confirms that manual immediate ACKs
+// exclude a maintenance-cycle wait while normal/fast include it.
+func TestACKBudgetFollowsPresetsAndManual(t *testing.T) {
+	for _, row := range []struct {
+		mode      string
+		immediate bool
+		want      float64
+	}{
+		{"normal", true, 60}, {"fast", true, 50}, {"fast2", false, 20}, {"fast3", false, 20}, {"manual", false, 50}, {"manual", true, 20},
+	} {
+		got := reliabilityACKBudget(conf.KCP{Mode: row.mode, AckNoDelay: row.immediate, Interval: 30, ACKDelayMaxMS: 20})
+		if got != row.want {
+			t.Fatalf("%s: got %v want %v", row.mode, got, row.want)
+		}
+	}
+}
 
 // TestAdaptiveBoundsAndQueueResponse checks Adaptive Bounds And Queue Response so a change
 // cannot silently weaken the recorded regression contract.

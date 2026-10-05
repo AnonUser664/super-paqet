@@ -8,6 +8,7 @@ package engine
 import (
 	kcplib "github.com/xtaci/kcp-go/v5"
 	"math"
+	"paqet/internal/conf"
 	"paqet/internal/tnet/kcp"
 	"sync/atomic"
 	"time"
@@ -33,6 +34,9 @@ type controller struct {
 	last time.Time
 	// Observed propagation/ACK-adjusted RTT floor in milliseconds.
 	minRTT float64
+	// Known ACK/update scheduling headroom when peer timing extensions are off.
+	// This prevents local protocol batching being mistaken for network congestion.
+	ackScheduleBudget float64
 	// Estimated payload delivery rate in bytes per second.
 	rate float64
 	// Observation count used for bounded probing cadence.
@@ -115,9 +119,11 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 			c.queueSignal = max(0, networkRTT-c.minRTT) * float64(s.ForwardQueue) / max(1, total)
 			c.congested = c.queueSignal > threshold
 		} else if c.congested {
-			c.congested = rtt > c.minRTT*1.1+2
+			c.queueSignal = max(0, rtt-c.minRTT-c.ackScheduleBudget)
+			c.congested = rtt > c.minRTT*1.1+2+c.ackScheduleBudget
 		} else {
-			c.congested = rtt > c.minRTT*1.25+5
+			c.queueSignal = max(0, rtt-c.minRTT-c.ackScheduleBudget)
+			c.congested = rtt > c.minRTT*1.25+5+c.ackScheduleBudget
 		}
 	}
 	if acked == 0 {
@@ -273,9 +279,6 @@ func (e *Engine) tune() {
 					delete(e.tuners, conn)
 					continue
 				}
-				if c.passive {
-					continue
-				}
 				s := conn.UDPSession.TransportStats()
 				if c.slot != nil && c.slot.conn.Load() == conn {
 					traffic := s.AckedBytes - c.previous.AckedBytes + s.ReceivedBytes - c.previous.ReceivedBytes
@@ -289,6 +292,12 @@ func (e *Engine) tune() {
 						score += busyCarrier
 					}
 					c.slot.score.Store(score)
+				}
+				if c.passive {
+					// Static reliability still needs coherent pressure for pool
+					// balancing/growth; cumulative counters are never interval rates.
+					c.previous, c.last = s, now
+					continue
 				}
 				if s.SRTT >= 10 {
 					conn.UDPSession.SetACKDelay(time.Duration(min(20, max(1, int(c.minRTT/5)))) * time.Millisecond)
@@ -326,14 +335,37 @@ func (e *Engine) addEndpoint(conn *kcp.Conn, endpoint *atomic.Pointer[Endpoint],
 	var c *controller
 	if cfg.Adaptive == nil || *cfg.Adaptive {
 		c = newController(cfg.KCP.Sndwnd, cfg.KCP.Rcvwnd)
-		if len(slots) > 0 {
-			c.slot = slots[0]
-		}
+		c.ackScheduleBudget = reliabilityACKBudget(cfg.KCP)
 		conn.UDPSession.SetWindowSize(c.window, c.receive)
 	} else {
 		s := conn.UDPSession.TransportStats()
 		c = &controller{window: s.SendWindow, passive: true}
 	}
+	if len(slots) > 0 {
+		c.slot = slots[0]
+	}
 	c.endpoint = endpoint
 	e.tuners[conn] = c
+}
+
+// reliabilityACKBudget resolves preset/manual ACK scheduling. Without peer
+// timestamps, RTT growth below this known bound cannot identify link queueing.
+// An immediate-ACK mode can still defer to the adaptive ACK-delay limit.
+func reliabilityACKBudget(cfg conf.KCP) float64 {
+	interval, immediate := cfg.Interval, cfg.AckNoDelay
+	switch cfg.Mode {
+	case "normal":
+		interval, immediate = 40, false
+	case "fast":
+		interval, immediate = 30, false
+	case "fast2":
+		interval, immediate = 20, true
+	case "fast3":
+		interval, immediate = 10, true
+	}
+	budget := cfg.ACKDelayMaxMS
+	if !immediate {
+		budget += interval
+	}
+	return float64(budget)
 }
