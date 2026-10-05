@@ -13,6 +13,7 @@ import (
 // lowest observed RTT. It does not confuse random loss with queue congestion.
 // Limits remain explicit ceilings. These heuristics require link-matrix testing.
 type controller struct {
+	queueSignal              float64
 	packetRate               float64
 	bulkSeen                 bool
 	maximum, receive, window int
@@ -60,19 +61,25 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 	sent := s.SentSegments - c.previous.SentSegments
 	c.previous = s
 	c.last = now
-	if s.SRTT > 0 && (c.minRTT == 0 || float64(s.SRTT) < c.minRTT) {
+	networkRTT := math.Max(1, float64(s.SRTT)-float64(s.PeerACKDelay))
+	if s.SRTT > 0 && (c.minRTT == 0 || networkRTT < c.minRTT) {
 		// Opening/keepalive samples reveal propagation delay even before
 		// bulk traffic. Do not learn an initial queue-filled RTT as the floor.
-		c.minRTT = float64(s.SRTT)
+		c.minRTT = networkRTT
 	}
 	rtt := math.Max(1, float64(s.SRTT))
 	if c.minRTT > 0 {
 		if s.TransitSamples > 0 {
-			threshold := max(5, max(float64(s.SRTTVar)*2, c.minRTT/8))
+			threshold := max(5, max(float64(s.SRTTVar)*4, c.minRTT/4))
 			if c.congested {
-				threshold = max(3, threshold/2)
+				threshold = max(3, threshold*.9)
 			}
-			c.congested = float64(s.ForwardQueue) > threshold
+			// Transit minima can be extreme jitter/reorder samples. Use them
+			// to attribute RTT growth, rather than treating their full spread
+			// as additional queue delay on an otherwise unchanged RTT.
+			total := float64(s.ForwardQueue) + float64(s.ReverseQueue)
+			c.queueSignal = max(0, networkRTT-c.minRTT) * float64(s.ForwardQueue) / max(1, total)
+			c.congested = c.queueSignal > threshold
 		} else if c.congested {
 			c.congested = rtt > c.minRTT*1.1+2
 		} else {
@@ -98,9 +105,6 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 			c.window = min(c.maximum, max(c.window, target))
 		}
 		return c.window
-	}
-	if c.minRTT == 0 || rtt < c.minRTT {
-		c.minRTT = rtt
 	}
 	measured := float64(acked) / elapsed
 	// Short gaps in ordered delivery are not a new path bandwidth ceiling.
@@ -186,7 +190,9 @@ func (c *controller) pacingRate() uint64 {
 	}
 	gain := 1.05 * (1 + c.lossRatio)
 	if c.congested {
-		gain = .85
+		// Drain a large real queue promptly; a fixed gentle reduction can
+		// leave a narrow uplink saturated by data plus ACK/control traffic.
+		gain = max(.25, min(.85, c.minRTT/(c.minRTT+c.queueSignal)))
 	} else if c.startup || c.samples%8 == 0 {
 		gain = 2
 	}

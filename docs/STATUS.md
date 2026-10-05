@@ -144,3 +144,102 @@ build/super-paqet-final-step1-v2 matchesbuild/super-paqet. No additional code ed
 unless a regression fails. Start26profile fullmatrix newoutputstep1-qualified-v2,
 thenfullsuite/100k600s/systemd/extraseeds/fuzz. Needsecond checkpoint afterpassing
 focusedtests; thirdqualificationcommitafteractualfinalevidence. User requestedcommits.
+
+Current commits3aaa214 foundation/diagnostics,8fc9c55 tuning/pool/retry.
+Current frozen ce821... v2 fullmatrix26running; clean5.200/3.351Gb,duplex2.410/2.032;
+WAN100ms902.6/902.1Mb and909.5/903.2duplex;satellite600ms91.2/90.8Mb and89.9/91.0
+duplex passed. Root50108 queued aftermatrix: make vet test(logstep1-v2-full-tests),
+100k mixed600s(log/dir step1-v2-scale-soak),systemd(logstep1-v2-service-console),
+fuzzControlRead60s4workers,fuzzDecodeFrame60s4workers, then6fault/mixedprofiles
+(asymmetric,reorder,harsh,mixed-ack,mixed-asymmetric,outage) seeds7,313 duration30
+profiled atbuild/step1-v2-extra-seeds. Everything sequential avoidsCPUinterference.
+Ifmatrixfails rootstillcontinuesqueuedsteps; inspecterrors promptly,don'tpromote.
+Needcapture actualexit statuses ofqueued commands (logs aloneinsufficient) and
+exportcompact evidence script scripts/export_qualification.py (newuncommitted).
+Exporter enforcesfull26cases,samehash,2Gbclean,100k>=120s,cleanownedrules and
+unrelatedpreservation,properduplexmethod,everyreceiverstreamnonzero,checks exit0.
+FinallyupdateBENCHMARKS/currentJSON/STATUS,thirdcommit,exitroot50108 andconfirm
+no namespaces/testprocesses. No deploy; step2 userreview/finalfeaturecheckpending.
+
+V2 matrixprogress8/26,0failures: randomloss1%82.57Mb,loss5%47.68Mb,loss20%8.12Mb
+receivedgoodput. CPUcleanuploadclient3.944/server3.444cores;peakRSS83,924/58,336KiB.
+ProfileCPUclient53.8%flat syscall work,~6.7%AES-GCM;rawTXdominant. Currentmatrix
+hashce821... allcheckedrowsconsistent. Rootpipelinequeuedfulltests/scale600/service/
+fuzz/extraseeds. Newuncommitted exporter script rejects incomplete/failed evidence.
+
+V2candidate notacceptable: fullmatrixreorder/jittercorrectnesspassbutgoodputcollapsed
+to0.19/0.22Mb because extreme low transit minima from reordered/delay-bypassed
+packets made ordinary propagation look persistently congested. Stopped v2matrix
+andallqueuedcommands withCtrlC; explicitfirewall-cleanup + deleted318891NS.
+Added RTT-scale transit noise headroom(c.minRTT/2 plusvariance/hysteresis threshold)
+anddeterministiccontrollerregression retaining realqueue detection. Focusedengine
+racepasses. Root50108 NOW runs5targeted30sprofiles onbuild/super-paqet-jitter-floor:
+reorder,jitter,harsh,mixed-ack,mixed-asymmetric;outputbuild/step1-jitter-fix. Inspect
+performancebefore restarting fullcandidate qualification. No fullchecks/scale/fuzz
+service queuednow; previousqueue wasflushed. Code/data changesuncommittedsince8fc9.
+Needstageruntimecandidatefreeze+fullmatrixallprofilesoncefixverified,thenfulltests,
+100k600s,service,fuzz/extraseeds,exportevidence,checkpoints andcleanup. Do notclaimready.
+
+Jitter floor fix restored53.2Mbreorder44.3Mbjitter,harsh9.66Mb,0errors,buttight
+mixedACKp99worsened4.19s. Refiningdirection signal: totalqueue=max(0,SRTT-minRTT)
+attributedbyforward/(forward+reverse)transit spreads. This avoids interpreting
+extreme reordered/delay-bypass minimum asabsolutequeue,withoutarbitraryRTT/2
+headroom onordinaryasymmetric links. AddedqueueSignalprivatecounter. Focused
+engine racepass;build/super-paqet-directional-queue currently4selected30sprofiles
+reorder,jitter,mixed-ack,mixed-asymmetric,root50108,build/step1-directional-fix.
+Fullsamecandidate qualification/scale/service/fuzz stillnotdone;checkpoint8fc9
+lastcommitted. Userwants checkpoints; commitfixaftertargetedperformancepasses.
+Newregressionfloors in stress_links flag catastrophicperformancecollapse in
+additiontoworkload/cleanup errors. Export scriptnewuncommitted.
+
+Latestdirectionratio fix: reorder60.54Mb,jitter24.22Mb (stilltuning),4selected
+profiles passed; inspecttheir mixedresults ifneeded. RootcauseintentionalACK
+delayincludedinRTTgrowth. OptionalACK timestamp payloadNOW8B(receive+emission
+clock),acceptslegacy4/0B. reversepathestimateexcludespeerACKscheduling;peerACKDelay
+smoothedfloatavoidsintegerEMAstagnation. ControllerusesSRTT-peerACKDelay for
+minRTT/queuesignal,keepsfullSRTTforinflight/RTO. NewACKdelay-queue regressionspass.
+Root50108 NOW5selected30sprofiles onbuild/super-paqet-ack-delay-signal at
+build/step1-ackdelay-fix (reorder,jitter,harsh,mixed-ack,mixed-asymmetric). No
+fullchecks/scale/service/fuzz currentlyqueued. No readinessclaim;commits3aaa/8fc9
+lastcheckpoint. Needchecknewperformance,freeze,rebuildfullmatrix28(?) actually26
+profiles,100k600s,fullsuites,service,fuzz/extraseeds,docs/export/finalcommit/cleanup.
+Docs/PATCHESACKbytecountcurrentlystale4B;update8Bwhenretaininglatest.
+
+ACK8 candidate restoredreorder67.32Mb,jitter54.99Mb,harsh7.61Mb; mixed-asym20.55
+churn/s,p99524ms,0errors. TightmixedACK3.74/s,p994.19s,0errors; strong realqueue
+backoff added:gainmax(.25,min(.85,minRTT/(minRTT+queueSignal))), with focused
+regression proving boundedstrongerdrain. Latestbuild/super-paqet-queue-drain.
+Root50108 NOWrunsfull26profilesscripts/stress_links reorderedtofrontloadcritical
+reorder,jitter,harsh,mixed-ack,mixed-asym thenclean/WAN/rest;duration20/profile
+build/step1-final-v3-console.log +matrix. Newthroughputfloorsactive;stop/promote
+basedresults. Sourcechangesafter8fc9uncommitted;pendingcheckpointafternewpasses.
+No scale/fullchecks/fuzz/service queuednow. Mustfinishsamebinaryacceptance; no
+blanketreadiness/deploy. OptionalACKmetadata8 nowdocumented;legacy4/0 accepted.
+
+V3 full26 runnerfrontloadedcritical5 allcorrectnesspass, mixedACK20.68/s,p991.049s
+mixedASym20.54/s,p99524ms. Stoppedoncleanreverse1.799Gbwrongfloor(eachdir>=2Gb);
+cleanuni5.011/3.652Gb plusduplexsum4.751Gbactuallymeetbaseline. Fixedrunnerfloor:
+cleanbidircombined>=2Gb;separateoneway>=2Gb,otherprofileperdirectionfloorsunchanged.
+No namespaces/processesleftfromv3 normallycleaned.
+Jitterv3only23.45Mb soaddedthreshold4*SRTTVar +minRTT/4,90%hysteresis(current
+noise-envelopecandidate),allengineracepass. Currente066542e15804e4bafe95748b58e5f
+83c09cc301e3614d51b9e55d47f62fdfd9 build/super-paqet-noise-envelope ==build/super-paqet.
+Root50108 NOWfull26profilesV4 criticalfrontload,build/step1-final-v4; queuednew
+scripts/qualification_tail.py (actualexitstatusrecord,stoponfailure) aftermatrix.
+Tailverifiesall26samehashthenfullmakevettest,100k600s,service,fuzz2x60s,seeds7/313
+6profiles30s,compactexportdocs/step1-qualification.json. Outputstep1-final-v4-tail.
+Newtail/exportscriptuncommitted;sourcefixesafter8fc9uncommittedpendingcheckpoint.
+Tests execV4root+KCPfocusedraces runninglatest(after ACK8 andnoisehysteresis).
+No furtherappcodechangesunlessfailedtest. IfV4matrixfails tailrefuses to run.
+Updatefinaldocs/evidence/profileanalysis/commit/exitroot/cleanup afterallpass.
+
+V4criticalprofilespass:reorder52.76Mb,jitter74.57Mb,harsh9.64Mb,mixedACK8.75
+churn/s,p992.097s,0errors;mixedASym17.36/s,p991.049s,0errors. Matrixcurrently
+satellite,completedclean/WAN,samee066...candidate.Root50108 tailqueued.
+FocusedKCPtest failed flaky assertion TestPacingBringsPeriodicWakeForward: real
+msclockrounding legitimatelyreschedulesdeadline slightlyearlier. Fixedtestwith
+injectedconstantprotocolclock;100race-enabledrepetitionspass.Runtimeunchanged
+andbinaryhashstillidentical. FullfocusedKCP rerunninglogstep1-v4-kcp-race-fixed.
+Afterthispasses committhirdcheckpoint(no deployment); fullremainingpipeline
+stillrequired. Loggerobservesqueue_signal_ms andpeer_ack_delay_ms for8B ACK
+metadata;docsupdated. Finalbenchmarkreportmustnotpromoteearlierpartials.

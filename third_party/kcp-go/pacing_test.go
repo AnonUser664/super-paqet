@@ -43,6 +43,9 @@ func TestPacingKeepsInitialSendsInOrder(t *testing.T) {
 
 func TestPacingBringsPeriodicWakeForward(t *testing.T) {
 	k := NewKCP(1, func([]byte, int) {})
+	// Hold protocol time fixed: real millisecond clock rounding can legitimately
+	// bring the same logical pacing deadline slightly earlier on the next call.
+	k.clock = func() uint32 { return 100 }
 	k.pacingRate, k.pacingDeferred = 100000, true
 	k.pacingDue = k.now() + 2
 	s := &UDPSession{kcp: k, die: make(chan struct{}), updateDue: time.Now().Add(time.Second)}

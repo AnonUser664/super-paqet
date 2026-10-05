@@ -194,6 +194,8 @@ func (h *segmentHeap) Has(sn uint32) bool {
 // KCP defines a single KCP connection's protocol state machine.
 // It is a pure ARQ (Automatic Repeat reQuest) implementation with no I/O.
 type KCP struct {
+	peerACKDelayEstimate                                float64
+	peerACKDelay                                        uint32
 	ackedSegments                                       uint64
 	creditHints                                         bool
 	receivedCredits                                     []streamCredit
@@ -683,8 +685,14 @@ func (kcp *KCP) Input(data []byte, pktType PacketType, ackNoDelay bool) int {
 
 		switch cmd {
 		case IKCP_CMD_ACK:
-			if kcp.ackTimestamps && length == 4 && pktType == IKCP_PACKET_REGULAR {
-				kcp.recordTransit(ts, binary.LittleEndian.Uint32(data[:4]), kcp.now())
+			if kcp.ackTimestamps && (length == 4 || length == 8) && pktType == IKCP_PACKET_REGULAR {
+				received := binary.LittleEndian.Uint32(data[:4])
+				if length == 8 {
+					emitted := binary.LittleEndian.Uint32(data[4:8])
+					kcp.recordTransitWithACKDelay(ts, received, emitted, kcp.now())
+				} else {
+					kcp.recordTransit(ts, received, kcp.now())
+				}
 			}
 			kcp.debugLog(IKCP_LOG_IN_ACK, "conv", conv, "sn", sn, "una", una, "ts", ts, "rto", kcp.rx_rto)
 			kcp.parse_ack(sn)
@@ -854,8 +862,8 @@ func (kcp *KCP) flush(flushType FlushType) (nextUpdate uint32) {
 	if flushType == IKCP_FLUSH_ACKONLY || kcp.ackDelay == 0 || _itimediff(kcp.now(), kcp.ackDue) >= 0 {
 		ackSize := IKCP_OVERHEAD
 		if kcp.ackTimestamps {
-			ackSize += 4
-			seg.data = buffer[:4]
+			ackSize += 8
+			seg.data = buffer[:8]
 		}
 		for i, ack := range kcp.acklist {
 			makeSpace(ackSize)
@@ -865,7 +873,8 @@ func (kcp *KCP) flush(flushType FlushType) (nextUpdate uint32) {
 				ptr = seg.encode(ptr)
 				if kcp.ackTimestamps {
 					binary.LittleEndian.PutUint32(ptr, ack.receivedAt)
-					ptr = ptr[4:]
+					binary.LittleEndian.PutUint32(ptr[4:], kcp.now())
+					ptr = ptr[8:]
 				}
 				kcp.ackSegments++
 				kcp.debugLog(IKCP_LOG_OUT_ACK, "conv", seg.conv, "sn", seg.sn, "una", seg.una, "ts", seg.ts)

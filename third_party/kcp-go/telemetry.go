@@ -5,6 +5,7 @@ func (s *UDPSession) PostProcessingDrops() uint64 { return s.postProcessingDrops
 
 // TransportStats is a coherent per-session snapshot for adaptive window control.
 type TransportStats struct {
+	PeerACKDelay                                                uint32
 	AckedSegments                                               uint64
 	ReceivedBytes, PendingBytes                                 uint64
 	TransitSamples                                              uint64
@@ -30,7 +31,7 @@ func (s *UDPSession) TransportStats() TransportStats {
 	if s.postQueue != nil {
 		pipeline = s.postQueue.len()
 	}
-	return TransportStats{AckedBytes: k.ackedBytes, SentSegments: k.sentSegments, RetransmittedSegments: k.retransmittedSegments, AckedSegments: k.ackedSegments,
+	return TransportStats{AckedBytes: k.ackedBytes, SentSegments: k.sentSegments, RetransmittedSegments: k.retransmittedSegments, AckedSegments: k.ackedSegments, PeerACKDelay: k.peerACKDelay,
 		ReceivedBytes:  k.receivedBytes,
 		PendingBytes:   k.enqueuedBytes - k.ackedBytes,
 		TransitSamples: k.transitSamples, ForwardQueue: k.forwardQueue, ReverseQueue: k.reverseQueue,

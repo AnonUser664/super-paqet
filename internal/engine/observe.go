@@ -18,6 +18,7 @@ type observedSession struct {
 	startup             bool
 	peakRate, lossRatio float64
 	congested           bool
+	queueSignal         float64
 }
 type observedState struct {
 	stats                   kcplib.TransportStats
@@ -42,7 +43,7 @@ func (e *Engine) observe() {
 			e.tuneMu.Lock()
 			connections := make([]observedSession, 0, len(e.tuners))
 			for conn, c := range e.tuners {
-				connections = append(connections, observedSession{conn, c.minRTT, c.rate, c.window, c.startup, c.peakRate, c.lossRatio, c.congested})
+				connections = append(connections, observedSession{conn, c.minRTT, c.rate, c.window, c.startup, c.peakRate, c.lossRatio, c.congested, c.queueSignal})
 			}
 			e.tuneMu.Unlock()
 			live := make(map[*kcp.Conn]struct{}, len(connections))
@@ -72,6 +73,7 @@ func (e *Engine) observe() {
 					"write_budget_bytes", s.WriteBudgetBytes,
 					"rtt_ms", s.SRTT, "rttvar_ms", s.SRTTVar, "min_rtt_ms", v.minRTT, "rto_ms", s.RTO,
 					"forward_queue_ms", s.ForwardQueue, "reverse_queue_ms", s.ReverseQueue, "transit_samples", s.TransitSamples, "congested", v.congested,
+					"queue_signal_ms", v.queueSignal, "peer_ack_delay_ms", s.PeerACKDelay,
 					"send_window", s.SendWindow, "remote_window", s.RemoteWindow, "pending", s.Pending, "send_queued", s.SendQueued,
 					"receive_queued", s.ReceiveQueued, "receive_reordered", s.ReceiveReordered, "pipeline_queued", s.PipelineQueued,
 					"retransmit_delta", s.RetransmittedSegments-old.stats.RetransmittedSegments, "sent_delta", s.SentSegments-old.stats.SentSegments,

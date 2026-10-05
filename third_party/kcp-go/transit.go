@@ -18,17 +18,24 @@ func (m *transitMinimum) queue(offset, now uint32) uint32 {
 }
 
 func (k *KCP) recordTransit(sent, received, now uint32) {
+	k.recordTransitWithACKDelay(sent, received, received, now)
+}
+
+func (k *KCP) recordTransitWithACKDelay(sent, received, emitted, now uint32) {
 	if delay := _itimediff(now, sent); delay < 0 || delay > 60000 {
 		return
 	}
 	forward := k.forwardTransit.queue(received-sent, now)
-	reverse := k.reverseTransit.queue(now-received, now)
+	delay := uint32(min(1000, max(0, _itimediff(emitted, received))))
+	k.peerACKDelayEstimate = (7*k.peerACKDelayEstimate + float64(delay)) / 8
+	k.peerACKDelay = uint32(k.peerACKDelayEstimate + .5)
+	reverse := k.reverseTransit.queue(now-emitted, now)
 	k.forwardQueue = (7*k.forwardQueue + forward) / 8
 	k.reverseQueue = (7*k.reverseQueue + reverse) / 8
 	k.transitSamples++
 }
 
-// ACK timestamps are an encrypted, optional four-byte ACK payload. Standard
+// ACK timestamps are an encrypted, optional eight-byte ACK payload. Standard
 // KCP parsers already skip the ACK's length field; ordinary data is unchanged.
 func (s *UDPSession) SetACKTimestamps(enabled bool) {
 	s.mu.Lock()

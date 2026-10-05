@@ -135,6 +135,7 @@ func TestReverseQueueDoesNotThrottleForwardPacing(t *testing.T) {
 		t.Fatal("reverse ACK queue throttled fast sending direction")
 	}
 	s.ForwardQueue = 100
+	s.SRTT = 200
 	now = now.Add(250 * time.Millisecond)
 	s.AckedBytes += 1000000
 	c.update(s, now)
@@ -157,5 +158,58 @@ func TestSmallControlPacketRateGrowsCreditWithoutDataPacing(t *testing.T) {
 	}
 	if c.window < 40 || c.pacingRate() != 0 {
 		t.Fatal("small control traffic was byte-limited or paced", c.window, c.pacingRate())
+	}
+}
+
+func TestReorderTransitMinimumDoesNotCreatePermanentCongestion(t *testing.T) {
+	c := newController(32768, 32768)
+	now := time.Unix(100, 0)
+	s := kcp.TransportStats{SRTT: 50, SRTTVar: 2, MSS: 1306, TransitSamples: 1, ForwardQueue: 23}
+	c.update(s, now)
+	for i := 0; i < 40; i++ {
+		now = now.Add(250 * time.Millisecond)
+		s.AckedBytes += 1000000
+		s.AckedSegments += 800
+		s.Pending = 10000
+		c.update(s, now)
+		if c.congested {
+			t.Fatal("ordinary propagation after a bypassed packet treated as persistent queue")
+		}
+	}
+	s.ForwardQueue = 100
+	s.SRTT = 200
+	s.AckedBytes += 1000000
+	s.AckedSegments += 800
+	c.update(s, now.Add(250*time.Millisecond))
+	if !c.congested {
+		t.Fatal("real forward queue was hidden by noise allowance")
+	}
+}
+
+func TestReportedACKDelayDoesNotCausePacingBackoff(t *testing.T) {
+	c := newController(32768, 32768)
+	now := time.Unix(100, 0)
+	s := kcp.TransportStats{SRTT: 50, MSS: 1306, TransitSamples: 1}
+	c.update(s, now)
+	s.AckedBytes = 1000000
+	s.AckedSegments = 800
+	c.update(s, now.Add(250*time.Millisecond))
+	s.SRTT, s.PeerACKDelay, s.ForwardQueue, s.ReverseQueue = 70, 20, 23, 10
+	s.AckedBytes += 1000000
+	s.AckedSegments += 800
+	c.update(s, now.Add(500*time.Millisecond))
+	if c.congested || c.minRTT != 50 {
+		t.Fatal("intentional ACK delay caused path congestion signal")
+	}
+}
+
+func TestLargeQueueBackoffDrainsFasterThanSmallQueue(t *testing.T) {
+	c := newController(1024, 1024)
+	c.minRTT, c.rate, c.bulkSeen, c.congested = 50, 100000, true, true
+	c.queueSignal = 10
+	small := c.pacingRate()
+	c.queueSignal = 150
+	if large := c.pacingRate(); large >= small || large != 25000 {
+		t.Fatal("large forward queue did not increase bounded backoff", small, large)
 	}
 }

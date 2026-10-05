@@ -91,3 +91,10 @@ Every measured duplex receiver stream must carry bytes. `--duplex-http` adds
 HTTP connection churn; `canceled_requests` distinguishes workload deadline
 cancellation from unexpected forwarding errors. Full steady bulk rates and mixed
 request latency are separate acceptance workloads.
+
+ACK receive/emission timestamps also report actual peer ACK scheduling delay.
+`peer_ack_delay_ms` is removed from RTT growth used for congestion classification;
+`queue_signal_ms` attributes the remaining growth using the forward/reverse
+transit estimates. Full RTT still budgets in-flight data and retransmission
+timers. Jitter/reorder minima alone cannot trigger indefinite pacing backoff.
+Regression floors in the live runner reject catastrophic throughput collapse.

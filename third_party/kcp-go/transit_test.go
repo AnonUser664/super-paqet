@@ -59,3 +59,14 @@ func TestACKTimestampOptionalInteroperability(t *testing.T) {
 		}
 	}
 }
+
+func TestACKCoalescingDelayIsNotReverseNetworkQueue(t *testing.T) {
+	k := NewKCP(1, func([]byte, int) {})
+	k.recordTransitWithACKDelay(100, 10110, 10110, 120)
+	for i := uint32(0); i < 64; i++ {
+		k.recordTransitWithACKDelay(200+i, 10210+i, 10230+i, 240+i)
+	}
+	if k.peerACKDelay < 19 || k.reverseQueue != 0 || k.forwardQueue != 0 {
+		t.Fatal("ACK scheduling mislabeled as path congestion", k.peerACKDelay, k.reverseQueue, k.forwardQueue)
+	}
+}

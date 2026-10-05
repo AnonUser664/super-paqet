@@ -19,7 +19,7 @@ Based on github.com/xtaci/kcp-go/v5 v5.6.72; MIT license retained.
 * Pre-Accept session admission bounds allocation; default zero preserves upstream.
 * Upstream tests no longer start an unsolicited public pprof server.
 
-* Optional encrypted four-byte ACK receive timestamps estimate forward/reverse
+* Optional encrypted eight-byte ACK receive/emission timestamps estimate forward/reverse
   transit relative to recent minima without synchronized clocks. Legacy ACKs
   fall back to RTT; wraparound and mixed-enabled interoperability are tested.
 * Optional KCP WINS payload (SPQ1 + stream ID/consumed/window) expedites

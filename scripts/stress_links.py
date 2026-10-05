@@ -37,6 +37,11 @@ PROFILES={
     'pcap':['--backend','pcap','--functional','--restart','--capture','--workers','4','--sessions','1'],
 }
 
+# Conservative regression floors, not claims of an optimum. Correctness alone
+# must not promote a candidate whose adaptation collapses on a healthy link.
+BULK_FLOORS_MBIT={'random':40,'loss5':15,'loss20':2,'burst':20,'reorder':10,'jitter':10,'mobile':.5,'tiny-queue':1,'mtu576':5,'ipv6':30,'ipv6-mtu1280':20,'harsh':.5}
+IPERF_FLOORS_MBIT={'clean':2000,'wan100':700,'satellite':50}
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument('--binary',default='build/super-paqet')
@@ -69,6 +74,14 @@ def main():
             if row.get('cleanup',{}).get('firewall_clean') is not True:failures.append('firewall cleanup failed')
             for workload in row.get('results',{}).get('results',[]):
                 if workload.get('errors',0):failures.append('workload errors: '+str(workload['errors']))
+                if workload.get('mode')=='bulk' and workload.get('goodput_gbps',0)*1000<BULK_FLOORS_MBIT.get(case,0):failures.append('bulk throughput below regression floor')
+                if 'iperf' in workload and case in IPERF_FLOORS_MBIT:
+                    end=workload['end'];floor=IPERF_FLOORS_MBIT[case]*1e6
+                    if case=='clean' and workload['iperf']=='bidirectional':
+                        if end['sum_received']['bits_per_second']+end['sum_received_bidir_reverse']['bits_per_second']<floor:failures.append('combined duplex throughput below regression floor')
+                    else:
+                        if end['sum_received']['bits_per_second']<floor:failures.append('iperf throughput below regression floor')
+                        if workload['iperf']=='bidirectional' and end['sum_received_bidir_reverse']['bits_per_second']<floor:failures.append('reverse throughput below regression floor')
             row['failures']=failures;evidence.append(row)
             (out/'matrix.json').write_text(json.dumps(evidence,indent=2)+'\n')
             if failures:raise SystemExit(case+' failed: '+', '.join(failures)+'; inspect '+str(directory))
