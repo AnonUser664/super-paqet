@@ -1,256 +1,42 @@
-# Current work checkpoint — step 1
+# Step 1 status
 
-User authorized continued diagnostics/testing/tuning; no deployment, commit or push.
-Outer raw Ethernet/IP/TCP framing and firewall bypass must be preserved.
+The final candidate passed the complete 26-profile live link matrix. Full
+qualification is still running; do not treat this checkpoint as a completed
+production acceptance. The strengthened scale soak and both fuzzers have now
+passed; the twelve additional seeded WAN runs are in progress.
 
-Earlier pass: 20 live profiles, 109 repeated deterministic virtual cases, 100k
-connections held120s with3.24Gbps mixed traffic, full suites and systemd passed.
-Evidence docs/tuning-qualification.json is the OLD pass2 hash396909..., not current.
+- Runtime checkpoint: `2d5f7a0`.
+- Test/runner checkpoint: `64fe72a`.
+- Candidate: `build/super-paqet-pcap-address-fix`.
+- SHA-256: `e2ae9b8cce7dc864dae9d21c5f770bb353ab787c218f2faf1d794d8efe7003f6`.
+- Main evidence: `build/step1-final-v5/matrix.json`.
+- Active tail: `build/step1-final-v5-tail-final/checks.json`.
+- Source checks: isolated worktree `build/step1-qualification-source`.
 
-Current pass discovered iperf3 --bidir direction assignment depends on accept order;
-independent proxied TCP opens reorder, producing wrong-role zero-byte streams.
-Harness now uses concurrent upload/reverse tests on separate target ports18083/18084,
-forwards28092/28093; checks every receiver stream carries measured bytes. Previous
---bidir throughput is not valid qualification evidence. Local ESnet source confirms
-role assignment at build/iperf-3.20/src/iperf_server_api.c lines819 onwards.
+The first full-check attempt failed the upstream OOB-only test because unknown
+OOB packets deliberately cannot establish listener sessions. The test now
+performs a reliable handshake first; three focused repetitions passed. Runtime
+behavior and the qualified binary are unchanged. The retry passed all full checks. Its first scale soak recorded one premature
+local TCP timeout while loopback interfaces dropped packets under synchronized
+keepalive load. Three sampled connections remained usable, exposing a gap in
+the load generator: it now verifies every held connection. A focused test
+confirmed that an isolated reset produces 99/100 verified and one error.
 
-Retained edits under qualification:
-* Reliable asynchronous coalesced smux UPD credits, one pending entry per stream,
-  close unlink, no per-stream timer/goroutine; readers no longer block on opposite
-  direction sends. Counter-wrap zero-credit fix for Read and WriterTo.
-* KCP delayed ACK respects its deadline during data flush; delay1..5ms by RTT.
-* Paced writes/inputs bring shared periodic wake forward; obsolete callbacks skip.
-* Per-KCP output/control/ACK counters; log/metric pending credits.
-* Controller recent delivery maximum2..8s, small4-segment startup with doubling,
-  learn minRTT from control traffic, minimum pacing1024B/s, flight budget2BDP
-  plus bounded ACK-delay headroom; congestion backoff .85 with hysteresis.
-* Experimental CURRENT ACK receive timestamps4B encrypted payload; relative
-  forward/reverse queue estimates need no clock synchronization, 30s floor expiry,
-  wrap-safe. Enterprise enabled unless kcp.ack_timestamps:false. Evaluating now.
-* kcp.adaptive_buffers override decouples stream buffers from KCP controller.
-* Harness --kcp-options JSON allows controlled tuning comparisons.
+The final scale repeat temporarily raised host netdev_max_backlog from 1000 to
+65536 and verified restoration to 1000 before subsequent tests. All 100,000
+connections returned complete responses after 600 seconds, with zero errors.
+Concurrent bulk averaged 1.572 Gbit/s and HTTP 722 requests/s with a 32.768 ms
+p99 histogram upper bound. The service crash/restart check passed. Both 60-second
+fuzzers passed (6.4 million control and 3.5 million frame executions). It also records swapped
+memory and reduces descriptor scan overhead. Checkpoints `6567e2e` and `7ba4664`
+contain these harness improvements; `e1df492` pins service tests to the candidate
+binary rather than the concurrently rebuilt generic executable. The final tail
+reuses the successful isolated source checks, then runs the strengthened ten-
+minute scale soak, service recovery, fuzzers and twelve extra seeded profiles.
 
-Rejected experiment: expedited OOB credit hints removed entirely; no new application
-data transport. Larger stream BDP factor4 performed worse and restored2.
+Other uncommitted configuration/deadline edits in the workspace are preserved
+and excluded from this candidate. No service has been installed or deployed.
 
-Measured corrected comparisons:
-* build/tuning3-corrected-baseline (async-credit-only older binary):11.13/10.86Mb
-  simultaneous on20/100 cap80msRTT0.5%loss. All8data streams carried traffic.
-* build/tuning3-filter-asymmetric:15.16/34.81Mb (recent delivery filter).
-* build/tuning3-filter-acklimited:79.31Mb one-way download on1/100 caps50msRTT;
-  bidirectional remains~0.9/1.22Mb before timestamp separation.
-* build/tuning3-small-acklimited:88.92Mb download; duplex0.88/1.19Mb.
-* build/tuning3-backoff-wan100:915.5Mb each one-way, corrected duplex604/602Mb.
-  RTT-only queue control incorrectly throttles faster path when reverse queues.
-
-Root PTY session50108 currently open, authorized sudo. Active sequential commands:
-1 build/tuning3-transit-acklimited (45s, warmup8, corrected duplex1/100/RTT50)
-2 build/tuning3-transit-asymmetric (30s,warmup8,corrected duplex20/100/RTT80/loss.5)
-These run build/super-paqet-transit, before latest log fields and transit input clamps.
-Inspect results before promoting transit design. No other benchmark should run
-concurrently. CPU profiling currently10s per test. All harness changes isolatedNS.
-
-Test exec session46663: root engine race then focused KCP transit/virtual/ACK/pacing
-race, output build/tuning3-transit-regressions.log. Previous focused tests pass.
-New tests: transit separates queues at clock offsets/wrap, optional ACKinterop;
-controller reverse queue must not reduce forward pacing; smux full duplex/wrap and
-blocked-carrier read tests; pacing earlier-wake and ACK-deadline tests.
-
-Next: inspect transit live results; decide/tune using measured evidence, freeze
-source, rebuild, run full corrected live matrix (20 profiles), extra fault seeds/soak,
-100k mixed/clean gigabit acceptance, complete make vet test, systemd test. Consolidate
-current BENCHMARKS/DIAGNOSTICS and evidence with same-binary hashes; honest residual
-limits and no absolute optimum/real-WAN claim. Exit root shell and verify cleanup.
-
-Latest after checkpoint: KCP WINS cumulative credit hints (not OOB) plus relative
-ACK timestamps solved fast-path starvation:1/100 duplex0.37/89.97Mb,20/100 loss.5
-duplex16.43/72.32Mb. New guards: stale non-PUSH control cannot reset generations;
-unknown control cannot create carriers; actual50B innerKCP minimum validates crypto/FEC.
-Hint reorder/drop/duplicate/fallback tests and callback-outside-lock tests pass.
-Async write failure closes carrier and wakes all readers. Source now additionally
-uses global bounded control priority and live-window/pacing-rate data frame budgets.
-20ms pacing chunk ceiling with oneMSS floor preserves fast-link64K batching.
-Mixed HTTP churn caught1 timeout on1/100 link and16.8s p99. Fair frames remove
-timeout but p99 still8.4s; trace shows network queue drops3358, reverse ACK wire
-traffic saturating1M while upload active. Testing20ms ACK coalescing WITH hints now
-(previous20ms experiment lacked hints and did not help).
-Active root50108 currently old latency trace may be complete; next compile exec
-produces build/super-paqet-hints-ack20. Then run mixed1/100 and20/100, inspect errors
-and latency. Need full final corrected matrix/100k/clean acceptance/library suites
-after tune settles. Still no production readiness claim/deploy/commit.
-
-Checkpoint committed3aaa214 (user explicitly requested checkpoint commits).
-Current uncommitted work: adaptive peer carrier pool, sessions initial count and
-max_sessions ceiling (CPU-derived unless fixed source port or adaptive:false).
-Per-slot cached score avoids per-open KCP snapshot/locks; spare carrier grows only
-when all carriers are busy. New ReceivedBytes/PendingBytes counters classify slow
-bulk correctly. Growth serialized, failure backs off and preserves old carriers;
-elastic port guards close with peer, firewall journal cleaned after worker exit.
-Metrics takes peer RLock. Unit pool concurrency/limit/failure/cleanup race passes.
-
-Mixed_HTTP still hadseconds latency despite frame bounds; started elastic pool.
-First elasticity created5th carrier but slow uploads incorrectly classified light
-due to low bytes/s. Latest build/super-paqet-elastic-bytes includes PendingBytes
-threshold to avoid routing fresh short requests onto those stalled bulk carriers.
-Root50108 now runs tuning3-elastic2-mixed-acklimited then asymmetric (each30s+8warm,
-corrected duplex +4 HTTP churn). Inspect results. Previous elastic first run results
-remain diagnostic. ACKdelay20 WITH hints kept for these trials, source latest.
-
-Still need final source freeze, full corrected matrix/multi seeds,100k mixed soak,
-clean multiGb and full library/race/systemd checks, docs/evidence and second commit.
-No deployment and no production readiness claim yet.
-
-Current candidate frozen: build/super-paqet-final-step1 (hash from latest build log).
-Packet-rate BDP fixed tiny control-only carrier window starvation; data pacing only
-activates after bulk observed. Sticky bulk classification survives delivery gaps,
-expires2..10s. Mixed1/100 test now13.15HTTPchurn/s median262ms p991.049s,0errors,
-bulk0.47/88.03Mb;20/100 loss.5 now19.13/s median262ms p99524ms,0errors,bulk15.8/41.9Mb.
-All data streams carried bytes. Larger throughput-only earlier gains still valid
-for their mixes; do not conflate mixed and bulk-only profiles.
-ACKdelay nowadaptive1..20ms (ceiling kcp.ack_delay_max_ms default20), write frame
-budget20ms (kcp.write_batch_ms default20), oneMSS floor and live-window bound.
-Diagnostic selected flows nowlogstream_id; debug failures log evenunsampled.
-
-Root50108 actively running scripts/stress_links.py26profile full same-binary matrix
-withdebug+CPUprofiling20s, output build/step1-final-matrix. Includes added mixed
-HTTPchurn/asym+ACK-limited, standalonechurn, harsh loss/reorder/delay,100->1->100
-rate step, pcap functional/restart/capture fallback. Monitorconsole/matrix progress.
-Need all26pass, extra seeds/soak,100k mixed600s,clean>=2Gbps,full make vet test,
-systemd samecandidate, complete docs/evidence and nextcheckpoint commit.
-Application source frozen except failures requiring correction. Test/doc edits
-do not change binary, but rebuild/hash before final acceptance if code changes.
-
-Frozen candidate SHA678d5c4f34ab721bda2502b891ca2ffe957f1f15b863434f17f9f3411f326fe3.
-Final matrixclean passed4.918Gb upload3.734Gb download; correctedduplex2.570/1.950Gb.
-wan100 passed902.7/902.4Mb one-way,903.3/899.4Mb simultaneous,0errors. Root50108
-continues26profiles (currentlysatellite); queued make vet test afterwards, output
-build/step1-final-full-tests.log. Focused latest root/pool,smux,KCP racespass.
-Next aftermatrix:inspect failures/all26,extra seeds,100k mixed600s,systemd samebinary,
-fuzz60s each andfinaldocs/evidence+checkpoint. No further app edits unlessfailedtest.
-
-Code review found an elastic selector retry bug: failed low-pressure slot could
-be selected again ahead of a healthy busy slot. Added per-opening exclusions only
-on failure (normal admission allocation unchanged), with focused race regression.
-This error-path fix postdates frozen678d5... candidate; current matrix remains
-evidence for that candidate. Rebuild final, rerun corrected whole matrix and
-scale/service on latest hash before final acceptance; no stale same-binary claim.
-Root50108 old matrix currentlyasymmetric, make vet test queued afterward.
-
-Old678d5 matrix deliberately interrupted afterretryerror-pathfix. SIGINT stopped
-alltestprocesses butleftnamespaces311884; explicitly ranfirewall-cleanup in each,
-assertednoSPQownedchains,then deletedall3. Oldpartialmatrix remains diagnostic.
-Current finalcandidate ce821890c829a1548ad3ecddb6a01ec16edf48833d2ddac955e0d1f7364e5150
-build/super-paqet-final-step1-v2 matchesbuild/super-paqet. No additional code edits
-unless a regression fails. Start26profile fullmatrix newoutputstep1-qualified-v2,
-thenfullsuite/100k600s/systemd/extraseeds/fuzz. Needsecond checkpoint afterpassing
-focusedtests; thirdqualificationcommitafteractualfinalevidence. User requestedcommits.
-
-Current commits3aaa214 foundation/diagnostics,8fc9c55 tuning/pool/retry.
-Current frozen ce821... v2 fullmatrix26running; clean5.200/3.351Gb,duplex2.410/2.032;
-WAN100ms902.6/902.1Mb and909.5/903.2duplex;satellite600ms91.2/90.8Mb and89.9/91.0
-duplex passed. Root50108 queued aftermatrix: make vet test(logstep1-v2-full-tests),
-100k mixed600s(log/dir step1-v2-scale-soak),systemd(logstep1-v2-service-console),
-fuzzControlRead60s4workers,fuzzDecodeFrame60s4workers, then6fault/mixedprofiles
-(asymmetric,reorder,harsh,mixed-ack,mixed-asymmetric,outage) seeds7,313 duration30
-profiled atbuild/step1-v2-extra-seeds. Everything sequential avoidsCPUinterference.
-Ifmatrixfails rootstillcontinuesqueuedsteps; inspecterrors promptly,don'tpromote.
-Needcapture actualexit statuses ofqueued commands (logs aloneinsufficient) and
-exportcompact evidence script scripts/export_qualification.py (newuncommitted).
-Exporter enforcesfull26cases,samehash,2Gbclean,100k>=120s,cleanownedrules and
-unrelatedpreservation,properduplexmethod,everyreceiverstreamnonzero,checks exit0.
-FinallyupdateBENCHMARKS/currentJSON/STATUS,thirdcommit,exitroot50108 andconfirm
-no namespaces/testprocesses. No deploy; step2 userreview/finalfeaturecheckpending.
-
-V2 matrixprogress8/26,0failures: randomloss1%82.57Mb,loss5%47.68Mb,loss20%8.12Mb
-receivedgoodput. CPUcleanuploadclient3.944/server3.444cores;peakRSS83,924/58,336KiB.
-ProfileCPUclient53.8%flat syscall work,~6.7%AES-GCM;rawTXdominant. Currentmatrix
-hashce821... allcheckedrowsconsistent. Rootpipelinequeuedfulltests/scale600/service/
-fuzz/extraseeds. Newuncommitted exporter script rejects incomplete/failed evidence.
-
-V2candidate notacceptable: fullmatrixreorder/jittercorrectnesspassbutgoodputcollapsed
-to0.19/0.22Mb because extreme low transit minima from reordered/delay-bypassed
-packets made ordinary propagation look persistently congested. Stopped v2matrix
-andallqueuedcommands withCtrlC; explicitfirewall-cleanup + deleted318891NS.
-Added RTT-scale transit noise headroom(c.minRTT/2 plusvariance/hysteresis threshold)
-anddeterministiccontrollerregression retaining realqueue detection. Focusedengine
-racepasses. Root50108 NOW runs5targeted30sprofiles onbuild/super-paqet-jitter-floor:
-reorder,jitter,harsh,mixed-ack,mixed-asymmetric;outputbuild/step1-jitter-fix. Inspect
-performancebefore restarting fullcandidate qualification. No fullchecks/scale/fuzz
-service queuednow; previousqueue wasflushed. Code/data changesuncommittedsince8fc9.
-Needstageruntimecandidatefreeze+fullmatrixallprofilesoncefixverified,thenfulltests,
-100k600s,service,fuzz/extraseeds,exportevidence,checkpoints andcleanup. Do notclaimready.
-
-Jitter floor fix restored53.2Mbreorder44.3Mbjitter,harsh9.66Mb,0errors,buttight
-mixedACKp99worsened4.19s. Refiningdirection signal: totalqueue=max(0,SRTT-minRTT)
-attributedbyforward/(forward+reverse)transit spreads. This avoids interpreting
-extreme reordered/delay-bypass minimum asabsolutequeue,withoutarbitraryRTT/2
-headroom onordinaryasymmetric links. AddedqueueSignalprivatecounter. Focused
-engine racepass;build/super-paqet-directional-queue currently4selected30sprofiles
-reorder,jitter,mixed-ack,mixed-asymmetric,root50108,build/step1-directional-fix.
-Fullsamecandidate qualification/scale/service/fuzz stillnotdone;checkpoint8fc9
-lastcommitted. Userwants checkpoints; commitfixaftertargetedperformancepasses.
-Newregressionfloors in stress_links flag catastrophicperformancecollapse in
-additiontoworkload/cleanup errors. Export scriptnewuncommitted.
-
-Latestdirectionratio fix: reorder60.54Mb,jitter24.22Mb (stilltuning),4selected
-profiles passed; inspecttheir mixedresults ifneeded. RootcauseintentionalACK
-delayincludedinRTTgrowth. OptionalACK timestamp payloadNOW8B(receive+emission
-clock),acceptslegacy4/0B. reversepathestimateexcludespeerACKscheduling;peerACKDelay
-smoothedfloatavoidsintegerEMAstagnation. ControllerusesSRTT-peerACKDelay for
-minRTT/queuesignal,keepsfullSRTTforinflight/RTO. NewACKdelay-queue regressionspass.
-Root50108 NOW5selected30sprofiles onbuild/super-paqet-ack-delay-signal at
-build/step1-ackdelay-fix (reorder,jitter,harsh,mixed-ack,mixed-asymmetric). No
-fullchecks/scale/service/fuzz currentlyqueued. No readinessclaim;commits3aaa/8fc9
-lastcheckpoint. Needchecknewperformance,freeze,rebuildfullmatrix28(?) actually26
-profiles,100k600s,fullsuites,service,fuzz/extraseeds,docs/export/finalcommit/cleanup.
-Docs/PATCHESACKbytecountcurrentlystale4B;update8Bwhenretaininglatest.
-
-ACK8 candidate restoredreorder67.32Mb,jitter54.99Mb,harsh7.61Mb; mixed-asym20.55
-churn/s,p99524ms,0errors. TightmixedACK3.74/s,p994.19s,0errors; strong realqueue
-backoff added:gainmax(.25,min(.85,minRTT/(minRTT+queueSignal))), with focused
-regression proving boundedstrongerdrain. Latestbuild/super-paqet-queue-drain.
-Root50108 NOWrunsfull26profilesscripts/stress_links reorderedtofrontloadcritical
-reorder,jitter,harsh,mixed-ack,mixed-asym thenclean/WAN/rest;duration20/profile
-build/step1-final-v3-console.log +matrix. Newthroughputfloorsactive;stop/promote
-basedresults. Sourcechangesafter8fc9uncommitted;pendingcheckpointafternewpasses.
-No scale/fullchecks/fuzz/service queuednow. Mustfinishsamebinaryacceptance; no
-blanketreadiness/deploy. OptionalACKmetadata8 nowdocumented;legacy4/0 accepted.
-
-V3 full26 runnerfrontloadedcritical5 allcorrectnesspass, mixedACK20.68/s,p991.049s
-mixedASym20.54/s,p99524ms. Stoppedoncleanreverse1.799Gbwrongfloor(eachdir>=2Gb);
-cleanuni5.011/3.652Gb plusduplexsum4.751Gbactuallymeetbaseline. Fixedrunnerfloor:
-cleanbidircombined>=2Gb;separateoneway>=2Gb,otherprofileperdirectionfloorsunchanged.
-No namespaces/processesleftfromv3 normallycleaned.
-Jitterv3only23.45Mb soaddedthreshold4*SRTTVar +minRTT/4,90%hysteresis(current
-noise-envelopecandidate),allengineracepass. Currente066542e15804e4bafe95748b58e5f
-83c09cc301e3614d51b9e55d47f62fdfd9 build/super-paqet-noise-envelope ==build/super-paqet.
-Root50108 NOWfull26profilesV4 criticalfrontload,build/step1-final-v4; queuednew
-scripts/qualification_tail.py (actualexitstatusrecord,stoponfailure) aftermatrix.
-Tailverifiesall26samehashthenfullmakevettest,100k600s,service,fuzz2x60s,seeds7/313
-6profiles30s,compactexportdocs/step1-qualification.json. Outputstep1-final-v4-tail.
-Newtail/exportscriptuncommitted;sourcefixesafter8fc9uncommittedpendingcheckpoint.
-Tests execV4root+KCPfocusedraces runninglatest(after ACK8 andnoisehysteresis).
-No furtherappcodechangesunlessfailedtest. IfV4matrixfails tailrefuses to run.
-Updatefinaldocs/evidence/profileanalysis/commit/exitroot/cleanup afterallpass.
-
-V4criticalprofilespass:reorder52.76Mb,jitter74.57Mb,harsh9.64Mb,mixedACK8.75
-churn/s,p992.097s,0errors;mixedASym17.36/s,p991.049s,0errors. Matrixcurrently
-satellite,completedclean/WAN,samee066...candidate.Root50108 tailqueued.
-FocusedKCPtest failed flaky assertion TestPacingBringsPeriodicWakeForward: real
-msclockrounding legitimatelyreschedulesdeadline slightlyearlier. Fixedtestwith
-injectedconstantprotocolclock;100race-enabledrepetitionspass.Runtimeunchanged
-andbinaryhashstillidentical. FullfocusedKCP rerunninglogstep1-v4-kcp-race-fixed.
-Afterthispasses committhirdcheckpoint(no deployment); fullremainingpipeline
-stillrequired. Loggerobservesqueue_signal_ms andpeer_ack_delay_ms for8B ACK
-metadata;docsupdated. Finalbenchmarkreportmustnotpromoteearlierpartials.
-
-V4matrix25/26passed inclcorrectness/perffloors/cleanup. PCAPfailedpanicpeer.go89
-loggingc.LocalAddr().String() becauselegacyPacketConn.LocalAddrreturnednil.
-Thisabnormalexit leftownedrules intestnamespace;namespacefinallydiscardedall,
-nohostchanges. Tailcorrectlyrefusedfailedmatrix; fulltests/scale/service/fuzz
-didnotrun. FixedPCAPLocalAddrtoactualconfiguredIPv4/6 sourceandreservedport
-withclonedIP;addedIPv4/6 noalias/usablediagnosticsrace test. Newcandidate
-build/super-paqet-pcap-address-fix. Root50108 NOWpcapfunctional/restart/capture
-5s atbuild/step1-pcap-fix. Checkresultbefore fullnewhashmatrixregeneration.
-Uncommittedsourcefixsince47509f3; commitafterfunctionalpasses. PCAPfixdoesnot
-affectAFPACKET path butstillrequire finalsamebinaryqualification export.
+See [BENCHMARKS.md](BENCHMARKS.md) for measured results and limits,
+[DIAGNOSTICS.md](DIAGNOSTICS.md) for the expanded logging, and
+[TRANSPORT.md](TRANSPORT.md) for the preserved outer packet behavior.

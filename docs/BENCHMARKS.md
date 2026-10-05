@@ -1,172 +1,185 @@
-# Benchmark evidence
+# Step 1 benchmark evidence
 
-Current tuning and corrected duplex qualification are in progress. The tables
-below record earlier revisions. Historical iperf3 `--bidir` results are invalid
-for proxied connections because direction assignment depended on accept order;
-new tests use two simultaneous one-way tests on separate target ports.
+The final 26-profile live matrix passed. The full validation tail is running;
+connection-soak, service, fuzzing and extra-seed results must pass before this
+candidate is promoted. Earlier revisions are retained in
+[BENCHMARKS-HISTORY.md](BENCHMARKS-HISTORY.md); historical iperf3 `--bidir`
+measurements are invalid and are excluded from current evidence.
 
-Test host: Intel i5-13420H, 12 logical CPUs, 7.4 GiB RAM, Linux
-7.2.4-arch1-2, Go 1.27.0-X:nodwarf5. Both tunnel processes and workload processes
-run on this laptop in isolated network namespaces connected by veth links.
-These results do not measure Internet paths or arbitrary firewall products.
+Tested binary: `build/super-paqet-pcap-address-fix`, SHA-256
+`e2ae9b8cce7dc864dae9d21c5f770bb353ab787c218f2faf1d794d8efe7003f6`.
+Runtime source checkpoint: `2d5f7a0`; `64fe72a` changes a library test and the
+qualification runner only. Full source checks use the isolated checkout at
+`build/step1-qualification-source`, excluding other uncommitted workspace edits.
 
-## Historical first acceptance
+## Changes retained after testing
 
-The final tested binary SHA-256 is
-`be964d2f7f00b4688c76480d590a82a6f8c4b41a6ee33513253648a1649a6aaf`.
+| Observed problem | Retained correction |
+|---|---|
+| Reverse-path congestion and deliberate ACK delay throttled an otherwise healthy forward path | Optional encrypted ACK receive/emission timestamps distinguish scheduling delay and directional queue growth; full RTT still budgets windows and retransmission timers |
+| Jitter/reorder transit minima caused persistent false congestion | RTT-variance threshold and hysteresis reject noise before pacing backs off |
+| Stream credit sat behind bulk data and blocked the opposite direction | Coalesced reliable credit updates plus optional KCP WINS credit hints; reliable fallback remains mandatory |
+| New HTTP opens shared an already pressured carrier | Bounded adaptive carrier growth and failed-carrier exclusion isolate new work without closing established streams |
+| Pacing deferred work until a later periodic update | Earlier scheduler wake and a bounded pacing credit budget; ACK/window controls remain exempt |
+| Debug logging could dominate large connection runs | Bounded asynchronous output, sampled lifecycle events, per-carrier summaries and explicit dropped-log counters |
+| Pcap diagnostics panicked because LocalAddr was nil | Return a cloned configured IP and reserved source port; IPv4/IPv6 aliasing tests and live fallback recovery checks |
 
-| Workload | Received result | Artifact directory |
-|---|---:|---|
-| AES-GCM iperf3, eight sessions, 12s upload | 7.854 Gbit/s | `build/qualification-clean-final` |
-| Same test, download | 4.566 Gbit/s | `build/qualification-clean-final` |
-| Same test, bidirectional | 2.408 + 2.633 Gbit/s | `build/qualification-clean-final` |
-| 100,000 forwards held 120s with concurrent bulk and HTTP | 3.329 Gbit/s and 2,786 requests/s; zero load errors | `build/qualification-mixed-graceful` |
+The Ethernet/IP/TCP encoding and raw capture/injection mechanism remain the
+outer transport. The timestamp and credit extensions are inside encrypted KCP;
+they do not add a separate application transport. This preserves the mechanism,
+while measured traffic timing and size distributions remain deployment-specific.
 
-The 100,000-connection ramp took 4.216 seconds. Peak client/server RSS was
-1.794/2.178 GiB; the target peaked at 0.401 GiB. Each tunnel process held about
-100,000 descriptors. HTTP median/p99 latency bucket upper bounds were 4.096/
-16.384 ms. Most held connections were idle; eight bulk workers and eight HTTP
-workers generated the concurrent active load. Kernel socket memory is outside
-RSS, and the laptop also runs the target and load generator.
+## Host and measurement method
 
-The full application race suite, full smux race suite (468s), full KCP suite
-(131s), and vet checks passed. The isolated systemd test exercised the actual
-capability/filesystem restrictions, SIGKILL/restart, integrity and firewall
-cleanup. Earlier functional capture/restart runs also verified UDP through
-65507 bytes, TCP directional EOF, multiple peers/clients and encrypted ping.
+Intel i5-13420H, eight physical cores / 12 logical CPUs, 7.4 GiB RAM, 15 GiB
+swap; Linux 7.2.4-arch1-2, Go 1.27.0-X:nodwarf5, libpcap 1.10.7, iperf3 3.20.
+Both tunnel endpoints, targets and load generators share this laptop. Linux
+namespaces and a bridge with netem simulate links without an extra IP hop.
+Measurements run sequentially, with AES-128-GCM and debug transport summaries.
 
-Two defects found during WAN qualification were fixed: local KCP encryption/send
-queue overflow, and full stream closure being mistaken for directional EOF.
-The send FIFO now grows on demand within the send-window budget. The optional
-encrypted smux reset command releases blocked writers after target abort while
-preserving already delivered ordered data. Graceful EOF in both directions does
-not add an unnecessary reset packet.
+Rates are received application payload, excluding tunnel overhead. The main
+matrix uses seed 42 and 20-second workload intervals. Duplex uses two concurrent
+one-way iperf tests on separate target ports, and requires every measured
+receiver stream to deliver bytes. HTTP p99 values are logarithmic histogram
+upper bounds. Deliberate workload-end cancellations are reported separately
+from unexpected errors. Finite seeded live tests still vary with scheduling;
+the KCP virtual-clock tests assert identical results on repeated simulations.
 
-## Final virtual WAN matrix
+## Current live results
 
-All these runs used the same final binary as the local acceptance above. Each
-profile first passed a complete integrity transfer, then ran 20s per workload.
-The bridge emulator adds no IP hop or header rewrite. Every run completed with
-zero load errors, clean owned-rule teardown and unrelated-rule preservation.
-
-| Profile | Received application goodput | HTTP p99 upper bound |
+| Link | Upload / download, Mbit/s | Simultaneous duplex, Mbit/s |
 |---|---:|---:|
-| 100 Mbit/s, 20ms RTT, 1% random loss | 79.94 Mbit/s | 65.54ms |
-| 100 Mbit/s, 40ms RTT, burst loss 0.5/20/80/0.1% | 67.26 Mbit/s | 131.07ms |
-| 100 Mbit/s, 50ms base RTT, 5ms one-way jitter, 1% reorder, 0.5% loss | 35.09 Mbit/s | 262.14ms |
-| 1 Mbit/s, 100ms RTT, 5% loss | 0.849 Mbit/s | 524.29ms |
-| 20/100 Mbit/s asymmetric caps, 80ms RTT, 0.5% loss | 13.43 upload / 18.56 download Mbit/s | — |
-| 1 Gbit/s, 100ms RTT, one flow, no injected loss | 348.71 Mbit/s upload | — |
+| Clean veth, eight initial carriers | 4386.89 / 3707.62 | 2360.77 + 2127.25 |
+| 1000 Mbit/s each direction, 100 ms RTT, one flow | 915.40 / 915.46 | 909.11 + 902.77 |
+| 100 Mbit/s each direction, 600 ms RTT | 90.13 / 90.13 | 78.17 + 68.21 |
+| 20/100 Mbit/s, 80 ms RTT, 0.5% loss | 16.38 / 81.79 | 15.63 + 54.26 |
+| 1/100 Mbit/s, 50 ms RTT | 0.75 / 79.74 | 0.52 + 71.09 |
 
-The mobile bulk interval received bytes but completed no 1MiB requests across its
-four workers before cancellation; its bulk latency is undefined. Its preceding
-complete 1MiB integrity check passed. The asymmetric bidirectional run received
-8.07 + 8.33 Mbit/s. These lower utilization results are open tuning issues, not
-evidence of best possible performance on every link.
+| Link stress | Bulk goodput, Mbit/s | Separate HTTP p99 upper bound |
+|---|---:|---:|
+| 100 Mbit/s, 20 ms RTT, 1% random loss | 77.07 | 131.07 ms |
+| 100 Mbit/s, 80 ms RTT, 5% loss | 44.78 | 1048.58 ms |
+| 20 Mbit/s, 100 ms RTT, 20% loss | 7.82 | 2097.15 ms |
+| 100 Mbit/s, 50 ms base RTT, 5 ms jitter, 5% reorder | 53.34 | 131.07 ms |
+| 100 Mbit/s, 50 ms base RTT, 10 ms jitter, 0.5% loss | 50.34 | 262.14 ms |
+| 100 Mbit/s, 200 ms base RTT, 25 ms jitter, 10% reorder, 5% loss | 8.90 | 2097.15 ms |
+| 1 Mbit/s, 100 ms RTT, 5% loss | 0.73 | 524.29 ms |
 
-The [compact evidence export](qualification.json) retains configuration, binary
-hashes, workload results, process resources and cleanup for all eight final runs.
-Raw captures, profiles, logs and emulator counters remain under the listed
-ignored artifact directories. Earlier milestones below used earlier revisions.
+HTTP and bulk rows above are separate workloads. The mobile bulk interval
+received bytes but completed no 1 MiB responses across four workers before
+cancellation; bulk response latency is undefined. A complete integrity transfer
+passed before the timed workload.
 
-## Recorded milestones
+| Concurrent bulk plus HTTP connection churn | Duplex goodput, Mbit/s | HTTP requests/s | HTTP p99 upper bound |
+|---|---:|---:|---:|
+| 1/100 Mbit/s, 50 ms RTT | 0.62 + 74.82 | 4.75 | 4194.30 ms |
+| 20/100 Mbit/s, 80 ms RTT, 0.5% loss | 14.32 + 62.50 | 10.14 | 1048.58 ms |
 
-| Workload | Observed result | Artifact directory |
-|---|---:|---|
-| Original proxy, HTTP bulk, four sessions | 0.50 Gbit/s | `build/bench-baseline` |
-| Optimized encrypted TCP, indexed KCP ACKs | 2.89 Gbit/s | `build/bench-kcp-indexed` |
-| Adaptive send window, encrypted TCP | 2.82 Gbit/s | `build/bench-adaptive-clean` |
-| 100,000 established TCP forwards, 20-second hold | zero load errors; sampled sockets remained usable | `build/bench-hold-100k` |
-| 100 Mbit/s, 20 ms RTT, 1% loss | 84.7 Mbit/s payload goodput; zero load errors | `build/bench-loss-100m-fixed` |
-| 1 Mbit/s, 100 ms RTT, 5% loss | 0.764 Mbit/s payload goodput; zero load errors | `build/bench-lowband-loss` |
-| AES-GCM iperf3 upload / download | 5.916 / 4.279 Gbit/s received | `build/bench-iperf` |
-| AES-GCM, batched ACKs, iperf3 upload / download | 8.316 / 3.727 Gbit/s received | `build/bench-iperf-batched-acks` |
-| Batched ACKs, bidirectional iperf3 | 2.461 + 2.584 Gbit/s received | `build/bench-iperf-batched-acks` |
-| Functional and forced-server-restart checks | TCP/UDP/half-close/ping passed; owned rules recovered | `build/bench-crash-recovery-v2` |
+Both mixed tests had zero unexpected request errors. These results show the
+remaining cost of sharing a saturated constrained path; they do not establish
+a low-latency service guarantee on every link. Clean connection churn completed
+6,552 requests/s with a 16.384 ms p99 upper bound.
 
-Milestones used different implementation revisions, session counts and workloads.
-The HTTP bulk response was reduced from 16 MiB to 1 MiB after early experiments
-to let slow-link requests complete. Do not infer a speedup ratio by comparing
-different protocols, directions, response sizes, crypto settings or revisions.
-Experimental failures remain under `build/` to explain fixes, not as acceptance
-evidence. Final qualification runs are appended separately.
+All 26 main profiles passed their integrity/error and conservative performance
+regression checks. Additional coverage includes burst loss, tiny queues, MTU
+576, IPv6/MTU 1280, capacity and delay steps, a three-second blackout, forced
+restart, multiple peers/clients, TCP directional EOF, UDP through 65,507 bytes,
+and the pcap fallback. Every main run removed its owned firewall rules and
+preserved the unrelated rule planted by the harness.
 
-At 100,000 idle forwards, measured peak tunnel RSS was 1.15 GiB client and
-1.57 GiB server. Each process held about 100,000 socket descriptors. The ramp
-took 6.9 seconds. The target and load generator have their own memory costs;
-the hold test uses a minimal responder to avoid net/http buffers dominating
-the laptop's memory. Active request/throughput tests use net/http or iperf3.
+## Connection scale and endurance
 
-## Reproduce
+The strengthened 600-second mixed soak established 100,000 forwards in 9.216
+seconds with zero ramp errors. It then verified a complete response on every
+held socket: 100,000/100,000 remained usable, with zero verification or mixed
+workload errors. Eight HTTP and eight bulk workers ran beside the mostly idle
+held connections for 598 seconds. Both endpoints shut down with zero active
+flows; expected workload-end cancellations were logged separately.
+
+| Concurrent workload | Result |
+|---|---:|
+| Bulk received payload | 1.572 Gbit/s |
+| HTTP | 722 requests/s |
+| HTTP median / p99 histogram upper bounds | 16.384 / 32.768 ms |
+| Whole-stage average occupied client / server cores | approximately 1.68 / 1.57 |
+| Peak sampled client / server RSS | 1.829 / 1.930 GiB |
+| Peak sampled client / server RSS plus swap | 1.902 / 2.305 GiB |
+| Peak client / server descriptors | 100,058 / 100,027 |
+
+Whole-stage CPU divides recorded process CPU by the 619.984-second harness
+stage; it includes ramp and verification, rather than isolating steady traffic.
+RSS plus swap is the maximum concurrent sum per process, not the sum of two
+independent maxima. Kernel socket memory, the target, generator and other host
+applications are additional. The laptop experienced substantial memory pressure
+and swapping, so RSS alone understates this scale run's footprint.
+
+The scale run explicitly raised host `netdev_max_backlog` from 1,000 to 65,536.
+An earlier run at 1,000 recorded one premature local TCP timeout alongside
+loopback receive drops. That exposed the weakness of checking only three held
+sockets. The new generator verifies all sockets, and a deliberate isolated
+reset test confirmed that it reports 99/100 verified with one error. The repeat
+also reduced descriptor-monitoring overhead; these changes were made together,
+so the two runs do not isolate the contribution of backlog tuning alone.
+The original backlog was restored before service and WAN qualification, with
+`restored: true` recorded in the scale artifacts. No host firewall/routes were
+changed. A 100,000-socket deployment needs host networking/memory qualification;
+this result does not promise the same outcome with every host's default limits.
+
+## CPU profiles and hardware limits
+
+Clean upload occupied 3.598 client and 3.304 server cores on average. Clean
+duplex occupied 3.524 and 3.532 cores. Both endpoints and generators contend for
+the same 12 logical CPUs; these are local measurements, not NIC line-rate
+claims. CPU profiles for the clean upload attribute 52.36% of client samples
+and 39.84% of server samples to kernel syscall time. AES-GCM accounts for
+6.59% and 7.31%; client checksumming is 7.67% cumulatively. The remaining
+bottleneck includes kernel raw-packet work, rather than just encryption.
+
+Resource samples include Go runtime retained memory. RSS excludes kernel socket
+buffers; targets and generators have separate memory costs. Per-workload CPU
+counts use process CPU deltas divided by wall time. Debug logging is bounded
+and sampled. Selected clean/asymmetric/reorder/jitter/harsh logs showed no
+diagnostic drops or local KCP output-pipeline drops; expected workload-end
+resets are recorded as debug relay failures rather than hidden.
+
+## Reproduce and inspect
 
 ```sh
 make build bench-build
-sudo python3 scripts/netns_bench.py --enterprise --binary build/super-paqet \
-  --duration 20 --workers 32 --sessions 8 --output build/clean
-sudo python3 scripts/netns_bench.py --enterprise --binary build/super-paqet \
-  --duration 20 --rate-mbit 100 --delay-ms 10 --loss 1 --output build/impaired
-sudo python3 scripts/netns_bench.py --enterprise --binary build/super-paqet \
-  --hold 100000 --mixed --duration 120 --sessions 8 --workers 64 --output build/mixed
-python3 scripts/summarize_bench.py build/clean build/impaired build/mixed
+sudo python3 scripts/stress_links.py --binary build/super-paqet \
+  --duration 20 --profile --output build/step1-matrix
+sudo python3 scripts/qualification_tail.py --binary build/super-paqet \
+  --matrix build/step1-matrix/matrix.json --output build/step1-tail \
+  --hold-seconds 600 --host-backlog 65536
 ```
 
-`--delay-ms` is one-way delay. `--queue-packets` sets a finite shaper queue.
-`--capture` saves a 128-packet sample and live firewall counters. Captures showed
-the expected PSH+ACK headers, checksums, options and window values while the
-server's INPUT drop rule counted the original packets. This verifies local
-capture-before-firewall behavior; it does not prove traffic-classifier equivalence.
+The tail runs vet, root and smux race suites, the full KCP suite, 100,000 held
+connections with mixed traffic and complete post-soak verification of every
+connection, transient systemd crash recovery, two 60-second
+fuzzers, and six challenging live profiles at seeds 7 and 313. It records actual
+exit statuses and stops on failure. The exporter rejects incomplete coverage,
+wrong binary hashes, zero-byte duplex streams, incomplete held-socket
+verification, workload errors, dirty firewall teardown and unrestored host
+settings. The explicit `--host-backlog` option temporarily changes the global
+Linux receive backlog for the scale run; default runs do not change it.
+The harness saves the original/applied values and restores the original before
+service, fuzzing and WAN tests. Do not run competing host-backlog changes during
+that isolated experiment. Raw logs, profiles, captures and netem counters remain under
+`build/step1-final-v5` and the tail artifact directory.
 
-`--profile` records CPU profiles. `--restart` kills the server, restarts it, and
-checks recovery. `--functional` adds a second client and a second server address
-in one server process, tests UDP sizes including 0 and 65507, verifies TCP
-half-close, and checks encrypted ping. Cleanup checks preserve an unrelated
-firewall rule and reject leaked owned chains.
+Build a local iperf3 in `build/iperf-local` when it is unavailable. The harness
+uses `build/iperf-local/bin/iperf3`. `--delay-ms` is one-way delay; queue budgets
+include propagation for small ACK packets. `--capture` checks the fabricated
+PSH+ACK framing and capture-before-firewall behavior in this Linux environment.
+[DIAGNOSTICS.md](DIAGNOSTICS.md) explains log fields and individual reproductions;
+[TRANSPORT.md](TRANSPORT.md) records the packet contract and why it matters.
 
-Run the WAN profiles sequentially:
+## Scope of qualification
 
-```sh
-sudo python3 scripts/qualify_wan.py --duration 20 --output build/wan-qualification
-sudo python3 scripts/systemd_netns_test.py
-```
-
-The WAN runner includes random loss, Gilbert-Elliott burst loss, jitter/reordering,
-1 Mbit/s mobile-like conditions, asymmetric caps and a high-delay single flow.
-Use `--cases` to select individual profiles. The underlying harness supports
-`--bridge`, `--jitter-ms`, `--reorder`, `--burst-loss`, `--down-rate-mbit`, and
-`--seed`. It saves netem statistics, including queue drops. Seeds reproduce the
-configured randomness; process scheduling can still change measured outcomes.
-iperf uses a one-off server per direction and checks that previous tunnel work
-has drained before starting the next direction.
-
-`--direct-iperf` adds TCP and 1400-byte UDP controls over the same virtual link;
-`--tcp-buffer-mib` changes only that namespace's TCP autotuning ceilings. Direct
-TCP on a 1 Gbit/s/100ms path rose from about 211 to 906 Mbit/s after increasing
-those ceilings, while direct UDP reached 961 Mbit/s. This calibration separates
-socket-buffer limits from tunnel limits without modifying host sysctls.
-
-For iperf3, build a local copy (3.20 was used here) following the
-[official source build instructions](https://software.es.net/iperf/building.html)
-with prefix `$(pwd)/build/iperf-local`. Then add `--iperf` to the harness. Its
-upload, reverse and bidirectional runs save complete iperf3 JSON. Summary rates
-use received bytes, not sender bytes.
-
-## Interpretation and remaining limits
-
-RSS sampling is periodic and includes Go runtime retained memory. Kernel socket
-memory is outside RSS. Earlier reports contain cumulative process CPU seconds;
-later reports also record per-workload CPU deltas as average occupied cores.
-Latency quantiles are upper bounds from logarithmic microsecond buckets.
-Workloads canceled at their scheduled end contribute received bytes to goodput,
-but are not counted as completed requests or unexpected errors.
-
-A single-flow 1 Gbit/s / 100 ms RTT test initially measured only 240–265 Mbit/s.
-Removing local send-queue overflow improved observed results to 338–402 Mbit/s
-in later 20–30s tests. Larger static windows and stronger probing did not provide
-a consistent improvement. High-delay, jitter/reordering and asymmetric-link
-utilization remain qualification gaps; clean multi-flow gigabit numbers do not
-justify claiming full capacity on those paths.
-
-Long soaks, broad hardware coverage, real WAN NAT/firewall qualification and
-adversarial authenticated-peer resource tests are distinct from local acceptance.
-No universal optimality or blanket production-readiness claim follows from this
-table.
+100,000 mostly idle connections and multi-gigabit bulk throughput are separate
+acceptance workloads. A ten-minute mixed soak is a local endurance check, not a
+multi-day deployment soak. Virtual links cannot establish behavior through every
+NAT/firewall or traffic classifier. Outer packet-format tests protect the
+original mechanism; inner encrypted extensions and traffic timing can still
+change observable distributions. Step 2 remains user review, the final required
+feature check, and any resulting changes. Deployment has not been performed.
