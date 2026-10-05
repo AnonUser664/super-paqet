@@ -21,6 +21,7 @@ hosts remain unqualified. New queue-pressure/firewall fixes are committed but
 not redeployed; work is paused for documentation and feature review.
 
 Start with [current status](docs/STATUS.md), then read the
+[architecture and source map](docs/ARCHITECTURE.md),
 [complete configuration guide](docs/CONFIGURATION.md),
 [failure and decision history](docs/DEVELOPMENT-HISTORY.md),
 [actual deployment](docs/DEPLOYMENT.md), and

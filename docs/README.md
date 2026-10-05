@@ -7,6 +7,7 @@ has verified one active customer; thousands of active customers remain untested.
 | Document | Purpose |
 |---|---|
 | [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md) | Recorded failures, approaches, rejected experiments, evidence mistakes and decisions through the review pause. |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Current package layout, process/object ownership, TCP/UDP paths, packet drivers, concurrency and lifecycle. |
 | [CONFIGURATION.md](CONFIGURATION.md) | Every enterprise YAML field, effective defaults, precedence, constraints, manual retransmission and adaptation boundaries. |
 | [DEPLOYMENT.md](DEPLOYMENT.md) | Current four-host recovery topology, overrides, tests, resources and backup checkpoints. |
 | [deployed/README.md](deployed/README.md) | Recorded actual deployed YAML/unit snapshots; hashes checked against the last manifests. |

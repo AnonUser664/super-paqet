@@ -94,6 +94,9 @@ qualification; do not deploy that generic build assuming it equals the base.
 
 ## Reading and next decision
 
+The [architecture guide](ARCHITECTURE.md) explains the current package layout,
+object ownership and runtime/data paths.
+
 1. [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md): failures, experiments,
    corrections, mistaken comparisons and unresolved causes.
 2. [CONFIGURATION.md](CONFIGURATION.md): complete schema, defaults, manual knobs,
