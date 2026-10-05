@@ -180,3 +180,27 @@ it. Do not conflate the successful mostly-idle soak with thousands of
 simultaneously active customers. Final active-customer acceptance must specify
 traffic mix, per-user rates, concurrency, latency/error budget and actual host
 resources. The next deployment waits for the user's document/feature decision.
+
+## Validate and reload a running instance
+
+The new source supports:
+
+```sh
+super-paqet config validate -c /etc/super-paqet/config.yaml
+super-paqet config validate -c /etc/super-paqet/config.yaml --json
+systemctl reload super-paqet
+```
+
+Validation checks schema/defaults/discovery without binding forward/tunnel ports
+or installing rules. A valid result does not establish remote reachability or
+available ports. Automatic polling applies file changes without a service
+restart. The updated unit template uses SIGHUP for `ExecReload`; SIGHUP requests
+reload and returns before asynchronous validation/application completes. Check
+`config.applied`, `config.rejected` and `super_paqet_config_revision` for outcome.
+The recorded deployed unit/binary are unchanged and do not yet support this.
+
+See [LIVE-RELOAD.md](LIVE-RELOAD.md) before changing transport settings. Some
+edits preserve all streams; structural endpoint changes interrupt only their
+carriers. Failed fixed-bind replacement can restore settings but cannot restore
+streams already interrupted. The source supports neither distributed rollout
+coordination nor surviving process replacement.

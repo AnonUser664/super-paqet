@@ -1,0 +1,894 @@
+{
+  "feature": "live configuration reload and config validate",
+  "deployment_changed": false,
+  "qualified_source": {
+    "branch": "feature/live-config",
+    "commit": "f9547a8",
+    "main_equivalent": "545e9b1",
+    "preexisting_workspace_experiments_included": false
+  },
+  "binary": {
+    "artifact": "build/super-paqet-live-reload-qualified",
+    "sha256": "24febf199033ea388436e7c3799fc03845ab0b4e9f4340c67df751c88d50c354",
+    "build_command": "go build -buildvcs=false -o build/super-paqet-live-reload-qualified ./cmd",
+    "platform": "linux/amd64",
+    "vcs_metadata": false
+  },
+  "checks": {
+    "root_race": "go test -race ./... passed",
+    "root_vet": "go vet ./... passed",
+    "dependency_forks_modified": false,
+    "fork_suites_repeated": false
+  },
+  "runs": [
+    {
+      "binary_sha256": "24febf199033ea388436e7c3799fc03845ab0b4e9f4340c67df751c88d50c354",
+      "steps": [
+        {
+          "name": "initial TCP and UDP",
+          "groups": {
+            "a": {
+              "bytes": 524288,
+              "errors": 0,
+              "responses": 1024,
+              "established": 128,
+              "running": 128
+            },
+            "b": {
+              "bytes": 393216,
+              "errors": 0,
+              "responses": 768,
+              "established": 128,
+              "running": 128
+            }
+          },
+          "continuity_wait_ms": 100.191
+        },
+        {
+          "name": "invalid config retains active paths",
+          "groups": {
+            "a": {
+              "bytes": 1623552,
+              "errors": 0,
+              "responses": 3171,
+              "established": 128,
+              "running": 128
+            },
+            "b": {
+              "bytes": 1447424,
+              "errors": 0,
+              "responses": 2827,
+              "established": 128,
+              "running": 128
+            }
+          },
+          "continuity_wait_ms": 100.335
+        },
+        {
+          "name": "add peer, listener, TCP and UDP forwards",
+          "groups": {
+            "a": {
+              "bytes": 3782656,
+              "errors": 0,
+              "responses": 7388,
+              "established": 128,
+              "running": 128
+            },
+            "b": {
+              "bytes": 3618304,
+              "errors": 0,
+              "responses": 7067,
+              "established": 128,
+              "running": 128
+            },
+            "c": {
+              "bytes": 24576,
+              "errors": 0,
+              "responses": 48,
+              "established": 8,
+              "running": 8
+            }
+          },
+          "continuity_wait_ms": 100.263
+        },
+        {
+          "name": "target edits preserve established TCP",
+          "groups": {
+            "a": {
+              "bytes": 4980736,
+              "errors": 0,
+              "responses": 9728,
+              "established": 128,
+              "running": 128
+            },
+            "b": {
+              "bytes": 4813312,
+              "errors": 0,
+              "responses": 9401,
+              "established": 128,
+              "running": 128
+            },
+            "c": {
+              "bytes": 98304,
+              "errors": 0,
+              "responses": 192,
+              "established": 8,
+              "running": 8
+            }
+          },
+          "continuity_wait_ms": 100.429
+        },
+        {
+          "name": "live limits, logging, deadlines and profiling",
+          "groups": {
+            "a": {
+              "bytes": 6094848,
+              "errors": 0,
+              "responses": 11904,
+              "established": 128,
+              "running": 128
+            },
+            "b": {
+              "bytes": 5939712,
+              "errors": 0,
+              "responses": 11601,
+              "established": 128,
+              "running": 128
+            },
+            "c": {
+              "bytes": 167936,
+              "errors": 0,
+              "responses": 328,
+              "established": 8,
+              "running": 8
+            }
+          },
+          "continuity_wait_ms": 100.223
+        },
+        {
+          "name": "SIGHUP reload with polling disabled",
+          "groups": {
+            "a": {
+              "bytes": 9309184,
+              "errors": 0,
+              "responses": 18182,
+              "established": 128,
+              "running": 128
+            },
+            "b": {
+              "bytes": 9171456,
+              "errors": 0,
+              "responses": 17913,
+              "established": 128,
+              "running": 128
+            },
+            "c": {
+              "bytes": 370176,
+              "errors": 0,
+              "responses": 723,
+              "established": 8,
+              "running": 8
+            }
+          },
+          "continuity_wait_ms": 100.325
+        },
+        {
+          "name": "busy addition rolls back without interrupting paths",
+          "groups": {
+            "a": {
+              "bytes": 11276800,
+              "errors": 0,
+              "responses": 22025,
+              "established": 128,
+              "running": 128
+            },
+            "b": {
+              "bytes": 11171328,
+              "errors": 0,
+              "responses": 21819,
+              "established": 128,
+              "running": 128
+            },
+            "c": {
+              "bytes": 495616,
+              "errors": 0,
+              "responses": 968,
+              "established": 8,
+              "running": 8
+            }
+          },
+          "continuity_wait_ms": 100.196
+        },
+        {
+          "name": "unchanged config retries temporary bind failure",
+          "groups": {
+            "a": {
+              "bytes": 26974720,
+              "errors": 0,
+              "responses": 52685,
+              "established": 128,
+              "running": 128
+            },
+            "b": {
+              "bytes": 26854912,
+              "errors": 0,
+              "responses": 52451,
+              "established": 128,
+              "running": 128
+            },
+            "c": {
+              "bytes": 1477632,
+              "errors": 0,
+              "responses": 2886,
+              "established": 8,
+              "running": 8
+            }
+          },
+          "continuity_wait_ms": 100.257
+        },
+        {
+          "name": "removed TCP binds retain established streams",
+          "groups": {
+            "a": {
+              "bytes": 29517824,
+              "errors": 0,
+              "responses": 57652,
+              "established": 128,
+              "running": 128
+            },
+            "b": {
+              "bytes": 29395456,
+              "errors": 0,
+              "responses": 57413,
+              "established": 128,
+              "running": 128
+            },
+            "c": {
+              "bytes": 1636864,
+              "errors": 0,
+              "responses": 3197,
+              "established": 8,
+              "running": 8
+            }
+          },
+          "continuity_wait_ms": 100.216
+        },
+        {
+          "name": "remove unused peer and owned rules",
+          "groups": {
+            "a": {
+              "bytes": 31204864,
+              "errors": 0,
+              "responses": 60947,
+              "established": 128,
+              "running": 128
+            },
+            "b": {
+              "bytes": 31084032,
+              "errors": 0,
+              "responses": 60711,
+              "established": 128,
+              "running": 128
+            }
+          },
+          "continuity_wait_ms": 100.225
+        },
+        {
+          "name": "KCP retransmission settings update established carriers",
+          "groups": {
+            "a": {
+              "bytes": 32392192,
+              "errors": 0,
+              "responses": 63266,
+              "established": 128,
+              "running": 128
+            },
+            "b": {
+              "bytes": 32260608,
+              "errors": 0,
+              "responses": 63009,
+              "established": 128,
+              "running": 128
+            }
+          },
+          "continuity_wait_ms": 100.205
+        },
+        {
+          "name": "listener retransmission settings update established carriers",
+          "groups": {
+            "a": {
+              "bytes": 33540608,
+              "errors": 0,
+              "responses": 65509,
+              "established": 128,
+              "running": 128
+            },
+            "b": {
+              "bytes": 33422848,
+              "errors": 0,
+              "responses": 65279,
+              "established": 128,
+              "running": 128
+            }
+          },
+          "continuity_wait_ms": 100.267
+        },
+        {
+          "name": "structural window edit replaces only affected peer",
+          "groups": {
+            "b": {
+              "bytes": 35441664,
+              "errors": 0,
+              "responses": 69222,
+              "established": 128,
+              "running": 128
+            }
+          },
+          "continuity_wait_ms": 100.185
+        },
+        {
+          "name": "listener transport edit replaces only affected listener",
+          "groups": {
+            "b": {
+              "bytes": 43774464,
+              "errors": 0,
+              "responses": 85497,
+              "established": 128,
+              "running": 128
+            }
+          },
+          "continuity_wait_ms": 100.242
+        },
+        {
+          "name": "endpoint cipher rotation preserves unrelated peer",
+          "groups": {
+            "b": {
+              "bytes": 46827520,
+              "errors": 0,
+              "responses": 91460,
+              "established": 128,
+              "running": 128
+            }
+          },
+          "continuity_wait_ms": 100.248
+        },
+        {
+          "name": "null cipher and pcap driver replacement",
+          "groups": {
+            "b": {
+              "bytes": 50260480,
+              "errors": 0,
+              "responses": 98165,
+              "established": 128,
+              "running": 128
+            }
+          },
+          "continuity_wait_ms": 100.319
+        },
+        {
+          "name": "repeated add/remove cycles preserve active traffic",
+          "groups": {
+            "b": {
+              "bytes": 96397824,
+              "errors": 0,
+              "responses": 188277,
+              "established": 128,
+              "running": 128
+            }
+          },
+          "continuity_wait_ms": 100.182
+        },
+        {
+          "name": "metrics bind move preserves data plane",
+          "groups": {
+            "b": {
+              "bytes": 97625088,
+              "errors": 0,
+              "responses": 190674,
+              "established": 128,
+              "running": 128
+            }
+          },
+          "continuity_wait_ms": 100.22
+        }
+      ],
+      "streams_per_original_peer": 128,
+      "one_way_delay_ms": 0,
+      "reverse_delay_ms": null,
+      "loss_percent": 0,
+      "rate_mbit": 0,
+      "reverse_rate_mbit": 0,
+      "reorder_percent": 0,
+      "validation_prestart": {
+        "client": {
+          "forwards": 4,
+          "listeners": 0,
+          "path": "client.yaml",
+          "peers": 2,
+          "valid": true
+        },
+        "server": {
+          "forwards": 0,
+          "listeners": 2,
+          "path": "server.yaml",
+          "peers": 0,
+          "valid": true
+        }
+      },
+      "validation_while_running": {
+        "forwards": 4,
+        "listeners": 0,
+        "path": "client.yaml",
+        "peers": 2,
+        "valid": true
+      },
+      "affected_peer_closed": {
+        "bytes": 34445824,
+        "errors": 128,
+        "responses": 67277,
+        "established": 128,
+        "running": 0
+      },
+      "half_closed_relays_released": true,
+      "cycle_fd_counts": {
+        "before": 144,
+        "after": 144,
+        "cycles": 12
+      },
+      "client_revision": 40,
+      "server_revision": 6,
+      "final_groups": {
+        "b": {
+          "bytes": 97970688,
+          "errors": 0,
+          "responses": 191349,
+          "established": 128,
+          "running": 128
+        }
+      },
+      "same_processes": true,
+      "passed": true,
+      "firewall_clean": true,
+      "unrelated_rule_preserved": true,
+      "artifact_directory": "build/live-reload-complete-clean",
+      "max_continuity_wait_ms": 100.429
+    },
+    {
+      "binary_sha256": "24febf199033ea388436e7c3799fc03845ab0b4e9f4340c67df751c88d50c354",
+      "steps": [
+        {
+          "name": "initial TCP and UDP",
+          "groups": {
+            "a": {
+              "bytes": 120832,
+              "errors": 0,
+              "responses": 236,
+              "established": 32,
+              "running": 32
+            },
+            "b": {
+              "bytes": 65536,
+              "errors": 0,
+              "responses": 128,
+              "established": 32,
+              "running": 32
+            }
+          },
+          "continuity_wait_ms": 100.545
+        },
+        {
+          "name": "invalid config retains active paths",
+          "groups": {
+            "a": {
+              "bytes": 169984,
+              "errors": 0,
+              "responses": 332,
+              "established": 32,
+              "running": 32
+            },
+            "b": {
+              "bytes": 111104,
+              "errors": 0,
+              "responses": 217,
+              "established": 32,
+              "running": 32
+            }
+          },
+          "continuity_wait_ms": 100.214
+        },
+        {
+          "name": "add peer, listener, TCP and UDP forwards",
+          "groups": {
+            "a": {
+              "bytes": 302080,
+              "errors": 0,
+              "responses": 590,
+              "established": 32,
+              "running": 32
+            },
+            "b": {
+              "bytes": 255488,
+              "errors": 0,
+              "responses": 499,
+              "established": 32,
+              "running": 32
+            },
+            "c": {
+              "bytes": 8192,
+              "errors": 0,
+              "responses": 16,
+              "established": 8,
+              "running": 8
+            }
+          },
+          "continuity_wait_ms": 100.255
+        },
+        {
+          "name": "target edits preserve established TCP",
+          "groups": {
+            "a": {
+              "bytes": 416768,
+              "errors": 0,
+              "responses": 814,
+              "established": 32,
+              "running": 32
+            },
+            "b": {
+              "bytes": 364032,
+              "errors": 0,
+              "responses": 711,
+              "established": 32,
+              "running": 32
+            },
+            "c": {
+              "bytes": 34304,
+              "errors": 0,
+              "responses": 67,
+              "established": 8,
+              "running": 8
+            }
+          },
+          "continuity_wait_ms": 100.249
+        },
+        {
+          "name": "live limits, logging, deadlines and profiling",
+          "groups": {
+            "a": {
+              "bytes": 466432,
+              "errors": 0,
+              "responses": 911,
+              "established": 32,
+              "running": 32
+            },
+            "b": {
+              "bytes": 424960,
+              "errors": 0,
+              "responses": 830,
+              "established": 32,
+              "running": 32
+            },
+            "c": {
+              "bytes": 46592,
+              "errors": 0,
+              "responses": 91,
+              "established": 8,
+              "running": 8
+            }
+          },
+          "continuity_wait_ms": 100.302
+        },
+        {
+          "name": "SIGHUP reload with polling disabled",
+          "groups": {
+            "a": {
+              "bytes": 637952,
+              "errors": 0,
+              "responses": 1246,
+              "established": 32,
+              "running": 32
+            },
+            "b": {
+              "bytes": 605184,
+              "errors": 0,
+              "responses": 1182,
+              "established": 32,
+              "running": 32
+            },
+            "c": {
+              "bytes": 91648,
+              "errors": 0,
+              "responses": 179,
+              "established": 8,
+              "running": 8
+            }
+          },
+          "continuity_wait_ms": 100.285
+        },
+        {
+          "name": "busy addition rolls back without interrupting paths",
+          "groups": {
+            "a": {
+              "bytes": 719360,
+              "errors": 0,
+              "responses": 1405,
+              "established": 32,
+              "running": 32
+            },
+            "b": {
+              "bytes": 684032,
+              "errors": 0,
+              "responses": 1336,
+              "established": 32,
+              "running": 32
+            },
+            "c": {
+              "bytes": 114688,
+              "errors": 0,
+              "responses": 224,
+              "established": 8,
+              "running": 8
+            }
+          },
+          "continuity_wait_ms": 100.223
+        },
+        {
+          "name": "unchanged config retries temporary bind failure",
+          "groups": {
+            "a": {
+              "bytes": 1412096,
+              "errors": 0,
+              "responses": 2758,
+              "established": 32,
+              "running": 32
+            },
+            "b": {
+              "bytes": 1381888,
+              "errors": 0,
+              "responses": 2699,
+              "established": 32,
+              "running": 32
+            },
+            "c": {
+              "bytes": 295424,
+              "errors": 0,
+              "responses": 577,
+              "established": 8,
+              "running": 8
+            }
+          },
+          "continuity_wait_ms": 100.24
+        },
+        {
+          "name": "removed TCP binds retain established streams",
+          "groups": {
+            "a": {
+              "bytes": 1517056,
+              "errors": 0,
+              "responses": 2963,
+              "established": 32,
+              "running": 32
+            },
+            "b": {
+              "bytes": 1496576,
+              "errors": 0,
+              "responses": 2923,
+              "established": 32,
+              "running": 32
+            },
+            "c": {
+              "bytes": 324096,
+              "errors": 0,
+              "responses": 633,
+              "established": 8,
+              "running": 8
+            }
+          },
+          "continuity_wait_ms": 100.338
+        },
+        {
+          "name": "remove unused peer and owned rules",
+          "groups": {
+            "a": {
+              "bytes": 1598976,
+              "errors": 0,
+              "responses": 3123,
+              "established": 32,
+              "running": 32
+            },
+            "b": {
+              "bytes": 1570816,
+              "errors": 0,
+              "responses": 3068,
+              "established": 32,
+              "running": 32
+            }
+          },
+          "continuity_wait_ms": 100.247
+        },
+        {
+          "name": "KCP retransmission settings update established carriers",
+          "groups": {
+            "a": {
+              "bytes": 1648128,
+              "errors": 0,
+              "responses": 3219,
+              "established": 32,
+              "running": 32
+            },
+            "b": {
+              "bytes": 1619968,
+              "errors": 0,
+              "responses": 3164,
+              "established": 32,
+              "running": 32
+            }
+          },
+          "continuity_wait_ms": 100.265
+        },
+        {
+          "name": "listener retransmission settings update established carriers",
+          "groups": {
+            "a": {
+              "bytes": 1702400,
+              "errors": 0,
+              "responses": 3325,
+              "established": 32,
+              "running": 32
+            },
+            "b": {
+              "bytes": 1676800,
+              "errors": 0,
+              "responses": 3275,
+              "established": 32,
+              "running": 32
+            }
+          },
+          "continuity_wait_ms": 100.26
+        },
+        {
+          "name": "structural window edit replaces only affected peer",
+          "groups": {
+            "b": {
+              "bytes": 1900032,
+              "errors": 0,
+              "responses": 3711,
+              "established": 32,
+              "running": 32
+            }
+          },
+          "continuity_wait_ms": 100.251
+        },
+        {
+          "name": "listener transport edit replaces only affected listener",
+          "groups": {
+            "b": {
+              "bytes": 2305024,
+              "errors": 0,
+              "responses": 4502,
+              "established": 32,
+              "running": 32
+            }
+          },
+          "continuity_wait_ms": 100.248
+        },
+        {
+          "name": "endpoint cipher rotation preserves unrelated peer",
+          "groups": {
+            "b": {
+              "bytes": 2513920,
+              "errors": 0,
+              "responses": 4910,
+              "established": 32,
+              "running": 32
+            }
+          },
+          "continuity_wait_ms": 100.329
+        },
+        {
+          "name": "null cipher and pcap driver replacement",
+          "groups": {
+            "b": {
+              "bytes": 2707968,
+              "errors": 0,
+              "responses": 5289,
+              "established": 32,
+              "running": 32
+            }
+          },
+          "continuity_wait_ms": 200.433
+        },
+        {
+          "name": "repeated add/remove cycles preserve active traffic",
+          "groups": {
+            "b": {
+              "bytes": 4163072,
+              "errors": 0,
+              "responses": 8131,
+              "established": 32,
+              "running": 32
+            }
+          },
+          "continuity_wait_ms": 100.455
+        },
+        {
+          "name": "metrics bind move preserves data plane",
+          "groups": {
+            "b": {
+              "bytes": 4212224,
+              "errors": 0,
+              "responses": 8227,
+              "established": 32,
+              "running": 32
+            }
+          },
+          "continuity_wait_ms": 100.412
+        }
+      ],
+      "streams_per_original_peer": 32,
+      "one_way_delay_ms": 20,
+      "reverse_delay_ms": 70,
+      "loss_percent": 0.3,
+      "rate_mbit": 20,
+      "reverse_rate_mbit": 50,
+      "reorder_percent": 5.0,
+      "validation_prestart": {
+        "client": {
+          "forwards": 4,
+          "listeners": 0,
+          "path": "client.yaml",
+          "peers": 2,
+          "valid": true
+        },
+        "server": {
+          "forwards": 0,
+          "listeners": 2,
+          "path": "server.yaml",
+          "peers": 0,
+          "valid": true
+        }
+      },
+      "validation_while_running": {
+        "forwards": 4,
+        "listeners": 0,
+        "path": "client.yaml",
+        "peers": 2,
+        "valid": true
+      },
+      "affected_peer_closed": {
+        "bytes": 1843200,
+        "errors": 32,
+        "responses": 3600,
+        "established": 32,
+        "running": 0
+      },
+      "half_closed_relays_released": true,
+      "cycle_fd_counts": {
+        "before": 48,
+        "after": 48,
+        "cycles": 6
+      },
+      "client_revision": 28,
+      "server_revision": 6,
+      "final_groups": {
+        "b": {
+          "bytes": 4228608,
+          "errors": 0,
+          "responses": 8259,
+          "established": 32,
+          "running": 32
+        }
+      },
+      "same_processes": true,
+      "passed": true,
+      "firewall_clean": true,
+      "unrelated_rule_preserved": true,
+      "artifact_directory": "build/live-reload-complete-wan",
+      "max_continuity_wait_ms": 200.433
+    }
+  ],
+  "limits": [
+    "Functional continuity uses an existing eight-second application deadline, not a promise of fixed subsecond latency.",
+    "Intentional structural replacement terminates affected streams; rejected fixed-bind replacement can restore settings but not those streams.",
+    "This feature does not requalify previous throughput/100k customer capacity or deploy the executable."
+  ]
+}

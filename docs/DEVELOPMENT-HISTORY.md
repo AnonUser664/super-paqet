@@ -289,3 +289,42 @@ result artifact after interruptions; conclusions above are bounded accordingly.
    config validation gaps and the last required feature check.
 6. Long soak, restart/failure behavior, monitoring cost and staged rollback criteria.
 7. Whether/when to deploy `20227d3`, preserving the currently working base.
+
+## Live configuration and validation feature (local; not deployed)
+
+The user requested automatic file reload with minimal impact on other routes,
+then added a dedicated validation CLI. The implementation replaces startup-only
+resource ownership with immutable route/config publications and separate peer,
+listener, forward and metrics lifetimes. Each rule-owning endpoint has a private
+journal, permitting staged rollback and removal without touching unrelated rules.
+Safe KCP scheduling/retransmission setters apply to existing/future carriers;
+wire/mux changes conservatively replace only affected endpoints. `config validate`
+shares strict startup/reload preparation and offers human/JSON results.
+
+Implementation regressions caught before completion:
+
+- A shadowed UDP opening context was canceled before the relay's cancellation
+  hook was registered, closing newly opened UDP streams. Separate opening and
+  bind-lifecycle contexts fixed it; real UDP probes now pass through reload.
+- A closed listener originally checked only engine cancellation; per-listener
+  cancellation now ends its accept loop, preventing retries against its old socket.
+- Treating every occupied bind as an owned replacement could unnecessarily
+  interrupt changed resources when a new unrelated port was busy. Explicit local
+  bind overlap checks now reject external conflicts before teardown.
+- Future accepts/dials could register old reliability settings while a live
+  update committed. Atomic endpoint templates and a shared registration/update
+  lock now close that race without locking packet forwarding.
+- A short continuity observation demanded progress in about 400ms on a lossy,
+  reordered link whose measured KCP RTO exceeded a second. It failed with all
+  streams open and zero errors. The harness now records time to verified progress
+  within its existing eight-second application read deadline; no reset/corruption
+  or application timeout is accepted as continuity.
+- An already half-closed relay could retain an idle write leg on generation
+  removal. It now selects existing full-stream and generation lifecycle channels,
+  closes the TCP socket on abandonment, and keeps normal directional EOF behavior.
+  Unit and real namespace regressions cover this lifecycle edge case.
+
+The harness also caught a metrics-port string/integer mismatch in its own wait
+code; that run was not accepted. Final results and source/binary boundaries are
+in [LIVE-RELOAD.md](LIVE-RELOAD.md) and [live-reload-evidence.json](live-reload-evidence.json).
+No backend service/config/binary was modified by this feature work.

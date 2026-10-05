@@ -112,3 +112,22 @@ ACK receive/emission timestamps also report actual peer ACK scheduling delay.
 transit estimates. Full RTT still budgets in-flight data and retransmission
 timers. Jitter/reorder minima alone cannot trigger indefinite pacing backoff.
 Regression floors in the live runner reject catastrophic throughput collapse.
+
+## Live configuration diagnostics (new source; undeployed)
+
+| Event / metric | Meaning |
+|---|---|
+| `config.detected` | Stable candidate or explicit SIGHUP request reached preparation. |
+| `config.applied` | Committed revision, staged `changed_resources`, in-place `updated_resources`, retired and break-before-make `interrupted_resources`. Structural retired endpoints can interrupt streams even without a bind conflict. |
+| `config.read_failed` | Missing/unreadable/nonregular/changing/oversized file; old settings remain. Repeated identical read errors are suppressed. |
+| `config.rejected` | Validation or resource staging failed; includes phase, current revision and resource retry interval. Validation excerpts are omitted to protect inline secrets. |
+| `config.replacing` | Owned occupied bind requires scoped resource interruption before replacement. |
+| `config.rollback_failed` | Old resource could not be reconstructed; `/healthz` becomes 503. |
+| `config.cleanup_failed` | Old resource's owned-rule removal failed; journal/cleanup ownership is retained. |
+| `super_paqet_config_revision` | Startup is revision 1; each successful candidate/manual application increments it. |
+| `super_paqet_config_reload_applied_total` | Successful applications after startup. |
+| `super_paqet_config_reload_rejected_total` | Rejected validation/resource attempts and distinct read failures. |
+| `super_paqet_config_degraded` | 1 after incomplete rollback, cleared by a subsequent successful full reconciliation. |
+
+At log levels above info, successful reload logs are filtered normally; metrics
+remain available. `config validate` gives detailed local validation errors.

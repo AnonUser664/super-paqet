@@ -1,17 +1,19 @@
 # Complete configuration guide
 
-This reference describes the committed enterprise engine at `20227d3` and the
-currently deployed `1c77c55` runtime. Their configuration schema is the same.
-The newer commit changes transmit-error recovery, diagnostics and firewall
-recovery; it has **not** been redeployed. Separate dirty workspace edits are
-excluded from this reference. See [STATUS.md](STATUS.md) for version boundaries
-and [DEPLOYMENT.md](DEPLOYMENT.md) for the actual recovery settings.
+This reference describes the current committed source, including live configuration
+reload and `config validate`. The deployed `1c77c55` runtime and its recorded
+configs remain unchanged and do **not** have these new commands/reload behavior.
+The queue-pressure fixes and reload implementation have not been redeployed.
+Separate dirty workspace experiments remain outside this reference. See
+[STATUS.md](STATUS.md) and [LIVE-RELOAD.md](LIVE-RELOAD.md) for boundaries.
 
 The old `role`, `server`, `listen`, `transport`, `forward` and SOCKS configuration
 is not accepted by this engine. It uses strict YAML: unknown fields are errors.
 An instance can listen, connect to several peers and forward TCP/UDP together.
-Configuration is loaded at startup; there is no hot reload. Restarting a process
-ends its established application streams.
+`run -c PATH` watches that file automatically. Valid edits reconcile only affected
+resources; safe KCP reliability edits apply in place. See [LIVE-RELOAD.md](LIVE-RELOAD.md)
+for the impact of every category of edit. Restarting a process still ends its
+established application streams.
 
 ## Start with a complete pair
 
@@ -80,6 +82,7 @@ within the same protocol are rejected.
 | `metrics` | String, empty | Optional HTTP metrics/liveness bind; requires an explicit loopback IP. |
 | `profiling` | Boolean, `false` | Add local pprof routes to the metrics HTTP server. Needs `metrics` to be useful. |
 | `log` | Object | Structured logging and sampling below. |
+| `reload` | Object | Automatic content polling/debounce; settings below. |
 
 Every forward supports exactly `listen`, `peer`, `target`, and `protocol`.
 `protocol` defaults to `tcp` and accepts `tcp` or `udp`. `target` needs a
@@ -87,6 +90,29 @@ nonempty host and port 1–65535. `peer` must name an existing peer. UDP preserv
 datagram boundaries, including zero-length datagrams, up to 65,507 payload
 bytes. It carries them through a reliable KCP/smux stream; loss recovery and
 head-of-line delay therefore apply to UDP traffic too.
+
+## Live reload settings
+
+| Field | Default | Meaning / constraint |
+|---|---|---|
+| `reload.enabled` | `true` | Automatically watch the `run -c` file. `false` leaves explicit SIGHUP reload available. |
+| `reload.interval` | `250ms` | File-content poll interval; `50ms`–`1m`. |
+| `reload.debounce` | `500ms` | Require unchanged candidate bytes for this duration; `0s`–`1m`. SIGHUP bypasses the grace. |
+
+```yaml
+reload:
+  enabled: true
+  interval: 250ms
+  debounce: 500ms
+```
+
+The watcher supports in-place edits, atomic replacement and symlink rotation.
+Use atomic replacement for a complete edit; debounce cannot distinguish a
+valid intermediate document from your intended final document. Files must be
+regular files of at most 16 MiB. Invalid candidates retain running settings.
+Temporary resource failures retry every five seconds. Disabling automatic
+reload requires SIGHUP or a restart to enable it again; see the full
+[reload and impact guide](LIVE-RELOAD.md).
 
 ## Listener and peer fields
 
@@ -382,7 +408,8 @@ churn. The asynchronous log queue holds 1024 entries and counts dropped/failed
 output. It drains for up to two seconds on shutdown. Neither queue size nor
 shutdown drain duration is configurable. See [DIAGNOSTICS.md](DIAGNOSTICS.md).
 
-`/healthz` reports liveness, not forwarding or target authentication. `/metrics`
+`/healthz` reports process liveness and returns 503 after an incomplete reload
+rollback; it does not prove forwarding or target authentication. `/metrics`
 exposes process/flow/KCP counters; per-conversation labels can create substantial
 monitoring cardinality. Large-session stream-window scans are skipped above 64
 streams. Profiling endpoints exist only when enabled and need an HTTP metrics
@@ -393,6 +420,9 @@ control metadata. Captures and config/key files require private handling.
 
 ```sh
 ./build/super-paqet version
+./build/super-paqet config validate -c config.yaml
+./build/super-paqet config validate -c config.yaml --json
+# Existing equivalent command:
 ./build/super-paqet run --check -c config.yaml
 sudo ./build/super-paqet run -c config.yaml
 sudo ./build/super-paqet ping -c config.yaml --peer germany
@@ -402,7 +432,7 @@ sudo ./build/super-paqet firewall-cleanup
 
 `--check` does not start listeners or install firewall rules. It **can** resolve
 DNS, inspect routes/neighbors and emit the short discovery probe. A fixed port
-conflict can still appear only at startup. `ping` opens its own temporary peer
+conflict can still appear during startup or reload resource staging. `ping` opens its own temporary peer
 connection; a live service reserving the same fixed source port can conflict.
 A successful ping proves control delivery, not a large authenticated transfer.
 

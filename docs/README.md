@@ -7,6 +7,7 @@ has verified one active customer; thousands of active customers remain untested.
 | Document | Purpose |
 |---|---|
 | [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md) | Recorded failures, approaches, rejected experiments, evidence mistakes and decisions through the review pause. |
+| [LIVE-RELOAD.md](LIVE-RELOAD.md) | File watching, validation CLI, exact edit impact, replacement/rollback semantics and qualification. |
 | [CODE-COMMENTS.md](CODE-COMMENTS.md) | Comment coverage, ownership/contract explanations and behavior-preservation verification. |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Current package layout, process/object ownership, TCP/UDP paths, packet drivers, concurrency and lifecycle. |
 | [CONFIGURATION.md](CONFIGURATION.md) | Every enterprise YAML field, effective defaults, precedence, constraints, manual retransmission and adaptation boundaries. |
@@ -19,6 +20,7 @@ has verified one active customer; thousands of active customers remain untested.
 | [BENCHMARKS-HISTORY.md](BENCHMARKS-HISTORY.md) | Earlier measurements and invalidated/limited comparisons, retained as history. |
 | [step1-qualification.json](step1-qualification.json) | Machine-readable earlier local candidate evidence. |
 | [deployment-recovery-evidence.json](deployment-recovery-evidence.json) | Sanitized real-link comparisons and recovery checks. |
+| [live-reload-evidence.json](live-reload-evidence.json) | Versioned live reload continuity, resource cleanup and validation results. |
 | [queue-pressure-evidence.json](queue-pressure-evidence.json) | Confirmed ENOBUFS/stale-chain fixes and their local regression evidence. |
 
 No single document establishes universal production readiness. Performance

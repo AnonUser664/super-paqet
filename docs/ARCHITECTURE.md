@@ -1,10 +1,10 @@
 # Application architecture and source map
 
-This describes the committed enterprise design at `20227d3`, with explicit
-notes for the deployed `1c77c55` base. The broad architecture is shared; the
-newer transmit-pressure/firewall/diagnostic fixes are not deployed. The dirty
-workspace's timeout/sequence edits and the separate `4c7aa6a` experiment are
-excluded. [STATUS.md](STATUS.md) identifies versions and qualification boundaries.
+This describes the current committed enterprise source, including live config
+reconciliation and the validation CLI. The deployed `1c77c55` base retains its
+previous lifecycle; the newer queue-pressure and live-reload changes remain
+undeployed. Dirty timeout/sequence edits and the separate `4c7aa6a` experiment
+are excluded. [STATUS.md](STATUS.md) identifies versions and qualification boundaries.
 
 ## Process model
 
@@ -33,7 +33,8 @@ configuration lacks per-client identities and destination ACLs.
 | Path | Responsibility |
 |---|---|
 | `cmd/main.go` | Cobra entry point and subcommand registration. |
-| `cmd/run/` | Strict configuration load/check, signal context and engine startup. |
+| `cmd/run/` | Check compatibility command and file-watching runtime lifecycle. |
+| `cmd/config/` | Dedicated `config validate` CLI with human/JSON results. |
 | `cmd/ping/`, `cmd/dump/` | Peer control probe and raw payload capture utilities. |
 | `cmd/firewall/`, `cmd/secret/`, `cmd/version/` | Journal recovery, key generation and build information. |
 | `cmd/bench/` | Test target/load/verification tool; separate benchmark executable. |
@@ -66,6 +67,8 @@ its patch history and transport/workload regressions reviewed.
 | [config.go](../internal/engine/config.go) | Public unified YAML schema, endpoint/default preparation and validation. |
 | [discover.go](../internal/engine/discover.go) | Startup route/source/interface/next-hop discovery and overrides. |
 | [engine.go](../internal/engine/engine.go) | Startup/shutdown, resource registration, port guards, admission, TCP accept and server control dispatch. |
+| [reload.go](../internal/engine/reload.go) | Immutable route publication, dormant resource staging, scoped replacement/rollback and live reliability updates. |
+| [watch.go](../internal/engine/watch.go) | Bounded content reader, debounce, SIGHUP and failed-candidate retry. |
 | [peer.go](../internal/engine/peer.go) | Carrier slots, lazy connection, selection/growth, opening, retries and invalidation. |
 | [relay.go](../internal/engine/relay.go) | Bidirectional TCP-to-stream relay, readiness-driven scratch buffers, counters and half-close. |
 | [udp.go](../internal/engine/udp.go) | Local UDP source-flow map, bounded queues, datagram framing/relay and expiry. |
@@ -81,8 +84,10 @@ its patch history and transport/workload regressions reviewed.
 
 | Object | Owns / retains | Lifetime |
 |---|---|---|
-| `Engine` | Config/context, named peers, top-level closers, firewall journal, controller registry, diagnostics and tracked goroutines | Process run |
-| `peer` | Endpoint and bounded carrier-slot pool; selection/growth locks | Engine run |
+| `Engine` | Atomic runtime view, resource transaction lock, owned resource registry, controller registry, diagnostics and tracked goroutines | Process run |
+| `runtimeView` | Immutable effective config, named pools and bind-to-target/pool routing snapshot | One config publication |
+| `liveResource` | One peer pool or listening bind, endpoint template, staged activation and its rule journal | Until removal/replacement |
+| `peer` | Resource-owned immutable/live endpoint template, bounded carrier slots, allocation/growth locks and its own firewall journal | Peer generation |
 | `slot` | Reserved source network/guard references, cached outgoing connection, score and reconnect backoff | Peer pool member; carrier can be replaced |
 | `kcp.Listener` adapter | Raw socket(s), underlying KCP listener(s), fanout child workers and accept aggregation | Incoming endpoint |
 | Outgoing `kcp.Conn` adapter | Owned PacketConn, UDPSession and smux Session | One outgoing carrier |
@@ -104,21 +109,42 @@ across its workers; packet worker membership is fixed before accepting traffic.
 
 ## Startup and shutdown
 
-Startup proceeds through configuration/defaults and route discovery, diagnostics,
-dead-owner firewall recovery, engine context/controllers, optional Go soft
-memory limit, FD limit adjustment, incoming endpoint reservation/rules/sockets,
-outgoing slot reservation/rules, local forward binds, and optional metrics HTTP.
-Outgoing carrier creation is lazy when traffic needs a slot; reserving slots
-at startup does not prove peer delivery. Discovery may emit a short neighbor
-probe; the data plane remains raw TCP/KCP.
+Startup prepares configuration and discovery, starts diagnostics, recovers
+owned dead-process journals, and constructs an engine. The first resource
+transaction stages source reservations, rules, raw listeners, local forward
+binds and optional metrics. It publishes the complete route view before
+activating accept loops. Outgoing carriers remain lazy; reservations do not
+prove peer delivery. Controllers, diagnostics and the file watcher then run.
 
-The engine registers resources and startup intent so a partial failure can close
-already-created sockets/guards and roll back its own firewall work. Its context
-and wait group coordinate shutdown: cancel work, close peers and top-level
-resources, wait for engine tasks, remove owned firewall rules, log the result,
-and drain diagnostics. SIGKILL cannot execute that path; systemd ExecStopPost
-or later recovery handles dead-owner journals. Application TCP streams do not
-survive a process restart.
+Every peer/listener owns its own rule journal, so removing a route cannot delete
+another endpoint's bypass rules. A failed initial transaction closes provisional
+resources. Shutdown cancels the engine, serializes with reload, closes every
+current/retained resource and journal, joins tracked tasks and drains diagnostics.
+SIGKILL cannot run cleanup; ExecStopPost or later dead-owner recovery handles
+its journals. Application streams do not survive process replacement.
+
+## Configuration generations
+
+File polling hashes bounded snapshots and waits for stable candidate bytes.
+Strict parsing/preparation uses those exact bytes. The reload transaction
+reuses unchanged resources, stages new binds/pools dormant, and applies safe
+KCP reliability setters under the tuner lock. That same lock registers new
+carriers against their latest endpoint template, avoiding stale settings if
+accept/dial overlaps a reload. Listener templates and peer templates are
+published atomically for future carriers.
+
+One atomic `runtimeView` publication pairs each forward with its target and
+peer. TCP accepts and new UDP sources capture that pair. Existing TCP streams
+and UDP sources keep their captured target. Peer/listener generation contexts
+cancel opening work on retirement. A half-closed TCP relay waits on its existing
+copy-result, stream-full-close and generation-cancellation channels; full closure
+releases an idle opposite leg without adding per-flow timers or goroutines. Removing a TCP forward closes its
+accept socket while established streams remain; removing a UDP bind closes
+its source flows. A transport replacement closes only the affected endpoint's
+carriers. Occupied fixed binds require break-before-make; failure reconstructs
+old affected resources. Failed restoration is reported as degraded health.
+
+See [LIVE-RELOAD.md](LIVE-RELOAD.md) for field-level impact and retry semantics.
 
 ## TCP opening and data path
 
@@ -256,7 +282,7 @@ real processes and sockets through netem bandwidth/delay/loss/reorder schedules,
 integrity checks, HTTP/iperf workloads, scale soaks and service recovery. Real
 Reality probes established the current deployment profile separately.
 
-There is currently no distributed control plane, live configuration reload,
+There is currently no distributed control plane,
 per-customer authentication/ACL layer, transparent session migration, universal
 path-MTU discovery, automatic FEC selection, or proven thousands-busy-customer
 capacity on the current hosts. See [CONFIGURATION.md](CONFIGURATION.md),

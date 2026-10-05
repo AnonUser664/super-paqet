@@ -18,7 +18,8 @@ untested hardware and firewall products.
 The current deployed recovery version works in the recorded four-path checks
 and the user's one-active-user test. Thousands of active customers on these
 hosts remain unqualified. New queue-pressure/firewall fixes are committed but
-not redeployed; work is paused for documentation and feature review.
+not redeployed. Live config reload and `config validate` are now implemented
+locally; deployment remains paused for review.
 
 Start with [current status](docs/STATUS.md), then read the
 [architecture and source map](docs/ARCHITECTURE.md),
@@ -27,6 +28,9 @@ Start with [current status](docs/STATUS.md), then read the
 [actual deployment](docs/DEPLOYMENT.md), and
 [operations runbook](docs/OPERATIONS.md). The [documentation map](docs/README.md)
 links the measured evidence and recorded deployed configurations.
+
+See the [live reload guide](docs/LIVE-RELOAD.md) for edit impact, validation,
+SIGHUP and rollback behavior.
 
 The workspace contains separate uncommitted experiments. A generic build can
 include them; use a selected clean source revision for release qualification.

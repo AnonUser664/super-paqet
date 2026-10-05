@@ -1,9 +1,10 @@
-# Current status: working deployment, review paused
+# Current status: working deployment, live reload added locally
 
 Updated 2026-10-05. The user confirms the current deployment works well with
 **one active user**. Thousands of simultaneously active customers have not been
-tested on these backends. Code changes, further tuning and redeployment are
-paused while the user reads the documentation and selects the next work.
+tested on these backends. The requested live reload and validation CLI are implemented locally. Further
+performance tuning and redeployment remain paused for review; deployed services
+have not been changed.
 
 ## Version boundaries
 
@@ -12,6 +13,7 @@ paused while the user reads the documentation and selects the next work.
 | Earlier local qualification | Runtime `2d5f7a0`, isolated checks `64fe72a`; `build/super-paqet-pcap-address-fix` | 38 live virtual-link runs, 109 virtual scenarios, mostly-idle 100k soak, local multi-gigabit bulk, service/fuzz/checks. |
 | Currently deployed base | `1c77c55`; `build/super-paqet-deploy-ubuntu` | Four surviving real-link forwards pass authenticated repeated 10 MiB checks; user reports one-user success. Conservative recovery overrides. |
 | Committed fixes awaiting decision | Main `20227d3`; isolated equivalent `d4205c1`; `build/super-paqet-pcap-backpressure-release` | Pcap transmit ENOBUFS recovery, drop diagnostics, absent-chain firewall recovery. Focused/root races/vet, full KCP and actual pressure-functional checks passed. Not deployed. |
+| Live config source | Main runtime `545e9b1`; isolated equivalent `f9547a8` on `feature/live-config` | Automatic reload, safe KCP reliability setters, scoped resources/rollback, validation CLI, tests and documentation. Clean 256-stream and asymmetric/loss/reorder 64-stream reload tests pass, including idle-half-close cleanup. Undeployed; see [LIVE-RELOAD.md](LIVE-RELOAD.md). |
 | Sequence experiment | `4c7aa6a`, branch `experiment/wan-sequence-tracking` | Per-peer byte sequence / pcap receive feedback candidate; initial three-path 1 MiB successes, not final qualification. Not deployed. |
 | Dirty workspace | Six source files below | Preserved separate timeout/wire experiments; not part of the deployed base or clean queue-pressure candidate. |
 
@@ -107,6 +109,6 @@ object ownership and runtime/data paths.
 5. [TRANSPORT.md](TRANSPORT.md), [DIAGNOSTICS.md](DIAGNOSTICS.md),
    [BENCHMARKS.md](BENCHMARKS.md): mechanism, interpretation and earlier evidence.
 
-The next stage is user document review and the final required feature decision.
+The requested live configuration feature is ready for user review.
 Active-customer workload/resource acceptance, restored adaptation, retransmit
 policy, authorization controls and any final deployment remain outstanding.
