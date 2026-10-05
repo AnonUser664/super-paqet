@@ -8,8 +8,14 @@ import (
 	"time"
 
 	kcplib "github.com/xtaci/kcp-go/v5"
+	"paqet/internal/socket"
 	"paqet/internal/tnet/kcp"
 )
+
+type observedPacket struct {
+	index, worker int
+	packet        *socket.PacketConn
+}
 
 type observedSession struct {
 	conn                *kcp.Conn
@@ -30,6 +36,7 @@ func (e *Engine) observe() {
 	ticker := time.NewTicker(e.cfg.Log.duration)
 	defer ticker.Stop()
 	previous := make(map[*kcp.Conn]observedState)
+	previousDrops := make(map[*socket.PacketConn]uint64)
 	for {
 		select {
 		case <-e.ctx.Done():
@@ -40,12 +47,22 @@ func (e *Engine) observe() {
 			if !e.log().Enabled(e.ctx, slog.LevelDebug) {
 				continue
 			}
+
 			e.tuneMu.Lock()
 			connections := make([]observedSession, 0, len(e.tuners))
 			for conn, c := range e.tuners {
 				connections = append(connections, observedSession{conn, c.minRTT, c.rate, c.window, c.startup, c.peakRate, c.lossRatio, c.congested, c.queueSignal})
 			}
+			packets := append([]observedPacket(nil), e.packetObservers...)
 			e.tuneMu.Unlock()
+			for _, observed := range packets {
+				packet := observed.packet
+				total := packet.TXDrops()
+				if total != previousDrops[packet] {
+					e.log().Debug("packet.tx_queue", "listener", observed.index, "worker", observed.worker, "local", packet.LocalAddr().String(), "drops_total", total, "drops_delta", total-previousDrops[packet])
+					previousDrops[packet] = total
+				}
+			}
 			live := make(map[*kcp.Conn]struct{}, len(connections))
 			for _, v := range connections {
 				conn := v.conn
@@ -60,6 +77,10 @@ func (e *Engine) observe() {
 				minWindow, maxWindow := conn.Session.ReceiveWindowStats()
 				drops := conn.UDPSession.PostProcessingDrops()
 				old := previous[conn]
+				var txDrops any
+				if conn.PacketConn != nil {
+					txDrops = conn.PacketConn.TXDrops()
+				}
 				seconds := now.Sub(old.at).Seconds()
 				if old.at.IsZero() {
 					seconds = e.cfg.Log.duration.Seconds()
@@ -79,7 +100,7 @@ func (e *Engine) observe() {
 					"retransmit_delta", s.RetransmittedSegments-old.stats.RetransmittedSegments, "sent_delta", s.SentSegments-old.stats.SentSegments,
 					"kcp_wait_ms", float64(s.WriteWaitNanoseconds-old.stats.WriteWaitNanoseconds)/1e6, "kcp_wait_count", s.WriteWaitCount-old.stats.WriteWaitCount,
 					"mux_wait_ms", float64(flowWait-old.flowWait)/1e6, "mux_wait_count_total", waitCount,
-					"stream_window_min", minWindow, "stream_window_max", maxWindow, "streams", conn.Session.NumStreams(), "pipeline_drop_delta", drops-old.pipelineDrops)
+					"stream_window_min", minWindow, "stream_window_max", maxWindow, "streams", conn.Session.NumStreams(), "tx_queue_drops", txDrops, "pipeline_drop_delta", drops-old.pipelineDrops)
 			}
 			for conn := range previous {
 				if _, ok := live[conn]; !ok {

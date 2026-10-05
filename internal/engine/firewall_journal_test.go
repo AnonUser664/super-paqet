@@ -4,8 +4,10 @@ package engine
 
 import (
 	"encoding/json"
+	"errors"
 	"net"
 	"os"
+	"os/exec"
 	"paqet/internal/conf"
 	"path/filepath"
 	"strings"
@@ -80,5 +82,28 @@ func TestPortReservationPreservesHighRange(t *testing.T) {
 			t.Fatal("source port outside baseline range")
 		}
 		guard.Close()
+	}
+}
+
+func TestCleanupAbsentChainDoesNotReferenceMissingTarget(t *testing.T) {
+	missing := exec.Command("sh", "-c", "exit 1").Run()
+	if !isMissing(missing) {
+		t.Fatal("fixture did not produce missing-rule status")
+	}
+	chain := firewallChain{"iptables", "filter", "SPQ_0123456789abI", "INPUT", []string{"-p", "tcp", "--dport", "29999", "-j", "SPQ_0123456789abI"}}
+	calls := 0
+	run := func(binary, table string, args ...string) error {
+		calls++
+		if len(args) != 2 || args[0] != "-S" || args[1] != chain.Name {
+			t.Fatalf("referenced missing target: %v", args)
+		}
+		return missing
+	}
+	if err := cleanFirewallChain(chain, run); err != nil || calls != 1 {
+		t.Fatalf("absent chain cleanup: calls=%d err=%v", calls, err)
+	}
+	permanent := errors.New("permission failure")
+	if err := cleanFirewallChain(chain, func(string, string, ...string) error { return permanent }); !errors.Is(err, permanent) {
+		t.Fatal("unexpected firewall failure ignored")
 	}
 }

@@ -28,9 +28,17 @@ interpreting incomplete traces.
 | `session.connected`, `session.accepted` | Conversation ID and endpoint identity |
 | `session.invalidated`, `session.idle_invalidated` | Carrier replacement |
 | `flow.open`, `flow.control`, `flow.relay`, `flow.closed` | Sampled lifecycle, correlated by flow ID within the process |
+| `packet.tx_queue` | New transmit queue drops on a shared listener socket, with cumulative and interval counts |
 | `transport.sample` | Delivery estimate, RTT/variance, pacing, windows, queues and wait time |
 | `peer.pool_grew`, `peer.pool_growth_failed` | Adaptive carrier growth, ceiling and expansion failures |
 | `engine.stopping`, `engine.stopped` | Shutdown progress, final active count and firewall cleanup result |
+
+Linux ENOBUFS injection failures are counted as datagram loss, allowing KCP
+retransmission. `super_paqet_*_tx_queue_drops` covers AF_PACKET and pcap.
+Debug `packet.tx_queue` events report shared listener drops only when the count
+changes. The `transport.sample.tx_queue_drops` field reports the owning client
+socket; accepted server carriers share listener sockets and report null there.
+Permanent injection/device errors still abort the affected transport.
 
 For `transport.sample`, compare `kcp_wait_ms` with `mux_wait_ms`: the first
 measures waiting for carrier send credit, the second waiting for stream credit.

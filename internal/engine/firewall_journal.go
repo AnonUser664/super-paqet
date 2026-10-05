@@ -79,18 +79,21 @@ func cleanFirewallChain(c firewallChain, run func(string, string, ...string) err
 	if c.Table != "raw" && c.Table != "mangle" && c.Table != "filter" {
 		return fmt.Errorf("invalid firewall table")
 	}
+	// Check the owned chain before referring to it in a jump. nftables
+	// returns exit 2 for -C rules naming an absent target; -S reports absence
+	// normally. A missing chain cannot have surviving references.
+	if err := run(c.Binary, c.Table, "-S", c.Name); err != nil {
+		if isMissing(err) {
+			return nil
+		}
+		return err
+	}
 	check := append([]string{"-C", c.Hook}, c.Jump...)
 	if err := run(c.Binary, c.Table, check...); err == nil {
 		if err := run(c.Binary, c.Table, append([]string{"-D", c.Hook}, c.Jump...)...); err != nil {
 			return err
 		}
 	} else if !isMissing(err) {
-		return err
-	}
-	if err := run(c.Binary, c.Table, "-S", c.Name); err != nil {
-		if isMissing(err) {
-			return nil
-		}
 		return err
 	}
 	if err := run(c.Binary, c.Table, "-F", c.Name); err != nil {

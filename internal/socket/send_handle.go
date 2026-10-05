@@ -40,7 +40,8 @@ type encoder struct {
 }
 
 type SendHandle struct {
-	handle      *pcap.Handle
+	handle      packetInjector
+	txDrops     atomic.Uint64
 	writeMu     sync.Mutex
 	srcIPv4     net.IP
 	srcIPv4RHWA net.HardwareAddr
@@ -209,6 +210,10 @@ func (h *SendHandle) Write(payload []byte, addr *net.UDPAddr) error {
 		return net.ErrClosed
 	}
 	err := h.handle.WritePacketData(e.buf.Bytes())
+	if transientTXDrop(err) {
+		h.txDrops.Add(1)
+		err = nil
+	}
 	h.writeMu.Unlock()
 	return err
 }

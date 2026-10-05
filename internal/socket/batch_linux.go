@@ -8,6 +8,9 @@ func (c *PacketConn) TXDrops() uint64 {
 	if c.raw != nil {
 		return c.raw.(*rawPacket).txDrops.Load()
 	}
+	if c.sendHandle != nil {
+		return c.sendHandle.txDrops.Load()
+	}
 	return 0
 }
 

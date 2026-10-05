@@ -28,18 +28,19 @@ import (
 
 type Stats struct{ Active, Accepted, Rejected, Errors, Aborted, Sent, Received, Sessions atomic.Int64 }
 type Engine struct {
-	tuneMu      sync.Mutex
-	tuners      map[*kcp.Conn]*controller
-	cfg         *Config
-	ctx         context.Context
-	cancel      context.CancelFunc
-	stats       Stats
-	peers       map[string]*peer
-	closers     []io.Closer
-	fw          firewall
-	wg          sync.WaitGroup
-	diagnostics *diagnostics
-	flowIDs     atomic.Uint64
+	tuneMu          sync.Mutex
+	tuners          map[*kcp.Conn]*controller
+	packetObservers []observedPacket
+	cfg             *Config
+	ctx             context.Context
+	cancel          context.CancelFunc
+	stats           Stats
+	peers           map[string]*peer
+	closers         []io.Closer
+	fw              firewall
+	wg              sync.WaitGroup
+	diagnostics     *diagnostics
+	flowIDs         atomic.Uint64
 }
 
 func Run(ctx context.Context, cfg *Config) (err error) {
@@ -99,6 +100,13 @@ func Run(ctx context.Context, cfg *Config) (err error) {
 			return err
 		}
 		e.closers = append(e.closers, listener)
+		e.tuneMu.Lock()
+		if observed, ok := listener.(*kcp.Listener); ok {
+			for worker, packet := range observed.PacketConnections() {
+				e.packetObservers = append(e.packetObservers, observedPacket{len(e.closers) - 1, worker, packet})
+			}
+		}
+		e.tuneMu.Unlock()
 		e.launch(func() { e.serve(listener, endpoint) })
 		e.log().Info("listener.ready", "address", endpoint.Address, "interface", n.Interface.Name)
 	}
