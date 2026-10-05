@@ -206,17 +206,21 @@ def main():
     parser.add_argument('--streams', type=int, default=32, help='active streams per original peer')
     parser.add_argument('--delay-ms', type=int, default=0, help='one-way virtual link delay')
     parser.add_argument('--loss', type=float, default=0)
+    parser.add_argument('--reverse-delay-ms', type=int)
+    parser.add_argument('--rate-mbit', type=int, default=0)
+    parser.add_argument('--reverse-rate-mbit', type=int, default=0)
+    parser.add_argument('--reorder', type=float, default=0)
     parser.add_argument('--cycles', type=int, default=12)
     args = parser.parse_args()
     if os.geteuid() != 0:
         parser.error('run as root; only owned network namespaces are modified')
-    if args.streams < 1 or args.cycles < 1 or args.delay_ms < 0 or not 0 <= args.loss <= 100:
+    if args.streams < 1 or args.cycles < 1 or min(args.delay_ms, args.reverse_delay_ms or 0, args.rate_mbit, args.reverse_rate_mbit) < 0 or not 0 <= args.loss <= 100 or not 0 <= args.reorder <= 100:
         parser.error('invalid workload bounds')
     binary = (ROOT/args.binary).resolve()
     out = (ROOT/args.output).resolve()
     out.mkdir(parents=True, exist_ok=True)
     report = dict(binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(), steps=[],
-                  streams_per_original_peer=args.streams, one_way_delay_ms=args.delay_ms, loss_percent=args.loss)
+                  streams_per_original_peer=args.streams, one_way_delay_ms=args.delay_ms, reverse_delay_ms=args.reverse_delay_ms, loss_percent=args.loss, rate_mbit=args.rate_mbit, reverse_rate_mbit=args.reverse_rate_mbit, reorder_percent=args.reorder)
     ident = str(os.getpid())
     client_ns, server_ns = 'spq-reload-c-'+ident, 'spq-reload-s-'+ident
     namespaces, processes, files = [], [], []
@@ -327,12 +331,20 @@ def main():
             ns(namespace, 'ip', 'addr', 'add', ip, 'dev', iface)
             ns(namespace, 'ip', 'link', 'set', iface, 'up')
             ns(namespace, 'iptables', '-A', 'INPUT', '-p', 'udp', '--dport', '31111', '-j', 'DROP')
-            if args.delay_ms or args.loss:
+            delay = args.reverse_delay_ms if namespace == server_ns and args.reverse_delay_ms is not None else args.delay_ms
+            rate = args.reverse_rate_mbit if namespace == server_ns else args.rate_mbit
+            if delay or args.loss or rate or args.reorder:
                 netem = ['tc', 'qdisc', 'add', 'dev', iface, 'root', 'netem', 'limit', '10000']
-                if args.delay_ms:
-                    netem += ['delay', str(args.delay_ms)+'ms']
+                if delay:
+                    netem += ['delay', str(delay)+'ms']
                 if args.loss:
                     netem += ['loss', str(args.loss)+'%']
+                if args.reorder:
+                    if not delay:
+                        raise ValueError('reordering requires a positive delay in both directions')
+                    netem += ['reorder', str(args.reorder)+'%', '25%', 'gap', '5']
+                if rate:
+                    netem += ['rate', str(rate)+'mbit']
                 netem += ['seed', '7411']
                 ns(namespace, *netem)
         reload = dict(interval='50ms', debounce='100ms')
@@ -515,7 +527,7 @@ def main():
             for namespace in reversed(namespaces):
                 subprocess.run(['ip', 'netns', 'delete', namespace], capture_output=True)
             (out/'results.json').write_text(json.dumps(report, indent=2)+'\n')
-    print(json.dumps(report, indent=2))
+    print(json.dumps({key: value for key, value in report.items() if key != 'steps'}, indent=2))
 
 
 if __name__ == '__main__':

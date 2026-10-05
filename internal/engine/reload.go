@@ -127,6 +127,26 @@ func specifications(c *Config) map[string]resourceSpec {
 func sameResource(a, b resourceSpec) bool {
 	a.endpoint.KCP.Block, b.endpoint.KCP.Block = nil, nil
 	a.endpoint.KeyEnv, b.endpoint.KeyEnv = "", ""
+	// Preparation has already resolved these aliases/overrides. Cosmetic changes
+	// must not rebuild a healthy path when the effective contract is identical.
+	a.endpoint.Enc, b.endpoint.Enc = "", ""
+	a.endpoint.KCP.Enc, b.endpoint.KCP.Enc = "", ""
+	a.endpoint.KCP.AdaptiveBuffersOverride, b.endpoint.KCP.AdaptiveBuffersOverride = nil, nil
+	if enabledFlag(a.endpoint.Adaptive) == enabledFlag(b.endpoint.Adaptive) {
+		a.endpoint.Adaptive = b.endpoint.Adaptive
+	}
+	if enabledFlag(a.endpoint.KCP.CreditHints) == enabledFlag(b.endpoint.KCP.CreditHints) {
+		a.endpoint.KCP.CreditHints = b.endpoint.KCP.CreditHints
+	}
+	if enabledFlag(a.endpoint.KCP.ACKTimestamps) == enabledFlag(b.endpoint.KCP.ACKTimestamps) {
+		a.endpoint.KCP.ACKTimestamps = b.endpoint.KCP.ACKTimestamps
+	}
+	if a.firewall == b.firewall {
+		a.endpoint.Network.IPv4.Addr_, b.endpoint.Network.IPv4.Addr_ = "", ""
+		a.endpoint.Network.IPv6.Addr_, b.endpoint.Network.IPv6.Addr_ = "", ""
+		a.endpoint.Network.IPv4.RouterMac_, b.endpoint.Network.IPv4.RouterMac_ = "", ""
+		a.endpoint.Network.IPv6.RouterMac_, b.endpoint.Network.IPv6.RouterMac_ = "", ""
+	}
 	return reflect.DeepEqual(a, b)
 }
 
@@ -558,3 +578,6 @@ func canUpdateReliability(a, b resourceSpec) bool {
 	k.WriteBatchMS, k.ACKDelayMaxMS = n.WriteBatchMS, n.ACKDelayMaxMS
 	return sameResource(a, b)
 }
+
+// enabledFlag resolves the common nil-means-enabled endpoint option contract.
+func enabledFlag(flag *bool) bool { return flag == nil || *flag }

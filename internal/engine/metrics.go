@@ -33,6 +33,11 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "super_paqet_%s %d\n", v.name, v.value)
 	}
 	fmt.Fprintf(w, "super_paqet_config_revision %d\nsuper_paqet_config_reload_applied_total %d\nsuper_paqet_config_reload_rejected_total %d\n", e.revision.Load(), e.reloadApplied.Load(), e.reloadRejected.Load())
+	degraded := 0
+	if e.degraded.Load() {
+		degraded = 1
+	}
+	fmt.Fprintf(w, "super_paqet_config_degraded %d\n", degraded)
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 	fmt.Fprintf(w, "super_paqet_heap_bytes %d\nsuper_paqet_heap_sys_bytes %d\nsuper_paqet_gc_total %d\n", m.HeapAlloc, m.HeapSys, m.NumGC)

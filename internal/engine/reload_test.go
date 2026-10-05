@@ -335,7 +335,7 @@ func TestWatcherDebounceRenameInvalidAndRecovery(t *testing.T) {
 	}
 	path := filepath.Join(t.TempDir(), "config.yaml")
 	os.WriteFile(path, []byte(initial), 0600)
-	e.launch(func() { e.watchConfig(path, []byte(initial)) })
+	e.launch(func() { e.watchConfig(path, []byte(initial), make(chan os.Signal)) })
 	old := e.view.Load().peers["a"]
 	os.WriteFile(path, []byte("key: SECRET-MUST-NOT-LOG\nunknown: true\n"), 0600)
 	waitReload(t, func() bool { return e.reloadRejected.Load() > 0 })
@@ -486,5 +486,44 @@ func TestLiveReliabilityRetainsRegisteredConversation(t *testing.T) {
 	}
 	if e.tuners[conn].endpoint != &resource.settings || resource.peer.configuration().KCP.Interval != 20 {
 		t.Fatal("registration or future dial template stale")
+	}
+}
+
+// TestConfigReaderRejectsFIFOWithoutWaiting prevents an accidental non-regular
+// config path from blocking the watcher and shutdown until a writer appears.
+func TestConfigReaderRejectsFIFOWithoutWaiting(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.pipe")
+	if err := syscall.Mkfifo(path, 0600); err != nil {
+		t.Fatal(err)
+	}
+	done := make(chan error, 1)
+	go func() { _, err := readConfigBytes(path); done <- err }()
+	select {
+	case err := <-done:
+		if err == nil {
+			t.Fatal("FIFO accepted")
+		}
+	case <-time.After(time.Second):
+		t.Fatal("config reader blocked on FIFO")
+	}
+}
+
+// TestResourceComparisonNormalizesPreparedDefaults prevents an explicit true or
+// a cipher-alias spelling from turning a cosmetic edit into carrier teardown.
+func TestResourceComparisonNormalizesPreparedDefaults(t *testing.T) {
+	yes := true
+	a := resourceSpec{kind: "peer", endpoint: Endpoint{Enc: "null", KCP: conf.KCP{Block_: "null", AdaptiveBuffers: true}}}
+	b := a
+	b.endpoint.Enc = ""
+	b.endpoint.Adaptive = &yes
+	b.endpoint.KCP.ACKTimestamps = &yes
+	b.endpoint.KCP.CreditHints = &yes
+	b.endpoint.KCP.AdaptiveBuffersOverride = &yes
+	if !sameResource(a, b) {
+		t.Fatal("equivalent prepared defaults required restart")
+	}
+	b.endpoint.KCP.AdaptiveBuffers = false
+	if sameResource(a, b) {
+		t.Fatal("effective buffer behavior change ignored")
 	}
 }

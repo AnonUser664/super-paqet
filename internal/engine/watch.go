@@ -55,7 +55,7 @@ func (r *ReloadConfig) prepare() error {
 // readConfigBytes reads a bounded snapshot. The watcher validates this exact
 // snapshot, not a later reread that might contain half of another edit.
 func readConfigBytes(path string) ([]byte, error) {
-	f, err := os.Open(path)
+	f, err := os.OpenFile(path, os.O_RDONLY|syscall.O_NONBLOCK, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -74,12 +74,24 @@ func readConfigBytes(path string) ([]byte, error) {
 	if len(b) > maxConfigBytes {
 		return nil, fmt.Errorf("configuration exceeds 16 MiB")
 	}
+	after, err := f.Stat()
+	if err != nil {
+		return nil, err
+	}
+	if stat.Size() != after.Size() || !stat.ModTime().Equal(after.ModTime()) || int64(len(b)) != after.Size() {
+		return nil, fmt.Errorf("configuration changed while reading; retrying")
+	}
 	return b, nil
 }
 
 // RunFile is the CLI lifecycle entry point: it loads once, then watches the same
 // path until engine cancellation. Run remains useful for prepared-config tests.
 func RunFile(ctx context.Context, path string) error {
+	// Register before preparation/binding: systemd Type=simple may send its first
+	// reload immediately after process creation. Buffer that request until ready.
+	hup := make(chan os.Signal, 1)
+	signal.Notify(hup, syscall.SIGHUP)
+	defer signal.Stop(hup)
 	b, err := readConfigBytes(path)
 	if err != nil {
 		return err
@@ -88,16 +100,13 @@ func RunFile(ctx context.Context, path string) error {
 	if err != nil {
 		return err
 	}
-	return run(ctx, cfg, func(e *Engine) { e.watchConfig(path, b) })
+	return run(ctx, cfg, func(e *Engine) { e.watchConfig(path, b, hup) })
 }
 
 // watchConfig serializes edit application, retries temporary bind failures, and
 // rate-limits repeated rejection logs. Invalid syntax is never retried until its
 // bytes change or an operator sends SIGHUP; transient resource failures retry.
-func (e *Engine) watchConfig(path string, initial []byte) {
-	hup := make(chan os.Signal, 1)
-	signal.Notify(hup, syscall.SIGHUP)
-	defer signal.Stop(hup)
+func (e *Engine) watchConfig(path string, initial []byte, hup <-chan os.Signal) {
 	ticker := time.NewTicker(e.current().Reload.interval)
 	defer ticker.Stop()
 	applied := sha256.Sum256(initial)
