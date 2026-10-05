@@ -1,0 +1,160 @@
+{
+  "parameters": {
+    "binary": "/home/shayan/Codes/super-paqet/build/super-paqet-pcap-backpressure",
+    "duration": 5,
+    "workers": 32,
+    "loss": 0,
+    "delay_ms": 40.0,
+    "jitter_ms": 0,
+    "reorder": 0,
+    "burst_loss": null,
+    "seed": null,
+    "rate_mbit": 100,
+    "down_rate_mbit": null,
+    "sessions": 1,
+    "hold": 0,
+    "enterprise": true,
+    "profile": false,
+    "debug": true,
+    "flow_sample": 1,
+    "backend": "pcap",
+    "duplex_http": false,
+    "mtu": 1500,
+    "ipv6": false,
+    "warmup": 0,
+    "schedule": null,
+    "mode": "both",
+    "ramp_timeout": 600,
+    "queue_packets": 0,
+    "adaptive": "off",
+    "kcp_options": "{}",
+    "functional": true,
+    "block": "null",
+    "fec": [
+      0,
+      0
+    ],
+    "iperf": false,
+    "iperf_directions": [
+      "upload",
+      "download",
+      "bidirectional"
+    ],
+    "direct_iperf": false,
+    "tcp_buffer_mib": 0,
+    "capture": false,
+    "restart": false,
+    "mixed": false,
+    "socket_buffer_mib": 0,
+    "host_backlog": 0,
+    "bridge": false,
+    "output": "build/pcap-backpressure-functional-v4"
+  },
+  "results": [
+    {
+      "verified_bytes": 1048576
+    },
+    {
+      "verified_bytes": 16777216
+    },
+    {
+      "verified_bytes": 16777216
+    },
+    {
+      "udp_datagrams_verified": 7,
+      "udp_max_bytes": 65507
+    },
+    {
+      "half_close_verified_bytes": 262144
+    },
+    {
+      "ping": "pong 313.549922ms"
+    },
+    {
+      "bytes": 42944,
+      "canceled_requests": 32,
+      "errors": 0,
+      "goodput_gbps": 6.870750898040313e-05,
+      "mode": "http",
+      "p50_us_upper": 131072,
+      "p99_us_upper": 262144,
+      "requests": 1952,
+      "requests_per_second": 390.3835737522905,
+      "seconds": 5.000210386,
+      "workers": 32,
+      "tunnel_cpu_cores": {
+        "client": 0.042,
+        "server": 0.048
+      }
+    },
+    {
+      "bytes": 39574475,
+      "canceled_requests": 32,
+      "errors": 0,
+      "goodput_gbps": 0.06330415161118025,
+      "mode": "bulk",
+      "p50_us_upper": 8388608,
+      "p99_us_upper": 8388608,
+      "requests": 37,
+      "requests_per_second": 7.398245995725999,
+      "seconds": 5.001185419,
+      "workers": 32,
+      "tunnel_cpu_cores": {
+        "client": 0.162,
+        "server": 0.17
+      }
+    }
+  ],
+  "processes": {
+    "target": {
+      "peak_rss_kib": 14188,
+      "peak_fds": 38,
+      "peak_swap_kib": 0,
+      "peak_rss_plus_swap_kib": 14188,
+      "rss_high_water_kib": 14188,
+      "cpu_seconds": 0.13
+    },
+    "server": {
+      "peak_rss_kib": 141024,
+      "peak_fds": 49,
+      "peak_swap_kib": 0,
+      "peak_rss_plus_swap_kib": 141024,
+      "rss_high_water_kib": 141024,
+      "cpu_seconds": 1.69
+    },
+    "client": {
+      "peak_rss_kib": 52492,
+      "peak_fds": 59,
+      "peak_swap_kib": 0,
+      "peak_rss_plus_swap_kib": 52492,
+      "rss_high_water_kib": 52492,
+      "cpu_seconds": 1.48
+    }
+  },
+  "kernel": "7.2.4-arch1-2",
+  "binary_sha256": "8348eb9b1b56aabb27f2c3de4c2d90c5f8ee9b8e2f19940a9fff25b7da30f1c3",
+  "source_commit": "20227d3",
+  "isolated_source_commit": "d4205c1",
+  "status": "Local queue-pressure regression passed; production redeployment paused before staging.",
+  "cleanup": {
+    "process_exit_codes": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "firewall_clean": true,
+    "unrelated_rule_preserved": true
+  },
+  "verified_claims": {
+    "root_race_and_vet": "passed",
+    "full_kcp_tests": "passed (128.305s)",
+    "full_smux_race": "final output not collected; no new pass claimed",
+    "fault_injection": "typed/wrapped/text ENOBUFS recover; subsequent packet intact; permanent errors and close preserved",
+    "real_queue_drops": "listener debug event recorded 18002 drops in an early interval; complete transfers still passed"
+  }
+}

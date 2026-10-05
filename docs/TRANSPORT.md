@@ -3,8 +3,9 @@
 Baseline: b9fa0bd. Linux is the deployment target.
 
 The outer transport is **not a TCP connection**. Each Ethernet/IP/TCP frame
-carries one independent KCP datagram. Neither a kernel TCP socket nor a TCP
-handshake is used. Capture must still see packets before the host firewall.
+carries one independent KCP datagram. There is no outer TCP handshake or kernel TCP data transport. The enterprise
+engine does reserve local kernel TCP listeners as port guards; they do not
+carry the tunnel payload. Capture must still see packets before the host firewall.
 KCP, rather than outer TCP sequence numbers, provides ordering, retransmission,
 RTT estimation and delivery. Replacing this with ordinary TCP or UDP would
 change the defining behavior of this project.
@@ -36,18 +37,44 @@ Its encrypted command 5 closes both directions, releasing writers after target
 abort; directional FIN still supports a response after request EOF. Both
 enterprise endpoints must implement this extension. Default upstream smux mode
 does not use it.
-Optional ACK receive timestamps (eight encrypted payload bytes) separate forward
-queue estimates from a delayed ACK path. KCP WINS can carry an encrypted 16-byte
+Optional ACK receive timestamps (eight inner payload bytes) separate forward
+queue estimates from a delayed ACK path. KCP WINS can carry an inner 16-byte
 stream-credit hint (marker, stream ID, cumulative consumed bytes, window). Hints
 may be dropped/reordered; ordinary reliable smux UPD remains the recovery path.
 No application data uses the hint path. Disable with `kcp.ack_timestamps: false`
 and `kcp.credit_hints: false` when comparing the legacy control behavior.
-These encrypted inner changes do not introduce an outer TCP handshake.
+These inner extensions follow the selected cipher: they are plaintext in null
+mode. They do not introduce an outer TCP handshake. The actual recovery profile
+disables both extensions.
 
 Packet timing, rate and retransmission schedules change with optimization and
 adaptation. Byte-format equivalence does not prove equivalent detectability
 against arbitrary traffic classifiers. Packet capture tests must report which
 properties they actually checked.
+
+## Baseline fabricated counters and limits of the rationale
+
+The committed running base and queue-pressure patch use the original fabricated
+counter scheme. For ordinary non-SYN packets, sequence is `initial_time +
+(counter << 7)`; acknowledgment is `sequence - (counter & 0x3ff) + 1400`.
+Timestamp is `initial_time + (counter >> 3)` and its echo is synthetically offset.
+SYN sequences/options use the baseline's separate branch. These numbers do not
+track actual remote TCP byte consumption; a payload larger than 128 bytes can
+therefore overlap the next fabricated sequence range. KCP's own sequence numbers
+and ACKs supply reliability.
+
+Preserving these characteristics protects the tested upstream packet contract
+while avoiding an accidental switch to ordinary TCP. The record does not prove
+why each magic constant was selected originally, or that each is essential for
+every classifier. Packet-size-dependent failures and the separate byte-sequence
+experiment motivate further study; they are not proof that overlap alone caused
+all observed drops. The experiment `4c7aa6a` changes those number semantics and
+remains excluded from the running base and `20227d3` patch.
+
+Source compatibility is different from behavior: both enterprise endpoints need
+the new control/half-close semantics, and source interoperability with an
+unmodified paqet endpoint is not a supported deployment claim. TCP application
+ordering and UDP boundaries remain required even when inner framing changes.
 
 ## Why the layers exist
 

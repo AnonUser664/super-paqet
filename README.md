@@ -1,6 +1,6 @@
 # super-paqet
 
-A Linux port-forwarding tunnel using encrypted KCP datagrams inside fabricated
+A Linux port-forwarding tunnel using KCP datagrams, with configurable encryption, inside fabricated
 raw TCP packets. It preserves paqet's raw Ethernet/IP/TCP envelope and packet
 capture/injection mechanism. It does not establish an outer TCP connection.
 
@@ -12,6 +12,23 @@ Measured results and qualification limits are in [docs/BENCHMARKS.md](docs/BENCH
 This is a substantial transport/runtime rewrite; successful local benchmarks do
 not establish universal optimality, WAN behavior, or production readiness on
 untested hardware and firewall products.
+
+## Review documentation
+
+The current deployed recovery version works in the recorded four-path checks
+and the user's one-active-user test. Thousands of active customers on these
+hosts remain unqualified. New queue-pressure/firewall fixes are committed but
+not redeployed; work is paused for documentation and feature review.
+
+Start with [current status](docs/STATUS.md), then read the
+[complete configuration guide](docs/CONFIGURATION.md),
+[failure and decision history](docs/DEVELOPMENT-HISTORY.md),
+[actual deployment](docs/DEPLOYMENT.md), and
+[operations runbook](docs/OPERATIONS.md). The [documentation map](docs/README.md)
+links the measured evidence and recorded deployed configurations.
+
+The workspace contains separate uncommitted experiments. A generic build can
+include them; use a selected clean source revision for release qualification.
 
 ## Build and run
 
@@ -72,6 +89,9 @@ A second entry under `peers` can be selected by any forward's `peer` field.
 `listeners`, `peers`, and `forwards` can coexist in one configuration. Several
 listeners can use different local addresses or keys. Application traffic uses
 KCP only; there is no TCP/UDP transport substitution underneath the raw envelope.
+
+All YAML fields, encryption precedence, preset/manual retransmission behavior
+and validation limitations are documented in [CONFIGURATION.md](docs/CONFIGURATION.md).
 
 See [client example](example/client.yaml.example) and
 [server example](example/server.yaml.example) for additional settings.
@@ -159,8 +179,9 @@ active-flow throughput, and tail latency are separate workloads.
 
 For a specific environment, `sessions`, listener `packet_workers`, buffer/window
 ceilings, MTU, encryption, FEC, keepalive, and manual KCP parameters can be
-configured. `adaptive: false` on an endpoint disables adaptive send/receive
-windows. `network.backend: pcap` requires one packet worker. Very long or
+configured. `adaptive: false` disables the enterprise pacing/send-window/ACK/reorder/RTO-floor
+controller and defaults receive-window adaptation off. Ordinary KCP RTT-based
+retries remain; `kcp.adaptive_buffers` can independently override receive adaptation. `network.backend: pcap` requires one packet worker. Very long or
 high-bandwidth/high-delay paths may require higher ceilings; qualification
 results should determine those values rather than assuming one setting is best.
 

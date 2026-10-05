@@ -22,7 +22,9 @@ forwards:
 
 metrics: 127.0.0.1:9090
 
-# Most deployments need no tuning. Override discovery when necessary:
+# Defaults are a starting point, not a guarantee for every real link.
+# Complete field/retransmission reference: docs/CONFIGURATION.md.
+# Override discovery when necessary:
 # peers:
 #   primary:
 #     address: 203.0.113.10:29999

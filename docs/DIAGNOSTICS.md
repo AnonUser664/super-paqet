@@ -1,5 +1,10 @@
 # Diagnostics and reproducible tests
 
+Version note: pcap ENOBUFS recovery and `packet.tx_queue` events were added at
+`20227d3`, which is committed but not deployed. The live `1c77c55` base has the
+other diagnostics; its AF_PACKET TX drop handling exists, but pcap queue-full
+errors can still abort carriers. See [STATUS.md](STATUS.md).
+
 ```yaml
 log:
   level: debug

@@ -1,8 +1,10 @@
 # Deployment and real-link recovery: 2026-10-05
 
-The four requested surviving paths now pass repeated sustained authenticated
-Reality tests. The final check completed eight 10 MiB transfers (two per path)
-and the public domain completed 1 MiB on both ports. This is a functional
+At the recorded recovery checkpoint, the four requested surviving paths passed
+repeated sustained authenticated Reality tests. The final check completed eight 10 MiB transfers (two per path)
+and the public domain completed 1 MiB on both ports. The user subsequently
+confirmed successful use with one active user.
+Thousands of active customers have not been tested here. This is a functional
 recovery; real-WAN enterprise scale and full adaptive settings remain unqualified.
 
 | Client | Port | Tunnel endpoint | TCP destination |
@@ -42,7 +44,8 @@ and `:9003` also completed authenticated HTTP 200 requests.
 A subsequent 1 MiB download exposed sustained-transfer failures on three paths.
 Both backend Xray instances completed the same download directly in
 0.476/0.517 seconds. Temporarily repeating the tunnel test with AES did not fix
-those three paths. Encryption-disabled mode was restored afterward. The unmodified upstream control reproduced the same three failures; its
+those three paths. Encryption-disabled mode was restored afterward. The unmodified upstream
+control reproduced the same three failures; its
 one successful 1 MiB transfer was 89.45.68.118 to the German backend, in
 1.265 seconds. This failure is shared under the present link conditions.
 
@@ -51,8 +54,8 @@ packets with no matching packets in either backend capture. The configured
 gateway MACs match current neighbor entries. Fresh source ports 30098/30097
 did not restore delivery; restoring 29998/29997 restored all four small
 authenticated requests. IPv6 controls also timed out. These observations do
-not identify the exact intervening filtering mechanism. Further comparison
-with a known working deployment of each path is needed.
+not identify the exact intervening filtering mechanism. These captures bounded that failing profile. Later address/packet-size recovery
+is recorded below; a specific filtering-device cause is still unresolved.
 
 ## Recovery and tuning outcome
 
@@ -116,7 +119,7 @@ journalctl -u super-paqet.service -f
 curl -fsS http://127.0.0.1:29090/healthz
 ```
 
-## Code qualification underway
+## Committed code fixes awaiting deployment
 
 The source-only sequence experiment is committed separately at `4c7aa6a`,
 branch `experiment/wan-sequence-tracking`, and remains excluded from deployment.
@@ -128,8 +131,9 @@ The subsequent mixed-client null/pcap test at 100 Mbit/s and 80 ms RTT failed
 in both the existing runtime and the experiment. Detailed logging identified
 `send: No buffer space available` being propagated as a fatal transport error,
 which aborted the server stream and left the client waiting for its tail.
-A narrow transmit-pressure fix is being qualified in a separate worktree.
-It preserves the packet encoding and lets KCP retransmit a dropped datagram;
+The narrow transmit-pressure and absent-chain fixes are now committed at
+`20227d3` after the capped-link regression passed, but have not been redeployed.
+The patch preserves the packet encoding and lets KCP retransmit a dropped datagram;
 permanent injection errors still propagate. Startup recovery also exposed a
 stale-journal issue when an owned nftables chain was already absent.
 
@@ -147,4 +151,21 @@ packet-size sensitivity was demonstrated empirically. Local earlier scale
 qualification does not qualify this recovery profile or arbitrary real networks.
 Wire/timeout edits in the main workspace remain uncommitted and excluded from
 all deployed binaries. Temporary probe cleanup/final service audit is pending
-completion of the current code qualification.
+the next user decision; no fresh final remote audit is claimed.
+
+## Review pause and code patch evidence
+
+The `20227d3` queue-pressure fix passed the test that previously failed: both
+16 MiB transfers verified exact bytes, UDP/half-close passed, HTTP/bulk had zero
+unexpected errors, all processes exited zero and owned rules were removed.
+[queue-pressure-evidence.json](queue-pressure-evidence.json) records the profile,
+resources, cleanup and collected check status. This is a local regression,
+not a new remote customer-scale qualification.
+
+The release staging script was stopped at its password prompt before connecting
+to the hosts; no code-fix staging or rollout manifest exists. Current source,
+unit/config paths and deployed executable hash above remain the last recorded
+state. The final remote temporary-file/rule audit remains deferred. User review
+of these docs and the final feature decision comes before further deployment.
+
+Exact recovery YAML/unit snapshots are linked in [deployed/README.md](deployed/README.md).

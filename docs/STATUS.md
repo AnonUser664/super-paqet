@@ -1,67 +1,109 @@
-# Step 1 complete: local qualification passed
+# Current status: working deployment, review paused
 
-Expanded diagnostics, testing and tuning are complete for the frozen candidate.
-The next stage is user review and the final required feature check. Deployment
-has not been performed.
+Updated 2026-10-05. The user confirms the current deployment works well with
+**one active user**. Thousands of simultaneously active customers have not been
+tested on these backends. Code changes, further tuning and redeployment are
+paused while the user reads the documentation and selects the next work.
 
-- Runtime source checkpoint: `2d5f7a0`; isolated full checks used `64fe72a`.
-- Qualified executable: `build/super-paqet-pcap-address-fix`.
-- SHA-256: `e2ae9b8cce7dc864dae9d21c5f770bb353ab787c218f2faf1d794d8efe7003f6`.
-- [Verified evidence](step1-qualification.json): 38 live profile/seed runs.
-- Main artifacts: `build/step1-final-v5`.
-- Final scale/service/fuzz/extra-seed artifacts: `build/step1-final-v5-tail-final`.
-- Full-check log: `build/step1-final-v5-tail-retry/full-checks.log`.
-- Final host cleanup: `build/step1-final-cleanup.json`.
+## Version boundaries
 
-The 26-profile main matrix and twelve additional runs passed integrity,
-regression floors, workload-error checks and owned-rule cleanup. Clean bulk
-measured 4.387 Gbit/s upload and 3.708 Gbit/s download; simultaneous duplex was
-2.361 + 2.127 Gbit/s. A 1000 Mbit/s / 100 ms RTT single-flow path delivered
-approximately 915 Mbit/s in either direction. High-delay, asymmetric, jitter,
-reordering and lossy-path results are documented with their limits.
+| State | Source / artifact | What is established |
+|---|---|---|
+| Earlier local qualification | Runtime `2d5f7a0`, isolated checks `64fe72a`; `build/super-paqet-pcap-address-fix` | 38 live virtual-link runs, 109 virtual scenarios, mostly-idle 100k soak, local multi-gigabit bulk, service/fuzz/checks. |
+| Currently deployed base | `1c77c55`; `build/super-paqet-deploy-ubuntu` | Four surviving real-link forwards pass authenticated repeated 10 MiB checks; user reports one-user success. Conservative recovery overrides. |
+| Committed fixes awaiting decision | Main `20227d3`; isolated equivalent `d4205c1`; `build/super-paqet-pcap-backpressure-release` | Pcap transmit ENOBUFS recovery, drop diagnostics, absent-chain firewall recovery. Focused/root races/vet, full KCP and actual pressure-functional checks passed. Not deployed. |
+| Sequence experiment | `4c7aa6a`, branch `experiment/wan-sequence-tracking` | Per-peer byte sequence / pcap receive feedback candidate; initial three-path 1 MiB successes, not final qualification. Not deployed. |
+| Dirty workspace | Six source files below | Preserved separate timeout/wire experiments; not part of the deployed base or clean queue-pressure candidate. |
 
-The 600-second mixed soak established 100,000 mostly idle forwards in 9.216
-seconds and verified a complete response on every held socket afterward.
-All 100,000 remained usable, with zero verification/mixed load errors. Concurrent
-bulk averaged 1.572 Gbit/s and HTTP 722 requests/s, with a 32.768 ms p99 histogram
-upper bound under memory pressure. This scale run temporarily raised the host
-receive backlog from 1000 to 65536 and verified restoration to 1000. An earlier
-local TCP timeout and loopback drops prompted full-socket verification and
-reduced monitoring overhead; the successful repeat used both changes.
+Deployed binary SHA-256:
+`ecb8e002173f6f80cd3f403d3ee3080190f0e49889fa2ba9f883b893f96318f3`.
+Earlier local-qualified binary SHA-256:
+`e2ae9b8cce7dc864dae9d21c5f770bb353ab787c218f2faf1d794d8efe7003f6`.
+The pressure-functional test used a pre-commit build SHA-256
+`8348eb9b1b56aabb27f2c3de4c2d90c5f8ee9b8e2f19940a9fff25b7da30f1c3`;
+the clean release rebuild has different VCS build metadata. It has not been
+installed or tested through the production paths. Do not treat all named
+artifacts as one qualified executable.
 
-Full vet checks, root/smux race suites and full KCP tests passed. Both 60-second
-fuzzers passed (6.4 million control / 3.5 million raw-frame executions). The
-candidate passed transient systemd restrictions, crash/restart, integrity and
-firewall recovery. Final inspection found no test namespaces, transient test
-units or host SPQ rules. Diagnostic logs recorded clean graceful shutdowns with
-zero active flows and no dropped logs in the main matrix and scale soak.
+## Current deployed paths
 
-The source candidate preserves the fabricated raw Ethernet/IP/TCP mechanism.
-Finite local qualification does not prove universal optimality, arbitrary
-firewall/NAT behavior, low latency on every saturated link, or multi-day
-endurance. The 1/100 Mbit/s mixed runs still show p99 bounds of 2.097–4.194 seconds.
-See [BENCHMARKS.md](BENCHMARKS.md), [DIAGNOSTICS.md](DIAGNOSTICS.md), and
-[TRANSPORT.md](TRANSPORT.md) for evidence, interpretation and the packet contract.
+- Clients: 89.45.68.14 and 89.45.68.118; forwards 9001 and 9003 work in recorded checks.
+- Germany: one host listening on both 116.202.177.233 and primary 91.107.251.85,
+  tunnel port 29999. Client .14 uses the primary address; .118 uses the original.
+- Netherlands: 171.22.132.226:29999, small packet profile with scaled windows/AF_PACKET.
+- Targets remain the corresponding backend's TCP 2096, carrying Xray Reality.
+- Null encryption and PA outer flags; no new relay topology.
+- 65.109.192.172 and direct 9002 are excluded from further work, unchanged and
+  previously unavailable.
 
-Four separate uncommitted files are preserved and excluded from this candidate:
-`internal/conf/kcp.go`, `internal/engine/config.go`, `internal/engine/peer.go`, and
-`internal/engine/relay.go`. They add encryption aliases/unencrypted operation,
-change opening-timeout handling and impose a five-second half-close read deadline.
-The generic `build/super-paqet` was rebuilt with separate workspace changes;
-use the qualified named binary for reviewing these results. Incorporating those
-edits requires their own review and relevant qualification before deployment.
+Eight final 10 MiB authenticated transfers passed, two per path. German times
+were 2.66–2.95 s; Netherlands 5.46–6.13 s. Public-domain 1 MiB checks passed on
+both ports. These are small finite workload checks, not real-host capacity.
+Recorded snapshot configs/unit are in [deployed/](deployed/README.md).
 
-## Subsequent real deployment and code qualification
+## Local qualification and its limits
 
-The initial null/2052 deployment failed real-link forwarding. Four surviving
-paths now pass repeated complete 10 MiB authenticated transfers after selecting
-29999, the German primary address for client .14, and the smaller Netherlands
-packet profile with scaled windows/AF_PACKET. The excluded backend/9002 route
-remains unchanged. This is functional recovery, not enterprise WAN scale
-qualification. See [DEPLOYMENT.md](DEPLOYMENT.md) and its committed evidence.
+The earlier candidate passed the complete 26-profile main matrix plus twelve
+additional seeded runs. Clean veth goodput was 4.387 Gbit/s upload and 3.708
+Gbit/s download; duplex 2.361 + 2.127. A 1000 Mbit/s / 100 ms RTT single flow
+was about 915 Mbit/s per direction. [BENCHMARKS.md](BENCHMARKS.md) and
+[step1-qualification.json](step1-qualification.json) retain exact evidence.
 
-A mixed-client static null/pcap capped-link test exposed fatal propagation of
-transient transmit ENOBUFS. A source fix is under qualification, together with
-stale firewall-journal recovery for absent chains. The byte-sequence experiment
-at `4c7aa6a` is separate and has not been deployed. Pending timeout/packet edits
-in the main workspace remain preserved and excluded.
+The 600-second mixed soak established 100,000 mostly idle forwards in 9.216 s
+and verified a complete response from every held socket afterward. Mixed bulk
+was 1.572 Gbit/s; HTTP 722 requests/s with 32.768 ms p99 histogram upper bound.
+Peak tunnel RSS was about 1.83/1.93 GiB and RSS+swap 1.90/2.30 GiB. Host receive
+backlog was explicitly raised from 1000 to 65536 for this experiment and restored.
+This is not 100,000 busy customers or a result for the current recovery profile.
+
+Under saturated 1/100 Mbit/s mixed workloads, p99 remained 2.097–4.194 s. Finite
+local qualification establishes neither arbitrary firewall compatibility,
+unchanged detectability, universal optimality, nor multi-day production endurance.
+
+## Confirmed new code defect and correction
+
+A static null/pcap multi-client test at 100 Mbit/s and 80 ms RTT reproduced a
+body-tail stall in the base and sequence experiment. Debug logging identified
+fatal `send: No buffer space available`. `20227d3` instead treats recognized
+Linux ENOBUFS injection failures as dropped datagrams, allowing KCP recovery,
+while preserving permanent errors and packet encoding. Pcap drops are counted;
+listener debug events report changes. An absent-chain recovery check also fixes
+stale nftables journals preventing startup.
+
+The corrected pressure run passed two 16 MiB integrity transfers, UDP through
+65507 bytes, half-close, ping, HTTP/bulk work, all process exits and owned-rule
+cleanup despite thousands of actual queue drops. Full root races/vet and KCP
+suite passed. The full smux race process was launched and later was no longer
+running, but its final output was not collected before interruption; the new
+patch's documented evidence does not claim an uncollected pass.
+
+The attempted code redeployment stopped at its password prompt. No code-fix
+staging/rollout manifest was produced. The working base remains deployed.
+Final remote temporary-file/rule cleanup audit was also deferred; this document
+is an artifact-based state report, not a fresh SSH inspection.
+
+## Preserved uncommitted work
+
+`internal/engine/peer.go`, `internal/engine/relay.go`,
+`internal/socket/codec_linux.go`, `internal/socket/codec_linux_test.go`,
+`internal/socket/raw_linux.go`, `internal/socket/send_handle.go` contain separate
+opening/half-close timing and sequence experiments. They were preserved when
+the qualified queue-pressure patch was committed. A generic build from the
+current workspace includes them. Use a clean selected checkout for review or
+qualification; do not deploy that generic build assuming it equals the base.
+
+## Reading and next decision
+
+1. [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md): failures, experiments,
+   corrections, mistaken comparisons and unresolved causes.
+2. [CONFIGURATION.md](CONFIGURATION.md): complete schema, defaults, manual knobs,
+   adaptation boundaries, retransmission and validation gaps.
+3. [DEPLOYMENT.md](DEPLOYMENT.md): actual topology, settings, results and backups.
+4. [OPERATIONS.md](OPERATIONS.md): build/version checks, service layouts,
+   monitoring, future replacement/rollback and test reproduction.
+5. [TRANSPORT.md](TRANSPORT.md), [DIAGNOSTICS.md](DIAGNOSTICS.md),
+   [BENCHMARKS.md](BENCHMARKS.md): mechanism, interpretation and earlier evidence.
+
+The next stage is user document review and the final required feature decision.
+Active-customer workload/resource acceptance, restored adaptation, retransmit
+policy, authorization controls and any final deployment remain outstanding.

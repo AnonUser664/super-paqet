@@ -1,4 +1,9 @@
-# Step 1 benchmark evidence
+# Earlier local step 1 benchmark evidence
+
+This document describes a historical frozen local candidate. Current deployed
+settings and undeployed fixes are in [STATUS.md](STATUS.md) and
+[DEPLOYMENT.md](DEPLOYMENT.md). The user has tested the live version with one
+active user; the local 100k results below are not real-host busy-customer proof.
 
 Local step 1 qualification passed: the complete 26-profile matrix, twelve
 additional seeded runs, the strengthened connection soak, service recovery,
@@ -204,5 +209,7 @@ acceptance workloads. A ten-minute mixed soak is a local endurance check, not a
 multi-day deployment soak. Virtual links cannot establish behavior through every
 NAT/firewall or traffic classifier. Outer packet-format tests protect the
 original mechanism; inner encrypted extensions and traffic timing can still
-change observable distributions. Step 2 remains user review, the final required
-feature check, and any resulting changes. Deployment has not been performed.
+change observable distributions. The original local qualification preceded deployment. A subsequent recovery
+version is now running; newer fixes and the final deployment are paused for
+user document review and the final required feature decision. These historical
+results do not automatically qualify the newer code or current recovery profile.

@@ -1,0 +1,46 @@
+listeners:
+- address: 116.202.177.233:29999
+  enc: 'null'
+  network:
+    interface: eth0
+    ipv4:
+      addr: 116.202.177.233:29999
+      router_mac: d2:74:7f:6e:37:e3
+    backend: pcap
+  adaptive: false
+  packet_workers: 1
+  kcp:
+    mode: fast
+    sndwnd: 1024
+    rcvwnd: 1024
+    ack_timestamps: false
+    credit_hints: false
+    adaptive_buffers: false
+    smuxbuf: 4194304
+    streambuf: 2097152
+    mtu: 1350
+- address: 91.107.251.85:29999
+  enc: 'null'
+  network:
+    interface: eth0
+    ipv4:
+      addr: 91.107.251.85:29999
+      router_mac: d2:74:7f:6e:37:e3
+    backend: pcap
+  adaptive: false
+  packet_workers: 1
+  kcp:
+    mode: fast
+    sndwnd: 1024
+    rcvwnd: 1024
+    ack_timestamps: false
+    credit_hints: false
+    adaptive_buffers: false
+    smuxbuf: 4194304
+    streambuf: 2097152
+    mtu: 1350
+metrics: 127.0.0.1:29090
+log:
+  level: info
+  format: json
+  interval: 10s
