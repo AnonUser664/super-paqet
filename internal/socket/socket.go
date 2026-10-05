@@ -114,12 +114,14 @@ func (c *PacketConn) LocalAddr() net.Addr {
 	if c.raw != nil {
 		return c.raw.LocalAddr()
 	}
-	return nil
-	// return &net.UDPAddr{
-	// 	IP:   append([]byte(nil), c.cfg.PrimaryAddr().IP...),
-	// 	Port: c.cfg.PrimaryAddr().Port,
-	// 	Zone: c.cfg.PrimaryAddr().Zone,
-	// }
+	addr := c.cfg.IPv4.Addr
+	if addr == nil {
+		addr = c.cfg.IPv6.Addr
+	}
+	if addr == nil {
+		return &net.UDPAddr{Port: c.cfg.Port}
+	}
+	return &net.UDPAddr{IP: append(net.IP(nil), addr.IP...), Port: c.cfg.Port, Zone: addr.Zone}
 }
 
 func (c *PacketConn) SetDeadline(t time.Time) error {

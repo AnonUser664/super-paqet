@@ -243,3 +243,14 @@ andbinaryhashstillidentical. FullfocusedKCP rerunninglogstep1-v4-kcp-race-fixed.
 Afterthispasses committhirdcheckpoint(no deployment); fullremainingpipeline
 stillrequired. Loggerobservesqueue_signal_ms andpeer_ack_delay_ms for8B ACK
 metadata;docsupdated. Finalbenchmarkreportmustnotpromoteearlierpartials.
+
+V4matrix25/26passed inclcorrectness/perffloors/cleanup. PCAPfailedpanicpeer.go89
+loggingc.LocalAddr().String() becauselegacyPacketConn.LocalAddrreturnednil.
+Thisabnormalexit leftownedrules intestnamespace;namespacefinallydiscardedall,
+nohostchanges. Tailcorrectlyrefusedfailedmatrix; fulltests/scale/service/fuzz
+didnotrun. FixedPCAPLocalAddrtoactualconfiguredIPv4/6 sourceandreservedport
+withclonedIP;addedIPv4/6 noalias/usablediagnosticsrace test. Newcandidate
+build/super-paqet-pcap-address-fix. Root50108 NOWpcapfunctional/restart/capture
+5s atbuild/step1-pcap-fix. Checkresultbefore fullnewhashmatrixregeneration.
+Uncommittedsourcefixsince47509f3; commitafterfunctionalpasses. PCAPfixdoesnot
+affectAFPACKET path butstillrequire finalsamebinaryqualification export.
