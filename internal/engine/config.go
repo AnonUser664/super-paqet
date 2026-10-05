@@ -58,6 +58,9 @@ type Endpoint struct {
 	Sessions int `yaml:"sessions"`
 	// Maximum outgoing pool size; fixed source ports require one carrier.
 	MaxSessions int `yaml:"max_sessions"`
+	// Optional ordered, distinct peer source ports: carrier i reserves port i.
+	// This permits parallel carriers on paths requiring reproducible source ports.
+	SourcePorts []int `yaml:"source_ports"`
 	// Physical interface/source/next-hop metadata prepared before raw socket construction.
 	Network conf.Network `yaml:"network"`
 	// Reliability/cipher/mux settings for each carrier at this endpoint.
@@ -233,6 +236,9 @@ func (c *Config) prepare() error {
 // prepare combines endpoint overrides, discovery and transport defaults while enforcing
 // worker/source-port/cipher compatibility.
 func (e *Endpoint) prepare(listener bool) error {
+	if err := e.prepareSourcePorts(listener); err != nil {
+		return err
+	}
 	if e.KCP.Key != "" {
 		return fmt.Errorf("configure key/key_env at the endpoint, not under kcp")
 	}
@@ -339,6 +345,9 @@ func (e *Endpoint) prepare(listener bool) error {
 	if listener && e.Network.Port != a.Port {
 		return fmt.Errorf("network port must match listener port")
 	}
+	if len(e.SourcePorts) > 0 && e.Network.Port != 0 {
+		return fmt.Errorf("source_ports requires a zero port in network address")
+	}
 	if !listener && e.Network.Port != 0 && e.Sessions != 1 {
 		return fmt.Errorf("a fixed source port requires sessions: 1")
 	}
@@ -352,4 +361,33 @@ func (e *Endpoint) prepare(listener bool) error {
 		return fmt.Errorf("KCP mtu must leave 80 bytes for outer IP/TCP headers within interface MTU %d", e.Network.Interface.MTU)
 	}
 	return conf.PrepareKCP(&e.KCP, role)
+}
+
+// prepareSourcePorts rejects ambiguous reservations before discovery. Explicit
+// lists bound both initial and elastic pool size; unspecified ports retain the
+// existing fixed-port or random-port behavior.
+func (e *Endpoint) prepareSourcePorts(listener bool) error {
+	if len(e.SourcePorts) == 0 {
+		return nil
+	}
+	if listener || len(e.SourcePorts) > 256 {
+		return fmt.Errorf("source_ports is a peer-only list of at most 256 ports")
+	}
+	seen := make(map[int]bool, len(e.SourcePorts))
+	for _, port := range e.SourcePorts {
+		if port < 1 || port > 65535 || seen[port] {
+			return fmt.Errorf("source_ports must contain distinct ports in 1..65535")
+		}
+		seen[port] = true
+	}
+	if e.Sessions == 0 {
+		e.Sessions = min(len(e.SourcePorts), min(8, max(2, runtime.GOMAXPROCS(0))))
+	}
+	if e.MaxSessions == 0 {
+		e.MaxSessions = len(e.SourcePorts)
+	}
+	if e.Sessions > len(e.SourcePorts) || e.MaxSessions > len(e.SourcePorts) {
+		return fmt.Errorf("sessions and max_sessions must fit source_ports")
+	}
+	return nil
 }

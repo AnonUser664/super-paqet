@@ -551,7 +551,7 @@ def main():
                 raise RuntimeError('shutdown leaked owned rules')
             if report.get('shutdown_failures'):
                 raise RuntimeError('tunnel process shutdown failed')
-            if 'SECRET-DO-NOT-LOG' in (out/'client.log').read_text():
+            if (out/'client.log').exists() and 'SECRET-DO-NOT-LOG' in (out/'client.log').read_text():
                 raise RuntimeError('invalid YAML secret leaked to daemon logs')
         finally:
             for namespace in reversed(namespaces):

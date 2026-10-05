@@ -392,11 +392,20 @@ func (p *peer) allocateSlot(ctx context.Context) (*slot, error) {
 	defer p.allocationMu.Unlock()
 	p.mu.RLock()
 	closed := p.closed
+	index := len(p.slots)
 	p.mu.RUnlock()
 	if closed {
 		return nil, net.ErrClosed
 	}
-	guard, n, err := reserve(p.configuration().Network)
+	endpoint := p.configuration()
+	network := endpoint.Network
+	if len(endpoint.SourcePorts) > 0 {
+		if index >= len(endpoint.SourcePorts) {
+			return nil, fmt.Errorf("peer source port list exhausted")
+		}
+		network.Port = endpoint.SourcePorts[index]
+	}
+	guard, n, err := reserve(network)
 	if err != nil {
 		return nil, err
 	}

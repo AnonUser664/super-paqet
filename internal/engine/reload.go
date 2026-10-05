@@ -531,13 +531,21 @@ type localBind struct {
 // replacement conflict because reserve chooses another free port.
 func specBinds(s resourceSpec) []localBind {
 	if s.kind == "peer" || s.kind == "listener" {
-		if s.endpoint.Network.Port == 0 {
+		ports := s.endpoint.SourcePorts
+		if len(ports) == 0 && s.endpoint.Network.Port != 0 {
+			ports = []int{s.endpoint.Network.Port}
+		}
+		if len(ports) == 0 {
 			return nil
 		}
 		var out []localBind
-		for _, addr := range []*net.UDPAddr{s.endpoint.Network.IPv4.Addr, s.endpoint.Network.IPv6.Addr} {
-			if addr != nil {
-				out = append(out, localBind{"tcp", addr})
+		for _, port := range ports {
+			for _, addr := range []*net.UDPAddr{s.endpoint.Network.IPv4.Addr, s.endpoint.Network.IPv6.Addr} {
+				if addr != nil {
+					copy := *addr
+					copy.Port = port
+					out = append(out, localBind{"tcp", &copy})
+				}
 			}
 		}
 		return out
