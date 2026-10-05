@@ -203,18 +203,24 @@ automatically start a tunnel on the host network.
 ```sh
 make vet test
 make build bench-build
-# The WAN matrix requires the local iperf3 build described in docs/BENCHMARKS.md.
-sudo python3 scripts/qualify_wan.py --duration 20 --output build/wan-qualification
-sudo python3 scripts/systemd_netns_test.py
+# The expanded WAN matrix requires the local iperf3 build described in docs/BENCHMARKS.md.
+sudo python3 scripts/stress_links.py --binary build/super-paqet \
+  --duration 20 --profile --output build/step1-matrix
+sudo python3 scripts/systemd_netns_test.py --binary build/super-paqet
 sudo python3 scripts/netns_bench.py --enterprise --binary build/super-paqet \
   --functional --restart --capture --duration 5 --sessions 1 --workers 4
 sudo python3 scripts/netns_bench.py --enterprise --binary build/super-paqet \
-  --hold 100000 --mixed --duration 120 --sessions 8 --workers 64
+  --hold 100000 --mixed --duration 600 --sessions 8 --workers 64 --host-backlog 65536
 sudo python3 scripts/netns_bench.py --enterprise --binary build/super-paqet \
   --rate-mbit 100 --delay-ms 10 --loss 1 --duration 20
 ```
 
-The harness creates disposable network namespaces and veth links. Bandwidth,
+The harness creates disposable network namespaces and veth links. The explicit
+`--host-backlog` option temporarily raises the global Linux receive backlog for
+the scale experiment and records/restores its original value. It is not changed
+by default. The held-connection test verifies a complete response from every
+socket after the interval, and reports failures rather than counting dead sockets.
+Resource reports include RSS and swapped memory. Bandwidth,
 delay, queue depth, and loss are configurable. It verifies bytes, checks UDP
 boundaries and half-close, samples process resources, records the running binary
 hash, and checks firewall cleanup and unrelated-rule preservation. CPU profiles

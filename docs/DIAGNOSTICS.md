@@ -54,8 +54,9 @@ failures retain identifiers even when their lifecycle was not selected. Use
 `--flow-sample 1` for small live reproductions.
 
 The KCP virtual-clock matrix uses no sockets, sleeps, shared random state or
-goroutine timing. It repeats each seeded simulation and asserts identical
-delivery/loss/retransmission results as well as ordered byte integrity. Profiles
+goroutine timing. The main profile/seed/pacing combinations run twice and assert identical
+delivery/loss/retransmission results as well as ordered byte integrity; an
+additional scenario verifies sequence and clock wraparound. Profiles
 include changing capacity, blackouts, ACK restriction, duplicate/reordered
 packets, burst/random loss, slow/paused readers, tiny queues and wraparound.
 

@@ -1,8 +1,10 @@
 # Step 1 benchmark evidence
 
-The final 26-profile live matrix passed. The full validation tail is running;
-connection-soak, service, fuzzing and extra-seed results must pass before this
-candidate is promoted. Earlier revisions are retained in
+Local step 1 qualification passed: the complete 26-profile matrix, twelve
+additional seeded runs, the strengthened connection soak, service recovery,
+full checks and fuzzers all passed on the candidate identified below. Verified
+configuration, resources, cleanup and exit statuses are in
+[step1-qualification.json](step1-qualification.json). Earlier revisions are retained in
 [BENCHMARKS-HISTORY.md](BENCHMARKS-HISTORY.md); historical iperf3 `--bidir`
 measurements are invalid and are excluded from current evidence.
 
@@ -87,6 +89,26 @@ restart, multiple peers/clients, TCP directional EOF, UDP through 65,507 bytes,
 and the pcap fallback. Every main run removed its owned firewall rules and
 preserved the unrelated rule planted by the harness.
 
+## Additional seed coverage
+
+All six repeated profiles passed at seeds 7 and 313. Together with the main
+seed-42 matrix, the evidence contains 38 live profile/seed runs. Reordered-link
+bulk goodput was 53.16–54.52 Mbit/s across all three seeds; combined high-delay,
+jitter, reorder and 5% loss yielded 8.53–11.07 Mbit/s. Outage runs delivered
+59.36–66.03 Mbit/s over intervals that included a three-second blackout, with
+zero unexpected load errors. Mixed 1/100 Mbit/s tests delivered 71.37–74.82
+Mbit/s in the larger direction while HTTP churn p99 ranged from 2.097 to
+4.194 seconds. That latency remains a qualification limit under saturation.
+
+The deterministic KCP matrix covers 109 virtual scenarios, including loss,
+reorder/duplicates, delayed/restricted ACKs, outages, slow/paused readers,
+capacity changes and sequence/clock wrap. The main profile/seed/pacing
+combinations each run twice and assert identical delivery/loss/retransmission
+results. Full root and smux race suites, full KCP tests and vet checks passed.
+The 60-second control and raw-frame fuzzers passed 6,397,038 and 3,502,354
+executions. Transient systemd service restrictions, forced SIGKILL/restart,
+post-restart integrity and firewall recovery also passed on the same binary.
+
 ## Connection scale and endurance
 
 The strengthened 600-second mixed soak established 100,000 forwards in 9.216
@@ -165,7 +187,8 @@ Linux receive backlog for the scale run; default runs do not change it.
 The harness saves the original/applied values and restores the original before
 service, fuzzing and WAN tests. Do not run competing host-backlog changes during
 that isolated experiment. Raw logs, profiles, captures and netem counters remain under
-`build/step1-final-v5` and the tail artifact directory.
+`build/step1-final-v5` and `build/step1-final-v5-tail-final`.
+The isolated full-check log is retained under `build/step1-final-v5-tail-retry`.
 
 Build a local iperf3 in `build/iperf-local` when it is unavailable. The harness
 uses `build/iperf-local/bin/iperf3`. `--delay-ms` is one-way delay; queue budgets
