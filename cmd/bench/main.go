@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -380,22 +379,41 @@ func hold(parent context.Context, addresses []string, workers, count int, durati
 	case <-parent.Done():
 	}
 	timer.Stop()
-	// Verify a sample remains usable after the hold, rather than counting dead sockets.
-	indices := []int{0, len(conns) / 2, len(conns) - 1}
-	sort.Ints(indices)
-	for _, i := range indices {
-		if i >= 0 && i < len(conns) {
-			conns[i].SetDeadline(time.Now().Add(10 * time.Second))
-			_, err := io.WriteString(conns[i], "GET / HTTP/1.1\r\nHost: bench\r\n\r\n")
-			if err == nil {
-				var b [1024]byte
-				_, err = conns[i].Read(b[:])
+	// Verify every held connection, including the complete response body.
+	// Sampling can miss isolated local TCP timeouts at this scale.
+	var checked, verified atomic.Int64
+	for i := 0; i < workers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for {
+				i := int(checked.Add(1) - 1)
+				if i >= len(conns) {
+					return
+				}
+				c := conns[i]
+				c.SetDeadline(time.Now().Add(10 * time.Second))
+				_, err := io.WriteString(c, "GET / HTTP/1.1\r\nHost: bench\r\n\r\n")
+				var response string
+				var b [512]byte
+				for err == nil && !strings.Contains(response, "super-paqet benchmark\n") {
+					var n int
+					n, err = c.Read(b[:])
+					response += string(b[:n])
+					if len(response) > 4096 {
+						err = fmt.Errorf("invalid hold verification response")
+					}
+				}
+				if err != nil {
+					failed.Add(1)
+				} else {
+					verified.Add(1)
+				}
 			}
-			if err != nil {
-				failed.Add(1)
-			}
-		}
+		}()
 	}
+	wg.Wait()
+	emit(map[string]any{"phase": "verified", "connections": len(conns), "verified": verified.Load(), "errors": failed.Load()})
 	for _, c := range conns {
 		c.Close()
 	}

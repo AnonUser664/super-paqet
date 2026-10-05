@@ -59,10 +59,12 @@ def main():
     p.add_argument('--restart', action='store_true')
     p.add_argument('--mixed', action='store_true')
     p.add_argument('--socket-buffer-mib', type=int, default=0)
+    p.add_argument('--host-backlog',type=int,default=0,help='explicit temporary host netdev_max_backlog override, restored on exit')
     p.add_argument('--bridge', action='store_true', help='shape a middle bridge instead of endpoint socket queues')
     p.add_argument('--output', default='build/bench-baseline')
     a = p.parse_args()
     if a.flow_sample<1:p.error('flow sample must be positive')
+    if a.host_backlog<0 or a.host_backlog>1000000:p.error('host backlog must be 0..1000000')
     if a.duplex_http and (not a.enterprise or not a.iperf or 'bidirectional' not in a.iperf_directions):p.error('duplex HTTP requires enterprise bidirectional iperf')
     kcp_overrides=json.loads(a.kcp_options)
     if not isinstance(kcp_overrides,dict) or 'key' in kcp_overrides:p.error('KCP overrides must be an object without key')
@@ -87,12 +89,14 @@ def main():
     if a.direct_iperf and not a.iperf: p.error('--direct-iperf requires --iperf')
     if (a.restart or a.functional or a.mixed) and not a.enterprise: p.error('these workloads require --enterprise')
     if os.geteuid() != 0:
-        p.error('run as root; all network changes are scoped to disposable namespaces')
+        p.error('run as root; host backlog changes require the explicit --host-backlog option')
     resource.setrlimit(resource.RLIMIT_NOFILE, (500000, 500000))
     out = ROOT / a.output
     out.mkdir(parents=True, exist_ok=True)
     c, s = f'spq-c-{os.getpid()}', f'spq-s-{os.getpid()}'
     procs, files, namespaces, tunnel_procs, expected_killed = [], [], [], [], set()
+    backlog_path=Path('/proc/sys/net/core/netdev_max_backlog')
+    host_settings={}
     tracked={}
     schedule_stop=threading.Event()
     schedule_threads=[]
@@ -130,6 +134,10 @@ def main():
             except (FileNotFoundError, StopIteration, ProcessLookupError):
                 pass
     try:
+        if a.host_backlog:
+            host_settings={'netdev_max_backlog_original':int(backlog_path.read_text()),'netdev_max_backlog_applied':a.host_backlog,'restored':False}
+            (out/'host-settings.json').write_text(json.dumps(host_settings,indent=2)+'\n')
+            backlog_path.write_text(str(a.host_backlog))
         for n in (c,s):
             run('ip','netns','add',n); namespaces.append(n)
             ns(n,'ip','link','set','lo','up')
@@ -435,7 +443,17 @@ def main():
             (out/(n.split('-')[1]+'-qdisc.json')).write_text(ns(n,'tc','-s','-j','qdisc','show').stdout)
         (out/'results.json').write_text(json.dumps(report,indent=2)+'\n')
         print(json.dumps(report,indent=2),flush=True)
+        if any(row.get('errors',0) for row in reports):raise RuntimeError('workload reported errors; inspect results.json')
     finally:
+        if host_settings:
+            current=int(backlog_path.read_text())
+            original=host_settings['netdev_max_backlog_original']
+            if current in (a.host_backlog,original):
+                backlog_path.write_text(str(original))
+                host_settings['restored']=int(backlog_path.read_text())==original
+            else:
+                host_settings['concurrent_value']=current
+            (out/'host-settings.json').write_text(json.dumps(host_settings,indent=2)+'\n')
         schedule_stop.set()
         for thread in schedule_threads:thread.join(timeout=5)
         for proc in reversed(procs):
@@ -463,6 +481,7 @@ def main():
         if 'SUDO_UID' in os.environ:
             for path in [out,*out.rglob('*')]: os.chown(path,int(os.environ['SUDO_UID']),int(os.environ['SUDO_GID']))
         if not cleanup['firewall_clean']: raise RuntimeError('owned firewall rules leaked; see cleanup.json')
+        if host_settings and not host_settings['restored']:raise RuntimeError('host backlog changed concurrently; inspect host-settings.json')
         if any(p.returncode!=0 and p.pid not in expected_killed for p in tunnel_procs): raise RuntimeError('tunnel exited abnormally; see cleanup.json and logs')
 
 if __name__ == '__main__': main()

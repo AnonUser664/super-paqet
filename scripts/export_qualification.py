@@ -57,14 +57,19 @@ def main():
     scale_dir=Path(a.scale)
     scale=load(scale_dir/'results.json')
     if scale['binary_sha256']!=sha:raise ValueError('mixed scale binary')
-    if max((r.get('established',0) for r in scale['results']),default=0)<100000 or scale['parameters']['duration']<120:raise ValueError('100,000-connection acceptance incomplete')
+    established=max((r.get('connections',0) for r in scale['results'] if r.get('phase')=='established'),default=0)
+    verified=max((r.get('verified',0) for r in scale['results'] if r.get('phase')=='verified'),default=0)
+    if established<100000 or verified!=established or scale['parameters']['duration']<120:raise ValueError('100,000-connection acceptance incomplete or held sockets failed verification')
     scale_cleanup=load(scale_dir/'cleanup.json');clean(scale_cleanup)
+    host_settings=load(scale_dir/'host-settings.json') if (scale_dir/'host-settings.json').exists() else {}
+    if host_settings and host_settings.get('restored') is not True:raise ValueError('temporary host settings were not restored')
     service=load(a.service)
     if service['binary_sha256']!=sha or service.get('restart_pid_changed') is not True:raise ValueError('service binary/recovery mismatch')
     clean(service)
     checks=load(a.checks)
     if not checks or any(row['exit_code']!=0 for row in checks):raise ValueError('validation checks incomplete/failed')
     report={'status':'Local step-1 qualification passed; deployment and user feature review pending.','binary_sha256':sha,'limitations':['Finite local simulations and tests cannot prove universal optimality or arbitrary real-WAN/firewall behavior.','100,000 held connections are mostly idle; mixed active traffic and bulk-only throughput are separate workloads.','Receive goodput includes bytes delivered in the measurement interval; sender/receiver warmup boundaries and queued bytes can differ.'],'links':links,'scale':{'parameters':scale['parameters'],'workloads':workloads(scale['results']),'resources':scale['processes'],'cleanup':scale_cleanup,'artifact':str(scale_dir)},'service':service,'checks':checks}
+    report['scale']['host_settings']=host_settings
     Path(a.output).write_text(json.dumps(report,indent=2)+'\n')
     print(a.output+' verified: '+sha+'; '+str(len(links))+' live profiles')
 

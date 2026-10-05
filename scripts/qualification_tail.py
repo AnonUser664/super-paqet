@@ -20,6 +20,7 @@ def main():
     p.add_argument('--hold-seconds',type=int,default=600)
     p.add_argument('--check-source',default=str(ROOT),help='source checkout for full checks (allows an isolated candidate checkout)')
     p.add_argument('--resume',action='store_true',help='reuse successful recorded stages with identical commands')
+    p.add_argument('--host-backlog',type=int,default=0,help='temporary host backlog override for the scale soak only')
     a=p.parse_args()
     if os.geteuid()!=0:p.error('run as root')
     matrix=json.loads((ROOT/a.matrix).read_text())
@@ -44,7 +45,9 @@ def main():
         (out/'checks.json').write_text(json.dumps(checks,indent=2)+'\n')
         if result.returncode:raise RuntimeError(name+' failed; inspect '+str(out/(name+'.log')))
     stage('full-checks',['make','vet','test'],cwd=Path(a.check_source).resolve())
-    stage('scale-soak',[sys.executable,'scripts/netns_bench.py','--enterprise','--binary',a.binary,'--hold','100000','--mixed','--duration',str(a.hold_seconds),'--sessions','8','--workers','64','--debug','--output',str(out/'scale')])
+    scale_command=[sys.executable,'scripts/netns_bench.py','--enterprise','--binary',a.binary,'--hold','100000','--mixed','--duration',str(a.hold_seconds),'--sessions','8','--workers','64','--debug','--output',str(out/'scale')]
+    if a.host_backlog:scale_command+=['--host-backlog',str(a.host_backlog)]
+    stage('scale-soak',scale_command)
     stage('service',[sys.executable,'scripts/systemd_netns_test.py','--binary',a.binary])
     stage('fuzz-control',['go','test','./internal/protocol','-run','^$','-fuzz','FuzzControlRead','-fuzztime','60s','-parallel','4'])
     stage('fuzz-frame',['go','test','./internal/socket','-run','^$','-fuzz','FuzzDecodeFrame','-fuzztime','60s','-parallel','4'])
