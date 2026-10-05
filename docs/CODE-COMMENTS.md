@@ -32,3 +32,9 @@ separately; their original executable syntax is preserved. Their implementation
 changes remain outside the comments-only checkpoint and are not qualified by
 this annotation pass. Source architecture/version boundaries remain in
 [ARCHITECTURE.md](ARCHITECTURE.md) and [STATUS.md](STATUS.md).
+
+Validation collected after this pass: root race suite and vet passed; full KCP
+tests/vet passed (122.115 seconds for the tests); full smux race suite/vet passed
+(517.698 seconds for the race tests). The main-workspace AST/directive check
+also confirms all six pending experiments retain their original executable
+syntax after restoration. No deployment or tuning occurred during this pass.
