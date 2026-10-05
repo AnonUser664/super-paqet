@@ -33,6 +33,7 @@ type KCP struct {
 	Pshard int `yaml:"pshard"`
 
 	Block_ string `yaml:"block"`
+	Enc    string `yaml:"enc"`
 	Key    string `yaml:"key"`
 
 	Smuxbuf   int `yaml:"smuxbuf"`
@@ -82,6 +83,9 @@ func (k *KCP) setDefaults(role string) {
 	// 	k.Pshard = 3
 	// }
 
+	if k.Block_ == "" && k.Enc != "" {
+		k.Block_ = k.Enc
+	}
 	if k.Block_ == "" {
 		k.Block_ = "aes"
 	}

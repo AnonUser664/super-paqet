@@ -37,6 +37,7 @@ type Endpoint struct {
 	MaxSessions   int          `yaml:"max_sessions"`
 	Network       conf.Network `yaml:"network"`
 	KCP           conf.KCP     `yaml:"kcp"`
+	Enc           string       `yaml:"enc"`
 }
 
 type Forward struct {
@@ -207,13 +208,23 @@ func (e *Endpoint) prepare(listener bool) error {
 	if e.Sessions < 1 || e.Sessions > 256 {
 		return fmt.Errorf("sessions must be between 1 and 256")
 	}
+	if e.Enc != "" && e.KCP.Block_ == "" {
+		e.KCP.Block_ = e.Enc
+	}
+	if e.KCP.Enc != "" && e.KCP.Block_ == "" {
+		e.KCP.Block_ = e.KCP.Enc
+	}
+	if e.KCP.Block_ == "" {
+		e.KCP.Block_ = "aes-128-gcm"
+	}
+	noEnc := e.KCP.Block_ == "none" || e.KCP.Block_ == "null"
 	if e.KeyEnv != "" {
 		if e.Key != "" {
 			return fmt.Errorf("set key or key_env, not both")
 		}
 		e.Key = os.Getenv(e.KeyEnv)
 	}
-	if e.Key == "" {
+	if !noEnc && e.Key == "" {
 		return fmt.Errorf("key is required")
 	}
 	e.KCP.Key = e.Key
@@ -221,12 +232,6 @@ func (e *Endpoint) prepare(listener bool) error {
 	e.KCP.AdaptiveBuffers = e.Adaptive == nil || *e.Adaptive
 	if e.KCP.AdaptiveBuffersOverride != nil {
 		e.KCP.AdaptiveBuffers = *e.KCP.AdaptiveBuffersOverride
-	}
-	if e.KCP.Block_ == "" {
-		e.KCP.Block_ = "aes-128-gcm"
-	}
-	if e.KCP.Block_ == "none" || e.KCP.Block_ == "null" {
-		return fmt.Errorf("enterprise endpoints require encryption")
 	}
 	if e.KCP.Mode == "" {
 		e.KCP.Mode = "fast3"
