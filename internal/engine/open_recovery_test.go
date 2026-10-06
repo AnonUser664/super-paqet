@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -21,6 +23,12 @@ import (
 // openingCarrier pairs real mux sessions over a deterministic in-memory link;
 // a UDP KCP handle supplies the same RTT/identity API used by pool recovery.
 func openingCarrier(t *testing.T, conv uint32) (*slot, *smux.Session) {
+	return openingCarrierConn(t, conv, nil)
+}
+
+// openingCarrierConn permits deterministic carrier-write stalls, independent of
+// peer replies or retransmission timers.
+func openingCarrierConn(t *testing.T, conv uint32, wrap func(net.Conn) net.Conn) (*slot, *smux.Session) {
 	t.Helper()
 	packet, err := net.ListenPacket("udp", "127.0.0.1:0")
 	if err != nil {
@@ -40,7 +48,11 @@ func openingCarrier(t *testing.T, conv uint32) (*slot, *smux.Session) {
 	left, right := net.Pipe()
 	cfg := smux.DefaultConfig()
 	cfg.Version = 2
-	client, err := smux.Client(left, cfg)
+	var local net.Conn = left
+	if wrap != nil {
+		local = wrap(left)
+	}
+	client, err := smux.Client(local, cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -177,6 +189,99 @@ func TestTransportReceiptRetainsTargetDialBudget(t *testing.T) {
 	}
 	defer stream.Close()
 	if err := <-done; err != nil {
+		t.Fatal(err)
+	}
+}
+
+// openingGate holds writes after an existing stream is established. Its close
+// broadcast releases the stalled sender during cleanup even after a failure.
+type openingGate struct {
+	net.Conn
+	blocked                atomic.Bool
+	entered                chan struct{}
+	release                chan struct{}
+	done                   chan struct{}
+	enteredOnce, closeOnce sync.Once
+}
+
+func (g *openingGate) Write(b []byte) (int, error) {
+	if g.blocked.Load() {
+		g.enteredOnce.Do(func() { close(g.entered) })
+		select {
+		case <-g.release:
+		case <-g.done:
+			return 0, io.ErrClosedPipe
+		}
+	}
+	return g.Conn.Write(b)
+}
+func (g *openingGate) Close() error { g.closeOnce.Do(func() { close(g.done) }); return g.Conn.Close() }
+
+// TestSYNSubmissionRetriesWithoutClosingBusyCarrier verifies that the receipt
+// budget includes a blocked SYN write and that aborting it adds no close timeout.
+func TestSYNSubmissionRetriesWithoutClosingBusyCarrier(t *testing.T) {
+	e := reloadFixture(t)
+	var gate *openingGate
+	stalled, first := openingCarrierConn(t, 1301, func(c net.Conn) net.Conn {
+		gate = &openingGate{Conn: c, entered: make(chan struct{}), release: make(chan struct{}), done: make(chan struct{})}
+		return gate
+	})
+	oldLocal, oldRemote := holdOpeningCarrier(t, stalled, first)
+	t.Cleanup(func() { gate.Close() })
+	healthy, second := openingCarrier(t, 1302)
+	healthy.score.Store(1)
+	gate.blocked.Store(true)
+	p := &peer{engine: e, endpoint: Endpoint{MaxSessions: 2}, slots: []*slot{stalled, healthy}}
+	ack := make(chan error, 1)
+	go func() {
+		s, err := second.AcceptStream()
+		if err == nil {
+			var request protocol.Proto
+			err = request.Read(s)
+			if err == nil {
+				err = writeOpeningAck(&kcp.Strm{Stream: s}, 0)
+			}
+		}
+		ack <- err
+	}()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	started := time.Now()
+	result := make(chan error, 1)
+	go func() {
+		s, err := p.open(ctx, protocol.PTCP2, "127.0.0.1:2096")
+		if err == nil {
+			s.Close()
+		}
+		result <- err
+	}()
+	select {
+	case err := <-result:
+		if err != nil {
+			t.Fatal(err)
+		}
+	case <-time.After(1500 * time.Millisecond):
+		t.Fatal("SYN submission or abort ignored the opening budget")
+	}
+	if time.Since(started) > time.Second || e.stats.OpenRetries.Load() != 1 {
+		t.Fatalf("recovery budget/retries: elapsed=%s retries=%d", time.Since(started), e.stats.OpenRetries.Load())
+	}
+	if err := <-ack; err != nil {
+		t.Fatal(err)
+	}
+	if stalled.conn.Load() == nil || stalled.conn.Load().Session.IsClosed() {
+		t.Fatal("SYN timeout closed the busy carrier")
+	}
+	close(gate.release)
+	oldLocal.SetDeadline(time.Now().Add(time.Second))
+	oldRemote.SetDeadline(time.Now().Add(time.Second))
+	written := make(chan error, 1)
+	go func() { _, err := oldLocal.Write([]byte("alive")); written <- err }()
+	var data [5]byte
+	if _, err := io.ReadFull(oldRemote, data[:]); err != nil || string(data[:]) != "alive" {
+		t.Fatalf("established forward lost: %q %v", data, err)
+	}
+	if err := <-written; err != nil {
 		t.Fatal(err)
 	}
 }

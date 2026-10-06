@@ -4,6 +4,7 @@
 package kcp
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"time"
@@ -36,6 +37,16 @@ func (c *Conn) OpenStrm() (tnet.Strm, error) {
 		return nil, err
 	}
 	return &Strm{strm}, nil
+}
+
+// OpenStrmContext bounds a new stream's SYN submission without setting a shared
+// carrier deadline or interrupting already established streams.
+func (c *Conn) OpenStrmContext(ctx context.Context) (tnet.Strm, error) {
+	stream, err := c.Session.OpenStreamContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &Strm{stream}, nil
 }
 
 // AcceptStrm accepts a logical mux stream while the shared carrier remains active.

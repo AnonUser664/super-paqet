@@ -29,7 +29,7 @@ import (
 func reloadFixture(t *testing.T) *Engine {
 	t.Helper()
 	ctx, cancel := context.WithCancel(context.Background())
-	cfg := &Config{Limits: Limits{Connections: 10, Sessions: 5}, Peers: map[string]Endpoint{}}
+	cfg := &Config{Limits: Limits{Connections: 10, Sessions: 5, OpenDuration: 10 * time.Second, DialDuration: 5 * time.Second, UDPDuration: 60 * time.Second}, Peers: map[string]Endpoint{}}
 	if err := cfg.Log.prepare(); err != nil {
 		t.Fatal(err)
 	}

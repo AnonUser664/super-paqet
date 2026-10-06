@@ -133,12 +133,23 @@ func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
 		return nil, err
 	}
 	c := conn.(*kcp.Conn)
-	strm, err := c.OpenStrm()
+	setupCtx, cancelSetup := context.WithTimeout(ctx, p.engine.current().Limits.OpenDuration)
+	stopSetup := context.AfterFunc(setupCtx, func() { c.Close() })
+	strm, err := c.OpenStrmContext(setupCtx)
 	if err == nil {
-		strm.SetDeadline(time.Now().Add(p.engine.current().Limits.OpenDuration))
+		setupDeadline, _ := setupCtx.Deadline()
+		strm.SetDeadline(setupDeadline)
 		err = (&protocol.Proto{Type: protocol.PTCPF, TCPF: p.configuration().Network.TCP.RF}).Write(strm)
-		strm.Close()
+		abortOpening(strm)
 	}
+	stopped := stopSetup()
+	if err == nil && !stopped {
+		err = setupCtx.Err()
+		if err == nil {
+			err = context.Canceled
+		}
+	}
+	cancelSetup()
 	if err != nil {
 		c.Close()
 		return nil, err
@@ -161,6 +172,8 @@ func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
 // open opens one target stream, separates transport receipt from target failure and bounds
 // carrier retry selection.
 func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, error) {
+	ctx, cancel := context.WithTimeout(ctx, p.engine.current().Limits.OpenDuration)
+	defer cancel()
 	a, err := tnet.NewAddr(target)
 	if err != nil {
 		return nil, err
@@ -192,9 +205,24 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 			excluded[s] = true
 			continue
 		}
-		strm, err := c.OpenStrm()
+		deadline, _ := ctx.Deadline()
+		firstReply := p.receiptDeadline(time.Now(), deadline, s, excluded, c.UDPSession.GetSRTT())
+		openingCtx, cancelOpening := context.WithDeadline(ctx, firstReply)
+		strm, err := c.OpenStrmContext(openingCtx)
+		cancelOpening()
 		if err != nil {
-			p.invalidate(s, c)
+			if errors.Is(err, context.Canceled) {
+				p.invalidateIdle(s, c)
+				return nil, err
+			}
+			var timeout interface{ Timeout() bool }
+			if errors.As(err, &timeout) && timeout.Timeout() && p.engine.ctx.Err() == nil {
+				p.invalidateIdle(s, c)
+				transportRetry = true
+				p.engine.log().Debug("opening.syn_timeout", "remote", p.configuration().Address, "conv", c.UDPSession.GetConv(), "attempt", attempts+1, "remaining_ms", time.Until(deadline).Milliseconds(), "streams", c.Session.NumStreams(), "error", err)
+			} else {
+				p.invalidate(s, c)
+			}
 			if excluded == nil {
 				excluded = make(map[*slot]bool)
 			}
@@ -202,10 +230,8 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 			last = err
 			continue
 		}
-		deadline, _ := ctx.Deadline()
-		firstReply := p.receiptDeadline(time.Now(), deadline, s, excluded, c.UDPSession.GetSRTT())
 		strm.SetDeadline(firstReply)
-		stop := context.AfterFunc(ctx, func() { strm.Close() })
+		stop := context.AfterFunc(ctx, func() { abortOpening(strm) })
 		err = (&protocol.Proto{Type: kind, Addr: a}).Write(strm)
 		var ack [1]byte
 		if err == nil {
@@ -229,7 +255,7 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 			var timeout interface{ Timeout() bool }
 			transportTimedOut := ack[0] == 0 && errors.As(err, &timeout) && timeout.Timeout()
 			if transportTimedOut && p.engine.ctx.Err() == nil {
-				strm.Close()
+				abortOpening(strm)
 				// Only this new stream failed. Existing forwards retain their carrier.
 				transportRetry = true
 				p.engine.log().Debug("opening.transport_timeout", "remote", p.configuration().Address, "target", target, "conv", c.UDPSession.GetConv(), "attempt", attempts+1, "remaining_ms", time.Until(deadline).Milliseconds(), "streams", c.Session.NumStreams(), "error", err)
@@ -241,13 +267,24 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 				last = err
 				continue
 			}
-			strm.Close()
+			abortOpening(strm)
 			return nil, err
 		}
 		strm.SetDeadline(time.Time{})
 		return strm, nil
 	}
 	return nil, fmt.Errorf("peer unavailable: %w", last)
+}
+
+// abortOpening releases failed new-stream ownership without spending another
+// control-write timeout. KCP streams support a bounded best-effort reset; the
+// fallback preserves the generic stream contract for other implementations.
+func abortOpening(stream tnet.Strm) {
+	if abort, ok := stream.(interface{ Abort() error }); ok {
+		abort.Abort()
+	} else {
+		stream.Close()
+	}
 }
 
 // receiptDeadline reserves time for untried carriers when one ordered lane

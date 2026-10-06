@@ -26,6 +26,7 @@
 package smux
 
 import (
+	"context"
 	"encoding/binary"
 	"errors"
 	"io"
@@ -46,13 +47,6 @@ const (
 	maxShaperSize    = 1024
 	openCloseTimeout = 30 * time.Second // Timeout for opening/closing streams
 )
-
-// resultChanPool reduces allocation of result channels
-var resultChanPool = sync.Pool{
-	New: func() any {
-		return make(chan writeResult, 1)
-	},
-}
 
 // CLASSID represents the class of a frame
 type CLASSID int
@@ -109,6 +103,8 @@ type writeRequest struct {
 	seq uint32
 	// One request completion signal reporting accepted bytes or a carrier error.
 	result chan writeResult
+	// Shared ownership survives caller timeout until the sender finishes or skips it.
+	owner *writeOwnership
 }
 
 // writeResult represents the result of a write request
@@ -121,6 +117,10 @@ type writeResult struct {
 
 // Session defines a multiplexed connection for streams
 type Session struct {
+	// Counts expired queued frames skipped before carrier submission.
+	writeCanceled atomic.Uint64
+	// Counts best-effort opening resets rejected by the bounded local queue.
+	abortQueueDrops atomic.Uint64
 	// Cumulative waits for per-stream remote credit.
 	flowWaitCount atomic.Uint64
 	// Cumulative credit-blocked duration without a dedicated per-stream timer.
@@ -179,6 +179,8 @@ type Session struct {
 
 	requestID uint32            // Monotonic increasing write request ID
 	shaper    chan writeRequest // a shaper for writing
+	// Sender cleanup waits until the scheduler stops publishing heap entries.
+	shaperDone chan struct{}
 	// Shared output scheduler used by the sole carrier-writing loop.
 	sq *shaperQueue
 	// Coalesces signals that the sender has queued data/control work.
@@ -209,6 +211,7 @@ func newSession(config *Config, conn io.ReadWriteCloser, client bool) *Session {
 	s.bucket = int32(config.MaxReceiveBuffer)
 	s.bucketNotify = make(chan struct{}, 1)
 	s.shaper = make(chan writeRequest, maxShaperSize)
+	s.shaperDone = make(chan struct{})
 	s.chSocketReadError = make(chan struct{})
 	s.chSocketWriteError = make(chan struct{})
 	s.chProtoError = make(chan struct{})
@@ -241,8 +244,22 @@ func newSession(config *Config, conn io.ReadWriteCloser, client bool) *Session {
 	return s
 }
 
-// OpenStream is used to create a new stream
-func (s *Session) OpenStream() (*Stream, error) {
+// OpenStream creates a stream with the retained default control-write timeout.
+func (s *Session) OpenStream() (*Stream, error) { return s.openStream(nil) }
+
+// OpenStreamContext bounds SYN submission without changing shared carrier
+// deadlines. Cancellation abandons only this new stream, retaining siblings.
+func (s *Session) OpenStreamContext(ctx context.Context) (*Stream, error) {
+	ctx, cancel := context.WithTimeout(ctx, openCloseTimeout)
+	defer cancel()
+	return s.openStream(ctx)
+}
+
+// openStream publishes receive ownership before submitting its bounded SYN.
+func (s *Session) openStream(ctx context.Context) (*Stream, error) {
+	if ctx != nil && ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
 	if s.IsClosed() {
 		return nil, io.ErrClosedPipe
 	}
@@ -287,7 +304,15 @@ func (s *Session) OpenStream() (*Stream, error) {
 		return nil, err
 	}
 
-	_, err = s.writeControlFrame(newFrame(byte(s.config.Version), cmdSYN, sid))
+	frame := newFrame(byte(s.config.Version), cmdSYN, sid)
+	if ctx == nil {
+		_, err = s.writeControlFrame(frame)
+	} else {
+		_, err = s.writeFrameContext(frame, nil, CLSCTRL, ctx)
+	}
+	if err == nil && ctx != nil {
+		err = ctx.Err()
+	}
 	if err == nil {
 		select {
 		case <-s.chSocketReadError:
@@ -302,8 +327,7 @@ func (s *Session) OpenStream() (*Stream, error) {
 	if err != nil {
 		// No wrapper escapes on failure. Reclaim any early receive tokens
 		// and pending credits without waiting for another control write.
-		stream.sessionClose()
-		s.streamClosed(sid)
+		stream.Abort()
 		return nil, err
 	}
 	return &Stream{stream: stream}, nil
@@ -653,11 +677,14 @@ func (s *Session) keepalive() {
 // Eg: Control messages are prioritized over data messages, and shaper tries
 // it's best to keep fair bandwidth among streams.
 func (s *Session) shaperLoop() {
+	defer close(s.shaperDone)
 	chShaper := s.shaper
 
 	for {
 		select {
 		case <-s.die:
+			return
+		case <-s.chSocketWriteError:
 			return
 		case r := <-chShaper:
 			s.sq.Push(r)
@@ -695,6 +722,7 @@ func (s *Session) notifyShaperConsumed() {
 
 // sendLoop sends frames over the underlying connection
 func (s *Session) sendLoop() {
+	defer s.releasePendingWrites()
 	var buf []byte
 	var n int
 	var err error
@@ -741,6 +769,13 @@ EVENT_LOOP:
 					goto EVENT_LOOP
 				}
 
+				if request.owner != nil && request.owner.canceled.Load() {
+					s.writeCanceled.Add(1)
+					refundUnsentFrame(request.frame)
+					request.owner.release()
+					continue
+				}
+
 				buf[0] = request.frame.ver
 				buf[1] = request.frame.cmd
 				binary.LittleEndian.PutUint16(buf[2:], uint16(len(request.frame.data)))
@@ -769,6 +804,9 @@ EVENT_LOOP:
 				if request.result != nil {
 					request.result <- result
 				}
+				if request.owner != nil {
+					request.owner.release()
+				}
 
 				// store conn error
 				if err != nil {
@@ -794,41 +832,69 @@ func (s *Session) writeControlFrame(f Frame) (n int, err error) {
 
 // internal writeFrame version to support deadline used in keepalive
 func (s *Session) writeFrameInternal(f Frame, deadline <-chan time.Time, class CLASSID) (int, error) {
-	// get result channel from pool
-	resultCh := resultChanPool.Get().(chan writeResult)
+	return s.writeFrameContext(f, deadline, class, nil)
+}
 
-	req := writeRequest{
-		class:  class,
-		frame:  f,
-		seq:    atomic.AddUint32(&s.requestID, 1),
-		result: resultCh,
+// writeFrameContext combines ordinary stream deadlines with a per-opening
+// context. It never changes deadlines on the shared KCP connection.
+func (s *Session) writeFrameContext(f Frame, deadline <-chan time.Time, class CLASSID, ctx context.Context) (int, error) {
+	var canceled <-chan struct{}
+	if ctx != nil {
+		canceled = ctx.Done()
 	}
+	// Avoid retaining payloads for operations already known to have expired.
+	select {
+	case <-s.die:
+		refundUnsentFrame(f)
+		return 0, io.ErrClosedPipe
+	case <-s.chSocketWriteError:
+		refundUnsentFrame(f)
+		return 0, s.socketWriteError.Load().(error)
+	case <-deadline:
+		refundUnsentFrame(f)
+		return 0, ErrTimeout
+	case <-canceled:
+		refundUnsentFrame(f)
+		return 0, ctx.Err()
+	default:
+	}
+	owner := newWriteOwnership(&f)
+	defer owner.release() // caller reference; the sender retains its own reference
+	req := writeRequest{class: class, frame: f, seq: atomic.AddUint32(&s.requestID, 1), result: owner.result, owner: owner}
 	select {
 	case s.shaper <- req:
 	case <-s.die:
-		resultChanPool.Put(resultCh)
+		refundUnsentFrame(f)
+		owner.release()
 		return 0, io.ErrClosedPipe
 	case <-s.chSocketWriteError:
-		resultChanPool.Put(resultCh)
+		refundUnsentFrame(f)
+		owner.release()
 		return 0, s.socketWriteError.Load().(error)
 	case <-deadline:
-		resultChanPool.Put(resultCh)
+		refundUnsentFrame(f)
+		owner.release()
 		return 0, ErrTimeout
+	case <-canceled:
+		refundUnsentFrame(f)
+		owner.release()
+		return 0, ctx.Err()
 	}
-
 	select {
-	case result := <-resultCh:
-		resultChanPool.Put(resultCh)
+	case result := <-owner.result:
 		return result.n, result.err
 	case <-s.die:
-		// Cannot recycle channel here - sendLoop may still write to it
+		owner.canceled.Store(true)
 		return 0, io.ErrClosedPipe
 	case <-s.chSocketWriteError:
-		// Cannot recycle channel here - sendLoop may still write to it
+		owner.canceled.Store(true)
 		return 0, s.socketWriteError.Load().(error)
 	case <-deadline:
-		// Cannot recycle channel here - sendLoop may still write to it
+		owner.canceled.Store(true)
 		return 0, ErrTimeout
+	case <-canceled:
+		owner.canceled.Store(true)
+		return 0, ctx.Err()
 	}
 }
 
@@ -839,4 +905,10 @@ func (s *Session) ReceiveBufferStats() (capacity, buffered int, blocked bool) {
 	capacity = s.config.MaxReceiveBuffer
 	buffered = max(0, capacity-int(atomic.LoadInt32(&s.bucket)))
 	return capacity, buffered, s.receiveBlocked.Load()
+}
+
+// WriteCancellationStats exposes canceled queued writes and failed best-effort
+// reset admission without scanning requests or taking the output queue lock.
+func (s *Session) WriteCancellationStats() (canceled, resetDrops uint64) {
+	return s.writeCanceled.Load(), s.abortQueueDrops.Load()
 }

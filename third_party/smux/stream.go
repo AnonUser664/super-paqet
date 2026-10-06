@@ -557,6 +557,7 @@ func (s *stream) WritePriority(b []byte) (int, error) {
 		deadline = timer.C
 	}
 	f := newFrame(byte(s.sess.config.Version), cmdPSH, s.id)
+	f.credit = s
 	f.data = b
 	atomic.AddUint32(&s.numWritten, uint32(len(b)))
 	n, err := s.sess.writeFrameInternal(f, deadline, CLSCTRL)
@@ -592,6 +593,7 @@ func (s *stream) writeV1(b []byte) (n int, err error) {
 	// frame split and transmit
 	sent := 0
 	frame := newFrame(byte(s.sess.config.Version), cmdPSH, s.id)
+	frame.credit = s
 	for len(b) > 0 {
 		if s.writeClosed.Load() {
 			return sent, io.ErrClosedPipe
@@ -636,6 +638,7 @@ func (s *stream) writeV2(b []byte) (n int, err error) {
 	// frame split and transmit process
 	sent := 0
 	frame := newFrame(byte(s.sess.config.Version), cmdPSH, s.id)
+	frame.credit = s
 
 	var deadlineTimer *time.Timer
 	defer func() {
@@ -745,6 +748,36 @@ func (s *stream) waitCredit(deadline <-chan time.Time) error {
 		return s.sess.socketWriteError.Load().(error)
 	case <-s.chUpdate:
 		return nil
+	}
+}
+
+// Abort releases local stream ownership immediately and queues a best-effort
+// reset without waiting behind a blocked carrier. It is used for failed new
+// openings, whose peer handler retains its own opening timeout. An in-progress
+// underlying write may still finish; its request owns an independent payload.
+func (s *stream) Abort() error {
+	once := false
+	s.dieOnce.Do(func() { close(s.die); once = true })
+	if !once {
+		return io.ErrClosedPipe
+	}
+	s.writeClosed.Store(true)
+	s.sess.streamClosed(s.id)
+	cmd := cmdFIN
+	if s.sess.config.HalfClose {
+		cmd = cmdRST
+	}
+	req := writeRequest{class: CLSCTRL, frame: newFrame(byte(s.sess.config.Version), cmd, s.id), seq: atomic.AddUint32(&s.sess.requestID, 1)}
+	select {
+	case <-s.sess.die:
+		return io.ErrClosedPipe
+	case <-s.sess.chSocketWriteError:
+		return s.sess.socketWriteError.Load().(error)
+	case s.sess.shaper <- req:
+		return nil
+	default:
+		s.sess.abortQueueDrops.Add(1)
+		return ErrWouldBlock
 	}
 }
 

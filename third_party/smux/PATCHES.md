@@ -52,3 +52,14 @@ delivery, cancellation and deadlines.
   those frames must not be discarded as belonging to an unknown stream. Pending
   opens also count as live users for CloseIfIdle. A failed opening reclaims early
   receive data/credits. Deterministic duplex-completion regressions cover both.
+
+* Queued writes own pooled payload snapshots and a two-reference completion
+  lease. A returned timed-out write cannot retain the caller's scratch buffer;
+  abandoned queued frames are skipped and their pre-reserved stream credit is
+  refunded. In-flight writes may still complete and retain their reservation.
+  Sender shutdown drains bounded queues; storage/channel reuse waits for both
+  producer and sender, including late abandoned results.
+* `OpenStreamContext` applies a caller budget to SYN submission without changing
+  shared-carrier deadlines. `Abort` releases local ownership immediately with
+  bounded best-effort FIN/RST admission; ordinary `Close` retains graceful/default
+  semantics. Failed-opening reset queue overflow and skipped writes are observable.

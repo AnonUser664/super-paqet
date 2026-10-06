@@ -68,6 +68,8 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 			waiting = 1
 		}
 		fmt.Fprintf(w, "super_paqet_session_mux_receive_capacity_bytes{%s} %d\nsuper_paqet_session_mux_receive_buffered_bytes{%s} %d\nsuper_paqet_session_mux_receive_blocked{%s} %d\n", labels, capacity, labels, buffered, labels, waiting)
+		canceled, resetDrops := c.Session.WriteCancellationStats()
+		fmt.Fprintf(w, "super_paqet_session_mux_canceled_writes_total{%s} %d\nsuper_paqet_session_mux_abort_queue_drops_total{%s} %d\n", labels, canceled, labels, resetDrops)
 		minWindow, maxWindow := c.Session.ReceiveWindowStats()
 		for _, v := range []struct {
 			name  string

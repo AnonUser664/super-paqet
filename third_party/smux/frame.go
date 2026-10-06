@@ -74,6 +74,8 @@ type Frame struct {
 	cmd  byte   // command
 	sid  uint32 // stream id
 	data []byte // payload
+	// Local credit reservation owner; never serialized into the wire header.
+	credit *stream
 }
 
 // newFrame creates a new frame with given version, command and stream id
