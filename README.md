@@ -15,11 +15,12 @@ untested hardware and firewall products.
 
 ## Review documentation
 
-The current deployed recovery version works in the recorded four-path checks
-and the user's one-active-user test. Thousands of active customers on these
-hosts remain unqualified. New queue-pressure/firewall fixes are committed but
-not redeployed. Live config reload and `config validate` are now implemented
-locally; deployment remains paused for review.
+The final enterprise release is deployed on the four active hosts. Live reload,
+validation, queue-pressure fixes and shared fixed-source KCP lanes are included.
+The exact binary passed local 100k/multi-gigabit and deployed 8k-forward tests.
+The Netherlands authenticated burst tail remains unqualified; see the
+[final deployment report](docs/FINAL-DEPLOYMENT-REPORT.md) and
+[sanitized evidence](docs/final-deployment-evidence.json).
 
 Start with [current status](docs/STATUS.md), then read the
 [architecture and source map](docs/ARCHITECTURE.md),
@@ -32,8 +33,9 @@ links the measured evidence and recorded deployed configurations.
 See the [live reload guide](docs/LIVE-RELOAD.md) for edit impact, validation,
 SIGHUP and rollback behavior.
 
-The workspace contains separate uncommitted experiments. A generic build can
-include them; use a selected clean source revision for release qualification.
+Unqualified earlier timing/outer-sequence experiments are preserved on the
+archive/pre-final-wire-experiments branch and in a named stash. They are excluded
+from the main checkout. Match release hashes and settings when comparing results.
 
 ## Build and run
 

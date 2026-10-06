@@ -1,6 +1,7 @@
 # Operations and review runbook
 
-Work is paused for review. These commands describe procedures; documentation
+The final release is deployed; see [the final report](FINAL-DEPLOYMENT-REPORT.md)
+for exact hashes, snapshots and remaining qualification limits. These commands describe procedures; documentation
 updates do not install packages, restart services or deploy code. Establish the
 selected source/binary/configuration before carrying out a future deployment.
 
@@ -197,7 +198,8 @@ available ports. Automatic polling applies file changes without a service
 restart. The updated unit template uses SIGHUP for `ExecReload`; SIGHUP requests
 reload and returns before asynchronous validation/application completes. Check
 `config.applied`, `config.rejected` and `super_paqet_config_revision` for outcome.
-The recorded deployed unit/binary are unchanged and do not yet support this.
+The final deployed unit supports ExecReload/SIGHUP. The older deployed/ snapshots
+remain historical; use deployed-final/ for current files.
 
 See [LIVE-RELOAD.md](LIVE-RELOAD.md) before changing transport settings. Some
 edits preserve all streams; structural endpoint changes interrupt only their

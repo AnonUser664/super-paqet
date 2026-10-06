@@ -1,8 +1,11 @@
+The live reload implementation is now deployed in enterprise-2026.10.06.
+See [the final report](FINAL-DEPLOYMENT-REPORT.md) for exact hashes and limits.
+
 # Live configuration reload and validation
 
 The new source implements live reload for `super-paqet run -c PATH` and a
-preparation-only validation command. These features are **not deployed** to the
-four running hosts. Their recorded binaries/configs/units remain unchanged.
+preparation-only validation command. These features are deployed to the four active hosts in the final enterprise
+release. Older deployed/ files are retained as historical snapshots.
 The existing raw Ethernet/IP/TCP fabrication, capture/injection and inner
 KCP/mux framing contracts are retained.
 
@@ -78,7 +81,7 @@ completion. A rejected config is never treated as an applied revision.
 | Remove peer | Close its carriers/streams and release its guards/rules. No obsolete pool is retained indefinitely. |
 | Reorder listener/forward lists | Retain resources identified by address/protocol; ordering alone does not reconnect traffic. |
 | KCP `mode`, manual `nodelay`, `interval`, `resend`, `nocongestion`, `wdelay`, `acknodelay` | Apply safe mutex-protected setters to established and future carriers of that endpoint; retain conversation, mux and stream state. Presets still override manual values. |
-| KCP `write_batch_ms`, `ack_delay_max_ms` | Apply setters in place for that endpoint, preserving streams. The enabled adaptive controller continues its existing adjustments. |
+| KCP `write_batch_ms`, `ack_delay_max_ms`, `small_write_flush` | Apply setters in place for that endpoint, preserving streams. The enabled adaptive controller continues its existing adjustments. |
 | KCP send/receive windows, MTU, FEC, cipher/key, ACK timestamps, mux credits/buffers/keepalive | Replace only that peer/listener. Existing streams carried by it are interrupted. Wire/mux contracts and queued data make conservative replacement appropriate. |
 | Endpoint `adaptive`, sessions/max_sessions, packet workers, source address, interface/MAC, flags, packet driver/budgets, remote address | Replace that endpoint and interrupt its carriers; unrelated endpoints remain. Fixed source/bind reuse can require break-before-make. |
 | `limits.connections`, `limits.sessions` | Update admission without evicting established work. Lower limits reject new work until usage permits it. Listener worker admission ceilings update in place. Descriptor capacity is raised within the existing hard limit. |

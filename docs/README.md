@@ -1,3 +1,7 @@
+Current release and measured limits: [final deployment report](FINAL-DEPLOYMENT-REPORT.md),
+[status](STATUS.md), [fresh snapshots](deployed-final/README.md),
+[sanitized evidence](final-deployment-evidence.json).
+
 # Documentation map
 
 Read [STATUS.md](STATUS.md) first. It distinguishes the running base, earlier
@@ -25,5 +29,5 @@ has verified one active customer; thousands of active customers remain untested.
 
 No single document establishes universal production readiness. Performance
 results must be read with their binary, cipher, packet size, controller settings,
-concurrency, hardware and measurement method. None of this review documentation
-authorizes or performs another deployment.
+concurrency, hardware and measurement method. Deployment authorization was subsequently provided by the user; the final
+report records what was actually deployed and the outstanding qualification limits.

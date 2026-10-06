@@ -1,10 +1,11 @@
 # Application architecture and source map
 
-This describes the current committed enterprise source, including live config
-reconciliation and the validation CLI. The deployed `1c77c55` base retains its
-previous lifecycle; the newer queue-pressure and live-reload changes remain
-undeployed. Dirty timeout/sequence edits and the separate `4c7aa6a` experiment
-are excluded. [STATUS.md](STATUS.md) identifies versions and qualification boundaries.
+This describes the committed enterprise source and the final deployed release.
+It includes scoped live reconciliation, shared fixed-source KCP lanes and an
+indexed outstanding-ACK path. Unqualified outer-sequence experiments are
+archived separately. [STATUS.md](STATUS.md) and the
+[final deployment report](FINAL-DEPLOYMENT-REPORT.md) identify measurements and
+remaining qualification limits.
 
 ## Process model
 
@@ -99,7 +100,7 @@ its patch history and transport/workload regressions reviewed.
 Accepted carriers share the listener's packet socket. Closing one accepted
 carrier must not close that socket and disconnect other clients. This also
 explains why per-carrier owning PacketConn can be nil: listener TX-drop metrics
-are socket-scoped. The undeployed fix samples those listener sockets safely,
+are socket-scoped. The deployed fix samples those listener sockets safely,
 rather than dereferencing an absent owning socket in accepted-carrier logs.
 
 Outer flag state is indexed by remote address/port and guarded by conversation
@@ -288,3 +289,30 @@ path-MTU discovery, automatic FEC selection, or proven thousands-busy-customer
 capacity on the current hosts. See [CONFIGURATION.md](CONFIGURATION.md),
 [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md), [OPERATIONS.md](OPERATIONS.md)
 and the versioned evidence before choosing structural changes.
+
+## Shared source lanes and ACK indexing
+
+`Endpoint.SharedSource` prepares the internal KCP routing contract on both ends.
+`internal/tnet/kcp/shared.go` owns one physical packet socket, encoder and source
+reservation per outgoing pool. Every lane has its own KCP/mux state and timers;
+closing a lane keeps the socket/siblings, while pool retirement closes all.
+`third_party/kcp-go/conversation_socket.go` routes by remote address and inner
+conversation ID. Outgoing shared groups reject unsolicited conversations.
+Parity-only FEC lacks a conversation ID, so shared mode rejects it. Ordinary
+address/reset/FEC routing remains the default.
+
+Server flag ownership retains all live lanes for a tuple; last-lane cleanup
+removes the override. Shared physical socket counters can appear under multiple
+lane labels and must not be summed as independent per-lane drops.
+
+`third_party/kcp-go/fastack_index.go` maintains ordered links by sequence number
+inside the send ring. ACKs unlink in constant time; gap processing visits only
+outstanding segments. Numeric links survive ring reallocation and SN wrap.
+There are no per-ACK allocations; retained entries add eight bytes. The linear
+algorithm is the differential-test oracle. Retransmission evidence and wire
+encoding remain unchanged.
+
+`small_write_flush` is a lock-protected scheduling exception for bounded logical
+writes under bulk batching. It preserves FIFO byte order and the ACK policy;
+zero preserves preset behavior. Reliability reload updates it in place. Static
+endpoints still sample slot pressure for configured pool selection/growth.

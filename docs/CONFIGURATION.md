@@ -1,11 +1,10 @@
 # Complete configuration guide
 
-This reference describes the current committed source, including live configuration
-reload and `config validate`. The deployed `1c77c55` runtime and its recorded
-configs remain unchanged and do **not** have these new commands/reload behavior.
-The queue-pressure fixes and reload implementation have not been redeployed.
-Separate dirty workspace experiments remain outside this reference. See
-[STATUS.md](STATUS.md) and [LIVE-RELOAD.md](LIVE-RELOAD.md) for boundaries.
+This reference describes the current committed source and the final deployed
+enterprise release, including live reload, validation, shared-source KCP lanes
+and small-write flushing. The older `1c77c55` snapshots are history. See
+[STATUS.md](STATUS.md), [FINAL-DEPLOYMENT-REPORT.md](FINAL-DEPLOYMENT-REPORT.md) and
+[LIVE-RELOAD.md](LIVE-RELOAD.md) for deployment and qualification limits.
 
 The old `role`, `server`, `listen`, `transport`, `forward` and SOCKS configuration
 is not accepted by this engine. It uses strict YAML: unknown fields are errors.
@@ -278,6 +277,7 @@ paqet defaults. Recovery configurations intentionally override many of them.
 | `streambuf` | 16777216 | Per-stream advertised receive-window ceiling, bytes. |
 | `smuxkalive` | 2 | Keepalive interval, **integer seconds**. |
 | `smuxktimeout` | 30 | Idle/no-inbound-traffic keepalive timeout, integer seconds. |
+| `small_write_flush` | 0 | Immediate-flush exception for logical KCP writes at or below this byte threshold, 0–65535. Keeps the selected preset's bulk batching and ACK policy. Zero disables it. May be reloaded in place. |
 | `write_batch_ms` | 20 | Paced data-frame batching-time ceiling, effective 1–1000 ms. |
 | `ack_delay_max_ms` | 20 | Adaptive ACK delay ceiling, effective 1–20 ms. |
 | `ack_timestamps` | `true` | Optional inner ACK timestamps for peer scheduling/directional queue estimates. |

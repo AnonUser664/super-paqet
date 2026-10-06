@@ -1,3 +1,10 @@
+# Deployment history and current release
+
+The current deployment is documented in [FINAL-DEPLOYMENT-REPORT.md](FINAL-DEPLOYMENT-REPORT.md)
+and fresh [deployed-final snapshots](deployed-final/README.md). The following
+2026-10-05 recovery record is retained as history; it describes the earlier
+executable/configs, not today's running version.
+
 # Deployment and real-link recovery: 2026-10-05
 
 At the recorded recovery checkpoint, the four requested surviving paths passed

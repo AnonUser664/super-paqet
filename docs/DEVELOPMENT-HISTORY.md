@@ -328,3 +328,15 @@ The harness also caught a metrics-port string/integer mismatch in its own wait
 code; that run was not accepted. Final results and source/binary boundaries are
 in [LIVE-RELOAD.md](LIVE-RELOAD.md) and [live-reload-evidence.json](live-reload-evidence.json).
 No backend service/config/binary was modified by this feature work.
+
+## Final release integration and deployment qualification
+
+The subsequent user authorization resumed qualification and deployment. The
+[final report](FINAL-DEPLOYMENT-REPORT.md) identifies the deployed source/hash,
+finite capacity measurements and remaining Netherlands authenticated tail.
+[Working notes](FINAL-QUALIFICATION-WORKING-NOTES.md) record every new rejected
+profile, invalid harness comparison, fixture expiry, capture result and corrective
+checkpoint. Earlier review-paused/undeployed statements above describe their
+historical checkpoints, not current state. The pre-final unqualified timing/
+sequence edits were preserved in an archive branch, named stash and exact backup
+and excluded from clean main integration.

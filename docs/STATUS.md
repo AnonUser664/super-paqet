@@ -1,114 +1,68 @@
-# Current status: working deployment, live reload added locally
+# Current status: final release deployed, measured limits recorded
 
-Updated 2026-10-05. The user confirms the current deployment works well with
-**one active user**. Thousands of simultaneously active customers have not been
-tested on these backends. The requested live reload and validation CLI are implemented locally. Further
-performance tuning and redeployment remain paused for review; deployed services
-have not been changed.
+Updated 2026-10-06. All four active hosts run enabled, healthy systemd services
+with the new enterprise release. Live reload, validation, queue-pressure fixes,
+shared fixed-source lanes, outstanding-ACK indexing and optional small-write
+flush are deployed. The excluded backend was not contacted.
 
-## Version boundaries
+**Final production qualification remains limited by the Netherlands TLS tail:**
+at 64 workers per client the final eight-lane cohort passed 1,020/1,024 requests;
+four SSL connect timeouts remain unqualified. At 32 workers, all 1,024 requests
+passed. Read [FINAL-DEPLOYMENT-REPORT.md](FINAL-DEPLOYMENT-REPORT.md) before treating
+the release as universally production ready.
 
-| State | Source / artifact | What is established |
-|---|---|---|
-| Earlier local qualification | Runtime `2d5f7a0`, isolated checks `64fe72a`; `build/super-paqet-pcap-address-fix` | 38 live virtual-link runs, 109 virtual scenarios, mostly-idle 100k soak, local multi-gigabit bulk, service/fuzz/checks. |
-| Currently deployed base | `1c77c55`; `build/super-paqet-deploy-ubuntu` | Four surviving real-link forwards pass authenticated repeated 10 MiB checks; user reports one-user success. Conservative recovery overrides. |
-| Committed fixes awaiting decision | Main `20227d3`; isolated equivalent `d4205c1`; `build/super-paqet-pcap-backpressure-release` | Pcap transmit ENOBUFS recovery, drop diagnostics, absent-chain firewall recovery. Focused/root races/vet, full KCP and actual pressure-functional checks passed. Not deployed. |
-| Live config source | Main runtime `545e9b1`; isolated equivalent `f9547a8` on `feature/live-config` | Automatic reload, safe KCP reliability setters, scoped resources/rollback, validation CLI, tests and documentation. Clean 256-stream and asymmetric/loss/reorder 64-stream reload tests pass, including idle-half-close cleanup. Undeployed; see [LIVE-RELOAD.md](LIVE-RELOAD.md). |
-| Sequence experiment | `4c7aa6a`, branch `experiment/wan-sequence-tracking` | Per-peer byte sequence / pcap receive feedback candidate; initial three-path 1 MiB successes, not final qualification. Not deployed. |
-| Dirty workspace | Six source files below | Preserved separate timeout/wire experiments; not part of the deployed base or clean queue-pressure candidate. |
+## Versions
 
-Deployed binary SHA-256:
-`ecb8e002173f6f80cd3f403d3ee3080190f0e49889fa2ba9f883b893f96318f3`.
-Earlier local-qualified binary SHA-256:
-`e2ae9b8cce7dc864dae9d21c5f770bb353ab787c218f2faf1d794d8efe7003f6`.
-The pressure-functional test used a pre-commit build SHA-256
-`8348eb9b1b56aabb27f2c3de4c2d90c5f8ee9b8e2f19940a9fff25b7da30f1c3`;
-the clean release rebuild has different VCS build metadata. It has not been
-installed or tested through the production paths. Do not treat all named
-artifacts as one qualified executable.
+- Running version: `enterprise-2026.10.06`, embedded source `abf04f6`.
+- Main equivalent runtime: `97529dd`, subsequent harness checkpoint `5bb695d`.
+- Running binary SHA-256:
+  `47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419`.
+- Frozen local artifact: `build/final-production/super-paqet-small-flush`.
+- Fresh configs/unit: [deployed-final/](deployed-final/README.md).
+- Older deployed `1c77c55` and recovery snapshots in [deployed/](deployed/README.md)
+  are retained as history and rollback evidence.
+- Earlier unqualified timing/sequence edits are archived in branch
+  `archive/pre-final-wire-experiments`, a named stash and byte-for-byte backup
+  `build/final-production/preserved-experiments`. The main checkout is clean
+  of those experiments; its builds retain the original outer number algorithm.
 
-## Current deployed paths
+## Current paths and limits
 
-- Clients: 89.45.68.14 and 89.45.68.118; forwards 9001 and 9003 work in recorded checks.
-- Germany: one host listening on both 116.202.177.233 and primary 91.107.251.85,
-  tunnel port 29999. Client .14 uses the primary address; .118 uses the original.
-- Netherlands: 171.22.132.226:29999, small packet profile with scaled windows/AF_PACKET.
-- Targets remain the corresponding backend's TCP 2096, carrying Xray Reality.
-- Null encryption and PA outer flags; no new relay topology.
-- 65.109.192.172 and direct 9002 are excluded from further work, unchanged and
-  previously unavailable.
+Both clients 89.45.68.14/.118 forward 9001 through Germany's assigned primary
+91.107.251.85:29999 to 116.202.177.233:2096, and 9003 through
+171.22.132.226:29999 to its port 2096. Germany also retains its secondary-IP
+listener. There is no relay topology. Existing excluded 9002 entries remain
+unchanged/unavailable.
 
-Eight final 10 MiB authenticated transfers passed, two per path. German times
-were 2.66–2.95 s; Netherlands 5.46–6.13 s. Public-domain 1 MiB checks passed on
-both ports. These are small finite workload checks, not real-host capacity.
-Recorded snapshot configs/unit are in [deployed/](deployed/README.md).
+Eight KCP/mux lanes share each verified source tuple. Cipher is quoted `null`,
+PA flags remain; all Go processors are available. Backends have two vCPUs/~4 GiB,
+clients four vCPUs/~8 GiB. Go soft memory limits are 1,536/4,096 MiB respectively;
+kernel/capture memory is additional. Netherlands retains one packet worker,
+MTU128 and the original fast ACK/bulk batching policy; Germany uses the verified
+manual immediate-write profile, MTU1350. Stronger Netherlands latency/fanout
+candidates failed qualification and were rejected.
 
-## Local qualification and its limits
+## Qualification collected
 
-The earlier candidate passed the complete 26-profile main matrix plus twelve
-additional seeded runs. Clean veth goodput was 4.387 Gbit/s upload and 3.708
-Gbit/s download; duplex 2.361 + 2.127. A 1000 Mbit/s / 100 ms RTT single flow
-was about 915 Mbit/s per direction. [BENCHMARKS.md](BENCHMARKS.md) and
-[step1-qualification.json](step1-qualification.json) retain exact evidence.
+- Exact final executable established and fully verified 100,000 mostly idle
+  forwards through a 120-second mixed soak with zero errors; simultaneous bulk
+  2.084 Gbit/s and HTTP 1,168 req/s. Laptop swap was involved. This is not 100k
+  busy customers or a real-host gigabit promise.
+- Final deployment: 8,192 held forwards, every socket verified, zero forwarding
+  errors during HTTP/churn/bulk. Peak tunnel RSS approximately 153–225 MiB.
+- Eight authenticated 10 MiB transfers and both public-domain 1 MiB paths passed.
+- Seven final-binary WAN profiles and 256-stream asymmetric/loss/reorder reload
+  continuity passed; root races/vet and full fork suites passed.
+- A saturated ACK-limited duplex configuration with timing/credit extensions
+  disabled left a stream with zero measured bytes; that gate remains failed.
+- Germany's initial controlled latency comparison saved about 27–36 ms. Later
+  final-path warm medians were ~71–73 ms versus the original ~121 ms, but link
+  conditions changed too. Netherlands remains ~122–123 ms; a blanket 40 ms
+  improvement without tradeoffs was not achieved.
 
-The 600-second mixed soak established 100,000 mostly idle forwards in 9.216 s
-and verified a complete response from every held socket afterward. Mixed bulk
-was 1.572 Gbit/s; HTTP 722 requests/s with 32.768 ms p99 histogram upper bound.
-Peak tunnel RSS was about 1.83/1.93 GiB and RSS+swap 1.90/2.30 GiB. Host receive
-backlog was explicitly raised from 1000 to 65536 for this experiment and restored.
-This is not 100,000 busy customers or a result for the current recovery profile.
-
-Under saturated 1/100 Mbit/s mixed workloads, p99 remained 2.097–4.194 s. Finite
-local qualification establishes neither arbitrary firewall compatibility,
-unchanged detectability, universal optimality, nor multi-day production endurance.
-
-## Confirmed new code defect and correction
-
-A static null/pcap multi-client test at 100 Mbit/s and 80 ms RTT reproduced a
-body-tail stall in the base and sequence experiment. Debug logging identified
-fatal `send: No buffer space available`. `20227d3` instead treats recognized
-Linux ENOBUFS injection failures as dropped datagrams, allowing KCP recovery,
-while preserving permanent errors and packet encoding. Pcap drops are counted;
-listener debug events report changes. An absent-chain recovery check also fixes
-stale nftables journals preventing startup.
-
-The corrected pressure run passed two 16 MiB integrity transfers, UDP through
-65507 bytes, half-close, ping, HTTP/bulk work, all process exits and owned-rule
-cleanup despite thousands of actual queue drops. Full root races/vet and KCP
-suite passed. The full smux race process was launched and later was no longer
-running, but its final output was not collected before interruption; the new
-patch's documented evidence does not claim an uncollected pass.
-
-The attempted code redeployment stopped at its password prompt. No code-fix
-staging/rollout manifest was produced. The working base remains deployed.
-Final remote temporary-file/rule cleanup audit was also deferred; this document
-is an artifact-based state report, not a fresh SSH inspection.
-
-## Preserved uncommitted work
-
-`internal/engine/peer.go`, `internal/engine/relay.go`,
-`internal/socket/codec_linux.go`, `internal/socket/codec_linux_test.go`,
-`internal/socket/raw_linux.go`, `internal/socket/send_handle.go` contain separate
-opening/half-close timing and sequence experiments. They were preserved when
-the qualified queue-pressure patch was committed. A generic build from the
-current workspace includes them. Use a clean selected checkout for review or
-qualification; do not deploy that generic build assuming it equals the base.
-
-## Reading and next decision
-
-The [architecture guide](ARCHITECTURE.md) explains the current package layout,
-object ownership and runtime/data paths.
-
-1. [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md): failures, experiments,
-   corrections, mistaken comparisons and unresolved causes.
-2. [CONFIGURATION.md](CONFIGURATION.md): complete schema, defaults, manual knobs,
-   adaptation boundaries, retransmission and validation gaps.
-3. [DEPLOYMENT.md](DEPLOYMENT.md): actual topology, settings, results and backups.
-4. [OPERATIONS.md](OPERATIONS.md): build/version checks, service layouts,
-   monitoring, future replacement/rollback and test reproduction.
-5. [TRANSPORT.md](TRANSPORT.md), [DIAGNOSTICS.md](DIAGNOSTICS.md),
-   [BENCHMARKS.md](BENCHMARKS.md): mechanism, interpretation and earlier evidence.
-
-The requested live configuration feature is ready for user review.
-Active-customer workload/resource acceptance, restored adaptation, retransmit
-policy, authorization controls and any final deployment remain outstanding.
+Final cleanup removed owned probe routes/units/files/rules and disabled pprof.
+Services remain enabled, active, zero automatic restarts, exact hash verified,
+config permissions 0600, health `ok`, config degraded flag zero. Rollback backups
+are retained. [final-deployment-evidence.json](final-deployment-evidence.json)
+contains sanitized collected results, and [working notes](FINAL-QUALIFICATION-WORKING-NOTES.md)
+retain failed experiments and harness corrections.
