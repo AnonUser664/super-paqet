@@ -179,7 +179,7 @@
   "resumed_path_investigation": {
     "date_utc": "2026-10-06",
     "binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419",
-    "status": "qualification in progress",
+    "status": "directional SYN profile qualified and retained on both clients",
     "raw_comparisons": [
       {
         "label": "nl-raw-matrix-1",
@@ -1412,6 +1412,995 @@
           }
         },
         "zero_kernel_capture_drops": true
+      },
+      {
+        "settings": {
+          "port": 443,
+          "enc": "null",
+          "flags": [
+            "PA"
+          ],
+          "mtu": 1350,
+          "sessions": 1,
+          "label": "nl443-null-large"
+        },
+        "sport": 30112,
+        "echo": {
+          "89.45.68.14": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.2756124280858785
+            },
+            {
+              "bytes": 16384,
+              "passed": false,
+              "error": "timed out",
+              "seconds": 5.013412681990303
+            },
+            {
+              "bytes": 262144,
+              "passed": false,
+              "error": "timed out",
+              "seconds": 5.124723912915215
+            }
+          ],
+          "89.45.68.118": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.24559820722788572
+            },
+            {
+              "bytes": 16384,
+              "passed": false,
+              "error": "timed out",
+              "seconds": 5.011339121032506
+            },
+            {
+              "bytes": 262144,
+              "passed": false,
+              "error": "timed out",
+              "seconds": 5.1466634827665985
+            }
+          ]
+        },
+        "packet_counts": {
+          "89.45.68.14": {
+            "forward": {
+              "sent": 260,
+              "matched": 4
+            },
+            "reverse": {
+              "sent": 45,
+              "matched": 45
+            }
+          },
+          "89.45.68.118": {
+            "forward": {
+              "sent": 273,
+              "matched": 4
+            },
+            "reverse": {
+              "sent": 45,
+              "matched": 45
+            }
+          }
+        },
+        "zero_kernel_capture_drops": true
+      },
+      {
+        "settings": {
+          "port": 29999,
+          "enc": "null",
+          "flags": [
+            "S"
+          ],
+          "mtu": 128,
+          "sessions": 1,
+          "label": "nl29999-null-s128-fresh",
+          "sport": 30201
+        },
+        "sport": 30201,
+        "echo": {
+          "89.45.68.118": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.2797983279451728
+            },
+            {
+              "bytes": 16384,
+              "passed": true,
+              "sha256": "9038ac64e659335ccbfdd3f684f35a26a2c9e580d9af6b4807af3adbe2c257e3",
+              "seconds": 0.28011651523411274
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.5080835781991482
+            }
+          ],
+          "89.45.68.14": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.28521627001464367
+            },
+            {
+              "bytes": 16384,
+              "passed": true,
+              "sha256": "9038ac64e659335ccbfdd3f684f35a26a2c9e580d9af6b4807af3adbe2c257e3",
+              "seconds": 0.28670250403229147
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.5762765170074999
+            }
+          ]
+        },
+        "packet_counts": {
+          "89.45.68.14": {
+            "forward": {
+              "sent": 4317,
+              "matched": 3593
+            },
+            "reverse": {
+              "sent": 4641,
+              "matched": 4641
+            }
+          },
+          "89.45.68.118": {
+            "forward": {
+              "sent": 3659,
+              "matched": 3652
+            },
+            "reverse": {
+              "sent": 3314,
+              "matched": 3314
+            }
+          }
+        },
+        "zero_kernel_capture_drops": true
+      },
+      {
+        "settings": {
+          "port": 2052,
+          "enc": "null",
+          "flags": [
+            "S"
+          ],
+          "mtu": 1350,
+          "sessions": 1,
+          "label": "nl2052-null-s1350",
+          "sport": 30202,
+          "echo_sizes": [
+            64,
+            262144,
+            1048576
+          ]
+        },
+        "sport": 30202,
+        "echo": {
+          "89.45.68.14": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.278435060987249
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.4307284909300506
+            },
+            {
+              "bytes": 1048576,
+              "passed": true,
+              "sha256": "06b7bbfb7824aa03382051691630eb26de85102d1b08a81e907ec0744cd8a286",
+              "seconds": 1.0392847430193797
+            }
+          ],
+          "89.45.68.118": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.31671237433329225
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.41492321994155645
+            },
+            {
+              "bytes": 1048576,
+              "passed": true,
+              "sha256": "06b7bbfb7824aa03382051691630eb26de85102d1b08a81e907ec0744cd8a286",
+              "seconds": 1.1264033666811883
+            }
+          ]
+        },
+        "packet_counts": {
+          "89.45.68.14": {
+            "forward": {
+              "sent": 1040,
+              "matched": 1036
+            },
+            "reverse": {
+              "sent": 1047,
+              "matched": 1047
+            }
+          },
+          "89.45.68.118": {
+            "forward": {
+              "sent": 1050,
+              "matched": 1046
+            },
+            "reverse": {
+              "sent": 1032,
+              "matched": 1032
+            }
+          }
+        },
+        "zero_kernel_capture_drops": true
+      },
+      {
+        "settings": {
+          "port": 443,
+          "enc": "aes",
+          "flags": [
+            "S"
+          ],
+          "mtu": 128,
+          "sessions": 1,
+          "label": "nl443-aes-s128",
+          "sport": 30203
+        },
+        "sport": 30203,
+        "echo": {
+          "89.45.68.118": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.27945981128141284
+            },
+            {
+              "bytes": 16384,
+              "passed": true,
+              "sha256": "9038ac64e659335ccbfdd3f684f35a26a2c9e580d9af6b4807af3adbe2c257e3",
+              "seconds": 0.28142274357378483
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.39228595700114965
+            }
+          ],
+          "89.45.68.14": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.2794005840551108
+            },
+            {
+              "bytes": 16384,
+              "passed": true,
+              "sha256": "9038ac64e659335ccbfdd3f684f35a26a2c9e580d9af6b4807af3adbe2c257e3",
+              "seconds": 0.2569775830488652
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.5215546259423718
+            }
+          ]
+        },
+        "packet_counts": {
+          "89.45.68.14": {
+            "forward": {
+              "sent": 5350,
+              "matched": 4759
+            },
+            "reverse": {
+              "sent": 5190,
+              "matched": 5190
+            }
+          },
+          "89.45.68.118": {
+            "forward": {
+              "sent": 4295,
+              "matched": 4290
+            },
+            "reverse": {
+              "sent": 4194,
+              "matched": 4194
+            }
+          }
+        },
+        "zero_kernel_capture_drops": true
+      },
+      {
+        "settings": {
+          "port": 29999,
+          "enc": "null",
+          "flags": [
+            "S"
+          ],
+          "mtu": 128,
+          "sessions": 4,
+          "label": "nl29999-null-s-original",
+          "replace_production": true,
+          "echo_sizes": [
+            64,
+            262144,
+            1048576
+          ]
+        },
+        "sport": 29997,
+        "echo": {
+          "89.45.68.118": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.3528597108088434
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.5824831179343164
+            },
+            {
+              "bytes": 1048576,
+              "passed": true,
+              "sha256": "06b7bbfb7824aa03382051691630eb26de85102d1b08a81e907ec0744cd8a286",
+              "seconds": 3.679456001147628
+            }
+          ],
+          "89.45.68.14": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.2833558010170236
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.5700827600667253
+            },
+            {
+              "bytes": 1048576,
+              "passed": true,
+              "sha256": "06b7bbfb7824aa03382051691630eb26de85102d1b08a81e907ec0744cd8a286",
+              "seconds": 3.8602614790434018
+            }
+          ]
+        },
+        "packet_counts": {
+          "89.45.68.14": {
+            "forward": {
+              "sent": 15242,
+              "matched": 15204
+            },
+            "reverse": {
+              "sent": 84743,
+              "matched": 14625
+            }
+          },
+          "89.45.68.118": {
+            "forward": {
+              "sent": 15265,
+              "matched": 15218
+            },
+            "reverse": {
+              "sent": 93485,
+              "matched": 14399
+            }
+          }
+        },
+        "zero_kernel_capture_drops": true
+      },
+      {
+        "settings": {
+          "port": 29999,
+          "enc": "null",
+          "flags": [
+            "S"
+          ],
+          "mtu": 128,
+          "sessions": 4,
+          "label": "nl29999-null-s-pa-original",
+          "remote_flags": [
+            "PA"
+          ],
+          "replace_production": true,
+          "echo_sizes": [
+            64,
+            262144,
+            1048576
+          ]
+        },
+        "sport": 29997,
+        "echo": {
+          "89.45.68.118": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.2517480608075857
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.6090193130075932
+            },
+            {
+              "bytes": 1048576,
+              "passed": true,
+              "sha256": "06b7bbfb7824aa03382051691630eb26de85102d1b08a81e907ec0744cd8a286",
+              "seconds": 1.1907381899654865
+            }
+          ],
+          "89.45.68.14": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.31278080597985536
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.535834081005305
+            },
+            {
+              "bytes": 1048576,
+              "passed": true,
+              "sha256": "06b7bbfb7824aa03382051691630eb26de85102d1b08a81e907ec0744cd8a286",
+              "seconds": 1.3895394970895723
+            }
+          ]
+        },
+        "packet_counts": {
+          "89.45.68.14": {
+            "forward": {
+              "sent": 16149,
+              "matched": 15695
+            },
+            "reverse": {
+              "sent": 16071,
+              "matched": 15920
+            }
+          },
+          "89.45.68.118": {
+            "forward": {
+              "sent": 15545,
+              "matched": 15456
+            },
+            "reverse": {
+              "sent": 15193,
+              "matched": 15193
+            }
+          }
+        },
+        "zero_kernel_capture_drops": true
+      },
+      {
+        "settings": {
+          "port": 29999,
+          "enc": "null",
+          "flags": [
+            "PA"
+          ],
+          "mtu": 128,
+          "sessions": 4,
+          "label": "nl29999-null-pa-s-original",
+          "remote_flags": [
+            "S"
+          ],
+          "replace_production": true
+        },
+        "sport": 29997,
+        "echo": {
+          "89.45.68.118": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.27893644105643034
+            },
+            {
+              "bytes": 16384,
+              "passed": true,
+              "sha256": "9038ac64e659335ccbfdd3f684f35a26a2c9e580d9af6b4807af3adbe2c257e3",
+              "seconds": 0.28562979120761156
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.6808817670680583
+            }
+          ],
+          "89.45.68.14": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.2880117449676618
+            },
+            {
+              "bytes": 16384,
+              "passed": true,
+              "sha256": "9038ac64e659335ccbfdd3f684f35a26a2c9e580d9af6b4807af3adbe2c257e3",
+              "seconds": 0.3329927899176255
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.6044026140589267
+            }
+          ]
+        },
+        "packet_counts": {
+          "89.45.68.14": {
+            "forward": {
+              "sent": 3241,
+              "matched": 2745
+            },
+            "reverse": {
+              "sent": 2770,
+              "matched": 2770
+            }
+          },
+          "89.45.68.118": {
+            "forward": {
+              "sent": 3245,
+              "matched": 3225
+            },
+            "reverse": {
+              "sent": 3197,
+              "matched": 3197
+            }
+          }
+        },
+        "zero_kernel_capture_drops": true
+      },
+      {
+        "settings": {
+          "port": 29999,
+          "enc": "null",
+          "flags": [
+            "S"
+          ],
+          "mtu": 1350,
+          "sessions": 4,
+          "label": "nl29999-null-s1350-original",
+          "replace_production": true,
+          "echo_sizes": [
+            64,
+            262144,
+            1048576
+          ]
+        },
+        "sport": 29997,
+        "echo": {
+          "89.45.68.118": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.2489744182676077
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.4875366915948689
+            },
+            {
+              "bytes": 1048576,
+              "passed": true,
+              "sha256": "06b7bbfb7824aa03382051691630eb26de85102d1b08a81e907ec0744cd8a286",
+              "seconds": 1.142683839891106
+            }
+          ],
+          "89.45.68.14": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.2802649369696155
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.5243347139330581
+            },
+            {
+              "bytes": 1048576,
+              "passed": true,
+              "sha256": "06b7bbfb7824aa03382051691630eb26de85102d1b08a81e907ec0744cd8a286",
+              "seconds": 1.1786127559607849
+            }
+          ]
+        },
+        "packet_counts": {
+          "89.45.68.14": {
+            "forward": {
+              "sent": 1051,
+              "matched": 1039
+            },
+            "reverse": {
+              "sent": 1040,
+              "matched": 1040
+            }
+          },
+          "89.45.68.118": {
+            "forward": {
+              "sent": 1052,
+              "matched": 1035
+            },
+            "reverse": {
+              "sent": 1047,
+              "matched": 1047
+            }
+          }
+        },
+        "zero_kernel_capture_drops": true
+      },
+      {
+        "settings": {
+          "port": 29999,
+          "enc": "null",
+          "flags": [
+            "PA"
+          ],
+          "mtu": 128,
+          "sessions": 4,
+          "label": "nl-original-pa-control-before",
+          "replace_production": true
+        },
+        "sport": 29997,
+        "echo": {
+          "89.45.68.118": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.28274787357077
+            },
+            {
+              "bytes": 16384,
+              "passed": true,
+              "sha256": "9038ac64e659335ccbfdd3f684f35a26a2c9e580d9af6b4807af3adbe2c257e3",
+              "seconds": 0.28949558082967997
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.5492941751144826
+            }
+          ],
+          "89.45.68.14": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.286786254029721
+            },
+            {
+              "bytes": 16384,
+              "passed": true,
+              "sha256": "9038ac64e659335ccbfdd3f684f35a26a2c9e580d9af6b4807af3adbe2c257e3",
+              "seconds": 0.3233127009589225
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.547437357949093
+            }
+          ]
+        },
+        "packet_counts": {
+          "89.45.68.14": {
+            "forward": {
+              "sent": 3239,
+              "matched": 2737
+            },
+            "reverse": {
+              "sent": 3046,
+              "matched": 3046
+            }
+          },
+          "89.45.68.118": {
+            "forward": {
+              "sent": 3243,
+              "matched": 2977
+            },
+            "reverse": {
+              "sent": 3228,
+              "matched": 3228
+            }
+          }
+        },
+        "zero_kernel_capture_drops": true
+      },
+      {
+        "settings": {
+          "port": 29999,
+          "enc": "null",
+          "flags": [
+            "S"
+          ],
+          "mtu": 1350,
+          "sessions": 4,
+          "label": "nl-original-s-pa1350",
+          "remote_flags": [
+            "PA"
+          ],
+          "replace_production": true,
+          "echo_sizes": [
+            64,
+            262144,
+            1048576
+          ]
+        },
+        "sport": 29997,
+        "echo": {
+          "89.45.68.118": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.27692622411996126
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.4436943959444761
+            },
+            {
+              "bytes": 1048576,
+              "passed": true,
+              "sha256": "06b7bbfb7824aa03382051691630eb26de85102d1b08a81e907ec0744cd8a286",
+              "seconds": 1.0570343919098377
+            }
+          ],
+          "89.45.68.14": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.2550520090153441
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.4928317869780585
+            },
+            {
+              "bytes": 1048576,
+              "passed": true,
+              "sha256": "06b7bbfb7824aa03382051691630eb26de85102d1b08a81e907ec0744cd8a286",
+              "seconds": 1.0742005670908839
+            }
+          ]
+        },
+        "packet_counts": {
+          "89.45.68.14": {
+            "forward": {
+              "sent": 1044,
+              "matched": 1033
+            },
+            "reverse": {
+              "sent": 1036,
+              "matched": 1036
+            }
+          },
+          "89.45.68.118": {
+            "forward": {
+              "sent": 1053,
+              "matched": 1037
+            },
+            "reverse": {
+              "sent": 1042,
+              "matched": 1042
+            }
+          }
+        },
+        "zero_kernel_capture_drops": true
+      },
+      {
+        "settings": {
+          "port": 29999,
+          "enc": "null",
+          "flags": [
+            "PA"
+          ],
+          "mtu": 128,
+          "sessions": 4,
+          "label": "nl-original-pa-control-after",
+          "replace_production": true
+        },
+        "sport": 29997,
+        "echo": {
+          "89.45.68.118": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.24967822432518005
+            },
+            {
+              "bytes": 16384,
+              "passed": true,
+              "sha256": "9038ac64e659335ccbfdd3f684f35a26a2c9e580d9af6b4807af3adbe2c257e3",
+              "seconds": 0.29479206120595336
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.5214104591868818
+            }
+          ],
+          "89.45.68.14": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.31830687692854553
+            },
+            {
+              "bytes": 16384,
+              "passed": true,
+              "sha256": "9038ac64e659335ccbfdd3f684f35a26a2c9e580d9af6b4807af3adbe2c257e3",
+              "seconds": 0.28915680304635316
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.7147597220027819
+            }
+          ]
+        },
+        "packet_counts": {
+          "89.45.68.14": {
+            "forward": {
+              "sent": 3238,
+              "matched": 2976
+            },
+            "reverse": {
+              "sent": 3197,
+              "matched": 3197
+            }
+          },
+          "89.45.68.118": {
+            "forward": {
+              "sent": 3244,
+              "matched": 2978
+            },
+            "reverse": {
+              "sent": 3230,
+              "matched": 3230
+            }
+          }
+        },
+        "zero_kernel_capture_drops": true
+      },
+      {
+        "settings": {
+          "port": 29999,
+          "enc": "null",
+          "flags": [
+            "S"
+          ],
+          "mtu": 1350,
+          "sessions": 4,
+          "label": "nl-cold-s-pa1350",
+          "remote_flags": [
+            "PA"
+          ],
+          "sport": 30301,
+          "echo_sizes": [
+            64,
+            262144,
+            1048576
+          ]
+        },
+        "sport": 30301,
+        "echo": {
+          "89.45.68.14": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.24891418498009443
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.5136688160710037
+            },
+            {
+              "bytes": 1048576,
+              "passed": true,
+              "sha256": "06b7bbfb7824aa03382051691630eb26de85102d1b08a81e907ec0744cd8a286",
+              "seconds": 1.109175280900672
+            }
+          ],
+          "89.45.68.118": [
+            {
+              "bytes": 64,
+              "passed": true,
+              "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+              "seconds": 0.2749387789517641
+            },
+            {
+              "bytes": 262144,
+              "passed": true,
+              "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+              "seconds": 0.569419692736119
+            },
+            {
+              "bytes": 1048576,
+              "passed": true,
+              "sha256": "06b7bbfb7824aa03382051691630eb26de85102d1b08a81e907ec0744cd8a286",
+              "seconds": 1.2921191370114684
+            }
+          ]
+        },
+        "packet_counts": {
+          "89.45.68.14": {
+            "forward": {
+              "sent": 1047,
+              "matched": 1035
+            },
+            "reverse": {
+              "sent": 1040,
+              "matched": 1040
+            }
+          },
+          "89.45.68.118": {
+            "forward": {
+              "sent": 1067,
+              "matched": 1025
+            },
+            "reverse": {
+              "sent": 1031,
+              "matched": 996
+            }
+          }
+        },
+        "zero_kernel_capture_drops": true
       }
     ],
     "icmp": {
@@ -1433,6 +2422,541 @@
       "profile_uuid_matches": true,
       "profile_shortid_matches": true
     },
-    "interpretation": "Selective forward-path failure for continuing PA traffic; SYN packet profile passes candidate echo tests. Captures do not identify the filtering device or isolate SYN bit from its number/options branch."
+    "interpretation": "Cold PA tuples lose continuing forward traffic; SYN profiles pass. Original PA tuple also passed after SYN comparisons, indicating state dependence or temporal path changes rather than a permanent PA flag ban. Captures do not identify the filtering device or isolate SYN bit from its number/options branch.",
+    "restoration": {
+      "nl-tunnel-matrix.json": {
+        "171.22.132.226": {
+          "revision": "31",
+          "exact_config": true,
+          "service": "active"
+        },
+        "89.45.68.14": {
+          "revision": "41",
+          "exact_config": true,
+          "service": "active"
+        },
+        "89.45.68.118": {
+          "revision": "41",
+          "exact_config": true,
+          "service": "active"
+        }
+      },
+      "nl-tunnel-phase2.json": {
+        "171.22.132.226": {
+          "revision": "46",
+          "exact_config": true,
+          "service": "active"
+        },
+        "89.45.68.14": {
+          "revision": "56",
+          "exact_config": true,
+          "service": "active"
+        },
+        "89.45.68.118": {
+          "revision": "56",
+          "exact_config": true,
+          "service": "active"
+        }
+      },
+      "nl-tunnel-phase3.json": {
+        "171.22.132.226": {
+          "revision": "53",
+          "exact_config": true,
+          "service": "active"
+        },
+        "89.45.68.14": {
+          "revision": "63",
+          "exact_config": true,
+          "service": "active"
+        },
+        "89.45.68.118": {
+          "revision": "63",
+          "exact_config": true,
+          "service": "active"
+        }
+      },
+      "nl-tunnel-phase4.json": {
+        "171.22.132.226": {
+          "revision": "56",
+          "exact_config": true,
+          "service": "active"
+        },
+        "89.45.68.14": {
+          "revision": "66",
+          "exact_config": true,
+          "service": "active"
+        },
+        "89.45.68.118": {
+          "revision": "66",
+          "exact_config": true,
+          "service": "active"
+        }
+      }
+    },
+    "final_qualification": {
+      "stamp": "20261006T083827Z",
+      "profile": {
+        "forward_flags": [
+          "S"
+        ],
+        "reverse_flags": [
+          "PA"
+        ],
+        "mtu": 1350,
+        "enc": "null",
+        "sessions_per_client": 4
+      },
+      "load": {
+        "89.45.68.14": {
+          "churn": {
+            "connections": 512,
+            "passed": 512,
+            "errors": [],
+            "p50_seconds": 0.9615837429882959,
+            "p99_seconds": 2.649686029064469
+          },
+          "held": {
+            "streams": 8,
+            "duration_seconds": 120.15504013397731,
+            "rows": [
+              {
+                "passed": true,
+                "exchanges": 739,
+                "bytes": 48431104,
+                "seconds": 120.0879401928978
+              },
+              {
+                "passed": true,
+                "exchanges": 739,
+                "bytes": 48431104,
+                "seconds": 120.02661006699782
+              },
+              {
+                "passed": true,
+                "exchanges": 955,
+                "bytes": 62586880,
+                "seconds": 120.1018223320134
+              },
+              {
+                "passed": true,
+                "exchanges": 950,
+                "bytes": 62259200,
+                "seconds": 120.01385156204924
+              },
+              {
+                "passed": true,
+                "exchanges": 741,
+                "bytes": 48562176,
+                "seconds": 120.14552813605405
+              },
+              {
+                "passed": true,
+                "exchanges": 954,
+                "bytes": 62521344,
+                "seconds": 120.07454631396104
+              },
+              {
+                "passed": true,
+                "exchanges": 741,
+                "bytes": 48562176,
+                "seconds": 120.05058309203014
+              },
+              {
+                "passed": true,
+                "exchanges": 957,
+                "bytes": 62717952,
+                "seconds": 120.05469991301652
+              }
+            ],
+            "round_trip_payload_bytes": 444071936,
+            "one_direction_mbit_per_second": 29.56659565873181
+          }
+        },
+        "89.45.68.118": {
+          "churn": {
+            "connections": 512,
+            "passed": 512,
+            "errors": [],
+            "p50_seconds": 0.7937641777098179,
+            "p99_seconds": 1.9445074601098895
+          },
+          "held": {
+            "streams": 8,
+            "duration_seconds": 120.15805688593537,
+            "rows": [
+              {
+                "passed": true,
+                "exchanges": 813,
+                "bytes": 53280768,
+                "seconds": 120.15439505130053
+              },
+              {
+                "passed": true,
+                "exchanges": 968,
+                "bytes": 63438848,
+                "seconds": 120.0901585011743
+              },
+              {
+                "passed": true,
+                "exchanges": 965,
+                "bytes": 63242240,
+                "seconds": 120.06011860957369
+              },
+              {
+                "passed": true,
+                "exchanges": 811,
+                "bytes": 53149696,
+                "seconds": 120.05560714285821
+              },
+              {
+                "passed": true,
+                "exchanges": 964,
+                "bytes": 63176704,
+                "seconds": 120.0272371256724
+              },
+              {
+                "passed": true,
+                "exchanges": 812,
+                "bytes": 53215232,
+                "seconds": 120.05825118580833
+              },
+              {
+                "passed": true,
+                "exchanges": 814,
+                "bytes": 53346304,
+                "seconds": 120.05926593998447
+              },
+              {
+                "passed": true,
+                "exchanges": 968,
+                "bytes": 63438848,
+                "seconds": 120.05442616995424
+              }
+            ],
+            "round_trip_payload_bytes": 466288640,
+            "one_direction_mbit_per_second": 31.045018675203266
+          }
+        }
+      },
+      "reality": {
+        "89.45.68.14": {
+          "netherlands": [
+            {
+              "exit": 0,
+              "response": "200 10485760 0.963915 2.556173",
+              "error": "",
+              "passed": true
+            },
+            {
+              "exit": 0,
+              "response": "200 10485760 0.837876 2.394685",
+              "error": "",
+              "passed": true
+            },
+            {
+              "exit": 0,
+              "response": "200 10485760 0.864255 2.468519",
+              "error": "",
+              "passed": true
+            },
+            {
+              "exit": 0,
+              "response": "200 10485760 0.887225 2.527236",
+              "error": "",
+              "passed": true
+            }
+          ],
+          "germany": [
+            {
+              "exit": 0,
+              "response": "200 1048576 0.421689 0.683133",
+              "error": "",
+              "passed": true
+            },
+            {
+              "exit": 0,
+              "response": "200 1048576 0.412398 0.643281",
+              "error": "",
+              "passed": true
+            }
+          ]
+        },
+        "89.45.68.118": {
+          "netherlands": [
+            {
+              "exit": 0,
+              "response": "200 10485760 0.943881 2.711193",
+              "error": "",
+              "passed": true
+            },
+            {
+              "exit": 0,
+              "response": "200 10485760 0.813914 2.591409",
+              "error": "",
+              "passed": true
+            },
+            {
+              "exit": 0,
+              "response": "200 10485760 0.782330 2.288962",
+              "error": "",
+              "passed": true
+            },
+            {
+              "exit": 0,
+              "response": "200 10485760 0.850023 2.511163",
+              "error": "",
+              "passed": true
+            }
+          ],
+          "germany": [
+            {
+              "exit": 0,
+              "response": "200 1048576 0.422286 0.594454",
+              "error": "",
+              "passed": true
+            },
+            {
+              "exit": 0,
+              "response": "200 1048576 0.420903 0.575612",
+              "error": "",
+              "passed": true
+            }
+          ]
+        }
+      },
+      "monitoring": {
+        "171.22.132.226": {
+          "pid": 2902208,
+          "seconds": 148.09713217802346,
+          "occupied_cpu_cores_mean": 0.1873770247396992,
+          "peak_rss_kib": 56272,
+          "peak_fds": 152
+        },
+        "89.45.68.14": {
+          "pid": 202705,
+          "seconds": 152.44262188498396,
+          "occupied_cpu_cores_mean": 0.476572753090098,
+          "peak_rss_kib": 75208,
+          "peak_fds": 138
+        },
+        "89.45.68.118": {
+          "pid": 894995,
+          "seconds": 156.40578997600824,
+          "occupied_cpu_cores_mean": 0.4355337485297003,
+          "peak_rss_kib": 77260,
+          "peak_fds": 172
+        }
+      },
+      "final": {
+        "171.22.132.226": {
+          "revision": "58",
+          "backup": "/root/super-paqet/rollback/20261006T083827Z-nl-syn",
+          "config_sha256": "03cefc13cd81f4f8b33b6fd8ef26d93a371f7fdf63a805cf75d1cfac3c68b4a4",
+          "service": "active",
+          "enabled": "enabled",
+          "binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419"
+        },
+        "89.45.68.14": {
+          "revision": "68",
+          "backup": "/root/super-paqet/rollback/20261006T083827Z-nl-syn",
+          "config_sha256": "6775eb683559854047c9e34340d9c25804a7b84b739fad40636c70c51992ac65",
+          "service": "active",
+          "enabled": "enabled",
+          "binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419"
+        },
+        "89.45.68.118": {
+          "revision": "68",
+          "backup": "/root/super-paqet/rollback/20261006T083827Z-nl-syn",
+          "config_sha256": "2c087d19db6e1af65eabc5312d9b5168f1817dbceab9bc4101f44a0075c10713",
+          "service": "active",
+          "enabled": "enabled",
+          "binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419"
+        }
+      },
+      "revisions": {
+        "171.22.132.226": "57",
+        "89.45.68.14": "67",
+        "89.45.68.118": "67"
+      },
+      "final_public_acceptance": {
+        "89.45.68.118": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.570694 0.719804",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 0.612032 0.740915",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "89.45.68.14": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.611155 0.789832",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 0.607863 0.779558",
+            "error": "",
+            "passed": true
+          }
+        ]
+      },
+      "qualified_and_retained": true
+    },
+    "public_domain_acceptance": [
+      {
+        "host": "deir.cloudnet1.ir",
+        "port": 9001,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.5217222910141572,
+        "error": ""
+      },
+      {
+        "host": "deir.cloudnet1.ir",
+        "port": 9003,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.419054252008209,
+        "error": ""
+      },
+      {
+        "host": "89.45.68.14",
+        "port": 9003,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.3044096840021666,
+        "error": ""
+      },
+      {
+        "host": "89.45.68.118",
+        "port": 9003,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.3980971369892359,
+        "error": ""
+      }
+    ],
+    "final_service_audit": {
+      "171.22.132.226": {
+        "service": {
+          "exit": 0,
+          "stdout": "ActiveState=active\nSubState=running\nUnitFileState=enabled\nMainPID=2902208\nNRestarts=0\nExecReload={ path=/bin/kill ; argv[]=/bin/kill -HUP $MAINPID ; ignore_errors=no ; start_time=[Tue 2026-10-06 08:41:16 UTC] ; stop_time=[Tue 2026-10-06 08:41:16 UTC] ; pid=2907515 ; code=exited ; status=0 }\n",
+          "stderr": ""
+        },
+        "running_binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419",
+        "config_sha256": "03cefc13cd81f4f8b33b6fd8ef26d93a371f7fdf63a805cf75d1cfac3c68b4a4",
+        "config_mode": "0o600",
+        "validation": {
+          "exit": 0,
+          "stdout": "{\"forwards\":0,\"listeners\":1,\"path\":\"/root/super-paqet/conf.yaml\",\"peers\":0,\"valid\":true}\n",
+          "stderr": ""
+        },
+        "health": "ok\n",
+        "config_metrics": [
+          "super_paqet_config_revision 58",
+          "super_paqet_config_degraded 0"
+        ],
+        "test_unit_states": {
+          "spq-nl-echo.service": "inactive",
+          "spq-nl-final-rollback.timer": "inactive",
+          "spq-nl-candidate-rollback.timer": "inactive"
+        },
+        "test_files": [],
+        "test_processes": "",
+        "host_tc_ingress_egress_filters_empty": true
+      },
+      "89.45.68.14": {
+        "service": {
+          "exit": 0,
+          "stdout": "MainPID=202705\nNRestarts=0\nExecReload={ path=/bin/kill ; argv[]=/bin/kill -HUP $MAINPID ; ignore_errors=no ; start_time=[Tue 2026-10-06 08:41:20 UTC] ; stop_time=[Tue 2026-10-06 08:41:20 UTC] ; pid=239526 ; code=exited ; status=0 }\nActiveState=active\nSubState=running\nUnitFileState=enabled\n",
+          "stderr": ""
+        },
+        "running_binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419",
+        "config_sha256": "6775eb683559854047c9e34340d9c25804a7b84b739fad40636c70c51992ac65",
+        "config_mode": "0o600",
+        "validation": {
+          "exit": 0,
+          "stdout": "{\"forwards\":3,\"listeners\":0,\"path\":\"/root/super-paqet/conf.yaml\",\"peers\":3,\"valid\":true}\n",
+          "stderr": ""
+        },
+        "health": "ok\n",
+        "config_metrics": [
+          "super_paqet_config_revision 68",
+          "super_paqet_config_degraded 0"
+        ],
+        "test_unit_states": {
+          "spq-nl-echo.service": "inactive",
+          "spq-nl-final-rollback.timer": "inactive",
+          "spq-nl-candidate-rollback.timer": "inactive"
+        },
+        "test_files": [],
+        "test_processes": "",
+        "host_tc_ingress_egress_filters_empty": true
+      },
+      "89.45.68.118": {
+        "service": {
+          "exit": 0,
+          "stdout": "MainPID=894995\nNRestarts=0\nExecReload={ path=/bin/kill ; argv[]=/bin/kill -HUP $MAINPID ; ignore_errors=no ; start_time=[Tue 2026-10-06 08:41:24 UTC] ; stop_time=[Tue 2026-10-06 08:41:24 UTC] ; pid=914104 ; code=exited ; status=0 }\nActiveState=active\nSubState=running\nUnitFileState=enabled\n",
+          "stderr": ""
+        },
+        "running_binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419",
+        "config_sha256": "2c087d19db6e1af65eabc5312d9b5168f1817dbceab9bc4101f44a0075c10713",
+        "config_mode": "0o600",
+        "validation": {
+          "exit": 0,
+          "stdout": "{\"forwards\":3,\"listeners\":0,\"path\":\"/root/super-paqet/conf.yaml\",\"peers\":3,\"valid\":true}\n",
+          "stderr": ""
+        },
+        "health": "ok\n",
+        "config_metrics": [
+          "super_paqet_config_revision 68",
+          "super_paqet_config_degraded 0"
+        ],
+        "test_unit_states": {
+          "spq-nl-echo.service": "inactive",
+          "spq-nl-final-rollback.timer": "inactive",
+          "spq-nl-candidate-rollback.timer": "inactive"
+        },
+        "test_files": [],
+        "test_processes": "",
+        "host_tc_ingress_egress_filters_empty": true
+      },
+      "116.202.177.233": {
+        "service": {
+          "exit": 0,
+          "stdout": "MainPID=732319\nNRestarts=0\nExecReload={ path=/bin/kill ; argv[]=/bin/kill -HUP $MAINPID ; ignore_errors=no ; start_time=[Tue 2026-10-06 04:10:17 UTC] ; stop_time=[Tue 2026-10-06 04:10:17 UTC] ; pid=741116 ; code=exited ; status=0 }\nActiveState=active\nSubState=running\nUnitFileState=enabled\n",
+          "stderr": ""
+        },
+        "running_binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419",
+        "config_sha256": "9d514495b7a36a185d0e8dbdf3d9e11ffd0f8114a4da5879962c00212c580088",
+        "config_mode": "0o600",
+        "validation": {
+          "exit": 0,
+          "stdout": "{\"forwards\":0,\"listeners\":2,\"path\":\"/root/super-paqet/conf.yaml\",\"peers\":0,\"valid\":true}\n",
+          "stderr": ""
+        },
+        "health": "ok\n",
+        "config_metrics": [
+          "super_paqet_config_revision 6",
+          "super_paqet_config_degraded 0"
+        ],
+        "test_unit_states": {
+          "spq-nl-echo.service": "inactive",
+          "spq-nl-final-rollback.timer": "inactive",
+          "spq-nl-candidate-rollback.timer": "inactive"
+        },
+        "test_files": [],
+        "test_processes": "",
+        "host_tc_ingress_egress_filters_empty": true
+      }
+    }
   }
 }

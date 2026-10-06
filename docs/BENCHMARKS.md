@@ -71,3 +71,13 @@ Tests need Linux root access, iproute2, iptables, libpcap and the built workload
 utility. Each run writes new evidence under its chosen ignored build directory.
 For the exact retained deployment executable, use the command in the clean-link
 report and its compatibility-library environment where needed.
+
+## Netherlands repaired-path check
+
+The resumed [path diagnosis](NETHERLANDS-DIAGNOSIS.md) qualified the selected
+S/PA, null, MTU1350 profile on the original tuples: 1024 checked TCP churn echoes
+(64 workers per client), sixteen continuous two-minute streams without retry,
+eight complete 10 MiB Reality downloads and four post-cleanup 1 MiB downloads.
+Germany and public-domain regression checks passed. This is an additional finite
+WAN repair gate; it does not resolve the deferred clean-link historical throughput
+gap or substitute for a thousands-of-busy-customers qualification.

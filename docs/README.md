@@ -1,8 +1,10 @@
 # Documentation
 
-Start with [current status](STATUS.md). Netherlands forwarding is unavailable;
-its failure was reproduced with the current, previously working and upstream
-versions. The exact network filtering mechanism remains unidentified.
+Start with [current status](STATUS.md). Netherlands forwarding is restored on
+both clients with a qualified directional SYN packet profile. The path evidence
+suggests state-dependent filtering; the exact intervening mechanism remains
+unidentified. See [the diagnosis](NETHERLANDS-DIAGNOSIS.md) for failed controls,
+recovery, and the finite acceptance boundary.
 
 | Document | Purpose |
 |---|---|

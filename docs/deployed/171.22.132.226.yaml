@@ -7,18 +7,23 @@ listeners:
       addr: 171.22.132.226:29999
       router_mac: fe:54:00:d6:f7:93
     backend: packet
+    tcp:
+      local_flag:
+      - PA
+      remote_flag:
+      - S
   adaptive: false
   packet_workers: 1
   kcp:
     mode: fast
-    sndwnd: 13312
-    rcvwnd: 13312
+    sndwnd: 1044
+    rcvwnd: 1044
     ack_timestamps: false
     credit_hints: false
     adaptive_buffers: false
     smuxbuf: 4194304
     streambuf: 2097152
-    mtu: 128
+    mtu: 1350
     nodelay: 0
     interval: 30
     resend: 2

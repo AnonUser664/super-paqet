@@ -215,6 +215,13 @@ Each string combines flags; list entries form a cycle. Changing flags changes
 observable raw packet behavior and needs deployment testing. It does not turn
 the carrier into normal TCP. Keep `[PA]` when reproducing the known baseline.
 
+The current Netherlands deployment uses client `[S]` / requested return `[PA]`.
+It passed the [recorded path qualification](NETHERLANDS-DIAGNOSIS.md); this is a
+path-specific profile, not a new generic default. SYN also selects the encoder’s
+original SYN sequence/options branch. Flags are static choices: the application
+does not rotate profiles automatically in response to loss. Structural flag edits
+replace the affected endpoint; coordinate both ends and verify full transfers.
+
 Discovery uses `ip route get` for peers and the first applicable default route
 for listeners. It fills missing interface, source and gateway MAC. It may emit
 one ordinary UDP neighbor-discovery probe to port 9; application tunnel traffic

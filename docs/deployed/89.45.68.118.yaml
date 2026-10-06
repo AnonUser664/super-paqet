@@ -47,18 +47,23 @@ peers:
         addr: 89.45.68.118:29997
         router_mac: 58:8d:09:12:9e:00
       backend: packet
+      tcp:
+        local_flag:
+        - S
+        remote_flag:
+        - PA
     adaptive: false
     packet_workers: 1
     kcp:
       mode: fast
-      sndwnd: 1664
-      rcvwnd: 6656
+      sndwnd: 131
+      rcvwnd: 522
       ack_timestamps: false
       credit_hints: false
       adaptive_buffers: false
       smuxbuf: 4194304
       streambuf: 2097152
-      mtu: 128
+      mtu: 1350
       nodelay: 0
       interval: 30
       resend: 2

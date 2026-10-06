@@ -2,7 +2,7 @@
 
 Four hosts run the enterprise release under an enabled systemd service. The
 excluded 65.109.192.172 backend is not part of active deployment work. Netherlands
-is currently unavailable despite healthy processes; see
+forwarding is restored with a qualified directional SYN profile; see
 [NETHERLANDS-DIAGNOSIS.md](NETHERLANDS-DIAGNOSIS.md).
 
 ## Topology
@@ -34,8 +34,10 @@ and hash are in [STATUS.md](STATUS.md).
 
 Germany has eight fixed shared carriers per client, pcap, MTU1350 and manual
 30 ms updates with immediate writes. Netherlands has four shared carriers per
-client, AF_PACKET with one backend receive worker, MTU128 and fast-mode batching.
-Both use null encryption and PA flags, with timing/credit extensions and adaptive
+client, AF_PACKET with one backend receive worker, MTU1350 and fast-mode batching.
+Netherlands flags are client S / backend PA, with windows 131/522 on clients and
+1044/1044 on the backend. Germany flags remain PA. Both use null encryption,
+with timing/credit extensions and adaptive
 buffers disabled. Fast mode overrides stored manual fields.
 
 Backends have two vCPUs/~4 GiB; clients four vCPUs/~8 GiB. Soft Go memory budgets

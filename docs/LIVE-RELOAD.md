@@ -57,8 +57,7 @@ kill -HUP PID
 systemctl reload super-paqet
 ```
 
-The new service template includes `ExecReload=/bin/kill -HUP $MAINPID`. The
-currently deployed unit does not. SIGHUP remains available with
+The deployed service unit includes `ExecReload=/bin/kill -HUP $MAINPID`. SIGHUP remains available with
 `reload.enabled: false`; after disabling polling, use SIGHUP to apply an edit
 that enables it again. An unchanged-file SIGHUP prepares it again, including
 `key_env` values in the running process environment and network discovery.

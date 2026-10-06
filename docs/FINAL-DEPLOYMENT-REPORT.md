@@ -3,21 +3,17 @@
 Updated 2026-10-06. The requested final release is deployed on the four active
 hosts, with persistent enabled systemd services, rollback backups, live reload,
 configuration validation, and owned-rule cleanup. The excluded backend was not
-contacted. **The remaining Netherlands burst failures and complete application-path outages mean
-this is not an unconditional production-readiness or universal-optimality claim.**
+contacted. The Netherlands path was subsequently restored and qualified on both
+clients using client S / backend PA flags and MTU1350, with the same binary,
+original ports and four carriers. The exact cause of intervening filtering remains
+unidentified; this is not an unconditional production-readiness claim.
 
-Latest recheck: reverting Netherlands peers to four lanes applied on both
-clients, but did not recover acceptance. Germany passed four of four 10 MiB
-Reality downloads; Netherlands failed four of four from both clients with TLS
-timeouts. The public Netherlands request also timed out. The eight-lane capacity measurements below precede that diagnostic reversion;
-recorded client snapshots now reflect four Netherlands carriers. Current
-measurement methods and limits are in [BENCHMARKS.md](BENCHMARKS.md).
-
-The [same-path Netherlands diagnosis](NETHERLANDS-DIAGNOSIS.md) now also records
-four failed requests with the previously working enterprise executable and four
-with unmodified upstream paqet. Paired captures show severe loss before packets
-reach the remote host interface. Testing stopped at the user's request; filtering
-is plausible, but its exact cause is not established.
+The [latest Netherlands diagnosis](NETHERLANDS-DIAGNOSIS.md) records 24 profile
+comparisons, 1024 checked connection-churn streams, a two-minute continuous soak,
+8/8 complete 10 MiB Reality downloads, Germany regression checks, and post-cleanup
+public acceptance. Older outage and burst measurements below are retained as
+historical limits, not the latest reachability result. Current client/Netherlands
+snapshots reflect the qualified profile.
 
 ## Executable and implementation
 
@@ -33,7 +29,7 @@ restarts, healthy local metrics, and no degraded config transactions. Source
 checkpoints are committed. The separate old timeout/outer-sequence experiments
 are archived on `archive/pre-final-wire-experiments`, in a named stash; the main checkout excludes them.
 
-The final release retains fabricated Ethernet/IP/TCP headers, PA flags,
+The final release retains fabricated Ethernet/IP/TCP headers, configurable flags (generic default PA),
 source-port reservations, raw capture/injection, and the original sequence/ACK
 number algorithm. It adds independent KCP conversations on a shared verified
 source tuple, bounded outstanding-segment indexing for fast-ACK processing,
@@ -70,11 +66,14 @@ capture and other application memory is additional. Services have LimitNOFILE
 
 Germany retains pcap, MTU1350, a conservative normal-retry/manual 30 ms update
 policy with immediate writes, and the selected small-write threshold 32.
-Netherlands retains AF_PACKET, MTU128, the original `fast` ACK/bulk batching
+At the earlier release checkpoint, Netherlands used AF_PACKET, MTU128, the original `fast` ACK/bulk batching
 policy, **one packet receive worker**, and `small_write_flush: 0`. Independent
 KCP, mux and relay work still uses the available processors. Two receive workers,
 faster ACK profiles, larger MTUs and interactive flushes were not promoted on
-Netherlands because authenticated stress exposed regressions. Reliability
+the earlier Netherlands profile because authenticated stress exposed regressions.
+The subsequent qualified profile uses MTU1350 and client S / return PA, four
+lanes and windows 131/522 (client), 1044/1044 (backend). Its fast scheduling and
+one receive worker remain. Reliability
 adaptation remains disabled on these physical-path recovery profiles; generic
 adaptive defaults retain separate virtual-link qualification.
 
@@ -104,8 +103,8 @@ runtime, cipher and carrier configurations.
 | Final eight-lane deployed hold | 4,096 forwards per client, **8,192 verified**, zero errors | Both backends; HTTP/churn/bulk alongside hold |
 | Deployed 256-worker HTTP/churn | Zero forwarding errors; roughly 1,700–2,200 HTTP req/s and 580–1,020 churn req/s per route/client | Final eight-lane stage; deadline cancellations excluded |
 | Final deployed tunnel memory | Clients ~153/155 MiB peak RSS; backends ~184/225 MiB | 8k hold and measured load; excludes test generators/kernel/Xray |
-| Authenticated 10 MiB downloads | Earlier 8/8 passed; latest four-lane NL recheck passed Germany 4/4 and failed Netherlands 0/4 from both clients | Full VLESS/Reality/Vision, finite bulk checks |
-| Public-domain complete 1 MiB | Both ports passed earlier; post-cleanup Germany passed and Netherlands timed out at 12 s | Laptop → deir.cloudnet1.ir |
+| Authenticated 10 MiB downloads | Latest repaired Netherlands profile passed 8/8; earlier PA four-lane recheck passed 0/4 per client | Full VLESS/Reality/Vision, finite bulk checks |
+| Public-domain complete 1 MiB | Latest post-cleanup 9001 and 9003 both passed; earlier PA Netherlands timed out at 12 s | Laptop → deir.cloudnet1.ir |
 | Authenticated burst, 32 workers/client | 1,024/1,024 passed | 256 requests on each of four paths |
 | Authenticated burst, 64 workers/client | Germany 1,024/1,024; Netherlands **1,020/1,024** | Four Netherlands SSL connect timeouts, no retry masking |
 
@@ -130,15 +129,16 @@ later reduction cannot be attributed to code alone. The controlled initial
 comparison supports roughly **27–36 ms** saved by removing write-cycle waits.
 New-connection medians also improved by about 58–73 ms in that comparison.
 
-Netherlands retains the safe batching policy: warm medians remain approximately
+Earlier Netherlands MTU128 batching measurements had warm medians approximately
 122–123 ms and new-connection medians approximately 245 ms. Low-concurrency
 larger-MTU/microflush results looked faster, but burst qualification rejected
 those changes. A blanket 40 ms improvement without tradeoffs was **not** achieved
 on Netherlands and is not claimed.
 
-The four SSL timeouts at 64 workers/client and subsequent complete Netherlands
-download failures from both clients remain an unresolved acceptance
-limit. A post-cleanup public-domain retest also exceeded the 12-second deadline
+The earlier four SSL timeouts at 64 workers/client and subsequent complete
+Netherlands download failures triggered the resumed path diagnosis.
+The new profile passed the finite workload linked above; the older authenticated
+64-worker request gate has not been rerun identically. A post-cleanup public-domain retest also exceeded the 12-second deadline
 on Netherlands while Germany passed; this is recorded as a failed check. Direct backend Xray controls passed, while ordinary client-to-backend
 VLESS controls failed, so neither aggregate TCP reachability nor a localhost
 Xray test attributes the remaining tail conclusively. Packet capture previously
@@ -157,8 +157,7 @@ optimal on saturated asymmetric paths.
 These results establish finite forwarding/capacity behavior. They do not prove
 100k busy customers, gigabit throughput on these two-vCPU backends, multi-day
 sustained service, universal detectability invariance, or an absolute maximum
-across every network. Production qualification of the authenticated high-load
-Netherlands path remains open.
+across every network. Qualification beyond the latest finite repaired-path workload remains open.
 
 ## Cleanup and rollback
 
