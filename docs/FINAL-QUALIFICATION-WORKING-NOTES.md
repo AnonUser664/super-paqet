@@ -139,3 +139,59 @@ final acceptance; the requested final cipher remains quoted `null`.
   config snapshots remain required before declaring this stage complete.
 
 Detailed private logs/results are retained in `build/final-production`.
+
+## Subsequent recovery and final-candidate evidence
+
+The original Netherlands single-carrier fast/MTU128 profile recovered; its 512
+authenticated concurrency requests passed. Four shared lanes with the same
+fast/MTU128/one-packet-worker profile also passed 512/512. Fresh destination
+port, AES and IPv6 did not independently establish recovery and are not selected.
+Both Germany clients now use the assigned primary alias 91.107.251.85:29999;
+forwarded Germany targets remain 116.202.177.233:2096.
+
+Checkpoint `abf04f6` / main `97529dd` adds configurable `small_write_flush`. It
+expedites only logical writes below a byte threshold, preserving preset bulk
+batching and ACK cadence; zero retains existing behavior. Deterministic tests
+verify default/bulk/vector thresholds and byte order. Full KCP suite passed
+(132.998 s); root race/vet passed. Larger interactive thresholds are not selected
+on Netherlands: 128 had three TLS timeouts/1024 requests, 32 had eight/1024 on
+a repeat. These failures are recorded rather than hidden by retries.
+
+Selected executable SHA-256
+`47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419`,
+embedded source `abf04f6`, version `enterprise-2026.10.06`. Its exact-byte local
+100k soak passed: 6.952 s ramp, 120 s hold, every connection verified, zero
+errors; concurrent bulk 2.084 Gbit/s and HTTP 1,168 req/s, p99 histogram upper
+bound 32.768 ms. RSS plus swap peaked near 1.90/2.32 GiB client/server. This
+scale fixture uses adaptive default transport and is not the conservative WAN
+profile. Seven final-binary shared/null/fast/small-write-32 profiles passed,
+including ACK-limited duplex, random/reorder/harsh/asymmetric/outage/pcap.
+The legacy all-telemetry-disabled ACK-limited case remains a failed gate.
+
+The final candidate's 8,192-forward deployment test verified every held socket
+with zero errors, alongside 256-worker HTTP/churn and bulk. Peak tunnel RSS
+146–204 MiB; sampled peak CPU 0.65–1.77 cores and average stage CPU 0.10–0.46
+cores (stage includes idle time). A repeat under final resource budgets is
+underway. Both backends have a 1,536 MiB soft Go memory limit, clients 4,096;
+kernel/capture memory is additional. The requested null cipher is restored.
+
+Two packet workers on Netherlands failed one client in the larger authenticated
+cohort. One worker is retained pending diagnosis; independent KCP/mux lanes
+still run on all available Go processors. One-worker final cohort passed
+Germany 1024/1024 and Netherlands 1023/1024, with one SSL connection timeout.
+Direct client-to-Xray comparison is underway; no production-ready claim is
+made for that unresolved tail. All eight final 10 MiB authenticated transfers
+and both public-domain 1 MiB checks passed.
+
+The HTTP fixture's two-hour runtime expired during late raw probes; this caused
+connection resets and was corrected before final workload tests. Those resets
+are not attributed to tunnel corruption. Old idle-only-timeout bulk probes
+could trickle indefinitely; they were stopped and replaced by total-deadline,
+uniquely tagged probes. Probe routes, files, rules and units still require final
+cleanup.
+
+Main now includes the reviewed runtime checkpoints. The six pre-final
+unqualified timing/sequence experiments are preserved on
+`archive/pre-final-wire-experiments`, in a named stash and byte-for-byte backup
+under `build/final-production/preserved-experiments`; they are excluded from the
+clean main checkout and selected deployment executable.
