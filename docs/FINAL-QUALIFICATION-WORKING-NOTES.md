@@ -195,3 +195,22 @@ unqualified timing/sequence experiments are preserved on
 `archive/pre-final-wire-experiments`, in a named stash and byte-for-byte backup
 under `build/final-production/preserved-experiments`; they are excluded from the
 clean main checkout and selected deployment executable.
+
+### Final acceptance observations (still in progress)
+
+The resource-budget/worker-one repeat verified all 8,192 held forwards with
+zero errors and zero HTTP/churn/bulk workload errors. Backend peak RSS was
+180.5/228.5 MiB; clients below 151 MiB. Public domain 9001/9003 checks passed
+and all eight 10 MiB transfers passed. The full 512-request-per-path cohort
+passed 2,047/2,048, with one Netherlands SSL connection timeout on .14.
+A direct client-to-Netherlands VLESS control (ordinary TCP to 2096) failed all
+1,024 requests, despite TCP connect succeeding; this is not a useful successful
+application control for attributing the occasional tunnel timeout. It does
+confirm that bypass is needed for the application on that path.
+
+Re-enabling two Netherlands packet workers failed .118 entirely in one cohort;
+one worker was restored. This is an unresolved physical-path/fanout qualification
+limit, not a proven universal kernel bug. Go/KCP/mux/application work remains
+parallel across the available processors. An eight-lane fixed-source candidate
+is now being checked to reduce head-of-line sharing further; it is not accepted
+until authenticated concurrency and hold checks pass.
