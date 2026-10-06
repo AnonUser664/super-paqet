@@ -10,6 +10,7 @@ has verified one active customer; thousands of active customers remain untested.
 
 | Document | Purpose |
 |---|---|
+| [CLEAN-LINK-CURRENT.md](CLEAN-LINK-CURRENT.md) | Fresh isolated unencrypted bulk measurements of the exact current executable, CPU/memory, small-write comparison and historical performance gap. |
 | [TEST-RESULTS-AUDIT.md](TEST-RESULTS-AUDIT.md) | Throughput comparison by workload/build, latest local and remote results, Netherlands failure evidence and remaining causal gaps. |
 | [test-results-inventory.json](test-results-inventory.json) | Compact inventory of all retained structured result files, matrix gates and final-stage remote reports, including failures. |
 | [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md) | Recorded failures, approaches, rejected experiments, evidence mistakes and decisions through the review pause. |

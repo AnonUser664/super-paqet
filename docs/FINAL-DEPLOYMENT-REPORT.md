@@ -85,6 +85,13 @@ affected endpoint, and process replacement still ends established streams.
 
 ## Measured results
 
+Subsequent isolated clean-link tests of this exact executable measured
+**3.50–3.74 Gbit/s upload and 3.08–3.10 Gbit/s download** with null encryption
+and eight initial shared lanes. Those runs exclude the 100k hold/HTTP workload
+and are detailed in [CLEAN-LINK-CURRENT.md](CLEAN-LINK-CURRENT.md). The gap from
+the historical 7.854 Gbit/s upload peak remains unattributed across changed
+runtime, cipher and carrier configurations.
+
 | Workload | Result | Scope |
 |---|---|---|
 | Exact final binary: 100k forwards | 6.952 s ramp, 120 s soak, all 100,000 verified, zero errors | Laptop namespaces; predominantly idle connections |

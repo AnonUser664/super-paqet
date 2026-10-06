@@ -4,6 +4,11 @@ Recorded on 2026-10-06. This audit reads retained results; it does not represent
 a new benchmark run. It separates workloads and executable versions. Missing
 measurements remain missing, and failed experiments remain failed.
 
+Subsequent measurements on the exact current executable are now recorded in
+[CLEAN-LINK-CURRENT.md](CLEAN-LINK-CURRENT.md): two isolated default/shared/null
+runs measured 3.50–3.74 Gbit/s upload and 3.08–3.10 download. The historical
+comparison below retains its workload boundaries.
+
 ## Why 2.08 Gbit/s is not the isolated clean-link result
 
 The exact deployed executable (`47c61ac2…`, runtime source `abf04f6`, main
@@ -32,9 +37,10 @@ These measurements **do not establish that bulk performance was preserved**.
 The shared-source isolated results and mixed-load numbers justify investigating
 a possible regression. They do not isolate its cause: shared socket processing,
 cipher cost, buffering/backlog, other runtime changes and host contention differ.
-The exact latest executable has no retained equivalent isolated packet-backend
-clean-link iperf3 measurement in this qualification set. An unchanged-harness
-comparison across builds and an on/off small-write comparison remain required.
+The exact latest executable now has isolated packet-backend clean-link iperf3
+measurements, including a finite on/off small-write comparison, in the linked
+follow-up. An unchanged-harness comparison across old and new builds remains
+required to attribute the gap from the historical peak.
 Historical single-command iperf3 `--bidir` results are excluded from acceptance;
 the later harness uses two simultaneous one-way tests instead.
 
@@ -56,7 +62,7 @@ Sources: `build/qualification-clean-final/results.json`,
 | Root race/vet, fork suites | Passed; latest complete KCP suite 132.998 s | Finite code tests, not certification of physical paths |
 | Outstanding-ACK index differential tests | Passed seeded reference comparisons, including sequence wrap and ring growth | Sparse-gap microbenchmark about 16,000 → 92 ns/op, not whole-app speedup |
 | Shared-lane isolation | Null/AES/AES-GCM concurrent payload, closure, unknown-input and FEC rejection tests passed | Opt-in shared protocol requires both endpoints |
-| Small-write behavior | Disabled default, vector size, bulk, immediate small writes and ordering tests passed | No retained latest-build clean iperf on/off performance comparison |
+| Small-write behavior | Disabled default, vector size, bulk, immediate small writes and ordering tests passed; subsequent clean iperf comparison recorded | Finite timing samples do not establish universal zero cost |
 | Legacy telemetry-disabled ACK-limited duplex | **Failed**: one upload receiver stream delivered zero measured bytes; longer retry also failed | Cannot claim universal adaptive performance with these extensions disabled |
 
 Latest seven-profile measurements, from the **same deployed executable**:
@@ -154,7 +160,7 @@ exported; configurations, credentials, raw payloads and arbitrary error text are
 excluded. Absence of an error counter does not mean a pass. Some old iperf duplex
 outputs use the invalid historical method described above.
 
-The export contains 353 result files, 24 matrix files with 176 gate records, and
+The export contains 357 result files, 24 matrix files with 176 gate records, and
 43 final-stage remote reports. These overlap and are not counts of distinct
 executed tests. Iperf interval samples are omitted from the compact export;
 aggregate receiver rates and per-stream receiver bytes remain available.

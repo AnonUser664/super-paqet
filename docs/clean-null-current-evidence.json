@@ -1,0 +1,942 @@
+{
+  "recorded_at_utc": "2026-10-06T07:31:36.562624+00:00",
+  "binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419",
+  "embedded_source_commit": "abf04f6",
+  "main_runtime_commit": "97529dd",
+  "measurement": "Received iperf3 payload, 30 measured seconds after 5 omitted startup seconds, eight streams per direction. Duplex uses two concurrent one-way tests. Default adaptive settings, eight initial shared-source lanes, packet backend, MTU1500 virtual interfaces, null cipher, no FEC, no injected loss/delay/rate cap, no held-connection workload, no debug/profiling, unchanged host backlog1000. This is not the conservative real-host reliability configuration.",
+  "harness_sha256": "d7ee940df0ee5f5a3e4354d753b2bca676ceae881db2a6e21266f84227b40433",
+  "compatibility_library_sha256": "2ad04a3ce2b5a350ab7e6592624de8f0971e86c6fd1e2427ad44b51caf8e275c",
+  "initial_failed_launch": {
+    "artifact": "build/final-production/clean-null-current-20261006-a",
+    "reason": "Local dynamic loader could not locate libpcap.so.0.8. No throughput measurement. Subsequent launches use existing build/deploy-libs via LD_LIBRARY_PATH.",
+    "cleanup": {
+      "process_exit_codes": [
+        0,
+        127,
+        127
+      ],
+      "firewall_clean": true,
+      "unrelated_rule_preserved": true
+    }
+  },
+  "runs": [
+    {
+      "artifact": "build/final-production/clean-null-current-20261006-a2/results.json",
+      "parameters": {
+        "binary": "build/final-production/super-paqet-small-flush",
+        "duration": 30,
+        "workers": 8,
+        "loss": 0,
+        "delay_ms": 0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "burst_loss": null,
+        "seed": null,
+        "rate_mbit": 0,
+        "down_rate_mbit": null,
+        "sessions": 8,
+        "shared_source": true,
+        "hold": 0,
+        "enterprise": true,
+        "profile": false,
+        "debug": false,
+        "flow_sample": 1000,
+        "backend": "packet",
+        "duplex_http": false,
+        "mtu": 1500,
+        "ipv6": false,
+        "warmup": 5,
+        "schedule": null,
+        "mode": "both",
+        "ramp_timeout": 600,
+        "queue_packets": 0,
+        "adaptive": "on",
+        "kcp_options": "{}",
+        "functional": false,
+        "block": "null",
+        "fec": [
+          0,
+          0
+        ],
+        "iperf": true,
+        "iperf_directions": [
+          "upload",
+          "download",
+          "bidirectional"
+        ],
+        "direct_iperf": false,
+        "tcp_buffer_mib": 0,
+        "capture": false,
+        "restart": false,
+        "mixed": false,
+        "socket_buffer_mib": 0,
+        "host_backlog": 0,
+        "bridge": false,
+        "output": "build/final-production/clean-null-current-20261006-a2"
+      },
+      "binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419",
+      "results": [
+        {
+          "verified_bytes": 16777216
+        },
+        {
+          "iperf": "upload",
+          "method": "unidirectional",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 30.000461,
+              "seconds": 30.000461,
+              "bytes": 14017232896,
+              "bits_per_second": 3737871333.64384,
+              "retransmits": 193,
+              "sender": true
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 30.003609,
+              "seconds": 30.003609,
+              "bytes": 14018150400,
+              "bits_per_second": 3737723791.827843,
+              "sender": true
+            }
+          },
+          "received_gbps": {
+            "sum_received": 3.737723791827843
+          },
+          "receiver_stream_bytes_by_direction": [
+            [
+              1653866496,
+              1730281472,
+              1743257600,
+              1824784384,
+              1755840512,
+              1754923008,
+              1769472000,
+              1785724928
+            ]
+          ],
+          "tunnel_cpu_cores": {
+            "client": 1.846,
+            "server": 1.711
+          }
+        },
+        {
+          "iperf": "download",
+          "method": "unidirectional",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 30.000121,
+              "seconds": 30.000121,
+              "bytes": 11546525696,
+              "bits_per_second": 3079061100.053563,
+              "retransmits": 55,
+              "sender": false
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 29.999938,
+              "seconds": 29.999938,
+              "bytes": 11544297472,
+              "bits_per_second": 3078485688.070422,
+              "sender": false
+            }
+          },
+          "received_gbps": {
+            "sum_received": 3.078485688070422
+          },
+          "receiver_stream_bytes_by_direction": [
+            [
+              1466564608,
+              1399062528,
+              1482031104,
+              1377435648,
+              1380843520,
+              1437073408,
+              1494614016,
+              1506672640
+            ]
+          ],
+          "tunnel_cpu_cores": {
+            "client": 1.802,
+            "server": 1.955
+          }
+        },
+        {
+          "iperf": "bidirectional",
+          "method": "concurrent_unidirectional",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 30.00084,
+              "seconds": 30.00084,
+              "bytes": 6898057216,
+              "bits_per_second": 1839430420.2149007,
+              "retransmits": 848,
+              "sender": true
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 30.010842,
+              "seconds": 30.010842,
+              "bytes": 6895173632,
+              "bits_per_second": 1838048697.7339723,
+              "sender": true
+            },
+            "sum_sent_bidir_reverse": {
+              "start": 0,
+              "end": 30.016574,
+              "seconds": 30.016574,
+              "bytes": 7054295040,
+              "bits_per_second": 1880106647.7473414,
+              "retransmits": 746,
+              "sender": false
+            },
+            "sum_received_bidir_reverse": {
+              "start": 0,
+              "end": 29.999939,
+              "seconds": 29.999939,
+              "bytes": 7045120000,
+              "bits_per_second": 1878702486.6950562,
+              "sender": false
+            }
+          },
+          "received_gbps": {
+            "sum_received": 1.8380486977339723,
+            "sum_received_bidir_reverse": 1.8787024866950561
+          },
+          "receiver_stream_bytes_by_direction": [
+            [
+              983826432,
+              737673216,
+              750911488,
+              1039663104,
+              741867520,
+              978845696,
+              730857472,
+              931528704
+            ],
+            [
+              942669824,
+              768999424,
+              828243968,
+              932184064,
+              1021575168,
+              959709184,
+              773718016,
+              818020352
+            ]
+          ],
+          "tunnel_cpu_cores": {
+            "client": 2.3,
+            "server": 2.334
+          }
+        }
+      ],
+      "processes": {
+        "target": {
+          "peak_rss_kib": 8228,
+          "peak_fds": 6,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 8228,
+          "rss_high_water_kib": 8228,
+          "cpu_seconds": 0.0
+        },
+        "server": {
+          "peak_rss_kib": 56832,
+          "peak_fds": 29,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 56832,
+          "rss_high_water_kib": 56832,
+          "cpu_seconds": 210.9
+        },
+        "client": {
+          "peak_rss_kib": 60212,
+          "peak_fds": 36,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 60212,
+          "rss_high_water_kib": 60212,
+          "cpu_seconds": 209.1
+        }
+      },
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      }
+    },
+    {
+      "artifact": "build/final-production/clean-null-current-20261006-b/results.json",
+      "parameters": {
+        "binary": "build/final-production/super-paqet-small-flush",
+        "duration": 30,
+        "workers": 8,
+        "loss": 0,
+        "delay_ms": 0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "burst_loss": null,
+        "seed": null,
+        "rate_mbit": 0,
+        "down_rate_mbit": null,
+        "sessions": 8,
+        "shared_source": true,
+        "hold": 0,
+        "enterprise": true,
+        "profile": false,
+        "debug": false,
+        "flow_sample": 1000,
+        "backend": "packet",
+        "duplex_http": false,
+        "mtu": 1500,
+        "ipv6": false,
+        "warmup": 5,
+        "schedule": null,
+        "mode": "both",
+        "ramp_timeout": 600,
+        "queue_packets": 0,
+        "adaptive": "on",
+        "kcp_options": "{}",
+        "functional": false,
+        "block": "null",
+        "fec": [
+          0,
+          0
+        ],
+        "iperf": true,
+        "iperf_directions": [
+          "upload",
+          "download",
+          "bidirectional"
+        ],
+        "direct_iperf": false,
+        "tcp_buffer_mib": 0,
+        "capture": false,
+        "restart": false,
+        "mixed": false,
+        "socket_buffer_mib": 0,
+        "host_backlog": 0,
+        "bridge": false,
+        "output": "build/final-production/clean-null-current-20261006-b"
+      },
+      "binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419",
+      "results": [
+        {
+          "verified_bytes": 16777216
+        },
+        {
+          "iperf": "upload",
+          "method": "unidirectional",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 30.000526,
+              "seconds": 30.000526,
+              "bytes": 13116243968,
+              "bits_per_second": 3497603733.4812064,
+              "retransmits": 96,
+              "sender": true
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 30.002906,
+              "seconds": 30.002906,
+              "bytes": 13112442880,
+              "bits_per_second": 3496312758.504126,
+              "sender": true
+            }
+          },
+          "received_gbps": {
+            "sum_received": 3.4963127585041263
+          },
+          "receiver_stream_bytes_by_direction": [
+            [
+              1567752192,
+              1709703168,
+              1694629888,
+              1599995904,
+              1605500928,
+              1706819584,
+              1604714496,
+              1623326720
+            ]
+          ],
+          "tunnel_cpu_cores": {
+            "client": 1.884,
+            "server": 1.742
+          }
+        },
+        {
+          "iperf": "download",
+          "method": "unidirectional",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 30.001028,
+              "seconds": 30.001028,
+              "bytes": 11614945280,
+              "bits_per_second": 3097212610.1812243,
+              "retransmits": 69,
+              "sender": false
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 29.999953,
+              "seconds": 29.999953,
+              "bytes": 11608391680,
+              "bits_per_second": 3095575964.402344,
+              "sender": false
+            }
+          },
+          "received_gbps": {
+            "sum_received": 3.0955759644023444
+          },
+          "receiver_stream_bytes_by_direction": [
+            [
+              1506803712,
+              1437073408,
+              1393819648,
+              1390936064,
+              1484914688,
+              1471021056,
+              1403912192,
+              1519910912
+            ]
+          ],
+          "tunnel_cpu_cores": {
+            "client": 1.786,
+            "server": 1.932
+          }
+        },
+        {
+          "iperf": "bidirectional",
+          "method": "concurrent_unidirectional",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 29.99993,
+              "seconds": 29.99993,
+              "bytes": 6546391040,
+              "bits_per_second": 1745708350.6528182,
+              "retransmits": 1282,
+              "sender": true
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 30.01231,
+              "seconds": 30.01231,
+              "bytes": 6546259968,
+              "bits_per_second": 1744953312.2908566,
+              "sender": true
+            },
+            "sum_sent_bidir_reverse": {
+              "start": 0,
+              "end": 30.009935,
+              "seconds": 30.009935,
+              "bytes": 6615728128,
+              "bits_per_second": 1763610118.5823963,
+              "retransmits": 1563,
+              "sender": false
+            },
+            "sum_received_bidir_reverse": {
+              "start": 0,
+              "end": 29.999944,
+              "seconds": 29.999944,
+              "bytes": 6609698816,
+              "bits_per_second": 1762589641.1006634,
+              "sender": false
+            }
+          },
+          "received_gbps": {
+            "sum_received": 1.7449533122908567,
+            "sum_received_bidir_reverse": 1.7625896411006634
+          },
+          "receiver_stream_bytes_by_direction": [
+            [
+              733216768,
+              855900160,
+              756285440,
+              971374592,
+              881852416,
+              741867520,
+              832831488,
+              772931584
+            ],
+            [
+              799801344,
+              779354112,
+              742260736,
+              811335680,
+              741736448,
+              732561408,
+              1090781184,
+              911867904
+            ]
+          ],
+          "tunnel_cpu_cores": {
+            "client": 2.23,
+            "server": 2.268
+          }
+        }
+      ],
+      "processes": {
+        "target": {
+          "peak_rss_kib": 8400,
+          "peak_fds": 6,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 8400,
+          "rss_high_water_kib": 8400,
+          "cpu_seconds": 0.0
+        },
+        "server": {
+          "peak_rss_kib": 53932,
+          "peak_fds": 29,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 53932,
+          "rss_high_water_kib": 53932,
+          "cpu_seconds": 208.86
+        },
+        "client": {
+          "peak_rss_kib": 53800,
+          "peak_fds": 36,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 53800,
+          "rss_high_water_kib": 53800,
+          "cpu_seconds": 207.34
+        }
+      },
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      }
+    },
+    {
+      "artifact": "build/final-production/clean-null-current-20261006-flush32/results.json",
+      "parameters": {
+        "binary": "build/final-production/super-paqet-small-flush",
+        "duration": 30,
+        "workers": 8,
+        "loss": 0,
+        "delay_ms": 0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "burst_loss": null,
+        "seed": null,
+        "rate_mbit": 0,
+        "down_rate_mbit": null,
+        "sessions": 8,
+        "shared_source": true,
+        "hold": 0,
+        "enterprise": true,
+        "profile": false,
+        "debug": false,
+        "flow_sample": 1000,
+        "backend": "packet",
+        "duplex_http": false,
+        "mtu": 1500,
+        "ipv6": false,
+        "warmup": 5,
+        "schedule": null,
+        "mode": "both",
+        "ramp_timeout": 600,
+        "queue_packets": 0,
+        "adaptive": "on",
+        "kcp_options": "{\"small_write_flush\":32}",
+        "functional": false,
+        "block": "null",
+        "fec": [
+          0,
+          0
+        ],
+        "iperf": true,
+        "iperf_directions": [
+          "upload",
+          "download",
+          "bidirectional"
+        ],
+        "direct_iperf": false,
+        "tcp_buffer_mib": 0,
+        "capture": false,
+        "restart": false,
+        "mixed": false,
+        "socket_buffer_mib": 0,
+        "host_backlog": 0,
+        "bridge": false,
+        "output": "build/final-production/clean-null-current-20261006-flush32"
+      },
+      "binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419",
+      "results": [
+        {
+          "verified_bytes": 16777216
+        },
+        {
+          "iperf": "upload",
+          "method": "unidirectional",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 30.001753,
+              "seconds": 30.001753,
+              "bytes": 11817451520,
+              "bits_per_second": 3151136273.93706,
+              "retransmits": 35,
+              "sender": true
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 30.003457,
+              "seconds": 30.003457,
+              "bytes": 11819155456,
+              "bits_per_second": 3151411640.5986147,
+              "sender": true
+            }
+          },
+          "received_gbps": {
+            "sum_received": 3.1514116405986146
+          },
+          "receiver_stream_bytes_by_direction": [
+            [
+              1505230848,
+              1464467456,
+              1436286976,
+              1457258496,
+              1460142080,
+              1560543232,
+              1469841408,
+              1465384960
+            ]
+          ],
+          "tunnel_cpu_cores": {
+            "client": 1.897,
+            "server": 1.771
+          }
+        },
+        {
+          "iperf": "download",
+          "method": "unidirectional",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 30.000061,
+              "seconds": 30.000061,
+              "bytes": 11646271488,
+              "bits_per_second": 3105666081.9456334,
+              "retransmits": 76,
+              "sender": false
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 29.999951,
+              "seconds": 29.999951,
+              "bytes": 11643518976,
+              "bits_per_second": 3104943465.00766,
+              "sender": false
+            }
+          },
+          "received_gbps": {
+            "sum_received": 3.10494346500766
+          },
+          "receiver_stream_bytes_by_direction": [
+            [
+              1419771904,
+              1479409664,
+              1482162176,
+              1473118208,
+              1470234624,
+              1494876160,
+              1365245952,
+              1458700288
+            ]
+          ],
+          "tunnel_cpu_cores": {
+            "client": 1.8,
+            "server": 1.939
+          }
+        },
+        {
+          "iperf": "bidirectional",
+          "method": "concurrent_unidirectional",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 30.000686,
+              "seconds": 30.000686,
+              "bytes": 6986268672,
+              "bits_per_second": 1862962379.4602563,
+              "retransmits": 850,
+              "sender": true
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 30.004463,
+              "seconds": 30.004463,
+              "bytes": 6983516160,
+              "bits_per_second": 1861993973.3632293,
+              "sender": true
+            },
+            "sum_sent_bidir_reverse": {
+              "start": 0,
+              "end": 30.011459,
+              "seconds": 30.011459,
+              "bytes": 7139360768,
+              "bits_per_second": 1903102616.3706338,
+              "retransmits": 534,
+              "sender": false
+            },
+            "sum_received_bidir_reverse": {
+              "start": 0,
+              "end": 29.999962,
+              "seconds": 29.999962,
+              "bytes": 7131365376,
+              "bits_per_second": 1901699842.4198,
+              "sender": false
+            }
+          },
+          "received_gbps": {
+            "sum_received": 1.8619939733632294,
+            "sum_received_bidir_reverse": 1.9016998424198
+          },
+          "receiver_stream_bytes_by_direction": [
+            [
+              849215488,
+              904658944,
+              846594048,
+              950796288,
+              878837760,
+              905052160,
+              792854528,
+              855506944
+            ],
+            [
+              850526208,
+              939786240,
+              901120000,
+              905576448,
+              894304256,
+              962461696,
+              773849088,
+              903741440
+            ]
+          ],
+          "tunnel_cpu_cores": {
+            "client": 2.308,
+            "server": 2.335
+          }
+        }
+      ],
+      "processes": {
+        "target": {
+          "peak_rss_kib": 8388,
+          "peak_fds": 6,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 8388,
+          "rss_high_water_kib": 8388,
+          "cpu_seconds": 0.0
+        },
+        "server": {
+          "peak_rss_kib": 61048,
+          "peak_fds": 29,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 61048,
+          "rss_high_water_kib": 61048,
+          "cpu_seconds": 212.48
+        },
+        "client": {
+          "peak_rss_kib": 60704,
+          "peak_fds": 36,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 60704,
+          "rss_high_water_kib": 60704,
+          "cpu_seconds": 211.12
+        }
+      },
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      }
+    },
+    {
+      "artifact": "build/final-production/clean-null-current-20261006-flush32-upload-repeat/results.json",
+      "parameters": {
+        "binary": "build/final-production/super-paqet-small-flush",
+        "duration": 30,
+        "workers": 8,
+        "loss": 0,
+        "delay_ms": 0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "burst_loss": null,
+        "seed": null,
+        "rate_mbit": 0,
+        "down_rate_mbit": null,
+        "sessions": 8,
+        "shared_source": true,
+        "hold": 0,
+        "enterprise": true,
+        "profile": false,
+        "debug": false,
+        "flow_sample": 1000,
+        "backend": "packet",
+        "duplex_http": false,
+        "mtu": 1500,
+        "ipv6": false,
+        "warmup": 5,
+        "schedule": null,
+        "mode": "both",
+        "ramp_timeout": 600,
+        "queue_packets": 0,
+        "adaptive": "on",
+        "kcp_options": "{\"small_write_flush\":32}",
+        "functional": false,
+        "block": "null",
+        "fec": [
+          0,
+          0
+        ],
+        "iperf": true,
+        "iperf_directions": [
+          "upload"
+        ],
+        "direct_iperf": false,
+        "tcp_buffer_mib": 0,
+        "capture": false,
+        "restart": false,
+        "mixed": false,
+        "socket_buffer_mib": 0,
+        "host_backlog": 0,
+        "bridge": false,
+        "output": "build/final-production/clean-null-current-20261006-flush32-upload-repeat"
+      },
+      "binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419",
+      "results": [
+        {
+          "verified_bytes": 16777216
+        },
+        {
+          "iperf": "upload",
+          "method": "unidirectional",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 30.000638,
+              "seconds": 30.000638,
+              "bytes": 13212188672,
+              "bits_per_second": 3523175386.336784,
+              "retransmits": 162,
+              "sender": true
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 30.006966,
+              "seconds": 30.006966,
+              "bytes": 13213368320,
+              "bits_per_second": 3522746903.50234,
+              "sender": true
+            }
+          },
+          "received_gbps": {
+            "sum_received": 3.5227469035023398
+          },
+          "receiver_stream_bytes_by_direction": [
+            [
+              1620180992,
+              1662255104,
+              1645740032,
+              1709965312,
+              1655177216,
+              1645215744,
+              1684275200,
+              1590558720
+            ]
+          ],
+          "tunnel_cpu_cores": {
+            "client": 1.881,
+            "server": 1.753
+          }
+        }
+      ],
+      "processes": {
+        "target": {
+          "peak_rss_kib": 8324,
+          "peak_fds": 6,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 8324,
+          "rss_high_water_kib": 8324,
+          "cpu_seconds": 0.0
+        },
+        "server": {
+          "peak_rss_kib": 39252,
+          "peak_fds": 20,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 39252,
+          "rss_high_water_kib": 39252,
+          "cpu_seconds": 61.6
+        },
+        "client": {
+          "peak_rss_kib": 60368,
+          "peak_fds": 27,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 60368,
+          "rss_high_water_kib": 60368,
+          "cpu_seconds": 66.06
+        }
+      },
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      }
+    }
+  ],
+  "limits": [
+    "Two default-setting samples and two flush32 upload samples are finite observations, not maximum-performance certification.",
+    "Earlier 7.854 Gbit/s upload used a different binary, ordinary carriers, AES-GCM and a different measurement interval; causal attribution needs a matched cross-build comparison.",
+    "Flush32 upload ranged 3.151 to 3.523 Gbit/s; these samples do not establish a consistent collapse or universal zero throughput cost.",
+    "No remote configuration or service was modified for these local benchmarks."
+  ]
+}
