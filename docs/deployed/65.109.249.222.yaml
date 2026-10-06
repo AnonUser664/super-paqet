@@ -1,0 +1,53 @@
+listeners:
+- address: 65.109.249.222:29999
+  enc: 'null'
+  network:
+    interface: eth0
+    ipv4:
+      addr: 65.109.249.222:29999
+      router_mac: d2:74:7f:6e:37:e3
+    backend: packet
+    tcp:
+      local_flag:
+      - PA
+      remote_flag:
+      - S
+  adaptive: false
+  packet_workers: 1
+  kcp:
+    mode: fast
+    sndwnd: 1044
+    rcvwnd: 1044
+    ack_timestamps: false
+    credit_hints: false
+    adaptive_buffers: false
+    smuxbuf: 4194304
+    streambuf: 2097152
+    mtu: 1350
+    nodelay: 0
+    interval: 30
+    resend: 2
+    nocongestion: 1
+    wdelay: false
+    acknodelay: false
+    small_write_flush: 0
+  shared_source: true
+metrics: 127.0.0.1:29090
+log:
+  level: info
+  format: json
+  interval: 10s
+  flow_sample: 1000
+profiling: false
+reload:
+  enabled: true
+  interval: 250ms
+  debounce: 500ms
+forwards: []
+limits:
+  connections: 200000
+  sessions: 1024
+  open_timeout: 15s
+  dial_timeout: 5s
+  udp_idle: 60s
+  memory_mib: 1536

@@ -275,5 +275,440 @@
       },
       "state": "active\nenabled\n6f39ad0e02008e51db9660be2f8131915f09089b2b0197215afb1f84be68071a  /root/super-paqet/conf.yaml\n47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419  /root/super-paqet/super-paqet\ninactive\ninactive\ninactive\ninactive\n"
     }
+  },
+  "current_65_109_249_222": {
+    "deployment": {
+      "stamp": "20261006T091909Z",
+      "ip": "65.109.249.222",
+      "port": 29999,
+      "profile": "Netherlands S / PA, null, MTU1350, four shared lanes",
+      "initial": {
+        "65.109.249.222": {
+          "config_sha256": "f16c780e9049ea3ec3f6c166d9d64f489c06fd0280064c65276077cf1a5384aa",
+          "binary_sha256": "ecb8e002173f6f80cd3f403d3ee3080190f0e49889fa2ba9f883b893f96318f3"
+        },
+        "89.45.68.14": {
+          "config_sha256": "d17c679dccbfc0dcee7c02a82660be2a7f5b037db9ff37107420908452820efc",
+          "binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419"
+        },
+        "89.45.68.118": {
+          "config_sha256": "6f39ad0e02008e51db9660be2f8131915f09089b2b0197215afb1f84be68071a",
+          "binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419"
+        }
+      },
+      "echo": {
+        "89.45.68.118": [
+          {
+            "bytes": 64,
+            "passed": true,
+            "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+            "seconds": 0.2827902161516249
+          },
+          {
+            "bytes": 16384,
+            "passed": true,
+            "sha256": "9038ac64e659335ccbfdd3f684f35a26a2c9e580d9af6b4807af3adbe2c257e3",
+            "seconds": 0.2572777597233653
+          },
+          {
+            "bytes": 262144,
+            "passed": true,
+            "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+            "seconds": 0.47759915702044964
+          }
+        ],
+        "89.45.68.14": [
+          {
+            "bytes": 64,
+            "passed": true,
+            "sha256": "c6ab9724ade5b6a7a1edfffb12f3aa9181351355af8fd08c919952ad211339dd",
+            "seconds": 0.29202846297994256
+          },
+          {
+            "bytes": 16384,
+            "passed": true,
+            "sha256": "9038ac64e659335ccbfdd3f684f35a26a2c9e580d9af6b4807af3adbe2c257e3",
+            "seconds": 0.3211284230928868
+          },
+          {
+            "bytes": 262144,
+            "passed": true,
+            "sha256": "d30eb241f95e7c37c033251a78eae1610ac9b02dc99625442158180d35818c1b",
+            "seconds": 0.4325168690411374
+          }
+        ]
+      },
+      "reality": {
+        "89.45.68.14": [
+          {
+            "exit": 0,
+            "response": "200 10485760 0.690240 2.411957",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 10485760 0.571756 2.340194",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "89.45.68.118": [
+          {
+            "exit": 0,
+            "response": "200 10485760 0.631178 2.424613",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 10485760 0.600194 2.139661",
+            "error": "",
+            "passed": true
+          }
+        ]
+      },
+      "load": {
+        "89.45.68.14": {
+          "churn": {
+            "connections": 512,
+            "passed": 512,
+            "errors": [],
+            "p50_seconds": 0.8152480539865792,
+            "p99_seconds": 1.8325562250101939
+          },
+          "held": {
+            "streams": 8,
+            "duration_seconds": 120.15344705595635,
+            "rows": [
+              {
+                "passed": true,
+                "exchanges": 940,
+                "bytes": 61603840,
+                "seconds": 120.08328938891646
+              },
+              {
+                "passed": true,
+                "exchanges": 508,
+                "bytes": 33292288,
+                "seconds": 120.05673043697607
+              },
+              {
+                "passed": true,
+                "exchanges": 507,
+                "bytes": 33226752,
+                "seconds": 120.05512971593998
+              },
+              {
+                "passed": true,
+                "exchanges": 509,
+                "bytes": 33357824,
+                "seconds": 120.02318905596621
+              },
+              {
+                "passed": true,
+                "exchanges": 935,
+                "bytes": 61276160,
+                "seconds": 120.04603005491663
+              },
+              {
+                "passed": true,
+                "exchanges": 509,
+                "bytes": 33357824,
+                "seconds": 120.14305975905154
+              },
+              {
+                "passed": true,
+                "exchanges": 505,
+                "bytes": 33095680,
+                "seconds": 120.1419937129831
+              },
+              {
+                "passed": true,
+                "exchanges": 506,
+                "bytes": 33161216,
+                "seconds": 120.01781555009075
+              }
+            ],
+            "round_trip_payload_bytes": 322371584,
+            "one_direction_mbit_per_second": 21.463992379668916
+          }
+        },
+        "89.45.68.118": {
+          "churn": {
+            "connections": 512,
+            "passed": 512,
+            "errors": [],
+            "p50_seconds": 1.1643149820156395,
+            "p99_seconds": 1.906041163019836
+          },
+          "held": {
+            "streams": 8,
+            "duration_seconds": 120.15014133788645,
+            "rows": [
+              {
+                "passed": true,
+                "exchanges": 946,
+                "bytes": 61997056,
+                "seconds": 120.04748741071671
+              },
+              {
+                "passed": true,
+                "exchanges": 771,
+                "bytes": 50528256,
+                "seconds": 120.05394948506728
+              },
+              {
+                "passed": true,
+                "exchanges": 950,
+                "bytes": 62259200,
+                "seconds": 120.03656726470217
+              },
+              {
+                "passed": true,
+                "exchanges": 770,
+                "bytes": 50462720,
+                "seconds": 120.11558171035722
+              },
+              {
+                "passed": true,
+                "exchanges": 769,
+                "bytes": 50397184,
+                "seconds": 120.14623392373323
+              },
+              {
+                "passed": true,
+                "exchanges": 950,
+                "bytes": 62259200,
+                "seconds": 120.1237977319397
+              },
+              {
+                "passed": true,
+                "exchanges": 951,
+                "bytes": 62324736,
+                "seconds": 120.1044746991247
+              },
+              {
+                "passed": true,
+                "exchanges": 769,
+                "bytes": 50397184,
+                "seconds": 120.08085662918165
+              }
+            ],
+            "round_trip_payload_bytes": 450625536,
+            "one_direction_mbit_per_second": 30.004161858303608
+          }
+        }
+      },
+      "final": {
+        "65.109.249.222": {
+          "config_sha256": "02547bf93c8bcf397fffb7f300a9c1fa25338caae59c060affaf6d8161375a90",
+          "binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419",
+          "status": "MainPID=58881\nNRestarts=0\nActiveState=active\nSubState=running\nUnitFileState=enabled\n",
+          "backup": "/root/super-paqet/rollback/20261006T091909Z-finland-nl"
+        },
+        "89.45.68.14": {
+          "config_sha256": "f66ae4c39fdbb23d0d50cc6e8cbaa2a015b7d71ea3b114550b0c5e6aa377c31f",
+          "binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419",
+          "status": "MainPID=202705\nNRestarts=0\nActiveState=active\nSubState=running\nUnitFileState=enabled\n",
+          "backup": "/root/super-paqet/rollback/20261006T091909Z-finland-nl"
+        },
+        "89.45.68.118": {
+          "config_sha256": "4ed0db4a3add0fde368f1e99ab70e4d6f63238c7b746e70913a69fe2ea9b4d6e",
+          "binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419",
+          "status": "MainPID=894995\nNRestarts=0\nActiveState=active\nSubState=running\nUnitFileState=enabled\n",
+          "backup": "/root/super-paqet/rollback/20261006T091909Z-finland-nl"
+        }
+      },
+      "network": {
+        "interface": "eth0",
+        "gateway": "172.31.1.1",
+        "gateway_mac": "d2:74:7f:6e:37:e3"
+      },
+      "revisions": {
+        "89.45.68.14": "74",
+        "89.45.68.118": "74"
+      },
+      "post_cleanup_acceptance": {
+        "89.45.68.14": {
+          "9001": [
+            {
+              "exit": 0,
+              "response": "200 1048576 0.465261 0.625361",
+              "error": "",
+              "passed": true
+            }
+          ],
+          "9002": [
+            {
+              "exit": 0,
+              "response": "200 1048576 0.618058 0.761105",
+              "error": "",
+              "passed": true
+            },
+            {
+              "exit": 0,
+              "response": "200 1048576 0.597704 0.772346",
+              "error": "",
+              "passed": true
+            }
+          ],
+          "9003": [
+            {
+              "exit": 0,
+              "response": "200 1048576 0.817022 0.988011",
+              "error": "",
+              "passed": true
+            }
+          ]
+        },
+        "89.45.68.118": {
+          "9001": [
+            {
+              "exit": 0,
+              "response": "200 1048576 0.445645 0.589521",
+              "error": "",
+              "passed": true
+            }
+          ],
+          "9002": [
+            {
+              "exit": 0,
+              "response": "200 1048576 0.602119 0.725909",
+              "error": "",
+              "passed": true
+            },
+            {
+              "exit": 0,
+              "response": "200 1048576 0.569892 0.729217",
+              "error": "",
+              "passed": true
+            }
+          ],
+          "9003": [
+            {
+              "exit": 0,
+              "response": "200 1048576 0.814754 1.025722",
+              "error": "",
+              "passed": true
+            }
+          ]
+        }
+      },
+      "qualified_and_retained": true
+    },
+    "final_public_acceptance": [
+      {
+        "host": "deir.cloudnet1.ir",
+        "port": 9002,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.1741944730165415,
+        "error": ""
+      },
+      {
+        "host": "89.45.68.14",
+        "port": 9002,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.2178919879952446,
+        "error": ""
+      },
+      {
+        "host": "89.45.68.118",
+        "port": 9002,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.1659994129731786,
+        "error": ""
+      }
+    ],
+    "final_audit": {
+      "65.109.249.222": {
+        "service": "MainPID=58881\nNRestarts=0\nExecStartPre={ path=/usr/sbin/ip ; argv[]=/usr/sbin/ip -4 address replace 65.109.249.222/32 dev eth0 ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }\nExecReload={ path=/bin/kill ; argv[]=/bin/kill -HUP $MAINPID ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }\nActiveState=active\nSubState=running\nUnitFileState=enabled\n",
+        "running_binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419",
+        "config_sha256": "02547bf93c8bcf397fffb7f300a9c1fa25338caae59c060affaf6d8161375a90",
+        "config_mode": "0o600",
+        "validation": {
+          "forwards": 0,
+          "listeners": 1,
+          "path": "/root/super-paqet/conf.yaml",
+          "peers": 0,
+          "valid": true
+        },
+        "health": "ok",
+        "config_metrics": [
+          "super_paqet_config_revision 1",
+          "super_paqet_config_degraded 0"
+        ],
+        "temporary_units": {
+          "spq-fi2-echo.service": "inactive",
+          "spq-fi2-rollback.timer": "inactive",
+          "spq-fi2-address-check.service": "inactive"
+        },
+        "temporary_files": [],
+        "temporary_processes": ""
+      },
+      "89.45.68.14": {
+        "service": "MainPID=202705\nNRestarts=0\nExecReload={ path=/bin/kill ; argv[]=/bin/kill -HUP $MAINPID ; ignore_errors=no ; start_time=[Tue 2026-10-06 09:22:07 UTC] ; stop_time=[Tue 2026-10-06 09:22:07 UTC] ; pid=241660 ; code=exited ; status=0 }\nActiveState=active\nSubState=running\nUnitFileState=enabled\n",
+        "running_binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419",
+        "config_sha256": "f66ae4c39fdbb23d0d50cc6e8cbaa2a015b7d71ea3b114550b0c5e6aa377c31f",
+        "config_mode": "0o600",
+        "validation": {
+          "forwards": 3,
+          "listeners": 0,
+          "path": "/root/super-paqet/conf.yaml",
+          "peers": 3,
+          "valid": true
+        },
+        "health": "ok",
+        "config_metrics": [
+          "super_paqet_config_revision 76",
+          "super_paqet_config_degraded 0"
+        ],
+        "temporary_units": {
+          "spq-fi2-echo.service": "inactive",
+          "spq-fi2-rollback.timer": "inactive",
+          "spq-fi2-address-check.service": "inactive"
+        },
+        "temporary_files": [],
+        "temporary_processes": ""
+      },
+      "89.45.68.118": {
+        "service": "MainPID=894995\nNRestarts=0\nExecReload={ path=/bin/kill ; argv[]=/bin/kill -HUP $MAINPID ; ignore_errors=no ; start_time=[Tue 2026-10-06 09:22:10 UTC] ; stop_time=[Tue 2026-10-06 09:22:10 UTC] ; pid=915754 ; code=exited ; status=0 }\nActiveState=active\nSubState=running\nUnitFileState=enabled\n",
+        "running_binary_sha256": "47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419",
+        "config_sha256": "4ed0db4a3add0fde368f1e99ab70e4d6f63238c7b746e70913a69fe2ea9b4d6e",
+        "config_mode": "0o600",
+        "validation": {
+          "forwards": 3,
+          "listeners": 0,
+          "path": "/root/super-paqet/conf.yaml",
+          "peers": 3,
+          "valid": true
+        },
+        "health": "ok",
+        "config_metrics": [
+          "super_paqet_config_revision 76",
+          "super_paqet_config_degraded 0"
+        ],
+        "temporary_units": {
+          "spq-fi2-echo.service": "inactive",
+          "spq-fi2-rollback.timer": "inactive",
+          "spq-fi2-address-check.service": "inactive"
+        },
+        "temporary_files": [],
+        "temporary_processes": ""
+      }
+    },
+    "secondary_address_boot_check": {
+      "persistent_address_file_matches": [],
+      "hardware": {
+        "cpus": "2",
+        "memory": "               total        used        free      shared  buff/cache   available\nMem:            3815         538        2280           4         997        3034\nSwap:              0           0           0\n"
+      }
+    },
+    "owned_address_dropin": "# Restore this deployment's assigned secondary IPv4 before binding the raw listener.\n# Idempotent replacement preserves the existing primary IP and routing policy.\n[Service]\nExecStartPre=/usr/sbin/ip -4 address replace 65.109.249.222/32 dev eth0\n",
+    "startup_address_command_verified_without_restart": true,
+    "reboot_test_performed": false
   }
 }

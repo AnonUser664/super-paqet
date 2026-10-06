@@ -81,3 +81,8 @@ eight complete 10 MiB Reality downloads and four post-cleanup 1 MiB downloads.
 Germany and public-domain regression checks passed. This is an additional finite
 WAN repair gate; it does not resolve the deferred clean-link historical throughput
 gap or substitute for a thousands-of-busy-customers qualification.
+
+The same Netherlands profile subsequently passed the equivalent finite
+connection-churn and two-minute echo-soak gate on Finland 65.109.249.222, with
+four full 10 MiB Reality downloads and final public/regression checks.
+[Measurements and older failed-IP control](FINLAND-CHECK.md).

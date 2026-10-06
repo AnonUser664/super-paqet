@@ -31,13 +31,41 @@ peers:
     max_sessions: 8
     shared_source: true
   backend2:
-    address: 65.109.211.233:2052
+    address: 65.109.249.222:29999
     enc: 'null'
     network:
       interface: ens160
       ipv4:
-        addr: 89.45.68.118:0
+        addr: 89.45.68.118:29996
         router_mac: 58:8d:09:12:9e:00
+      backend: packet
+      tcp:
+        local_flag:
+        - S
+        remote_flag:
+        - PA
+    adaptive: false
+    packet_workers: 1
+    kcp:
+      mode: fast
+      sndwnd: 131
+      rcvwnd: 522
+      ack_timestamps: false
+      credit_hints: false
+      adaptive_buffers: false
+      smuxbuf: 4194304
+      streambuf: 2097152
+      mtu: 1350
+      nodelay: 0
+      interval: 30
+      resend: 2
+      nocongestion: 1
+      wdelay: false
+      acknodelay: false
+      small_write_flush: 0
+    sessions: 4
+    max_sessions: 4
+    shared_source: true
   backend3:
     address: 171.22.132.226:29999
     enc: 'null'
@@ -80,7 +108,7 @@ forwards:
   target: 116.202.177.233:2096
 - listen: 0.0.0.0:9002
   peer: backend2
-  target: 65.109.211.233:2096
+  target: 65.109.249.222:2096
 - listen: 0.0.0.0:9003
   peer: backend3
   target: 171.22.132.226:2096

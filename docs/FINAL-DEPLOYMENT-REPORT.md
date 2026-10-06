@@ -1,6 +1,6 @@
 # Final deployment and measured qualification
 
-Updated 2026-10-06. The requested final release is deployed on the four active
+Updated 2026-10-06. The requested final release is deployed on the five active
 hosts, with persistent enabled systemd services, rollback backups, live reload,
 configuration validation, and owned-rule cleanup. The excluded backend was not
 contacted. The Netherlands path was subsequently restored and qualified on both
@@ -50,7 +50,7 @@ the final full KCP suite passed in 132.998 seconds.
 |---|---|---|---|
 | Both .14 and .118 | 9001 | 91.107.251.85:29999, the assigned primary address of the German host | 116.202.177.233:2096 |
 | Both .14 and .118 | 9003 | 171.22.132.226:29999 | 171.22.132.226:2096 |
-| Both clients | 9002 | Existing excluded direct entry retained | 65.109.192.172:2096, excluded/unavailable |
+| Both clients | 9002 | 65.109.249.222:29999, current Finland secondary address | 65.109.249.222:2096 |
 
 Germany also retains its 116.202.177.233 listener. Public client ports remain
 bound on all IPv4 interfaces. The application target and Reality credentials
@@ -179,3 +179,13 @@ The full sanitized report is [final-deployment-evidence.json](final-deployment-e
 Superseded reports and experimental logs were removed from the checkout;
 committed history remains available in Git. Current failed gates remain recorded
 in this report and [BENCHMARKS.md](BENCHMARKS.md).
+
+## Subsequent Finland replacement
+
+The new secondary address 65.109.249.222 now runs this same release and the
+Netherlands S/PA, null, MTU1350, four-lane profile. Client port 9002 points to it.
+Its finite qualification passed 1024 checked churn echoes, a two-minute
+sixteen-stream soak, four complete 10 MiB Reality downloads, post-cleanup/regression
+checks and external domain/both-client-IP requests. The prior 65.109.211.233
+profile check failed and remains recorded. Current state is in
+[STATUS.md](STATUS.md) and [the Finland report](FINLAND-CHECK.md).

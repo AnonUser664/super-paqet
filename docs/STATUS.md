@@ -1,6 +1,6 @@
 # Current status
 
-Updated 2026-10-06. The four active hosts run persistent systemd services with
+Updated 2026-10-06. The five active hosts run persistent systemd services with
 `enterprise-2026.10.06`, embedded source `abf04f6` and main equivalent runtime
 `97529dd`. Binary SHA-256:
 
@@ -19,10 +19,10 @@ Both clients, 89.45.68.14 and 89.45.68.118, have these forwards:
 |---|---|---|---|
 | 9001 | 91.107.251.85:29999 | 116.202.177.233:2096 | Germany passed 4/4 authenticated 10 MiB requests. |
 | 9003 | 171.22.132.226:29999 | 171.22.132.226:2096 | Restored; final Reality 10 MiB requests passed 8/8 across both clients. |
-| 9002 | 65.109.211.233:2052 | 65.109.211.233:2096 | Replacement IP corrected; forwarding failed. The isolated Netherlands-profile control also failed. |
+| 9002 | 65.109.249.222:29999 | 65.109.249.222:2096 | Working; 4/4 10 MiB Reality requests and external domain/both-client checks passed. |
 
 Germany uses eight shared KCP carriers per client with PA flags and MTU1350.
-Netherlands uses four, client S / backend PA, MTU1350 and scaled packet windows,
+Netherlands and Finland use four, client S / backend PA, MTU1350 and scaled packet windows,
 with the same original source/destination ports. Cipher remains quoted `null`
 and adaptation disabled on these physical-path profiles. Generic adaptive
 defaults have separate virtual-link evidence.
@@ -33,16 +33,17 @@ requests and four post-cleanup 1 MiB requests. Germany regression passed 4/4;
 public-domain 9001/9003 downloads also passed. This is a repaired, finitely tested
 path, not universal production readiness. [Diagnosis and limits](NETHERLANDS-DIAGNOSIS.md).
 
-[Client and Netherlands snapshots](deployed/README.md) were freshly fetched
-and audited after the profile's qualification. Germany's snapshot/unit remain
-from release cleanup. Client profiling is enabled, backend profiling disabled;
+[Client and Finland snapshots](deployed/README.md) were freshly fetched
+and audited after Finland qualification. Netherlands/Germany snapshots match
+their previous audits. Client profiling is enabled, backend profiling disabled;
 metrics bind only to localhost. Temporary diagnostic resources were removed.
 
-The replacement Finland host `65.109.211.233` retains the older enterprise
-binary, SHA-256 `ecb8e002173f6f80cd3f403d3ee3080190f0e49889fa2ba9f883b893f96318f3`.
-Its stale old-IP bind was corrected and its service now runs. Both clients’ 9002
-references were updated. A temporary matched-current-binary Netherlands-profile
-control on 29999 failed; it was removed. [Finland check](FINLAND-CHECK.md).
+Finland now runs the current release on `65.109.249.222:29999`, using the
+Netherlands profile and client source 29996. Qualification passed 1024 connection
+churn echoes, sixteen continuous streams for two minutes, full authenticated
+10 MiB downloads and regression/public checks. Its owned startup drop-in restores
+the secondary IPv4 before service binding; the original primary address stays.
+[Finland results and reboot-test boundary](FINLAND-CHECK.md).
 
 ## Qualification and remaining work
 
