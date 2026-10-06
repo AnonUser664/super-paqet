@@ -109,6 +109,7 @@ func (e *Engine) observe() {
 				waitCount, flowWait := conn.Session.FlowControlStats()
 				creditPending := conn.Session.PendingCredits()
 				hintsSent, hintsReceived := conn.Session.CreditHintStats()
+				muxCapacity, muxBuffered, muxBlocked := conn.Session.ReceiveBufferStats()
 				minWindow, maxWindow := conn.Session.ReceiveWindowStats()
 				drops := conn.UDPSession.PostProcessingDrops()
 				old := previous[conn]
@@ -125,6 +126,7 @@ func (e *Engine) observe() {
 					"delivery_mbit", float64(s.AckedBytes-old.stats.AckedBytes)*8/seconds/1e6, "estimate_mbit", v.rate*8/1e6,
 					"output_pps", float64(s.OutputPackets-old.stats.OutputPackets)/seconds, "output_kcp_mbit", float64(s.OutputBytes-old.stats.OutputBytes)*8/seconds/1e6,
 					"ack_pps", float64(s.ACKPackets-old.stats.ACKPackets)/seconds, "ack_segments_delta", s.ACKSegments-old.stats.ACKSegments,
+					"mux_receive_capacity_bytes", muxCapacity, "mux_receive_buffered_bytes", muxBuffered, "mux_receive_blocked", muxBlocked,
 					"credit_pending", creditPending, "credit_hints_sent", hintsSent, "credit_hints_received", hintsReceived,
 					"write_budget_bytes", s.WriteBudgetBytes,
 					"rtt_ms", s.SRTT, "rttvar_ms", s.SRTTVar, "min_rtt_ms", v.minRTT, "rto_ms", s.RTO,

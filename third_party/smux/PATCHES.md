@@ -39,3 +39,11 @@ delivery, cancellation and deadlines.
   backing stream and callers explicitly close it. Promoted methods retain the
   backing object without necessarily retaining the wrapper; its finalizer could
   therefore close live reads/writes. A forced-GC regression covers that lifetime.
+
+* Parse mux control headers/UPD/FIN/reset feedback while the application receive
+  budget is exhausted. Payload allocation still waits for data tokens before
+  reading its body. This prevents reverse credits from depending on unrelated
+  application readers. Fixed-frame ordering still applies; this is not an
+  unordered transport. Duplex-starvation and payload-bound regressions cover it.
+* `ReceiveBufferStats` exposes shared capacity, buffered bytes and whether a
+  parsed payload is waiting for tokens, without scanning per-stream buffers.

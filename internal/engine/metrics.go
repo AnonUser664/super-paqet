@@ -62,6 +62,12 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 		labels := fmt.Sprintf("conv=\"%d\",remote=%s", c.UDPSession.GetConv(), strconv.Quote(c.RemoteAddr().String()))
 		fmt.Fprintf(w, "super_paqet_session_postprocessing_drops_total{%s} %d\n", labels, c.UDPSession.PostProcessingDrops())
 		fmt.Fprintf(w, "super_paqet_session_output_packets_total{%s} %d\nsuper_paqet_session_output_kcp_bytes_total{%s} %d\nsuper_paqet_session_control_packets_total{%s} %d\nsuper_paqet_session_ack_segments_total{%s} %d\nsuper_paqet_session_pending_credits{%s} %d\n", labels, state.OutputPackets, labels, state.OutputBytes, labels, state.ACKPackets, labels, state.ACKSegments, labels, c.Session.PendingCredits())
+		capacity, buffered, blocked := c.Session.ReceiveBufferStats()
+		waiting := 0
+		if blocked {
+			waiting = 1
+		}
+		fmt.Fprintf(w, "super_paqet_session_mux_receive_capacity_bytes{%s} %d\nsuper_paqet_session_mux_receive_buffered_bytes{%s} %d\nsuper_paqet_session_mux_receive_blocked{%s} %d\n", labels, capacity, labels, buffered, labels, waiting)
 		minWindow, maxWindow := c.Session.ReceiveWindowStats()
 		for _, v := range []struct {
 			name  string

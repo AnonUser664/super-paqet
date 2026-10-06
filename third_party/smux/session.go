@@ -141,6 +141,8 @@ type Session struct {
 
 	bucket       int32         // token bucket
 	bucketNotify chan struct{} // used for waiting for tokens
+	// True only while a parsed data frame waits for application receive capacity.
+	receiveBlocked atomic.Bool
 
 	streams    map[uint32]*stream // all streams in this session
 	streamLock sync.Mutex         // locks streams
@@ -465,26 +467,18 @@ func (s *Session) returnTokens(n int) {
 	}
 }
 
-// recvLoop keeps on reading from underlying connection if tokens are available
+// recvLoop parses control feedback independently of application receive tokens;
+// payload allocation waits for capacity before reading the next data body.
 func (s *Session) recvLoop() {
 	var hdr rawHeader
 	var updHdr updHeader
 
 	for {
-		// Wait until we have tokens or session is closed.
-		for atomic.LoadInt32(&s.bucket) <= 0 && !s.IsClosed() {
-			select {
-			case <-s.bucketNotify:
-			case <-s.die:
-				// If it returns here, Accept() and OpenStream() are unblocked with io.ErrClosedPipe,
-				// causing recvLoop to exit gracefully. If recvLoop is blocked in io.ReadFull, however,
-				// it will be unblocked by a socket read error instead.
-				return
-			}
-		}
+		// Parse control headers even when application buffers are full. Credits,
+		// FIN and reset feedback do not consume data tokens; blocking them here
+		// can deadlock the opposite direction behind unrelated slow readers.
 
-		// As long as we have tokens, try to read frames.
-		// read header first
+		// Read one fixed-size header; payload admission remains bounded below.
 		_, err := io.ReadFull(s.conn, hdr[:])
 		if err != nil {
 			s.notifyReadError(err)
@@ -548,6 +542,22 @@ func (s *Session) recvLoop() {
 				continue
 			}
 
+			// Data retains the existing receive bound. Only the already parsed
+			// fixed-size header sits outside it while payload admission waits.
+			s.receiveBlocked.Store(atomic.LoadInt32(&s.bucket) <= 0)
+			for atomic.LoadInt32(&s.bucket) <= 0 && !s.IsClosed() {
+				select {
+				case <-s.bucketNotify:
+				case <-s.die:
+					// If it returns here, Accept() and OpenStream() are unblocked with io.ErrClosedPipe,
+					// causing recvLoop to exit gracefully. If recvLoop is blocked in io.ReadFull, however,
+					// it will be unblocked by a socket read error instead.
+					s.receiveBlocked.Store(false)
+					return
+				}
+			}
+
+			s.receiveBlocked.Store(false)
 			// read payload from the underlying connection
 			pNewbuf := defaultAllocator.Get(int(hdr.Length()))
 			written, err := io.ReadFull(s.conn, *pNewbuf)
@@ -805,4 +815,13 @@ func (s *Session) writeFrameInternal(f Frame, deadline <-chan time.Time, class C
 		// Cannot recycle channel here - sendLoop may still write to it
 		return 0, ErrTimeout
 	}
+}
+
+// ReceiveBufferStats reports the shared application buffer budget without a
+// stream scan. Buffered bytes may exceed capacity by one admitted wire frame,
+// as before; blocked identifies payload admission rather than ordinary I/O wait.
+func (s *Session) ReceiveBufferStats() (capacity, buffered int, blocked bool) {
+	capacity = s.config.MaxReceiveBuffer
+	buffered = max(0, capacity-int(atomic.LoadInt32(&s.bucket)))
+	return capacity, buffered, s.receiveBlocked.Load()
 }

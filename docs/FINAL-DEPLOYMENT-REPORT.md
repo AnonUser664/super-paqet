@@ -1,6 +1,19 @@
 # Final deployment and measured qualification
 
-## Final adaptive four-carrier checkpoint — 2026-10-06
+## Customer-traffic incident recovery — 2026-10-06
+
+The recovery release now runs on all five hosts. New-opening recovery reserves
+sibling-carrier attempts without dropping established streams; accepted mux
+wrappers no longer close live I/O during GC; warning-level deployments retain
+later incident causes at a bounded rate. All nine authenticated 1 MiB checks
+passed after rollout. Root/mux race suites and delayed/lossy/reordered local
+checks passed. Two thousand held forwards were reverified. Independent 24-hour
+collectors run on every host; main Xray was not changed. Definitive root-cause
+attribution and the full-day observation remain unfinished. Details and exact
+release are in [incident report](PRODUCTION-INCIDENT-2026-10-06.md) and
+[current status](STATUS.md). The results below belong to the earlier release.
+
+## Earlier adaptive four-carrier checkpoint — 2026-10-06
 
 The startup release is deployed on all five hosts. Every endpoint uses four
 configured carriers, adaptive transport control, synchronized KCP settings,

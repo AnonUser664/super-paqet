@@ -20,14 +20,14 @@ Start with [current status](docs/STATUS.md), then the
 [deployment guide](docs/DEPLOYMENT.md) and [operations runbook](docs/OPERATIONS.md).
 The [documentation map](docs/README.md) links current guides and compact evidence.
 
-Live reload, validation and the adaptive startup release are deployed. All six
-Germany/Finland/France paths use four adaptive sessions per peer, S outbound / PA
-return, and warning-level production logging. Deployment and test cleanup are
-finalized. Finite qualification includes 12000 held forwards, 3072 authenticated
-workers and separate six-path bulk measurements; extreme authenticated load
-exposed opening timeouts that remain follow-up work. See
-[current status](docs/STATUS.md) and the
-[production evidence](docs/production-deployment-evidence.json) for exact results.
+Live reload, validation and the incident recovery release are deployed. All six
+Germany/Finland/France paths use four adaptive sessions per peer and S outbound /
+PA return. After customer traffic failures, opening recovery and mux stream
+lifetime bugs were fixed and redeployed; 24-hour production observation remains
+in progress. See the [incident report](docs/PRODUCTION-INCIDENT-2026-10-06.md) and
+[current status](docs/STATUS.md). Earlier load/bulk measurements are retained in
+[production evidence](docs/production-deployment-evidence.json); they qualify the
+earlier executable and do not prove this release is production-ready.
 
 ## Build and run
 

@@ -67,3 +67,26 @@ covered with an exact-body regression. Combined qualification and the 24-hour
 production observation remain in progress.
 Private raw receipts/profiles are under `build/incident-20261006`; customer
 credentials and stack dumps are not committed.
+
+## Further backpressure regression (qualification in progress)
+
+A deterministic duplex test filled a mux session's application receive budget
+with unrelated undrained streams, then attempted a reverse transfer larger than
+the initial stream credit. The receiver stopped parsing window-update frames
+when its shared data buffer was full. Reverse delivery timed out despite the
+reverse application's ability to read. This reproduces a genuine mux liveness
+failure without WAN loss or production load.
+
+The candidate parses fixed-size frame headers and control feedback independently
+of data-token availability. Payload admission still waits for the same existing
+receive budget. Thirty repeated credit/bounded-payload regressions passed, and a
+2,000-held-connection asymmetric mixed HTTP/bulk check reverified every held
+connection with zero errors. Shared buffer capacity, buffered bytes and payload
+admission blockage are now exposed in metrics and debug samples so a production
+incident can be correlated with this condition.
+
+This candidate does not remove KCP's ordered-carrier head-of-line behavior: a
+data frame awaiting capacity still blocks later frames in that carrier. It does
+not expand the configured receive budget. Definitive attribution of the operator's
+outage is still pending; the current production release has not yet received
+this second candidate.

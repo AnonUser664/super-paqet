@@ -1,17 +1,18 @@
 # Current deployment status
 
-Finalized 2026-10-06 for production operation on five hosts. All six routes use
+Incident recovery release deployed 2026-10-06 on five hosts. The operator
+reported customer traffic failures; 24-hour observation is still in progress. All six routes use
 the same four-carrier adaptive KCP profile, client S / backend PA flags, quoted
 null encryption, AF_PACKET with one receive worker and MTU1350. Country peers
 are `germany`, `finland`, `france`; 171.22.132.226 is France.
 
 ## Exact release and topology
 
-Version `enterprise-2026.10.06-startup`, source `5f403c23e53c58f4917ad2b0c5a480bb96719516`, SHA-256:
+Version `enterprise-2026.10.06-recovery`, source `7b6a7fe642c8175b67fe82af990fdf3e07188709`, SHA-256:
 
-`e4bbd4915cded878ce3b8038c9f114d58cab8c20e4271c0a73646a892d4c4294`
+`d3ddafe5c2fe056b24b32ef6fb0658e81c81d7c123db19bc494afaf46c42cfdd`
 
-The exact executable is retained at `build/final-production/super-paqet-startup-final`.
+The exact executable is retained at `build/incident-20261006/super-paqet-recovery-final`.
 The original raw Ethernet/IP/TCP shaping and sequence/ACK behavior are preserved.
 Startup learns once per observed RTT within 50–250 ms bounds; established and
 idle controllers retain 250 ms updates. Carrier count stays fixed at four while
@@ -34,11 +35,25 @@ configuration validation and owned firewall cleanup. All available processors
 are usable: two vCPUs/~4 GiB per backend, four vCPUs/~8 GiB per client. There is
 no CPU quota or affinity restriction. LimitNOFILE is 524288 and TasksMax 65536;
 soft Go memory limits are 1536/4096 MiB by role. Log level is **warn** on every
-host; profiling is off and metrics listen only on loopback. The binary rollout
+host in the baseline snapshots. Incident observation temporarily enables sampled
+debug logs and loopback profiling, with a guarded 24-hour restoration timer.
+Metrics remain loopback-only. The binary rollout
 required one tunnel restart; final logging/route cleanup applied live without
 another restart. Xray configurations/services were not edited or restarted.
 
-## Qualification and operational limits
+## Incident recovery and current checks
+
+See [incident report](PRODUCTION-INCIDENT-2026-10-06.md). Busy-carrier opening
+retry budget, accepted-stream GC lifetime and later warning visibility were
+fixed. The root and mux race suites, repeated recovery regressions and static
+analysis passed. Current isolated loss/reorder and asymmetric checks passed;
+2,000 held forwards were reverified with zero errors. All nine authenticated
+1 MiB checks passed after the five-host rollout (both client IPs and domain).
+These fixes do not establish a definitive production root cause or complete the
+24-hour observation. The independent collectors expire around 2026-10-07
+20:16 UTC. No main Xray settings or services were changed.
+
+## Earlier startup-release qualification and operational limits
 
 The full application race suite and vet passed. Four disposable local profiles
 passed byte integrity and workload checks: clean 100 Mbit/s/80 ms RTT, 1% loss

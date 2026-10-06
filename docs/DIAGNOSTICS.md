@@ -154,3 +154,12 @@ one cause per ten seconds, including the cumulative `error_id`. Every error is
 still counted. Later incidents therefore remain visible without logging every
 failed flow in a burst. `super_paqet_opening_transport_retries_total` counts new
 attempts made after an unacknowledged opening timed out; a retry need not succeed.
+
+The next backpressure candidate adds per-session
+`super_paqet_session_mux_receive_capacity_bytes`,
+`super_paqet_session_mux_receive_buffered_bytes` and
+`super_paqet_session_mux_receive_blocked`. Debug `transport.sample` includes the
+same three values. The blocked gauge denotes payload admission waiting for the
+shared application buffer; ordinary packet/socket input waiting is excluded.
+The configured buffer can overshoot by one admitted wire frame as before; parsing
+control headers while full adds no application payload allocation.
