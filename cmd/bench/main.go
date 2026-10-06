@@ -7,12 +7,14 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"strconv"
@@ -31,7 +33,13 @@ func main() {
 	duration := flag.Duration("duration", 10*time.Second, "measurement duration")
 	count := flag.Int("connections", 1000, "hold connection count")
 	verifySize := flag.Int("verify-size", 16777216, "integrity-check payload bytes")
+	proxy := flag.String("proxy", "", "optional HTTP proxy for authenticated application-path load")
+	requestURL := flag.String("url", "", "optional absolute HTTP target for load modes")
+	expectedBytes := flag.Int64("response-bytes", 0, "required response length for a custom load URL")
 	flag.Parse()
+	if *workers < 1 || *duration <= 0 || *count < 1 {
+		panic("workers, duration and connections must be positive")
+	}
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 	switch *mode {
@@ -165,7 +173,7 @@ func main() {
 	case "hold":
 		hold(ctx, strings.Split(*addr, ","), *workers, *count, *duration)
 	case "http", "http-churn", "bulk":
-		load(ctx, *mode, *addr, *workers, *duration)
+		load(ctx, *mode, *addr, *workers, *duration, *proxy, *requestURL, *expectedBytes)
 	case "verify":
 		tr := &http.Transport{DisableKeepAlives: true}
 		defer tr.CloseIdleConnections()
@@ -263,16 +271,38 @@ func emit(v any) {
 
 // load runs bounded concurrent HTTP/bulk work and separates deadline cancellation from
 // unexpected request failure.
-func load(parent context.Context, mode, addr string, workers int, duration time.Duration) {
+func load(parent context.Context, mode, addr string, workers int, duration time.Duration, proxy, requestURL string, expectedBytes int64) {
 	ctx, cancel := context.WithTimeout(parent, duration)
 	defer cancel()
 	tr := &http.Transport{MaxIdleConns: workers, MaxIdleConnsPerHost: workers, MaxConnsPerHost: workers, DisableCompression: true}
+	// One HTTP/1 connection per worker makes concurrency meaningful; HTTP/2 could
+	// otherwise hide thousands of requests inside a few application connections.
+	tr.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
+	if proxy != "" {
+		p, err := url.Parse(proxy)
+		if err != nil || p.Scheme != "http" || p.Host == "" {
+			panic("proxy must be an absolute HTTP URL")
+		}
+		tr.Proxy = http.ProxyURL(p)
+	}
 	tr.DisableKeepAlives = mode == "http-churn"
 	defer tr.CloseIdleConnections()
 	c := &http.Client{Transport: tr}
 	path := "/"
 	if mode == "bulk" {
 		path = "/bulk?bytes=1048576"
+	}
+	if requestURL == "" {
+		requestURL = "http://" + addr + path
+		expectedBytes = 22
+		if mode == "bulk" {
+			expectedBytes = 1048576
+		}
+	} else {
+		u, err := url.Parse(requestURL)
+		if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" || expectedBytes < 1 {
+			panic("custom URL requires an absolute HTTP(S) URL and positive response-bytes")
+		}
 	}
 	var requests, failed, canceled, bytes atomic.Int64
 	var buckets [32]atomic.Int64
@@ -284,7 +314,7 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 			defer wg.Done()
 			for ctx.Err() == nil {
 				t0 := time.Now()
-				r, _ := http.NewRequestWithContext(ctx, "GET", "http://"+addr+path, nil)
+				r, _ := http.NewRequestWithContext(ctx, "GET", requestURL, nil)
 				resp, err := c.Do(r)
 				if err != nil {
 					if ctx.Err() == nil {
@@ -297,7 +327,7 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 				n, err := io.Copy(io.Discard, resp.Body)
 				resp.Body.Close()
 				bytes.Add(n)
-				if err != nil || resp.StatusCode != 200 {
+				if err != nil || resp.StatusCode != 200 || n != expectedBytes {
 					if ctx.Err() == nil {
 						failed.Add(1)
 					} else {
