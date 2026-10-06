@@ -306,6 +306,10 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 	}
 	var requests, failed, canceled, bytes atomic.Int64
 	var buckets [32]atomic.Int64
+	// Millisecond buckets resolve WAN latency changes that disappear inside
+	// logarithmic bounds; the logarithmic histogram still covers long stalls.
+	var millisecondBuckets [2001]atomic.Int64
+	var latencySum atomic.Int64
 	var wg sync.WaitGroup
 	start := time.Now()
 	for i := 0; i < workers; i++ {
@@ -337,6 +341,8 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 				}
 				requests.Add(1)
 				us := time.Since(t0).Microseconds()
+				latencySum.Add(us)
+				millisecondBuckets[min(int(us/1000), len(millisecondBuckets)-1)].Add(1)
 				bucket := 0
 				for us > 1 && bucket < len(buckets)-1 {
 					us >>= 1
@@ -351,6 +357,13 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 	percentile := func(p float64) int64 {
 		threshold := int64(float64(requests.Load()) * p)
 		var n int64
+		for i := 0; i < len(millisecondBuckets)-1; i++ {
+			n += millisecondBuckets[i].Load()
+			if n > threshold {
+				return int64(i+1) * 1000
+			}
+		}
+		n = 0
 		for i := range buckets {
 			n += buckets[i].Load()
 			if n > threshold {
@@ -359,7 +372,7 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 		}
 		return 0
 	}
-	emit(map[string]any{"mode": mode, "workers": workers, "seconds": elapsed, "requests": requests.Load(), "errors": failed.Load(), "canceled_requests": canceled.Load(), "bytes": bytes.Load(), "goodput_gbps": float64(bytes.Load()) * 8 / elapsed / 1e9, "requests_per_second": float64(requests.Load()) / elapsed, "p50_us_upper": percentile(.50), "p99_us_upper": percentile(.99)})
+	emit(map[string]any{"mode": mode, "workers": workers, "seconds": elapsed, "requests": requests.Load(), "errors": failed.Load(), "canceled_requests": canceled.Load(), "bytes": bytes.Load(), "goodput_gbps": float64(bytes.Load()) * 8 / elapsed / 1e9, "requests_per_second": float64(requests.Load()) / elapsed, "mean_latency_us": float64(latencySum.Load()) / float64(max(1, requests.Load())), "p50_us_upper": percentile(.50), "p99_us_upper": percentile(.99)})
 }
 
 // hold ramps and retains TCP forwards, then verifies every held socket instead of counting

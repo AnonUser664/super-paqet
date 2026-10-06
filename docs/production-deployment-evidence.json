@@ -90,5 +90,1001 @@
       ]
     }
   },
-  "bulk_measurements": "not completed; first attempt rejected executable /run target"
+  "bulk_comparisons": [
+    {
+      "candidate": "static-baseline",
+      "direction": "download",
+      "seconds": 30,
+      "streams_per_path": 16,
+      "aggregate_receiver_gbps": 0.5316032164777766,
+      "paths": [
+        {
+          "client": "89.45.68.118",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 29.910498,
+            "seconds": 29.910498,
+            "bytes": 437911552,
+            "bits_per_second": 117125847.11896138,
+            "sender": false
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 29.882048,
+            "seconds": 29.882048,
+            "bytes": 324796416,
+            "bits_per_second": 86954258.5568432,
+            "sender": false
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 30.161394,
+            "seconds": 30.161394,
+            "bytes": 122290176,
+            "bits_per_second": 32436213.259904366,
+            "sender": false
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 29.933498,
+            "seconds": 29.933498,
+            "bytes": 289275904,
+            "bits_per_second": 77311620.3124673,
+            "sender": false
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 29.884447,
+            "seconds": 29.884447,
+            "bytes": 701235200,
+            "bits_per_second": 187719103.51896423,
+            "sender": false
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 30.437975,
+            "seconds": 30.437975,
+            "bytes": 114356133,
+            "bits_per_second": 30056173.710636135,
+            "sender": false
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        }
+      ],
+      "resources": {
+        "116.202.177.233": {
+          "occupied_cpu_cores_mean": 0.45907885855795055,
+          "start": {
+            "pid": "732319",
+            "time": 1242559.94715693,
+            "cpu_seconds": 1625.97,
+            "rss_kib": 107616,
+            "swap_kib": 0,
+            "fds": 16
+          },
+          "end": {
+            "pid": "732319",
+            "time": 1242600.201678905,
+            "cpu_seconds": 1644.45,
+            "rss_kib": 145764,
+            "swap_kib": 0,
+            "fds": 16
+          }
+        },
+        "171.22.132.226": {
+          "occupied_cpu_cores_mean": 0.2037005205011081,
+          "start": {
+            "pid": "2902208",
+            "time": 5580571.905184881,
+            "cpu_seconds": 163.65,
+            "rss_kib": 43904,
+            "swap_kib": 0,
+            "fds": 9
+          },
+          "end": {
+            "pid": "2902208",
+            "time": 5580611.963992683,
+            "cpu_seconds": 171.81,
+            "rss_kib": 62488,
+            "swap_kib": 0,
+            "fds": 9
+          }
+        },
+        "65.109.249.222": {
+          "occupied_cpu_cores_mean": 0.24341261446246215,
+          "start": {
+            "pid": "58881",
+            "time": 11921.560039006,
+            "cpu_seconds": 151.87,
+            "rss_kib": 29704,
+            "swap_kib": 0,
+            "fds": 32
+          },
+          "end": {
+            "pid": "58881",
+            "time": 11961.533316568,
+            "cpu_seconds": 161.6,
+            "rss_kib": 47396,
+            "swap_kib": 0,
+            "fds": 49
+          }
+        },
+        "89.45.68.14": {
+          "occupied_cpu_cores_mean": 1.3526148980130106,
+          "start": {
+            "pid": "202705",
+            "time": 828822.738101698,
+            "cpu_seconds": 4375.69,
+            "rss_kib": 71916,
+            "swap_kib": 0,
+            "fds": 28
+          },
+          "end": {
+            "pid": "202705",
+            "time": 828862.712524632,
+            "cpu_seconds": 4429.76,
+            "rss_kib": 120396,
+            "swap_kib": 0,
+            "fds": 28
+          }
+        },
+        "89.45.68.118": {
+          "occupied_cpu_cores_mean": 1.0680628252663829,
+          "start": {
+            "pid": "894995",
+            "time": 3790433.537720417,
+            "cpu_seconds": 4237.36,
+            "rss_kib": 69072,
+            "swap_kib": 0,
+            "fds": 52
+          },
+          "end": {
+            "pid": "894995",
+            "time": 3790473.582181275,
+            "cpu_seconds": 4280.13,
+            "rss_kib": 129740,
+            "swap_kib": 0,
+            "fds": 69
+          }
+        }
+      }
+    },
+    {
+      "candidate": "static-baseline",
+      "direction": "upload",
+      "seconds": 30,
+      "streams_per_path": 16,
+      "aggregate_receiver_gbps": 0.25916447931677017,
+      "paths": [
+        {
+          "client": "89.45.68.118",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 29.752459,
+            "seconds": 29.752459,
+            "bytes": 410648576,
+            "bits_per_second": 110417381.23225378,
+            "sender": true
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 30.116531,
+            "seconds": 30.116531,
+            "bytes": 168558592,
+            "bits_per_second": 44775035.21238884,
+            "sender": true
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 28.789271,
+            "seconds": 28.789271,
+            "bytes": 52297728,
+            "bits_per_second": 14532560.550074367,
+            "sender": true
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 29.189493,
+            "seconds": 29.189493,
+            "bytes": 106823680,
+            "bits_per_second": 29277296.45732456,
+            "sender": true
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 30.115283,
+            "seconds": 30.115283,
+            "bytes": 136314880,
+            "bits_per_second": 36211482.3891909,
+            "sender": true
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 28.720045,
+            "seconds": 28.720045,
+            "bytes": 85983232,
+            "bits_per_second": 23950723.475537732,
+            "sender": true
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        }
+      ],
+      "resources": {
+        "116.202.177.233": {
+          "occupied_cpu_cores_mean": 0.2576229823314254,
+          "start": {
+            "pid": "732319",
+            "time": 1242764.362952251,
+            "cpu_seconds": 1651.84,
+            "rss_kib": 104328,
+            "swap_kib": 0,
+            "fds": 16
+          },
+          "end": {
+            "pid": "732319",
+            "time": 1242803.645161891,
+            "cpu_seconds": 1661.96,
+            "rss_kib": 115524,
+            "swap_kib": 0,
+            "fds": 16
+          }
+        },
+        "171.22.132.226": {
+          "occupied_cpu_cores_mean": 0.16537426879994735,
+          "start": {
+            "pid": "2902208",
+            "time": 5580776.120431822,
+            "cpu_seconds": 175.83,
+            "rss_kib": 62504,
+            "swap_kib": 0,
+            "fds": 9
+          },
+          "end": {
+            "pid": "2902208",
+            "time": 5580815.667091937,
+            "cpu_seconds": 182.37,
+            "rss_kib": 38256,
+            "swap_kib": 0,
+            "fds": 9
+          }
+        },
+        "65.109.249.222": {
+          "occupied_cpu_cores_mean": 0.18849109310153334,
+          "start": {
+            "pid": "58881",
+            "time": 12125.83999974,
+            "cpu_seconds": 168.28,
+            "rss_kib": 36212,
+            "swap_kib": 0,
+            "fds": 30
+          },
+          "end": {
+            "pid": "58881",
+            "time": 12165.364413745,
+            "cpu_seconds": 175.73,
+            "rss_kib": 32796,
+            "swap_kib": 0,
+            "fds": 27
+          }
+        },
+        "89.45.68.14": {
+          "occupied_cpu_cores_mean": 1.0379914698013768,
+          "start": {
+            "pid": "202705",
+            "time": 829027.016482947,
+            "cpu_seconds": 4453.07,
+            "rss_kib": 84548,
+            "swap_kib": 0,
+            "fds": 28
+          },
+          "end": {
+            "pid": "202705",
+            "time": 829066.525478149,
+            "cpu_seconds": 4494.08,
+            "rss_kib": 83160,
+            "swap_kib": 0,
+            "fds": 28
+          }
+        },
+        "89.45.68.118": {
+          "occupied_cpu_cores_mean": 0.9080296856704408,
+          "start": {
+            "pid": "894995",
+            "time": 3790637.822813748,
+            "cpu_seconds": 4302.97,
+            "rss_kib": 116400,
+            "swap_kib": 0,
+            "fds": 50
+          },
+          "end": {
+            "pid": "894995",
+            "time": 3790677.347953252,
+            "cpu_seconds": 4338.86,
+            "rss_kib": 82796,
+            "swap_kib": 0,
+            "fds": 47
+          }
+        }
+      }
+    },
+    {
+      "candidate": "window4096",
+      "direction": "upload",
+      "seconds": 30,
+      "streams_per_path": 16,
+      "aggregate_receiver_gbps": 0.6285207406068832,
+      "paths": [
+        {
+          "client": "89.45.68.118",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 30.112175,
+            "seconds": 30.112175,
+            "bytes": 888668160,
+            "bits_per_second": 236095376.039758,
+            "sender": true
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 31.495595,
+            "seconds": 31.495595,
+            "bytes": 194562657,
+            "bits_per_second": 49419649.19221243,
+            "sender": true
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 33.267072,
+            "seconds": 33.267072,
+            "bytes": 295088945,
+            "bits_per_second": 70962408.7145391,
+            "sender": true
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 30.124434,
+            "seconds": 30.124434,
+            "bytes": 761004032,
+            "bits_per_second": 202096154.1053352,
+            "sender": true
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 33.279304,
+            "seconds": 33.279304,
+            "bytes": 189848517,
+            "bits_per_second": 45637617.18093623,
+            "sender": true
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 43.910768,
+            "seconds": 43.910768,
+            "bytes": 133431296,
+            "bits_per_second": 24309535.374102317,
+            "sender": true
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        }
+      ],
+      "resources": {
+        "116.202.177.233": {
+          "occupied_cpu_cores_mean": 0.20938988613882434,
+          "start": {
+            "pid": "732319",
+            "time": 1245860.222818446,
+            "cpu_seconds": 1851.01,
+            "rss_kib": 354176,
+            "swap_kib": 0,
+            "fds": 18
+          },
+          "end": {
+            "pid": "732319",
+            "time": 1245911.992272071,
+            "cpu_seconds": 1861.85,
+            "rss_kib": 307644,
+            "swap_kib": 0,
+            "fds": 18
+          }
+        },
+        "171.22.132.226": {
+          "occupied_cpu_cores_mean": 0.38906749809557717,
+          "start": {
+            "pid": "2902208",
+            "time": 5583871.991236759,
+            "cpu_seconds": 283.23,
+            "rss_kib": 132748,
+            "swap_kib": 0,
+            "fds": 11
+          },
+          "end": {
+            "pid": "2902208",
+            "time": 5583923.781736091,
+            "cpu_seconds": 303.38,
+            "rss_kib": 123300,
+            "swap_kib": 0,
+            "fds": 11
+          }
+        },
+        "65.109.249.222": {
+          "occupied_cpu_cores_mean": 0.2160037106689012,
+          "start": {
+            "pid": "58881",
+            "time": 15221.56244881,
+            "cpu_seconds": 327.48,
+            "rss_kib": 103096,
+            "swap_kib": 0,
+            "fds": 10
+          },
+          "end": {
+            "pid": "58881",
+            "time": 15273.459705414,
+            "cpu_seconds": 338.69,
+            "rss_kib": 123952,
+            "swap_kib": 0,
+            "fds": 10
+          }
+        },
+        "89.45.68.14": {
+          "occupied_cpu_cores_mean": 1.6071093540392059,
+          "start": {
+            "pid": "202705",
+            "time": 832122.708091819,
+            "cpu_seconds": 5058.2,
+            "rss_kib": 241576,
+            "swap_kib": 0,
+            "fds": 31
+          },
+          "end": {
+            "pid": "202705",
+            "time": 832174.677175186,
+            "cpu_seconds": 5141.72,
+            "rss_kib": 325744,
+            "swap_kib": 0,
+            "fds": 31
+          }
+        },
+        "89.45.68.118": {
+          "occupied_cpu_cores_mean": 1.3170122815890015,
+          "start": {
+            "pid": "894995",
+            "time": 3793733.472475009,
+            "cpu_seconds": 4866.6,
+            "rss_kib": 240128,
+            "swap_kib": 0,
+            "fds": 31
+          },
+          "end": {
+            "pid": "894995",
+            "time": 3793785.522103519,
+            "cpu_seconds": 4935.15,
+            "rss_kib": 291092,
+            "swap_kib": 0,
+            "fds": 31
+          }
+        }
+      }
+    },
+    {
+      "candidate": "adaptive4096x8",
+      "direction": "download",
+      "seconds": 30,
+      "streams_per_path": 16,
+      "aggregate_receiver_gbps": 1.054009951469275,
+      "paths": [
+        {
+          "client": "89.45.68.14",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 29.963824,
+            "seconds": 29.963824,
+            "bytes": 121634816,
+            "bits_per_second": 32475111.587893456,
+            "sender": false
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 30.112713,
+            "seconds": 30.112713,
+            "bytes": 766115840,
+            "bits_per_second": 203532864.00996152,
+            "sender": false
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 28.842747,
+            "seconds": 28.842747,
+            "bytes": 602800128,
+            "bits_per_second": 167196315.3856323,
+            "sender": false
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 30.056406,
+            "seconds": 30.056406,
+            "bytes": 557842432,
+            "bits_per_second": 148478812.00433612,
+            "sender": false
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 30.425303,
+            "seconds": 30.425303,
+            "bytes": 1352663040,
+            "bits_per_second": 355667922.84698033,
+            "sender": false
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 30.372177,
+            "seconds": 30.372177,
+            "bytes": 556793856,
+            "bits_per_second": 146658925.6344713,
+            "sender": false
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        }
+      ],
+      "resources": {
+        "116.202.177.233": {
+          "occupied_cpu_cores_mean": 0.7893163807053818,
+          "start": {
+            "pid": "732319",
+            "time": 1246226.458762951,
+            "cpu_seconds": 1874.67,
+            "rss_kib": 75456,
+            "swap_kib": 0,
+            "fds": 16
+          },
+          "end": {
+            "pid": "732319",
+            "time": 1246266.81013634,
+            "cpu_seconds": 1906.52,
+            "rss_kib": 202676,
+            "swap_kib": 0,
+            "fds": 16
+          }
+        },
+        "171.22.132.226": {
+          "occupied_cpu_cores_mean": 0.3703262926667449,
+          "start": {
+            "pid": "2902208",
+            "time": 5584238.289289332,
+            "cpu_seconds": 309.02,
+            "rss_kib": 47980,
+            "swap_kib": 0,
+            "fds": 9
+          },
+          "end": {
+            "pid": "2902208",
+            "time": 5584279.631209426,
+            "cpu_seconds": 324.33,
+            "rss_kib": 143052,
+            "swap_kib": 0,
+            "fds": 9
+          }
+        },
+        "65.109.249.222": {
+          "occupied_cpu_cores_mean": 0.7093277787280245,
+          "start": {
+            "pid": "58881",
+            "time": 15588.291444216,
+            "cpu_seconds": 347.83,
+            "rss_kib": 56752,
+            "swap_kib": 0,
+            "fds": 8
+          },
+          "end": {
+            "pid": "58881",
+            "time": 15630.331247103,
+            "cpu_seconds": 377.65,
+            "rss_kib": 148236,
+            "swap_kib": 0,
+            "fds": 8
+          }
+        },
+        "89.45.68.14": {
+          "occupied_cpu_cores_mean": 1.6780389162709655,
+          "start": {
+            "pid": "202705",
+            "time": 832489.487743691,
+            "cpu_seconds": 5182.64,
+            "rss_kib": 134760,
+            "swap_kib": 0,
+            "fds": 28
+          },
+          "end": {
+            "pid": "202705",
+            "time": 832531.721567539,
+            "cpu_seconds": 5253.51,
+            "rss_kib": 252400,
+            "swap_kib": 0,
+            "fds": 28
+          }
+        },
+        "89.45.68.118": {
+          "occupied_cpu_cores_mean": 1.9914869882219761,
+          "start": {
+            "pid": "894995",
+            "time": 3794100.2584382,
+            "cpu_seconds": 4976.43,
+            "rss_kib": 101404,
+            "swap_kib": 0,
+            "fds": 28
+          },
+          "end": {
+            "pid": "894995",
+            "time": 3794142.53840312,
+            "cpu_seconds": 5060.63,
+            "rss_kib": 240860,
+            "swap_kib": 0,
+            "fds": 28
+          }
+        }
+      }
+    },
+    {
+      "candidate": "adaptive4096x8",
+      "direction": "upload",
+      "seconds": 30,
+      "streams_per_path": 16,
+      "aggregate_receiver_gbps": 0.7915369947076167,
+      "paths": [
+        {
+          "client": "89.45.68.14",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 30.098482,
+            "seconds": 30.098482,
+            "bytes": 703201280,
+            "bits_per_second": 186906776.22878122,
+            "sender": true
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 30.539792,
+            "seconds": 30.539792,
+            "bytes": 699006976,
+            "bits_per_second": 183107200.20620966,
+            "sender": true
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 42.72363,
+            "seconds": 42.72363,
+            "bytes": 201392128,
+            "bits_per_second": 37710677.2996583,
+            "sender": true
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 30.154601,
+            "seconds": 30.154601,
+            "bytes": 1181351936,
+            "bits_per_second": 313412055.69259566,
+            "sender": true
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 30.823008,
+            "seconds": 30.823008,
+            "bytes": 166199296,
+            "bits_per_second": 43136424.842117935,
+            "sender": true
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 30.42209,
+            "seconds": 30.42209,
+            "bytes": 103677952,
+            "bits_per_second": 27263860.438253913,
+            "sender": true
+          },
+          "receiver_streams": 16,
+          "streams_with_received_bytes": 16,
+          "error": null
+        }
+      ],
+      "resources": {
+        "116.202.177.233": {
+          "occupied_cpu_cores_mean": 0.18271844224545641,
+          "start": {
+            "pid": "732319",
+            "time": 1246357.4836331,
+            "cpu_seconds": 1910.52,
+            "rss_kib": 199232,
+            "swap_kib": 0,
+            "fds": 16
+          },
+          "end": {
+            "pid": "732319",
+            "time": 1246408.709989263,
+            "cpu_seconds": 1919.88,
+            "rss_kib": 224840,
+            "swap_kib": 0,
+            "fds": 16
+          }
+        },
+        "171.22.132.226": {
+          "occupied_cpu_cores_mean": 0.40666945930537085,
+          "start": {
+            "pid": "2902208",
+            "time": 5584369.274550362,
+            "cpu_seconds": 326.83,
+            "rss_kib": 143052,
+            "swap_kib": 0,
+            "fds": 9
+          },
+          "end": {
+            "pid": "2902208",
+            "time": 5584421.036489987,
+            "cpu_seconds": 347.88,
+            "rss_kib": 160652,
+            "swap_kib": 0,
+            "fds": 9
+          }
+        },
+        "65.109.249.222": {
+          "occupied_cpu_cores_mean": 0.35675435622620105,
+          "start": {
+            "pid": "58881",
+            "time": 15718.968809307,
+            "cpu_seconds": 381.95,
+            "rss_kib": 141732,
+            "swap_kib": 0,
+            "fds": 8
+          },
+          "end": {
+            "pid": "58881",
+            "time": 15771.245676217,
+            "cpu_seconds": 400.6,
+            "rss_kib": 156988,
+            "swap_kib": 0,
+            "fds": 8
+          }
+        },
+        "89.45.68.14": {
+          "occupied_cpu_cores_mean": 1.8781372844587296,
+          "start": {
+            "pid": "202705",
+            "time": 832620.230687616,
+            "cpu_seconds": 5265.09,
+            "rss_kib": 252400,
+            "swap_kib": 0,
+            "fds": 28
+          },
+          "end": {
+            "pid": "202705",
+            "time": 832672.670943616,
+            "cpu_seconds": 5363.58,
+            "rss_kib": 264488,
+            "swap_kib": 0,
+            "fds": 28
+          }
+        },
+        "89.45.68.118": {
+          "occupied_cpu_cores_mean": 1.4293863034741008,
+          "start": {
+            "pid": "894995",
+            "time": 3794231.073982077,
+            "cpu_seconds": 5074.42,
+            "rss_kib": 240860,
+            "swap_kib": 0,
+            "fds": 28
+          },
+          "end": {
+            "pid": "894995",
+            "time": 3794283.495080431,
+            "cpu_seconds": 5149.35,
+            "rss_kib": 286924,
+            "swap_kib": 0,
+            "fds": 28
+          }
+        }
+      }
+    }
+  ],
+  "incomplete_candidate_tests": [
+    {
+      "candidate": "window4096",
+      "direction": "download",
+      "completed_paths": 5,
+      "failure": "89.45.68.14 to Finland exceeded the 50-second iperf deadline",
+      "accepted": false
+    }
+  ],
+  "measurement_integrity_notes": [
+    "An earlier tune command failed before application; files marked configuration_applied=false are excluded.",
+    "Five-path partial runs are not compared against complete six-path aggregate runs.",
+    "KCP adaptation and session count both changed in adaptive4096x8; improvement is attributed to the combined profile.",
+    "SSH preparation/monitoring failures are recorded separately from receiver or application failures."
+  ]
 }
