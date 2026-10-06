@@ -5,7 +5,7 @@ See [the final report](FINAL-DEPLOYMENT-REPORT.md) for exact hashes and limits.
 
 The new source implements live reload for `super-paqet run -c PATH` and a
 preparation-only validation command. These features are deployed to the four active hosts in the final enterprise
-release. Older deployed/ files are retained as historical snapshots.
+release. Recorded deployment configs are in [deployed/](deployed/README.md).
 The existing raw Ethernet/IP/TCP fabrication, capture/injection and inner
 KCP/mux framing contracts are retained.
 
@@ -148,9 +148,9 @@ The reproducible workload is
 
 ```sh
 sudo python scripts/live_reload_netns_test.py \
-  --binary build/super-paqet-live-reload --streams 128 --cycles 12
+  --binary build/super-paqet --streams 128 --cycles 12
 sudo python scripts/live_reload_netns_test.py \
-  --binary build/super-paqet-live-reload --streams 32 --cycles 6 \
+  --binary build/super-paqet --streams 32 --cycles 6 \
   --delay-ms 20 --reverse-delay-ms 70 \
   --rate-mbit 20 --reverse-rate-mbit 50 --loss 0.3 --reorder 5
 ```
@@ -169,22 +169,12 @@ Unit/race checks additionally inject fixed-port replacement and rollback failure
 exercise concurrent route readers and carrier registration, invalid polling
 budgets, oversized/FIFO files, same-mtime edits and rotated symlinks. Validation
 CLI tests verify errors/nonzero outcomes, JSON results and preparation without
-binding an occupied forward port. Versioned results are recorded in
-[live-reload-evidence.json](live-reload-evidence.json).
+binding an occupied forward port. The current release results are recorded in
+[final-deployment-evidence.json](final-deployment-evidence.json).
 
 These are functional reload qualifications. They do not qualify 100,000 busy
 customers, guarantee lossless structural replacement, or redeploy the feature.
 
-Final local qualification used source `f9547a8` (main equivalent `545e9b1`) and
-binary SHA-256 `24febf199033ea388436e7c3799fc03845ab0b4e9f4340c67df751c88d50c354`:
-
-| Link | Active original TCP streams | Add/remove cycles | Unaffected stream failures | Client FDs before/after |
-|---|---:|---:|---:|---:|
-| Clean | 256, plus 8 on the added peer | 12 | 0 | 144 / 144 |
-| 20/70ms one-way delay, 20/50 Mbit/s caps, 0.3% loss, 5% reordering | 64, plus 8 on the added peer | 6 | 0 | 48 / 48 |
-
-Both runs completed 18 continuity checkpoints, AES/null/packet/pcap transitions,
-UDP verification, live retransmission updates and idle half-closed relay removal.
-Processes stayed the same; all owned rules were removed and the unrelated test
-rule survived. Root race tests and vet passed. No dependency fork was changed,
-so its previously collected suites were not rerun solely for this runtime feature.
+The exact deployed executable subsequently passed 256-stream asymmetric/loss/
+reorder continuity through 18 edit checkpoints. Refer to
+[BENCHMARKS.md](BENCHMARKS.md) for the current qualification boundary.

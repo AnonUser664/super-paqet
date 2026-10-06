@@ -1,6 +1,6 @@
 peers:
   backend1:
-    address: 116.202.177.233:29999
+    address: 91.107.251.85:29999
     enc: 'null'
     network:
       interface: ens160
@@ -11,7 +11,7 @@ peers:
     adaptive: false
     packet_workers: 1
     kcp:
-      mode: fast
+      mode: manual
       sndwnd: 128
       rcvwnd: 512
       ack_timestamps: false
@@ -20,8 +20,16 @@ peers:
       smuxbuf: 4194304
       streambuf: 2097152
       mtu: 1350
-    sessions: 1
-    max_sessions: 1
+      nodelay: 0
+      interval: 30
+      resend: 2
+      nocongestion: 1
+      wdelay: false
+      acknodelay: false
+      small_write_flush: 32
+    sessions: 8
+    max_sessions: 8
+    shared_source: true
   backend2:
     address: 65.109.192.172:2052
     enc: 'null'
@@ -51,8 +59,16 @@ peers:
       smuxbuf: 4194304
       streambuf: 2097152
       mtu: 128
-    sessions: 1
-    max_sessions: 1
+      nodelay: 0
+      interval: 30
+      resend: 2
+      nocongestion: 1
+      wdelay: false
+      acknodelay: false
+      small_write_flush: 0
+    sessions: 4
+    max_sessions: 4
+    shared_source: true
 forwards:
 - listen: 0.0.0.0:9001
   peer: backend1
@@ -68,3 +84,16 @@ log:
   level: info
   format: json
   interval: 10s
+  flow_sample: 1000
+profiling: true
+reload:
+  enabled: true
+  interval: 250ms
+  debounce: 500ms
+limits:
+  connections: 200000
+  sessions: 1024
+  open_timeout: 15s
+  dial_timeout: 5s
+  udp_idle: 60s
+  memory_mib: 4096

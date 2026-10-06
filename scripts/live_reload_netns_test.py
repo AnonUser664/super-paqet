@@ -216,7 +216,7 @@ def traffic_worker():
 def main():
     """Own links/processes, perform edits, assert continuity and always clean up."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--binary', default='build/super-paqet-live-reload')
+    parser.add_argument('--binary', default='build/super-paqet')
     parser.add_argument('--output', default='build/live-reload-netns')
     parser.add_argument('--streams', type=int, default=32, help='active streams per original peer')
     parser.add_argument('--carriers', type=int, default=1, help='deterministic source-port carriers per original peer, 1..8')

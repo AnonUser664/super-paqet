@@ -80,7 +80,8 @@ comparison uses generic adaptive defaults instead.
 
 Machine-readable rates, receiver-stream byte counts, CPU, memory, parameters,
 hashes and cleanup are in [clean-null-current-evidence.json](clean-null-current-evidence.json).
-Raw logs/configs/metrics remain in `build/final-production/clean-null-current-20261006-*`.
+The compact evidence retains parameters, end-of-run measurements and cleanup.
+Historical raw logs were removed during repository cleanup.
 
 Reproduce a default run:
 

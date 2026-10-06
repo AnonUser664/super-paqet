@@ -35,7 +35,7 @@ Germany-to-Netherlands direction testing was prepared but **not run**.
 Captures ran on `ens160` on both clients and `net0` on the backend. Packet matching
 used source/destination IPs and ports, outer sequence/ACK numbers, and captured
 payload bytes. Capture filters reported zero kernel drops in the completed
-comparisons. Captures are private artifacts; the committed
+comparisons. Raw captures were removed during repository cleanup; the committed
 [evidence](NETHERLANDS-DIAGNOSTIC-EVIDENCE.json) contains only request results and
 aggregate capture counts.
 

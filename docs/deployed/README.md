@@ -1,22 +1,15 @@
-# Recorded deployed configuration snapshots
+# Recorded deployment configuration
 
-These files reproduce the last successfully checked live recovery settings on
-2026-10-05. They were copied from staged local files and checked against the
-recorded final manifest hashes. They are not a fresh SSH inspection or generic
-recommended defaults. The user subsequently confirmed one active-user success.
-No secrets are present: endpoints explicitly use `enc: 'null'` and no keys.
+All four services run enterprise-2026.10.06, embedded source abf04f6, binary
+SHA-256 `47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419`.
 
-| File | Role | SHA-256 |
-|---|---|---|
-| [116.202.177.233.yaml](116.202.177.233.yaml) | Server | `a8ef7187c2aef93d4347e8b9c56b2a68223bcc2320af145d4d7c448957ad0980` |
-| [171.22.132.226.yaml](171.22.132.226.yaml) | Server | `1a592f2874c5cc2ca553bea30576b0a585b8891642eb1dbe36a15d1f78b78469` |
-| [89.45.68.14.yaml](89.45.68.14.yaml) | Client | `4f0e2d48809daec029e43c3a1292436fa3e5ed7c58995e068547d2e4a6096eee` |
-| [89.45.68.118.yaml](89.45.68.118.yaml) | Client | `257ca77ee9c66ed9a3a9bf6b108f81c7e4c4d3db32782f9af3e7133375f86baf` |
+Backend configs and the service unit were recorded after release cleanup. Client
+configs reflect the later applied Netherlands four-carrier edit, whose saved
+bytes were restored after same-path diagnosis. This is not a new remote audit.
+Client profiling remains enabled by that diagnostic edit; backend profiling is
+disabled. Configs contain no encryption keys.
 
-The [unit](super-paqet.service) uses /root paths and read-only home access.
-Source `1c77c55`, deployed executable SHA-256
-`ecb8e002173f6f80cd3f403d3ee3080190f0e49889fa2ba9f883b893f96318f3`.
-The newer queue-pressure patch is not deployed. Client backend2/9002 entries
-were preserved exactly; they are excluded from the current working-path claim.
-Read [CONFIGURATION.md](../CONFIGURATION.md) before editing and
-[DEPLOYMENT.md](../DEPLOYMENT.md) for the selection/evidence history.
+Germany retains eight carriers per client; Netherlands four. Netherlands remains
+unavailable despite healthy services. See [current status](../STATUS.md), the
+[deployment guide](../DEPLOYMENT.md) and [diagnosis](../NETHERLANDS-DIAGNOSIS.md).
+These are host-specific snapshots, not generic defaults or proof of reachability.

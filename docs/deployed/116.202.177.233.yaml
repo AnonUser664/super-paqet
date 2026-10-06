@@ -10,7 +10,7 @@ listeners:
   adaptive: false
   packet_workers: 1
   kcp:
-    mode: fast
+    mode: manual
     sndwnd: 1024
     rcvwnd: 1024
     ack_timestamps: false
@@ -19,6 +19,14 @@ listeners:
     smuxbuf: 4194304
     streambuf: 2097152
     mtu: 1350
+    nodelay: 0
+    interval: 30
+    resend: 2
+    nocongestion: 1
+    wdelay: false
+    acknodelay: false
+    small_write_flush: 32
+  shared_source: true
 - address: 91.107.251.85:29999
   enc: 'null'
   network:
@@ -30,7 +38,7 @@ listeners:
   adaptive: false
   packet_workers: 1
   kcp:
-    mode: fast
+    mode: manual
     sndwnd: 1024
     rcvwnd: 1024
     ack_timestamps: false
@@ -39,8 +47,30 @@ listeners:
     smuxbuf: 4194304
     streambuf: 2097152
     mtu: 1350
+    nodelay: 0
+    interval: 30
+    resend: 2
+    nocongestion: 1
+    wdelay: false
+    acknodelay: false
+    small_write_flush: 32
+  shared_source: true
 metrics: 127.0.0.1:29090
 log:
   level: info
   format: json
   interval: 10s
+  flow_sample: 1000
+profiling: false
+reload:
+  enabled: true
+  interval: 250ms
+  debounce: 500ms
+forwards: []
+limits:
+  connections: 200000
+  sessions: 1024
+  open_timeout: 15s
+  dial_timeout: 5s
+  udp_idle: 60s
+  memory_mib: 1536

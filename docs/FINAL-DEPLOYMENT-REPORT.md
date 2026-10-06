@@ -9,10 +9,9 @@ this is not an unconditional production-readiness or universal-optimality claim.
 Latest recheck: reverting Netherlands peers to four lanes applied on both
 clients, but did not recover acceptance. Germany passed four of four 10 MiB
 Reality downloads; Netherlands failed four of four from both clients with TLS
-timeouts. The public Netherlands request also timed out. The eight-lane snapshots
-below describe the measured capacity configuration before that diagnostic
-reversion. The [test results audit](TEST-RESULTS-AUDIT.md) separates historical
-throughput workloads and examines what the captures establish about filtering.
+timeouts. The public Netherlands request also timed out. The eight-lane capacity measurements below precede that diagnostic reversion;
+recorded client snapshots now reflect four Netherlands carriers. Current
+measurement methods and limits are in [BENCHMARKS.md](BENCHMARKS.md).
 
 The [same-path Netherlands diagnosis](NETHERLANDS-DIAGNOSIS.md) now also records
 four failed requests with the previously working enterprise executable and four
@@ -32,8 +31,7 @@ The binary and live config hashes were fetched and checked after test cleanup;
 config permissions are 0600. Services are enabled/active with zero automatic
 restarts, healthy local metrics, and no degraded config transactions. Source
 checkpoints are committed. The separate old timeout/outer-sequence experiments
-are archived on `archive/pre-final-wire-experiments`, in a named stash and a
-byte-for-byte local backup; the main checkout excludes them.
+are archived on `archive/pre-final-wire-experiments`, in a named stash; the main checkout excludes them.
 
 The final release retains fabricated Ethernet/IP/TCP headers, PA flags,
 source-port reservations, raw capture/injection, and the original sequence/ACK
@@ -80,7 +78,7 @@ Netherlands because authenticated stress exposed regressions. Reliability
 adaptation remains disabled on these physical-path recovery profiles; generic
 adaptive defaults retain separate virtual-link qualification.
 
-Fresh sanitized configs and unit are in [deployed-final/](deployed-final/README.md).
+Recorded configs and unit are in [deployed/](deployed/README.md).
 The complete source guide is [CONFIGURATION.md](CONFIGURATION.md). Live safe
 reliability changes and edit-impact rules are in [LIVE-RELOAD.md](LIVE-RELOAD.md).
 Use `config validate -c /root/super-paqet/conf.yaml --json`, then atomically
@@ -166,8 +164,8 @@ Netherlands path remains open.
 
 Owned test forwards, IPv6/alternate-port probes, transient HTTP/hold/legacy
 processes, test files and the tagged benchmark INPUT rule were removed. Temporary
-AES diagnostics were reverted; final configs contain no keys. Pprof is disabled
-in final configs; local health/metrics and structured info logs remain enabled.
+AES diagnostics were reverted; final configs contain no keys. Backend pprof is disabled; client pprof remains enabled by the later diagnostic
+edit. Local health/metrics and structured info logs remain enabled.
 No excluded host, Xray service, WARP configuration or unrelated firewall rule was
 modified by cleanup.
 
@@ -179,6 +177,6 @@ start it and verify the hash, config and real application path. Backups and
 previous working executables are retained for operator rollback.
 
 The full sanitized report is [final-deployment-evidence.json](final-deployment-evidence.json).
-[Working notes](FINAL-QUALIFICATION-WORKING-NOTES.md) retain chronological failures,
-harness corrections and rejected candidates; their older in-progress statements
-are superseded by this report.
+Superseded reports and experimental logs were removed from the checkout;
+committed history remains available in Git. Current failed gates remain recorded
+in this report and [BENCHMARKS.md](BENCHMARKS.md).

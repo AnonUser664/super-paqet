@@ -938,5 +938,6 @@
     "Earlier 7.854 Gbit/s upload used a different binary, ordinary carriers, AES-GCM and a different measurement interval; causal attribution needs a matched cross-build comparison.",
     "Flush32 upload ranged 3.151 to 3.523 Gbit/s; these samples do not establish a consistent collapse or universal zero throughput cost.",
     "No remote configuration or service was modified for these local benchmarks."
-  ]
+  ],
+  "artifact_retention": "Recorded artifact names identify the original runs. Raw logs were removed during repository cleanup; parameters, rates, per-stream end results, resources and cleanup remain in this file."
 }

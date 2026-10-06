@@ -15,27 +15,17 @@ untested hardware and firewall products.
 
 ## Review documentation
 
-The final enterprise release is deployed on the four active hosts. Live reload,
-validation, queue-pressure fixes and shared fixed-source KCP lanes are included.
-The exact binary passed local 100k/multi-gigabit and deployed 8k-forward tests.
-The Netherlands authenticated burst tail remains unqualified; see the
-[final deployment report](docs/FINAL-DEPLOYMENT-REPORT.md) and
-[sanitized evidence](docs/final-deployment-evidence.json).
+Start with [current status](docs/STATUS.md), then the
+[architecture](docs/ARCHITECTURE.md), [configuration guide](docs/CONFIGURATION.md),
+[deployment guide](docs/DEPLOYMENT.md) and [operations runbook](docs/OPERATIONS.md).
+The [documentation map](docs/README.md) links current guides and compact evidence.
 
-Start with [current status](docs/STATUS.md), then read the
-[architecture and source map](docs/ARCHITECTURE.md),
-[complete configuration guide](docs/CONFIGURATION.md),
-[failure and decision history](docs/DEVELOPMENT-HISTORY.md),
-[actual deployment](docs/DEPLOYMENT.md), and
-[operations runbook](docs/OPERATIONS.md). The [documentation map](docs/README.md)
-links the measured evidence and recorded deployed configurations.
-
-See the [live reload guide](docs/LIVE-RELOAD.md) for edit impact, validation,
-SIGHUP and rollback behavior.
-
-Unqualified earlier timing/outer-sequence experiments are preserved on the
-archive/pre-final-wire-experiments branch and in a named stash. They are excluded
-from the main checkout. Match release hashes and settings when comparing results.
+Live reload and validation are deployed. The exact executable passed finite
+local scale and WAN simulations, but Netherlands forwarding is currently
+unavailable in current, previous enterprise and upstream controls. See the
+[diagnosis](docs/NETHERLANDS-DIAGNOSIS.md) and
+[release report](docs/FINAL-DEPLOYMENT-REPORT.md). Further path tests and bulk
+tuning are paused. This is not an unconditional production-readiness claim.
 
 ## Build and run
 
@@ -131,7 +121,8 @@ peers:
 
 IPv6 uses `network.ipv6` with a bracketed address and next-hop MAC. Configuring
 both families requires matching ports. Listener network ports must match the
-listener's address. A fixed client source port requires `sessions: 1`.
+listener's address. A fixed client source port requires one carrier unless `shared_source: true`
+enables multiple KCP conversations on that tuple.
 
 ## Performance and resource control
 
@@ -147,7 +138,7 @@ Peers start with up to eight carriers (CPU-derived). `sessions` sets the initial
 count and `max_sessions` bounds adaptive growth (default twice the CPU count,
 at most 256). Cached traffic/queue pressure keeps new short requests off busy
 carriers where capacity permits. Set both counts equal for a fixed pool. Fixed
-source ports require both counts 1; `adaptive: false` defaults to a fixed pool.
+source ports require both counts 1 unless `shared_source: true`; `adaptive: false` defaults to a fixed pool.
 
 Defaults: up to four server packet workers, KCP window ceilings 32768 segments, stream receive ceiling 16 MiB, and
 aggregate smux receive budget 32 MiB per session. These are ceilings, not memory
@@ -233,7 +224,7 @@ make vet test
 make build bench-build
 # The expanded WAN matrix requires the local iperf3 build described in docs/BENCHMARKS.md.
 sudo python3 scripts/stress_links.py --binary build/super-paqet \
-  --duration 20 --profile --output build/step1-matrix
+  --duration 20 --profile --output build/wan-matrix
 sudo python3 scripts/systemd_netns_test.py --binary build/super-paqet
 sudo python3 scripts/netns_bench.py --enterprise --binary build/super-paqet \
   --functional --restart --capture --duration 5 --sessions 1 --workers 4

@@ -52,7 +52,7 @@ configuration lacks per-client identities and destination ACLs.
 | `deploy/` | Generic systemd unit for /usr/local and /etc installation. |
 | `scripts/` | Namespace link emulation, stress/qualification, evidence export and service tests. |
 | `docs/` | Architecture, configuration, history, evidence and operations. |
-| `docs/deployed/` | Recorded actual recovery YAML/unit snapshots, separate from generic defaults. |
+| `docs/deployed/` | Recorded deployment YAML/unit snapshots, separate from generic defaults. |
 | `build/` | Ignored executables, profiles, captures, local worktrees and experimental artifacts. |
 | `.github/workflows/` | Repository test/build automation. |
 
@@ -287,7 +287,7 @@ There is currently no distributed control plane,
 per-customer authentication/ACL layer, transparent session migration, universal
 path-MTU discovery, automatic FEC selection, or proven thousands-busy-customer
 capacity on the current hosts. See [CONFIGURATION.md](CONFIGURATION.md),
-[DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md), [OPERATIONS.md](OPERATIONS.md)
+[OPERATIONS.md](OPERATIONS.md)
 and the versioned evidence before choosing structural changes.
 
 ## Shared source lanes and ACK indexing

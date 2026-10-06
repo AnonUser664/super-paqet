@@ -448,4 +448,4 @@ firewall/NAT/MTU autodetection or guarantee every provider accepts the envelope.
 
 Use [OPERATIONS.md](OPERATIONS.md) for the two installation layouts, rollback,
 monitoring and reproducible checks. Use [deployed/](deployed/README.md) for the
-recorded live configs; they are deployment-specific snapshots, not defaults.
+recorded deployment configs; they are deployment-specific snapshots, not defaults.

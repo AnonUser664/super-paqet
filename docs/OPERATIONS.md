@@ -8,8 +8,8 @@ selected source/binary/configuration before carrying out a future deployment.
 ## Build an identifiable candidate
 
 Requires Linux, Go 1.27+, a C compiler, libpcap headers/library, iproute2 and
-iptables/ip6tables. The current workspace contains separate uncommitted runtime
-edits; a generic `make build` includes them. Build a selected clean checkout
+iptables/ip6tables. A generic `make build` includes the current working tree.
+Build a selected clean checkout
 when qualifying a release and record `git rev-parse HEAD`, dirty status and
 `sha256sum` of the executable.
 
@@ -84,10 +84,9 @@ output bytes are different; output counts include attempts/retransmissions and
 are not unique delivered goodput. No-encryption changes neither the need for
 Reality authentication nor the need to complete the actual body.
 
-The new pcap ENOBUFS counters/debug events exist in `20227d3`; the installed
-`1c77c55` binary still lacks pcap queue-drop recovery/reporting. Driver queues
-can therefore abort a pcap carrier under bursts in the current live version.
-AF_PACKET already treats its analogous ENOBUFS as loss.
+The deployed release counts transient ENOBUFS on both pcap and AF_PACKET as
+datagram loss, letting KCP retransmit. Permanent device/injection errors still
+abort the affected carrier. See [DIAGNOSTICS.md](DIAGNOSTICS.md) for counters.
 
 ## Troubleshoot in evidence order
 
@@ -121,8 +120,8 @@ Normal stop closes resources and removes owned chains. Crash/SIGKILL cannot
 execute in-process cleanup; ExecStopPost or a later startup/cleanup recovers
 journals for dead owners in the same namespace. Never flush shared tables or
 unrelated WARP/Xray/firewall rules. Avoid saving temporary SPQ chains in a
-persistent host iptables dump. The absent-chain recovery fix is committed but
-not yet deployed; see the incident history for the older startup limitation.
+persistent host iptables dump. The deployed cleanup tolerates an owned chain
+already being absent and recovers dead-owner journals.
 
 Established TCP streams cannot survive process replacement. A restart is not
 hitless migration. Check new authenticated flows after restart and owned-rule
@@ -135,7 +134,7 @@ version at that particular checkpoint. Later intermediate configs are not
 necessarily the original service or the final working recovery. Select a
 matching binary/config/unit set deliberately; inspect prior state when available.
 
-A chosen restore, after approval, follows this pattern:
+A chosen restore follows this pattern:
 
 ```sh
 systemctl stop super-paqet.service
@@ -153,8 +152,8 @@ entries remain unchanged and previously unavailable.
 
 ## Reproduce qualification without confusing profiles
 
-Read [BENCHMARKS.md](BENCHMARKS.md) for the historical frozen hash and complete
-matrix; read [DIAGNOSTICS.md](DIAGNOSTICS.md) for individual workloads. Local
+Read [BENCHMARKS.md](BENCHMARKS.md) for the current executable and measured
+workloads; read [DIAGNOSTICS.md](DIAGNOSTICS.md) for individual workloads. Local
 namespaces are disposable; running them still consumes real host CPU/RAM.
 One-way `--delay-ms` contributes twice that amount to base RTT. Use fixed seeds
 for fault schedules; live scheduling is still variable. Deterministic virtual
@@ -170,9 +169,9 @@ sudo python3 scripts/stress_links.py --binary build/super-paqet \
   --duration 20 --profile --output build/review-matrix
 ```
 
-The first command profile reproduced the queue-pressure failure and later
-passed with the source fix. Choose the correct clean binary; these examples
-do not certify the dirty generic build. Full source tests use each fork's own
+The first profile exercises capped-link pcap queue pressure. Record the selected
+binary hash; these commands describe reproduction rather than certifying a new
+build. Full source tests use each fork's own
 module directory. The full smux race suite can run for several minutes.
 
 The 100k test's explicit `--host-backlog 65536` changes a global host setting,
@@ -198,8 +197,7 @@ available ports. Automatic polling applies file changes without a service
 restart. The updated unit template uses SIGHUP for `ExecReload`; SIGHUP requests
 reload and returns before asynchronous validation/application completes. Check
 `config.applied`, `config.rejected` and `super_paqet_config_revision` for outcome.
-The final deployed unit supports ExecReload/SIGHUP. The older deployed/ snapshots
-remain historical; use deployed-final/ for current files.
+The final deployed unit supports ExecReload/SIGHUP. Use the recorded deployed/ snapshots for the current service layout.
 
 See [LIVE-RELOAD.md](LIVE-RELOAD.md) before changing transport settings. Some
 edits preserve all streams; structural endpoint changes interrupt only their

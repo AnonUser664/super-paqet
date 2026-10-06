@@ -1,36 +1,28 @@
-Current release and measured limits: [final deployment report](FINAL-DEPLOYMENT-REPORT.md),
-[status](STATUS.md), [fresh snapshots](deployed-final/README.md),
-[sanitized evidence](final-deployment-evidence.json).
+# Documentation
 
-# Documentation map
-
-Read [STATUS.md](STATUS.md) first. It distinguishes the running base, earlier
-local benchmarks, committed undeployed fixes and separate experiments. The user
-has verified one active customer; thousands of active customers remain untested.
+Start with [current status](STATUS.md). Netherlands forwarding is unavailable;
+its failure was reproduced with the current, previously working and upstream
+versions. The exact network filtering mechanism remains unidentified.
 
 | Document | Purpose |
 |---|---|
-| [CLEAN-LINK-CURRENT.md](CLEAN-LINK-CURRENT.md) | Fresh isolated unencrypted bulk measurements of the exact current executable, CPU/memory, small-write comparison and historical performance gap. |
-| [TEST-RESULTS-AUDIT.md](TEST-RESULTS-AUDIT.md) | Throughput comparison by workload/build, latest local and remote results, Netherlands failure evidence and remaining causal gaps. |
-| [test-results-inventory.json](test-results-inventory.json) | Compact inventory of all retained structured result files, matrix gates and final-stage remote reports, including failures. |
-| [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md) | Recorded failures, approaches, rejected experiments, evidence mistakes and decisions through the review pause. |
-| [LIVE-RELOAD.md](LIVE-RELOAD.md) | File watching, validation CLI, exact edit impact, replacement/rollback semantics and qualification. |
-| [CODE-COMMENTS.md](CODE-COMMENTS.md) | Comment coverage, ownership/contract explanations and behavior-preservation verification. |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Current package layout, process/object ownership, TCP/UDP paths, packet drivers, concurrency and lifecycle. |
-| [CONFIGURATION.md](CONFIGURATION.md) | Every enterprise YAML field, effective defaults, precedence, constraints, manual retransmission and adaptation boundaries. |
-| [DEPLOYMENT.md](DEPLOYMENT.md) | Current four-host recovery topology, overrides, tests, resources and backup checkpoints. |
-| [deployed/README.md](deployed/README.md) | Recorded actual deployed YAML/unit snapshots; hashes checked against the last manifests. |
-| [OPERATIONS.md](OPERATIONS.md) | Build identification, installation layouts, monitoring, troubleshooting, future rollout and rollback. |
-| [TRANSPORT.md](TRANSPORT.md) | Raw packet contract, inner protocols, why layers exist and what compatibility/detectability checks mean. |
-| [DIAGNOSTICS.md](DIAGNOSTICS.md) | Events/counters, sampling, known version differences and test tooling. |
-| [BENCHMARKS.md](BENCHMARKS.md) | Frozen earlier local qualification, workload/resource measurements and limits. |
-| [BENCHMARKS-HISTORY.md](BENCHMARKS-HISTORY.md) | Earlier measurements and invalidated/limited comparisons, retained as history. |
-| [step1-qualification.json](step1-qualification.json) | Machine-readable earlier local candidate evidence. |
-| [deployment-recovery-evidence.json](deployment-recovery-evidence.json) | Sanitized real-link comparisons and recovery checks. |
-| [live-reload-evidence.json](live-reload-evidence.json) | Versioned live reload continuity, resource cleanup and validation results. |
-| [queue-pressure-evidence.json](queue-pressure-evidence.json) | Confirmed ENOBUFS/stale-chain fixes and their local regression evidence. |
+| [STATUS.md](STATUS.md) | Running version, current paths and outstanding work. |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Package layout, ownership, data paths, concurrency and lifecycle. |
+| [TRANSPORT.md](TRANSPORT.md) | Raw packet contract, inner protocols and reasons for their design. |
+| [CONFIGURATION.md](CONFIGURATION.md) | Every YAML field, defaults, constraints and adaptation boundaries. |
+| [LIVE-RELOAD.md](LIVE-RELOAD.md) | Validation, watching, edit impact and rollback. |
+| [DEPLOYMENT.md](DEPLOYMENT.md) | Deployment topology, installation and service settings. |
+| [deployed/](deployed/README.md) | Recorded configurations and deployed systemd unit. |
+| [OPERATIONS.md](OPERATIONS.md) | Monitoring, rollout, troubleshooting and rollback procedures. |
+| [DIAGNOSTICS.md](DIAGNOSTICS.md) | Logs, metrics, profiling and reproducible tests. |
+| [BENCHMARKS.md](BENCHMARKS.md) | Current qualification results, methods and known failed gates. |
+| [CLEAN-LINK-CURRENT.md](CLEAN-LINK-CURRENT.md) | Exact deployed executable's isolated unencrypted bulk results. |
+| [FINAL-DEPLOYMENT-REPORT.md](FINAL-DEPLOYMENT-REPORT.md) | Release measurements, resource limits and deployment evidence. |
+| [NETHERLANDS-DIAGNOSIS.md](NETHERLANDS-DIAGNOSIS.md) | Same-path version comparisons and paired packet captures. |
 
-No single document establishes universal production readiness. Performance
-results must be read with their binary, cipher, packet size, controller settings,
-concurrency, hardware and measurement method. Deployment authorization was subsequently provided by the user; the final
-report records what was actually deployed and the outstanding qualification limits.
+Compact evidence: [release](final-deployment-evidence.json),
+[clean bulk](clean-null-current-evidence.json),
+[Netherlands](NETHERLANDS-DIAGNOSTIC-EVIDENCE.json).
+
+Superseded reports, deployment snapshots and generated experiments were removed
+from the checkout. Their committed versions remain available in Git history.

@@ -59,7 +59,7 @@ def main():
     stage('fuzz-frame',['go','test','./internal/socket','-run','^$','-fuzz','FuzzDecodeFrame','-fuzztime','60s','-parallel','4'])
     stage('extra-seeds',[sys.executable,'scripts/stress_links.py','--binary',a.binary,'--output',str(out/'seeds'),'--duration','30','--profile','--cases','asymmetric','reorder','harsh','mixed-ack','mixed-asymmetric','outage','--seeds','7','313'])
     service=json.loads((out/'service.log').read_text())
-    stage('export',[sys.executable,'scripts/export_qualification.py','--binary',a.binary,'--matrices',a.matrix,str(out/'seeds/matrix.json'),'--scale',str(out/'scale'),'--service',str(Path(service['output'])/'results.json'),'--checks',str(out/'checks.json'),'--output','docs/step1-qualification.json'])
+    stage('export',[sys.executable,'scripts/export_qualification.py','--binary',a.binary,'--matrices',a.matrix,str(out/'seeds/matrix.json'),'--scale',str(out/'scale'),'--service',str(Path(service['output'])/'results.json'),'--checks',str(out/'checks.json'),'--output',str(out/'qualification.json')])
     print('Sequential qualification completed: '+str(out/'checks.json'),flush=True)
 
 if __name__=='__main__':main()
