@@ -139,7 +139,14 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 	}
 	// Keepalive/opening traffic must not erase a learned bulk capacity or
 	// collapse the initial window before the first application transfer.
-	if acked < uint64(max(1, s.MSS)*2) && s.Pending < c.window/2 {
+	// A full packet window can consist entirely of tiny SYN/reset/credit
+	// frames after bulk traffic. These frames do not measure bulk capacity:
+	// treating them as saturation repeatedly reduced the learned byte rate
+	// during the France incident. Require both small acknowledgments and a
+	// small byte backlog before ignoring that misleading packet pressure.
+	// A queued bulk payload still follows normal bottleneck convergence.
+	smallControlBacklog := packets > 0 && acked/packets < uint64(max(1, s.MSS)/4) && s.PendingBytes < uint64(max(1, s.MSS)*2)
+	if acked < uint64(max(1, s.MSS)*2) && (s.Pending < c.window/2 || smallControlBacklog) {
 		if !c.bulkSeen && (waited || packets > 0) {
 			target := int(math.Ceil(2*c.packetRate*rtt/1000)) + 2
 			c.window = min(c.maximum, max(c.window, target))

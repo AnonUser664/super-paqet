@@ -162,6 +162,50 @@ func TestControlTrafficPreservesLearnedCapacity(t *testing.T) {
 	}
 }
 
+// TestQueuedControlTrafficAfterBulkPreservesCapacity models the production
+// failure pattern: a previously busy lane later contains mostly opening/reset
+// packets, while a changed RTT still looks congested. Packet queue occupancy
+// alone must not turn tiny control acknowledgments into a bulk capacity sample.
+func TestQueuedControlTrafficAfterBulkPreservesCapacity(t *testing.T) {
+	c := newController(4096, 4096)
+	c.window, c.rate, c.bulkSeen, c.startup = 64, 100000, true, false
+	now := time.Unix(100, 0)
+	s := kcp.TransportStats{MSS: 1326, SRTT: 80, Pending: 40, PendingBytes: 320}
+	c.update(s, now)
+	for range 80 {
+		now = now.Add(250 * time.Millisecond)
+		s.SRTT = 180
+		s.AckedBytes += 80
+		s.AckedSegments += 10
+		s.WriteWaitCount++
+		c.update(s, now)
+	}
+	if c.rate != 100000 || c.window < 64 {
+		t.Fatalf("queued controls erased learned bulk capacity: rate=%v window=%d", c.rate, c.window)
+	}
+}
+
+// TestSmallACKsWithBulkBacklogStillLearnBottleneck guards the opposite case:
+// sparse delivery while real payload is queued must retain rate convergence.
+func TestSmallACKsWithBulkBacklogStillLearnBottleneck(t *testing.T) {
+	c := newController(4096, 4096)
+	c.window, c.rate, c.bulkSeen, c.startup = 64, 100000, true, false
+	now := time.Unix(100, 0)
+	s := kcp.TransportStats{MSS: 1326, SRTT: 80, Pending: 40, PendingBytes: 40 * 1326}
+	c.update(s, now)
+	for range 80 {
+		now = now.Add(250 * time.Millisecond)
+		s.SRTT = 180
+		s.AckedBytes += 80
+		s.AckedSegments += 10
+		s.WriteWaitCount++
+		c.update(s, now)
+	}
+	if c.rate >= 10000 {
+		t.Fatalf("bulk backlog failed to learn the sustained bottleneck: rate=%v", c.rate)
+	}
+}
+
 // TestDeliveryGapDoesNotEraseCapacityAndSustainedDropConverges checks Delivery Gap Does Not
 // Erase Capacity And Sustained Drop Converges so a change cannot silently weaken the recorded
 // regression contract.
