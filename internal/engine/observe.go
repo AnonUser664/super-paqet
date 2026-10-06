@@ -43,6 +43,8 @@ type observedSession struct {
 	congested bool
 	// Forward-attributed queue growth used to distinguish congestion from reverse ACK pressure.
 	queueSignal float64
+	// Identifies packet-window-only control for a predominantly small-message lane.
+	smallMessages bool
 }
 
 // observedState retains the previous carrier counters/time so periodic logs can report deltas
@@ -80,7 +82,7 @@ func (e *Engine) observe() {
 			e.tuneMu.Lock()
 			connections := make([]observedSession, 0, len(e.tuners))
 			for conn, c := range e.tuners {
-				connections = append(connections, observedSession{conn, c.minRTT, c.rate, c.window, c.startup, c.peakRate, c.lossRatio, c.congested, c.queueSignal})
+				connections = append(connections, observedSession{conn, c.minRTT, c.rate, c.window, c.startup, c.peakRate, c.lossRatio, c.congested, c.queueSignal, c.smallMessages})
 			}
 			packets := append([]observedPacket(nil), e.packetObservers...)
 			e.tuneMu.Unlock()
@@ -134,7 +136,7 @@ func (e *Engine) observe() {
 					"credit_pending", creditPending, "credit_hints_sent", hintsSent, "credit_hints_received", hintsReceived,
 					"write_budget_bytes", s.WriteBudgetBytes,
 					"rtt_ms", s.SRTT, "rttvar_ms", s.SRTTVar, "min_rtt_ms", v.minRTT, "rto_ms", s.RTO,
-					"forward_queue_ms", s.ForwardQueue, "reverse_queue_ms", s.ReverseQueue, "transit_samples", s.TransitSamples, "congested", v.congested,
+					"forward_queue_ms", s.ForwardQueue, "reverse_queue_ms", s.ReverseQueue, "transit_samples", s.TransitSamples, "congested", v.congested, "small_messages", v.smallMessages,
 					"queue_signal_ms", v.queueSignal, "peer_ack_delay_ms", s.PeerACKDelay,
 					"send_window", s.SendWindow, "remote_window", s.RemoteWindow, "pending", s.Pending, "send_queued", s.SendQueued,
 					"receive_queued", s.ReceiveQueued, "receive_reordered", s.ReceiveReordered, "pipeline_queued", s.PipelineQueued,

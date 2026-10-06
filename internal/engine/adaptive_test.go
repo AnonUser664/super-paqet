@@ -180,8 +180,23 @@ func TestQueuedControlTrafficAfterBulkPreservesCapacity(t *testing.T) {
 		s.WriteWaitCount++
 		c.update(s, now)
 	}
-	if c.rate != 100000 || c.window < 64 {
-		t.Fatalf("queued controls erased learned bulk capacity: rate=%v window=%d", c.rate, c.window)
+	if c.rate != 100000 || c.window < 64 || c.pacingRate() != 0 {
+		t.Fatalf("queued controls erased learned capacity or retained byte pacing: rate=%v window=%d pacing=%d", c.rate, c.window, c.pacingRate())
+	}
+}
+
+// TestQueuedBulkLeavesSmallMessageModeBeforeACK avoids retaining an unpaced
+// small-message classification when a large write starts on the same carrier.
+func TestQueuedBulkLeavesSmallMessageModeBeforeACK(t *testing.T) {
+	c := newController(4096, 4096)
+	c.window, c.rate, c.bulkSeen, c.smallMessages = 64, 100000, true, true
+	now := time.Unix(100, 0)
+	s := kcp.TransportStats{MSS: 1326, SRTT: 80}
+	c.update(s, now)
+	s.Pending, s.PendingBytes = 40, 40*1326
+	c.update(s, now.Add(250*time.Millisecond))
+	if c.smallMessages || c.pacingRate() == 0 {
+		t.Fatal("new bulk backlog retained small-message pacing exemption")
 	}
 }
 
