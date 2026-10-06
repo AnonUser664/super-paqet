@@ -55,6 +55,7 @@ def main():
     p.add_argument('--output',default='build/expanded-links')
     p.add_argument('--cases',nargs='+',choices=list(PROFILES),default=list(PROFILES))
     p.add_argument('--seeds',nargs='+',type=int,default=[42])
+    p.add_argument('--warmup',type=int,default=8)
     p.add_argument('--duration',type=int,default=20)
     p.add_argument('--profile',action='store_true')
     a=p.parse_args()
@@ -67,7 +68,7 @@ def main():
             directory=out/(case+'-seed-'+str(seed))
             flags=PROFILES[case]
             command=[sys.executable,str(ROOT/'scripts/netns_bench.py'),'--enterprise','--binary',a.binary,'--debug','--bridge','--seed',str(seed),'--duration',str(a.duration),'--sessions','4','--output',str(directory),*flags]
-            if '--iperf' in flags:command+=['--warmup','8']
+            if '--iperf' in flags:command+=['--warmup',str(a.warmup)]
             command+=['--block',a.block,'--kcp-options',a.kcp_options]
             if a.shared_source:command+=['--shared-source']
             if a.profile:command+=['--profile']
