@@ -17,6 +17,9 @@ type KCP struct {
 	// Maximum paced mux-frame duration in milliseconds; it bounds bulk work ahead of new
 	// controls.
 	WriteBatchMS int `yaml:"write_batch_ms"`
+	// Flushes bounded small logical writes immediately even when bulk batching
+	// is enabled. Zero retains the chosen preset's original write behavior.
+	SmallWriteFlush int `yaml:"small_write_flush"`
 	// Maximum adaptive ACK deferral in milliseconds, separate from the chosen live delay.
 	ACKDelayMaxMS int `yaml:"ack_delay_max_ms"`
 	// Optional expedited cumulative credit; nil selects the default and reliable updates remain

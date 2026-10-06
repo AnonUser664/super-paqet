@@ -35,6 +35,9 @@ func PrepareKCP(k *KCP, role string) error {
 	if k.WriteBatchMS < 1 || k.WriteBatchMS > 1000 || k.ACKDelayMaxMS < 1 || k.ACKDelayMaxMS > 20 {
 		return fmt.Errorf("write_batch_ms must be 1..1000 and ack_delay_max_ms must be 1..20")
 	}
+	if k.SmallWriteFlush < 0 || k.SmallWriteFlush > 65535 {
+		return fmt.Errorf("small_write_flush must be 0..65535 bytes")
+	}
 	if k.Smuxkalive_ < 1 || int64(k.Smuxkalive_) > math.MaxInt64/int64(time.Second) ||
 		k.Smuxktimeout_ < 1 || int64(k.Smuxktimeout_) > math.MaxInt64/int64(time.Second) {
 		return fmt.Errorf("keepalive seconds exceed duration bounds")

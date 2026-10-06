@@ -75,4 +75,5 @@ func ReconfigureReliability(conn *kcp.UDPSession, cfg *conf.KCP) {
 	conn.SetACKNoDelay(ackNoDelay)
 	conn.SetACKDelayLimit(time.Duration(cfg.ACKDelayMaxMS) * time.Millisecond)
 	conn.SetWriteBatchBudget(uint32(cfg.WriteBatchMS))
+	conn.SetSmallWriteFlush(cfg.SmallWriteFlush)
 }

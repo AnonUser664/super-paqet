@@ -599,6 +599,7 @@ func canUpdateReliability(a, b resourceSpec) bool {
 	k.Mode, k.NoDelay, k.Interval, k.Resend, k.NoCongestion = n.Mode, n.NoDelay, n.Interval, n.Resend, n.NoCongestion
 	k.WDelay, k.AckNoDelay = n.WDelay, n.AckNoDelay
 	k.WriteBatchMS, k.ACKDelayMaxMS = n.WriteBatchMS, n.ACKDelayMaxMS
+	k.SmallWriteFlush = n.SmallWriteFlush
 	return sameResource(a, b)
 }
 

@@ -182,7 +182,10 @@ type (
 		headerSize int          // the header size additional to a KCP frame
 		ackNoDelay bool         // send ack immediately for each incoming packet(testing purpose)
 		writeDelay bool         // delay kcp.flush() for Write() for bulk transfer
-		dup        int          // duplicate udp packets(testing purpose)
+		// Optional byte threshold for immediate interactive writes while retaining
+		// bulk coalescing. All access is under the existing carrier mutex.
+		smallWriteFlush int
+		dup             int // duplicate udp packets(testing purpose)
 
 		// notifications
 		die chan struct{} // notify current session has Closed
@@ -472,7 +475,7 @@ RESET_TIMER:
 			}
 
 			waitsnd = s.kcp.WaitSnd()
-			if waitsnd >= int(s.kcp.snd_wnd) || !s.writeDelay {
+			if waitsnd >= int(s.kcp.snd_wnd) || !s.writeDelay || (s.smallWriteFlush > 0 && n <= s.smallWriteFlush) {
 				// put the packets on wire immediately if the inflight window is full
 				// or if we've specified write no delay(NO merging of outgoing bytes)
 				// we don't have to wait until the periodical update() procedure uncorks.
@@ -591,6 +594,14 @@ func (s *UDPSession) SetWriteDeadline(t time.Time) error {
 func (s *UDPSession) SetWriteDelay(delay bool) {
 	s.mu.Lock()
 	s.writeDelay = delay
+	s.mu.Unlock()
+}
+
+// SetSmallWriteFlush expedites small logical writes without changing the
+// preset's bulk batching or ACK policy. Zero disables the exception.
+func (s *UDPSession) SetSmallWriteFlush(bytes int) {
+	s.mu.Lock()
+	s.smallWriteFlush = max(0, min(65535, bytes))
 	s.mu.Unlock()
 }
 
