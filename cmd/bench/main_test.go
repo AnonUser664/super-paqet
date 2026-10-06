@@ -54,6 +54,16 @@ func TestLoadUsesExplicitProxy(t *testing.T) {
 	}
 }
 
+// TestLoadPauseHonorsCancellation prevents a configured customer pause from
+// retaining load-generator workers after the qualification deadline.
+func TestLoadPauseHonorsCancellation(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if waitForLoad(ctx, time.Hour) {
+		t.Fatal("canceled workload resumed its request loop")
+	}
+}
+
 // captureLoad collects the public JSON result of a bounded real HTTP exercise.
 // These tests run serially because stdout belongs to the CLI process.
 func captureLoad(t *testing.T, proxy, target string) map[string]float64 {

@@ -1070,6 +1070,558 @@
           }
         }
       }
+    },
+    {
+      "candidate": "adaptive4096x8-fast3",
+      "direction": "download",
+      "seconds": 30,
+      "streams_per_path": 16,
+      "aggregate_receiver_gbps": 0.6020305357708347,
+      "paths": [
+        {
+          "client": "89.45.68.14",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 29.868075,
+            "seconds": 29.868075,
+            "bytes": 675545088,
+            "bits_per_second": 180941045.045588,
+            "sender": false
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 30.300969,
+            "seconds": 30.300969,
+            "bytes": 387973120,
+            "bits_per_second": 102431871.40318847,
+            "sender": false
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 30.429922,
+            "seconds": 30.429922,
+            "bytes": 293601280,
+            "bits_per_second": 77187520.8881574,
+            "sender": false
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 30.012841,
+            "seconds": 30.012841,
+            "bytes": 234749952,
+            "bits_per_second": 62573203.78300741,
+            "sender": false
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 30.027432,
+            "seconds": 30.027432,
+            "bytes": 358744064,
+            "bits_per_second": 95577687.4958871,
+            "sender": false
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 30.808191,
+            "seconds": 30.808191,
+            "bytes": 320864256,
+            "bits_per_second": 83319207.15500627,
+            "sender": false
+          },
+          "error": null
+        }
+      ],
+      "resources": {
+        "116.202.177.233": {
+          "occupied_cpu_cores_mean": 0.5473921341026053,
+          "start": {
+            "pid": "732319",
+            "time": 1246863.819058036,
+            "cpu_seconds": 1943.81,
+            "rss_kib": 103032,
+            "swap_kib": 0,
+            "fds": 16
+          },
+          "end": {
+            "pid": "732319",
+            "time": 1246904.813435927,
+            "cpu_seconds": 1966.25,
+            "rss_kib": 185936,
+            "swap_kib": 0,
+            "fds": 16
+          }
+        },
+        "171.22.132.226": {
+          "occupied_cpu_cores_mean": 0.2962116715213727,
+          "start": {
+            "pid": "2902208",
+            "time": 5584876.449297692,
+            "cpu_seconds": 365.81,
+            "rss_kib": 59840,
+            "swap_kib": 0,
+            "fds": 9
+          },
+          "end": {
+            "pid": "2902208",
+            "time": 5584916.589512083,
+            "cpu_seconds": 377.7,
+            "rss_kib": 133104,
+            "swap_kib": 0,
+            "fds": 9
+          }
+        },
+        "65.109.249.222": {
+          "occupied_cpu_cores_mean": 0.6457365879355765,
+          "start": {
+            "pid": "58881",
+            "time": 16226.20499621,
+            "cpu_seconds": 427.81,
+            "rss_kib": 55860,
+            "swap_kib": 0,
+            "fds": 8
+          },
+          "end": {
+            "pid": "58881",
+            "time": 16266.143882254,
+            "cpu_seconds": 453.6,
+            "rss_kib": 158896,
+            "swap_kib": 0,
+            "fds": 8
+          }
+        },
+        "89.45.68.14": {
+          "occupied_cpu_cores_mean": 1.8352791906170323,
+          "start": {
+            "pid": "202705",
+            "time": 833127.373234502,
+            "cpu_seconds": 5437.23,
+            "rss_kib": 94596,
+            "swap_kib": 0,
+            "fds": 28
+          },
+          "end": {
+            "pid": "202705",
+            "time": 833167.329008193,
+            "cpu_seconds": 5510.56,
+            "rss_kib": 289356,
+            "swap_kib": 0,
+            "fds": 28
+          }
+        },
+        "89.45.68.118": {
+          "occupied_cpu_cores_mean": 1.354330091828729,
+          "start": {
+            "pid": "894995",
+            "time": 3794738.109917408,
+            "cpu_seconds": 5228.21,
+            "rss_kib": 99988,
+            "swap_kib": 0,
+            "fds": 28
+          },
+          "end": {
+            "pid": "894995",
+            "time": 3794778.107551904,
+            "cpu_seconds": 5282.38,
+            "rss_kib": 309000,
+            "swap_kib": 0,
+            "fds": 28
+          }
+        }
+      }
+    },
+    {
+      "candidate": "adaptive4096x8-small",
+      "direction": "download",
+      "seconds": 30,
+      "streams_per_path": 16,
+      "aggregate_receiver_gbps": 1.0656920165203598,
+      "paths": [
+        {
+          "client": "89.45.68.118",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 30.035947,
+            "seconds": 30.035947,
+            "bytes": 1097596928,
+            "bits_per_second": 292342219.94065976,
+            "sender": false
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 30.350623,
+            "seconds": 30.350623,
+            "bytes": 375390208,
+            "bits_per_second": 98947611.84968098,
+            "sender": false
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 30.022694,
+            "seconds": 30.022694,
+            "bytes": 803209216,
+            "bits_per_second": 214027219.80912173,
+            "sender": false
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 29.721845,
+            "seconds": 29.721845,
+            "bytes": 696254464,
+            "bits_per_second": 187405449.15700895,
+            "sender": false
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 30.020711,
+            "seconds": 30.020711,
+            "bytes": 597688320,
+            "bits_per_second": 159273594.81925663,
+            "sender": false
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 29.67844,
+            "seconds": 29.67844,
+            "bytes": 421789696,
+            "bits_per_second": 113695920.94463186,
+            "sender": false
+          },
+          "error": null
+        }
+      ],
+      "resources": {
+        "116.202.177.233": {
+          "occupied_cpu_cores_mean": 0.6146423478405486,
+          "start": {
+            "pid": "732319",
+            "time": 1247216.395504769,
+            "cpu_seconds": 1983.48,
+            "rss_kib": 136116,
+            "swap_kib": 0,
+            "fds": 16
+          },
+          "end": {
+            "pid": "732319",
+            "time": 1247257.948124906,
+            "cpu_seconds": 2009.02,
+            "rss_kib": 171304,
+            "swap_kib": 0,
+            "fds": 16
+          }
+        },
+        "171.22.132.226": {
+          "occupied_cpu_cores_mean": 0.4966265446522995,
+          "start": {
+            "pid": "2902208",
+            "time": 5585228.169280194,
+            "cpu_seconds": 392.24,
+            "rss_kib": 86092,
+            "swap_kib": 0,
+            "fds": 9
+          },
+          "end": {
+            "pid": "2902208",
+            "time": 5585269.709548675,
+            "cpu_seconds": 412.87,
+            "rss_kib": 171980,
+            "swap_kib": 0,
+            "fds": 9
+          }
+        },
+        "65.109.249.222": {
+          "occupied_cpu_cores_mean": 0.8550036011772371,
+          "start": {
+            "pid": "58881",
+            "time": 16577.734207348,
+            "cpu_seconds": 475.69,
+            "rss_kib": 104564,
+            "swap_kib": 0,
+            "fds": 8
+          },
+          "end": {
+            "pid": "58881",
+            "time": 16619.336371305,
+            "cpu_seconds": 511.26,
+            "rss_kib": 184668,
+            "swap_kib": 0,
+            "fds": 8
+          }
+        },
+        "89.45.68.14": {
+          "occupied_cpu_cores_mean": 2.002108629973336,
+          "start": {
+            "pid": "202705",
+            "time": 833478.917136022,
+            "cpu_seconds": 5575.06,
+            "rss_kib": 142520,
+            "swap_kib": 0,
+            "fds": 28
+          },
+          "end": {
+            "pid": "202705",
+            "time": 833520.608180529,
+            "cpu_seconds": 5658.53,
+            "rss_kib": 263360,
+            "swap_kib": 0,
+            "fds": 28
+          }
+        },
+        "89.45.68.118": {
+          "occupied_cpu_cores_mean": 1.9917332272003745,
+          "start": {
+            "pid": "894995",
+            "time": 3795089.787198743,
+            "cpu_seconds": 5344.7,
+            "rss_kib": 140612,
+            "swap_kib": 0,
+            "fds": 28
+          },
+          "end": {
+            "pid": "894995",
+            "time": 3795131.474508502,
+            "cpu_seconds": 5427.73,
+            "rss_kib": 272588,
+            "swap_kib": 0,
+            "fds": 28
+          }
+        }
+      }
+    },
+    {
+      "candidate": "adaptive4096x8-small",
+      "direction": "upload",
+      "seconds": 30,
+      "streams_per_path": 16,
+      "aggregate_receiver_gbps": 0.7773052268004793,
+      "paths": [
+        {
+          "client": "89.45.68.118",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 30.073224,
+            "seconds": 30.073224,
+            "bytes": 621805568,
+            "bits_per_second": 165411082.76252657,
+            "sender": true
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 30.16815,
+            "seconds": 30.16815,
+            "bytes": 959053824,
+            "bits_per_second": 254322210.41064832,
+            "sender": true
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 33.601495,
+            "seconds": 33.601495,
+            "bytes": 43904986,
+            "bits_per_second": 10453102.994375696,
+            "sender": true
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 29.942472,
+            "seconds": 29.942472,
+            "bytes": 295436288,
+            "bits_per_second": 78934374.69023934,
+            "sender": true
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 30.158908,
+            "seconds": 30.158908,
+            "bytes": 853540864,
+            "bits_per_second": 226411609.86332795,
+            "sender": true
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 30.498756,
+            "seconds": 30.498756,
+            "bytes": 159252480,
+            "bits_per_second": 41772846.0793614,
+            "sender": true
+          },
+          "error": null
+        }
+      ],
+      "resources": {
+        "116.202.177.233": {
+          "occupied_cpu_cores_mean": 0.3548657794001491,
+          "start": {
+            "pid": "732319",
+            "time": 1247383.51622099,
+            "cpu_seconds": 2014.82,
+            "rss_kib": 154632,
+            "swap_kib": 0,
+            "fds": 18
+          },
+          "end": {
+            "pid": "732319",
+            "time": 1247425.363028606,
+            "cpu_seconds": 2029.67,
+            "rss_kib": 199380,
+            "swap_kib": 0,
+            "fds": 16
+          }
+        },
+        "171.22.132.226": {
+          "occupied_cpu_cores_mean": 0.5185659461484,
+          "start": {
+            "pid": "2902208",
+            "time": 5585395.22499258,
+            "cpu_seconds": 416.93,
+            "rss_kib": 178420,
+            "swap_kib": 0,
+            "fds": 11
+          },
+          "end": {
+            "pid": "2902208",
+            "time": 5585437.109732913,
+            "cpu_seconds": 438.65,
+            "rss_kib": 147292,
+            "swap_kib": 0,
+            "fds": 11
+          }
+        },
+        "65.109.249.222": {
+          "occupied_cpu_cores_mean": 0.21928968472943994,
+          "start": {
+            "pid": "58881",
+            "time": 16744.919453122,
+            "cpu_seconds": 517.6,
+            "rss_kib": 185052,
+            "swap_kib": 0,
+            "fds": 10
+          },
+          "end": {
+            "pid": "58881",
+            "time": 16786.690683772,
+            "cpu_seconds": 526.76,
+            "rss_kib": 179776,
+            "swap_kib": 0,
+            "fds": 9
+          }
+        },
+        "89.45.68.14": {
+          "occupied_cpu_cores_mean": 2.1275186020732098,
+          "start": {
+            "pid": "202705",
+            "time": 833646.099800897,
+            "cpu_seconds": 5678.85,
+            "rss_kib": 222976,
+            "swap_kib": 0,
+            "fds": 31
+          },
+          "end": {
+            "pid": "202705",
+            "time": 833687.899670432,
+            "cpu_seconds": 5767.78,
+            "rss_kib": 234412,
+            "swap_kib": 0,
+            "fds": 29
+          }
+        },
+        "89.45.68.118": {
+          "occupied_cpu_cores_mean": 2.0291919560676823,
+          "start": {
+            "pid": "894995",
+            "time": 3795256.941309167,
+            "cpu_seconds": 5445.97,
+            "rss_kib": 222124,
+            "swap_kib": 0,
+            "fds": 31
+          },
+          "end": {
+            "pid": "894995",
+            "time": 3795298.731342755,
+            "cpu_seconds": 5530.77,
+            "rss_kib": 273972,
+            "swap_kib": 0,
+            "fds": 30
+          }
+        }
+      }
     }
   ],
   "incomplete_candidate_tests": [
@@ -1176,5 +1728,292 @@
       "65.109.249.222": true
     }
   },
-  "kernel_tcp_control_limits": "Germany completed at 0.317 Gbit/s aggregate. Four France/Finland tests exceeded the 50-second deadline; their tiny partial counts are failures, not capacity measurements. All owned test servers and firewall rules were removed. Ordinary TCP results do not establish a raw-transport bandwidth ceiling."
+  "kernel_tcp_control_limits": "Germany completed at 0.317 Gbit/s aggregate. Four France/Finland tests exceeded the 50-second deadline; their tiny partial counts are failures, not capacity measurements. All owned test servers and firewall rules were removed. Ordinary TCP results do not establish a raw-transport bandwidth ceiling.",
+  "low_load_latency": {
+    "adaptive4096x8": {
+      "89.45.68.14": {
+        "germany": {
+          "bytes": 8206,
+          "canceled_requests": 1,
+          "errors": 0,
+          "goodput_gbps": 2.1882231699688424e-06,
+          "mean_latency_us": 80268.02412868633,
+          "mode": "http",
+          "p50_us_upper": 80000,
+          "p99_us_upper": 89000,
+          "requests": 373,
+          "requests_per_second": 12.433086193004787,
+          "seconds": 30.000596329,
+          "workers": 1
+        },
+        "finland": {
+          "bytes": 5258,
+          "canceled_requests": 1,
+          "errors": 0,
+          "goodput_gbps": 1.4021067853293542e-06,
+          "mean_latency_us": 125092.30543933055,
+          "mode": "http",
+          "p50_us_upper": 123000,
+          "p99_us_upper": 155000,
+          "requests": 239,
+          "requests_per_second": 7.966515825734966,
+          "seconds": 30.000568031,
+          "workers": 1
+        },
+        "france": {
+          "bytes": 3806,
+          "canceled_requests": 1,
+          "errors": 0,
+          "goodput_gbps": 1.0149248492043798e-06,
+          "mean_latency_us": 172426.6647398844,
+          "mode": "http",
+          "p50_us_upper": 156000,
+          "p99_us_upper": 505000,
+          "requests": 173,
+          "requests_per_second": 5.766618461388521,
+          "seconds": 30.000250781,
+          "workers": 1
+        }
+      },
+      "89.45.68.118": {
+        "germany": {
+          "bytes": 9064,
+          "canceled_requests": 1,
+          "errors": 0,
+          "goodput_gbps": 2.417051004498431e-06,
+          "mean_latency_us": 72695.84466019417,
+          "mode": "http",
+          "p50_us_upper": 73000,
+          "p99_us_upper": 80000,
+          "requests": 412,
+          "requests_per_second": 13.733244343741084,
+          "seconds": 30.000194396,
+          "workers": 1
+        },
+        "finland": {
+          "bytes": 5346,
+          "canceled_requests": 1,
+          "errors": 0,
+          "goodput_gbps": 1.4255733966620581e-06,
+          "mean_latency_us": 123362.95473251029,
+          "mode": "http",
+          "p50_us_upper": 123000,
+          "p99_us_upper": 153000,
+          "requests": 243,
+          "requests_per_second": 8.099848844670785,
+          "seconds": 30.000559845,
+          "workers": 1
+        },
+        "france": {
+          "bytes": 4004,
+          "canceled_requests": 1,
+          "errors": 0,
+          "goodput_gbps": 1.0677223767578014e-06,
+          "mean_latency_us": 164617.36813186813,
+          "mode": "http",
+          "p50_us_upper": 156000,
+          "p99_us_upper": 494000,
+          "requests": 182,
+          "requests_per_second": 6.066604413396599,
+          "seconds": 30.000307849,
+          "workers": 1
+        }
+      }
+    },
+    "adaptive4096x8-fast3": {
+      "89.45.68.14": {
+        "germany": {
+          "bytes": 8228,
+          "canceled_requests": 1,
+          "errors": 0,
+          "goodput_gbps": 2.1940206000937257e-06,
+          "mean_latency_us": 80077.12299465241,
+          "mode": "http",
+          "p50_us_upper": 80000,
+          "p99_us_upper": 95000,
+          "requests": 374,
+          "requests_per_second": 12.466026136896167,
+          "seconds": 30.001541461,
+          "successful_workers": 1,
+          "workers": 1
+        },
+        "finland": {
+          "bytes": 6996,
+          "canceled_requests": 1,
+          "errors": 0,
+          "goodput_gbps": 1.8655167773688608e-06,
+          "mean_latency_us": 94324.54088050315,
+          "mode": "http",
+          "p50_us_upper": 94000,
+          "p99_us_upper": 101000,
+          "requests": 318,
+          "requests_per_second": 10.599527144141256,
+          "seconds": 30.001338331,
+          "successful_workers": 1,
+          "workers": 1
+        },
+        "france": {
+          "bytes": 4488,
+          "canceled_requests": 1,
+          "errors": 0,
+          "goodput_gbps": 1.196779385834113e-06,
+          "mean_latency_us": 147051.85784313726,
+          "mode": "http",
+          "p50_us_upper": 149000,
+          "p99_us_upper": 171000,
+          "requests": 204,
+          "requests_per_second": 6.7998828740574595,
+          "seconds": 30.000516741,
+          "successful_workers": 1,
+          "workers": 1
+        }
+      },
+      "89.45.68.118": {
+        "germany": {
+          "bytes": 9064,
+          "canceled_requests": 1,
+          "errors": 0,
+          "goodput_gbps": 2.417024845127474e-06,
+          "mean_latency_us": 72798.58737864078,
+          "mode": "http",
+          "p50_us_upper": 73000,
+          "p99_us_upper": 84000,
+          "requests": 412,
+          "requests_per_second": 13.733095710951556,
+          "seconds": 30.000519087,
+          "successful_workers": 1,
+          "workers": 1
+        },
+        "finland": {
+          "bytes": 7194,
+          "canceled_requests": 1,
+          "errors": 0,
+          "goodput_gbps": 1.9183282173091053e-06,
+          "mean_latency_us": 91703.21712538226,
+          "mode": "http",
+          "p50_us_upper": 92000,
+          "p99_us_upper": 96000,
+          "requests": 327,
+          "requests_per_second": 10.899592143801733,
+          "seconds": 30.001122582,
+          "successful_workers": 1,
+          "workers": 1
+        },
+        "france": {
+          "bytes": 4532,
+          "canceled_requests": 1,
+          "errors": 0,
+          "goodput_gbps": 1.208512261673255e-06,
+          "mean_latency_us": 145016.4854368932,
+          "mode": "http",
+          "p50_us_upper": 147000,
+          "p99_us_upper": 172000,
+          "requests": 206,
+          "requests_per_second": 6.866546941325312,
+          "seconds": 30.000523081,
+          "successful_workers": 1,
+          "workers": 1
+        }
+      }
+    },
+    "adaptive4096x8-small": {
+      "89.45.68.14": {
+        "germany": {
+          "bytes": 8184,
+          "canceled_requests": 1,
+          "errors": 0,
+          "goodput_gbps": 2.182350929184652e-06,
+          "mean_latency_us": 80470.85752688172,
+          "mode": "http",
+          "p50_us_upper": 80000,
+          "p99_us_upper": 93000,
+          "requests": 372,
+          "requests_per_second": 12.39972118854916,
+          "seconds": 30.000674559,
+          "successful_workers": 1,
+          "workers": 1
+        },
+        "finland": {
+          "bytes": 6974,
+          "canceled_requests": 1,
+          "errors": 0,
+          "goodput_gbps": 1.8596640483257953e-06,
+          "mean_latency_us": 94536.83911671925,
+          "mode": "http",
+          "p50_us_upper": 95000,
+          "p99_us_upper": 100000,
+          "requests": 317,
+          "requests_per_second": 10.56627300185111,
+          "seconds": 30.001117702,
+          "successful_workers": 1,
+          "workers": 1
+        },
+        "france": {
+          "bytes": 4158,
+          "canceled_requests": 1,
+          "errors": 0,
+          "goodput_gbps": 1.1088003097988067e-06,
+          "mean_latency_us": 158297.03174603175,
+          "mode": "http",
+          "p50_us_upper": 160000,
+          "p99_us_upper": 173000,
+          "requests": 189,
+          "requests_per_second": 6.300001760220492,
+          "seconds": 29.999991618,
+          "successful_workers": 1,
+          "workers": 1
+        }
+      },
+      "89.45.68.118": {
+        "germany": {
+          "bytes": 8998,
+          "canceled_requests": 1,
+          "errors": 0,
+          "goodput_gbps": 2.399359955692488e-06,
+          "mean_latency_us": 73185.6968215159,
+          "mode": "http",
+          "p50_us_upper": 73000,
+          "p99_us_upper": 78000,
+          "requests": 409,
+          "requests_per_second": 13.632727020980045,
+          "seconds": 30.001334243,
+          "successful_workers": 1,
+          "workers": 1
+        },
+        "finland": {
+          "bytes": 7194,
+          "canceled_requests": 0,
+          "errors": 0,
+          "goodput_gbps": 1.918361400969978e-06,
+          "mean_latency_us": 91742.07033639144,
+          "mode": "http",
+          "p50_us_upper": 92000,
+          "p99_us_upper": 95000,
+          "requests": 327,
+          "requests_per_second": 10.89978068732942,
+          "seconds": 30.000603625,
+          "successful_workers": 1,
+          "workers": 1
+        },
+        "france": {
+          "bytes": 4180,
+          "canceled_requests": 1,
+          "errors": 0,
+          "goodput_gbps": 1.1146374987211363e-06,
+          "mean_latency_us": 157340.44736842104,
+          "mode": "http",
+          "p50_us_upper": 158000,
+          "p99_us_upper": 185000,
+          "requests": 190,
+          "requests_per_second": 6.333167606370093,
+          "seconds": 30.000785043,
+          "successful_workers": 1,
+          "workers": 1
+        }
+      }
+    }
+  },
+  "test_fixture_notes": [
+    "Authenticating to external HTTPS target succeeded. Owned loopback/public-address HTTP targets returned no completed requests through existing Xray. Those are test-target failures and do not qualify the application path. Temporary public-address HTTP targets are being removed; existing Xray configuration is unchanged."
+  ]
 }

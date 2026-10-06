@@ -36,8 +36,9 @@ func main() {
 	proxy := flag.String("proxy", "", "optional HTTP proxy for authenticated application-path load")
 	requestURL := flag.String("url", "", "optional absolute HTTP target for load modes")
 	expectedBytes := flag.Int64("response-bytes", 0, "required response length for a custom load URL")
+	requestGap := flag.Duration("request-gap", 0, "optional pause between requests per worker; zero saturates the path")
 	flag.Parse()
-	if *workers < 1 || *duration <= 0 || *count < 1 {
+	if *workers < 1 || *duration <= 0 || *count < 1 || *requestGap < 0 {
 		panic("workers, duration and connections must be positive")
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
@@ -173,7 +174,7 @@ func main() {
 	case "hold":
 		hold(ctx, strings.Split(*addr, ","), *workers, *count, *duration)
 	case "http", "http-churn", "bulk":
-		load(ctx, *mode, *addr, *workers, *duration, *proxy, *requestURL, *expectedBytes)
+		load(ctx, *mode, *addr, *workers, *duration, *proxy, *requestURL, *expectedBytes, *requestGap)
 	case "verify":
 		tr := &http.Transport{DisableKeepAlives: true}
 		defer tr.CloseIdleConnections()
@@ -271,9 +272,13 @@ func emit(v any) {
 
 // load runs bounded concurrent HTTP/bulk work and separates deadline cancellation from
 // unexpected request failure.
-func load(parent context.Context, mode, addr string, workers int, duration time.Duration, proxy, requestURL string, expectedBytes int64) {
+func load(parent context.Context, mode, addr string, workers int, duration time.Duration, proxy, requestURL string, expectedBytes int64, requestGaps ...time.Duration) {
 	ctx, cancel := context.WithTimeout(parent, duration)
 	defer cancel()
+	var gap time.Duration
+	if len(requestGaps) > 0 {
+		gap = requestGaps[0]
+	}
 	tr := &http.Transport{MaxIdleConns: workers, MaxIdleConnsPerHost: workers, MaxConnsPerHost: workers, DisableCompression: true}
 	// One HTTP/1 connection per worker makes concurrency meaningful; HTTP/2 could
 	// otherwise hide thousands of requests inside a few application connections.
@@ -325,7 +330,18 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 					successfulWorkers.Add(1)
 				}
 			}()
+			// Stagger a rate-limited cohort deterministically instead of creating
+			// synchronized handshake bursts that misrepresent steady customers.
+			if gap > 0 && !waitForLoad(ctx, time.Duration(i)*gap/time.Duration(workers)) {
+				return
+			}
+			attempted := false
 			for ctx.Err() == nil {
+				// Failed responses observe the same rate bound as successes.
+				if attempted && gap > 0 && !waitForLoad(ctx, gap) {
+					return
+				}
+				attempted = true
 				t0 := time.Now()
 				r, _ := http.NewRequestWithContext(ctx, "GET", requestURL, nil)
 				resp, err := c.Do(r)
@@ -382,7 +398,20 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 		}
 		return 0
 	}
-	emit(map[string]any{"mode": mode, "workers": workers, "successful_workers": successfulWorkers.Load(), "seconds": elapsed, "requests": requests.Load(), "errors": failed.Load(), "canceled_requests": canceled.Load(), "bytes": bytes.Load(), "goodput_gbps": float64(bytes.Load()) * 8 / elapsed / 1e9, "requests_per_second": float64(requests.Load()) / elapsed, "mean_latency_us": float64(latencySum.Load()) / float64(max(1, requests.Load())), "p50_us_upper": percentile(.50), "p99_us_upper": percentile(.99)})
+	emit(map[string]any{"mode": mode, "workers": workers, "successful_workers": successfulWorkers.Load(), "request_gap_seconds": gap.Seconds(), "seconds": elapsed, "requests": requests.Load(), "errors": failed.Load(), "canceled_requests": canceled.Load(), "bytes": bytes.Load(), "goodput_gbps": float64(bytes.Load()) * 8 / elapsed / 1e9, "requests_per_second": float64(requests.Load()) / elapsed, "mean_latency_us": float64(latencySum.Load()) / float64(max(1, requests.Load())), "p50_us_upper": percentile(.50), "p99_us_upper": percentile(.99)})
+}
+
+// waitForLoad makes cohort staggering and pauses interruptible at the workload
+// deadline so canceled requests are not confused with application failures.
+func waitForLoad(ctx context.Context, duration time.Duration) bool {
+	timer := time.NewTimer(duration)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+		return false
+	case <-timer.C:
+		return true
+	}
 }
 
 // hold ramps and retains TCP forwards, then verifies every held socket instead of counting
