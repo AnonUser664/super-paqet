@@ -7,7 +7,8 @@ flush are deployed. The excluded backend was not contacted.
 
 **Final production qualification remains limited by the Netherlands TLS tail:**
 at 64 workers per client the final eight-lane cohort passed 1,020/1,024 requests;
-four SSL connect timeouts remain unqualified. At 32 workers, all 1,024 requests
+four SSL connect timeouts remain unqualified. Post-cleanup public/bulk rechecks
+also failed intermittently on .118 Netherlands. At 32 workers, all 1,024 requests
 passed. Read [FINAL-DEPLOYMENT-REPORT.md](FINAL-DEPLOYMENT-REPORT.md) before treating
 the release as universally production ready.
 

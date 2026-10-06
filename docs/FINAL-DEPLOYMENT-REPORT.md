@@ -85,7 +85,7 @@ affected endpoint, and process replacement still ends established streams.
 | Final eight-lane deployed hold | 4,096 forwards per client, **8,192 verified**, zero errors | Both backends; HTTP/churn/bulk alongside hold |
 | Deployed 256-worker HTTP/churn | Zero forwarding errors; roughly 1,700–2,200 HTTP req/s and 580–1,020 churn req/s per route/client | Final eight-lane stage; deadline cancellations excluded |
 | Final deployed tunnel memory | Clients ~153/155 MiB peak RSS; backends ~184/225 MiB | 8k hold and measured load; excludes test generators/kernel/Xray |
-| Authenticated 10 MiB downloads | 8/8 passed, two per path | Full VLESS/Reality/Vision, finite bulk checks |
+| Authenticated 10 MiB downloads | Earlier 8/8 passed; latest cleanup recheck passed Germany and .14 Netherlands, failed .118 Netherlands twice | Full VLESS/Reality/Vision, finite bulk checks |
 | Public-domain complete 1 MiB | Both ports passed earlier; post-cleanup Germany passed and Netherlands timed out at 12 s | Laptop → deir.cloudnet1.ir |
 | Authenticated burst, 32 workers/client | 1,024/1,024 passed | 256 requests on each of four paths |
 | Authenticated burst, 64 workers/client | Germany 1,024/1,024; Netherlands **1,020/1,024** | Four Netherlands SSL connect timeouts, no retry masking |
@@ -117,7 +117,8 @@ larger-MTU/microflush results looked faster, but burst qualification rejected
 those changes. A blanket 40 ms improvement without tradeoffs was **not** achieved
 on Netherlands and is not claimed.
 
-The four SSL timeouts at 64 workers/client remain an unresolved acceptance
+The four SSL timeouts at 64 workers/client and intermittent post-cleanup .118
+Netherlands failures remain an unresolved acceptance
 limit. A post-cleanup public-domain retest also exceeded the 12-second deadline
 on Netherlands while Germany passed; this is recorded as a failed check. Direct backend Xray controls passed, while ordinary client-to-backend
 VLESS controls failed, so neither aggregate TCP reachability nor a localhost
