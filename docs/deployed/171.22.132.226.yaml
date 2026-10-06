@@ -12,7 +12,7 @@ listeners:
       - PA
       remote_flag:
       - S
-  adaptive: false
+  adaptive: true
   packet_workers: 1
   kcp:
     mode: manual

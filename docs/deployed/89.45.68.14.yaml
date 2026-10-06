@@ -85,7 +85,7 @@ peers:
         - S
         remote_flag:
         - PA
-    adaptive: false
+    adaptive: true
     packet_workers: 1
     kcp:
       mode: manual

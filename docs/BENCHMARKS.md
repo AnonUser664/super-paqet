@@ -1,13 +1,26 @@
-# Current benchmark evidence
+# Benchmark evidence
 
-Measurements describe finite workloads on identified hardware and configurations.
+## Current liveness executable
+
+The deployed `enterprise-2026.10.07-liveness` binary is
+`04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf`.
+Exact-production-buffer local checks measured 4.634/4.808 Gbit/s clean receiver
+bulk, reverified 100,000 held forwards after 120 seconds, and passed changing-delay
+churn/asymmetric mixed load. The 100k run used swap. Static changing-delay churn
+still failed; one-day production observation is unfinished. See
+[status](STATUS.md) and [same-binary evidence](liveness-qualification-2026-10-07.json)
+for parameters/resources/cancellations and failure counts.
+
+## Earlier executable and configuration evidence
+
+Measurements below describe finite workloads on identified hardware and configurations.
 The retained executable's SHA-256 is
 `47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419`.
 The [release evidence](final-deployment-evidence.json) retains the final-stage
 checks; [clean-link evidence](clean-null-current-evidence.json) retains the exact
 executable's isolated unencrypted measurements.
 
-## Latest results
+## Earlier release results
 
 | Workload | Observed result | Scope |
 |---|---|---|
@@ -48,7 +61,8 @@ repeatability. Local capacity does not establish real-host WAN throughput,
 
 The [clean-link report](CLEAN-LINK-CURRENT.md) explains the unresolved gap from
 historical peaks. The [Netherlands report](NETHERLANDS-DIAGNOSIS.md) explains the
-current path failure. Bulk tuning and further remote tests are currently paused.
+current path failure. Those path-failure and tuning-pause statements describe that earlier checkpoint;
+current reachability and incident work are recorded in STATUS.md.
 
 ## Reproduction
 

@@ -38,8 +38,14 @@ interpreting incomplete traces.
 | `peer.pool_grew`, `peer.pool_growth_failed` | Adaptive carrier growth, ceiling and expansion failures |
 | `engine.stopping`, `engine.stopped` | Shutdown progress, final active count and firewall cleanup result |
 
-Linux ENOBUFS injection failures are counted as datagram loss, allowing KCP
-retransmission. `super_paqet_*_tx_queue_drops` covers AF_PACKET and pcap.
+Wholly rejected AF_PACKET ENOBUFS batches receive at most three retries, requesting
+50 microsecond sleeps. Partial sends are never replayed. Persistent AF_PACKET and
+recognized pcap ENOBUFS remain counted datagram loss handled by KCP. Metrics
+`super_paqet_peer_tx_queue_retries_total` and
+`super_paqet_listener_tx_queue_retries_total` count retry attempts, including
+attempts that fail. Debug `packet.tx_queue` includes retry totals/deltas. Shared
+client sockets can appear under several session labels; summing those labels
+can overcount distinct socket drops or retries. `super_paqet_*_tx_queue_drops` covers AF_PACKET and pcap.
 Debug `packet.tx_queue` events report shared listener drops only when the count
 changes. The `transport.sample.tx_queue_drops` field reports the owning client
 socket; accepted server carriers share listener sockets and report null there.
@@ -161,7 +167,7 @@ still counted. Later incidents therefore remain visible without logging every
 failed flow in a burst. `super_paqet_opening_transport_retries_total` counts new
 attempts made after an unacknowledged opening timed out; a retry need not succeed.
 
-The next backpressure candidate adds per-session
+The deployed liveness release adds per-session
 `super_paqet_session_mux_receive_capacity_bytes`,
 `super_paqet_session_mux_receive_buffered_bytes` and
 `super_paqet_session_mux_receive_blocked`. Debug `transport.sample` includes the
@@ -170,7 +176,7 @@ shared application buffer; ordinary packet/socket input waiting is excluded.
 The configured buffer can overshoot by one admitted wire frame as before; parsing
 control headers while full adds no application payload allocation.
 
-Candidate small-message diagnostics add `transport.sample.small_messages`: true
+Small-message diagnostics include `transport.sample.small_messages`: true
 means the lane uses packet-window control without historical bulk byte pacing.
 A new full-size backlog returns it to ordinary bulk pacing before its first ACK.
 This classification uses acknowledged and pending sizes, not customer payload

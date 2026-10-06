@@ -1,0 +1,1017 @@
+{
+  "release": {
+    "version": "enterprise-2026.10.07-liveness",
+    "source": "323d5dc4b548678ab3e8c6d5f3e6b15ee832588b",
+    "sha256": "04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf"
+  },
+  "environment": {
+    "kernel": "7.2.4-arch1-2",
+    "ram_gib": 8,
+    "shared_development_machine": true,
+    "backend_capacity_not_established": true
+  },
+  "limitations": [
+    "Separate local bulk and held-forward tests, not 100000 simultaneously busy customers",
+    "The 100000-forward test used swap; backend soft memory limits and Xray workloads differ",
+    "Short seeded virtual-link checks do not establish all WAN/filtering conditions",
+    "Static changing-delay churn failed and remains an explicit limitation",
+    "Deadline cancellations are distinct from unexpected workload errors",
+    "24-hour production observation is unfinished"
+  ],
+  "tests": [
+    {
+      "fixture": "liveness-100k-exact-held",
+      "binary_sha256": "04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf",
+      "parameters": {
+        "duration": 120,
+        "workers": 256,
+        "loss": 0,
+        "delay_ms": 0.0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "seed": 42,
+        "rate_mbit": 0,
+        "down_rate_mbit": null,
+        "sessions": 4,
+        "shared_source": true,
+        "hold": 100000,
+        "adaptive": "on",
+        "mode": "both",
+        "schedule": null,
+        "block": "null",
+        "kcp": {
+          "sndwnd": 4096,
+          "rcvwnd": 4096,
+          "smuxbuf": 4194304,
+          "streambuf": 2097152,
+          "ack_timestamps": false,
+          "credit_hints": false,
+          "adaptive_buffers": false,
+          "mode": "manual",
+          "nodelay": 0,
+          "interval": 30,
+          "resend": 2,
+          "nocongestion": 1,
+          "wdelay": true,
+          "acknodelay": false,
+          "small_write_flush": 256,
+          "mtu": 1350
+        }
+      },
+      "results": [
+        {
+          "verified_bytes": 1048576,
+          "cold_transfer_seconds": 0.40705129000070883
+        },
+        {
+          "connections": 100000,
+          "errors": 0,
+          "phase": "established",
+          "ramp_seconds": 11.929581234
+        },
+        {
+          "connections": 100000,
+          "errors": 0,
+          "phase": "verified",
+          "verified": 100000
+        },
+        {
+          "connections": 100000,
+          "errors": 0,
+          "phase": "closed"
+        }
+      ],
+      "processes": {
+        "target": {
+          "peak_rss_kib": 415288,
+          "peak_fds": 100006,
+          "peak_swap_kib": 138384,
+          "peak_rss_plus_swap_kib": 420072,
+          "rss_high_water_kib": 415288,
+          "cpu_seconds": 6.43
+        },
+        "server": {
+          "peak_rss_kib": 1758900,
+          "peak_fds": 100011,
+          "peak_swap_kib": 407156,
+          "peak_rss_plus_swap_kib": 1767040,
+          "rss_high_water_kib": 1758900,
+          "cpu_seconds": 27.11
+        },
+        "client": {
+          "peak_rss_kib": 1403740,
+          "peak_fds": 100016,
+          "peak_swap_kib": 345848,
+          "peak_rss_plus_swap_kib": 1408060,
+          "rss_high_water_kib": 1403740,
+          "cpu_seconds": 25.01
+        }
+      },
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      }
+    },
+    {
+      "fixture": "liveness-clean-bulk-exact",
+      "binary_sha256": "04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf",
+      "parameters": {
+        "duration": 5,
+        "workers": 16,
+        "loss": 0,
+        "delay_ms": 0.0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "seed": 42,
+        "rate_mbit": 0,
+        "down_rate_mbit": null,
+        "sessions": 4,
+        "shared_source": true,
+        "hold": 0,
+        "adaptive": "on",
+        "mode": "both",
+        "schedule": null,
+        "block": "null",
+        "kcp": {
+          "sndwnd": 4096,
+          "rcvwnd": 4096,
+          "smuxbuf": 4194304,
+          "streambuf": 2097152,
+          "ack_timestamps": false,
+          "credit_hints": false,
+          "adaptive_buffers": false,
+          "mode": "manual",
+          "nodelay": 0,
+          "interval": 30,
+          "resend": 2,
+          "nocongestion": 1,
+          "wdelay": true,
+          "acknodelay": false,
+          "small_write_flush": 256,
+          "mtu": 1350
+        }
+      },
+      "results": [
+        {
+          "verified_bytes": 1048576,
+          "cold_transfer_seconds": 0.4570991119999235
+        },
+        {
+          "iperf": "upload",
+          "receiver": {
+            "start": 0,
+            "end": 5.04436,
+            "seconds": 5.04436,
+            "bytes": 2922119168,
+            "bits_per_second": 4634275377.649493,
+            "sender": true
+          },
+          "tunnel_cpu_cores": {
+            "client": 1.6,
+            "server": 1.206
+          }
+        },
+        {
+          "iperf": "download",
+          "receiver": {
+            "start": 0,
+            "end": 5.001037,
+            "seconds": 5.001037,
+            "bytes": 3005480960,
+            "bits_per_second": 4807772404.00341,
+            "sender": false
+          },
+          "tunnel_cpu_cores": {
+            "client": 1.291,
+            "server": 1.808
+          }
+        }
+      ],
+      "processes": {
+        "target": {
+          "peak_rss_kib": 11852,
+          "peak_fds": 6,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 11852,
+          "rss_high_water_kib": 11852,
+          "cpu_seconds": 0.0
+        },
+        "server": {
+          "peak_rss_kib": 152760,
+          "peak_fds": 28,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 152760,
+          "rss_high_water_kib": 152760,
+          "cpu_seconds": 15.82
+        },
+        "client": {
+          "peak_rss_kib": 146088,
+          "peak_fds": 35,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 146088,
+          "rss_high_water_kib": 146088,
+          "cpu_seconds": 15.26
+        }
+      },
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      }
+    },
+    {
+      "fixture": "liveness-exact-epoch-churn",
+      "binary_sha256": "04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf",
+      "parameters": {
+        "duration": 60,
+        "workers": 256,
+        "loss": 0,
+        "delay_ms": 40.0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "seed": 42,
+        "rate_mbit": 100,
+        "down_rate_mbit": null,
+        "sessions": 4,
+        "shared_source": true,
+        "hold": 0,
+        "adaptive": "on",
+        "mode": "http-churn",
+        "schedule": "[{\"at\":5,\"delay_ms\":90},{\"at\":45,\"delay_ms\":40}]",
+        "block": "null",
+        "kcp": {
+          "sndwnd": 4096,
+          "rcvwnd": 4096,
+          "smuxbuf": 4194304,
+          "streambuf": 2097152,
+          "ack_timestamps": false,
+          "credit_hints": false,
+          "adaptive_buffers": false,
+          "mode": "manual",
+          "nodelay": 0,
+          "interval": 30,
+          "resend": 2,
+          "nocongestion": 1,
+          "wdelay": true,
+          "acknodelay": false,
+          "small_write_flush": 256,
+          "mtu": 1350
+        }
+      },
+      "results": [
+        {
+          "verified_bytes": 1048576,
+          "cold_transfer_seconds": 1.435728735000339
+        },
+        {
+          "bytes": 1071708,
+          "canceled_requests": 248,
+          "errors": 0,
+          "goodput_gbps": 0.00014289016718601098,
+          "mean_latency_us": 314891.83733628935,
+          "mode": "http-churn",
+          "p50_us_upper": 361000,
+          "p99_us_upper": 4194304,
+          "request_gap_seconds": 0,
+          "requests": 48714,
+          "requests_per_second": 811.8759499205169,
+          "seconds": 60.001777371,
+          "successful_workers": 256,
+          "workers": 256,
+          "tunnel_cpu_cores": {
+            "client": 0.255,
+            "server": 0.286
+          }
+        }
+      ],
+      "processes": {
+        "target": {
+          "peak_rss_kib": 22352,
+          "peak_fds": 200,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 22352,
+          "rss_high_water_kib": 22352,
+          "cpu_seconds": 6.34
+        },
+        "server": {
+          "peak_rss_kib": 55324,
+          "peak_fds": 268,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 55324,
+          "rss_high_water_kib": 55324,
+          "cpu_seconds": 17.24
+        },
+        "client": {
+          "peak_rss_kib": 47956,
+          "peak_fds": 275,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 47956,
+          "rss_high_water_kib": 47956,
+          "cpu_seconds": 15.41
+        }
+      },
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      }
+    },
+    {
+      "fixture": "liveness-exact-asym-mixed",
+      "binary_sha256": "04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf",
+      "parameters": {
+        "duration": 8,
+        "workers": 64,
+        "loss": 0.5,
+        "delay_ms": 80.0,
+        "jitter_ms": 5.0,
+        "reorder": 1.0,
+        "seed": 42,
+        "rate_mbit": 10,
+        "down_rate_mbit": 100,
+        "sessions": 4,
+        "shared_source": true,
+        "hold": 2000,
+        "adaptive": "on",
+        "mode": "both",
+        "schedule": null,
+        "block": "null",
+        "kcp": {
+          "sndwnd": 4096,
+          "rcvwnd": 4096,
+          "smuxbuf": 4194304,
+          "streambuf": 2097152,
+          "ack_timestamps": false,
+          "credit_hints": false,
+          "adaptive_buffers": false,
+          "mode": "manual",
+          "nodelay": 0,
+          "interval": 30,
+          "resend": 2,
+          "nocongestion": 1,
+          "wdelay": true,
+          "acknodelay": false,
+          "small_write_flush": 256,
+          "mtu": 1350
+        }
+      },
+      "results": [
+        {
+          "verified_bytes": 1048576,
+          "cold_transfer_seconds": 3.4027280190002784
+        },
+        {
+          "connections": 2000,
+          "errors": 0,
+          "phase": "established",
+          "ramp_seconds": 21.806017403
+        },
+        {
+          "connections": 2000,
+          "errors": 0,
+          "phase": "verified",
+          "verified": 2000
+        },
+        {
+          "connections": 2000,
+          "errors": 0,
+          "phase": "closed"
+        },
+        {
+          "mixed_workload": "http",
+          "bytes": 1056,
+          "canceled_requests": 8,
+          "errors": 0,
+          "goodput_gbps": 1.4071596536359129e-06,
+          "mean_latency_us": 962538.3333333334,
+          "mode": "http",
+          "p50_us_upper": 993000,
+          "p99_us_upper": 1526000,
+          "request_gap_seconds": 0,
+          "requests": 48,
+          "requests_per_second": 7.995225304749506,
+          "seconds": 6.00358316,
+          "successful_workers": 8,
+          "workers": 8
+        },
+        {
+          "mixed_workload": "bulk",
+          "bytes": 26753024,
+          "canceled_requests": 8,
+          "errors": 0,
+          "goodput_gbps": 0.035665319076375344,
+          "mean_latency_us": 1715061.2,
+          "mode": "bulk",
+          "p50_us_upper": 1762000,
+          "p99_us_upper": 4194304,
+          "request_gap_seconds": 0,
+          "requests": 25,
+          "requests_per_second": 4.166038280893889,
+          "seconds": 6.000905012,
+          "successful_workers": 8,
+          "workers": 8
+        }
+      ],
+      "processes": {
+        "target": {
+          "peak_rss_kib": 20608,
+          "peak_fds": 2022,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 20608,
+          "rss_high_water_kib": 20608,
+          "cpu_seconds": 0.21
+        },
+        "server": {
+          "peak_rss_kib": 81152,
+          "peak_fds": 2027,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 81152,
+          "rss_high_water_kib": 81152,
+          "cpu_seconds": 2.03
+        },
+        "client": {
+          "peak_rss_kib": 78564,
+          "peak_fds": 2032,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 78564,
+          "rss_high_water_kib": 78564,
+          "cpu_seconds": 2.12
+        }
+      },
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      }
+    },
+    {
+      "fixture": "liveness-narrow-exact",
+      "binary_sha256": "04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf",
+      "parameters": {
+        "duration": 15,
+        "workers": 4,
+        "loss": 2.0,
+        "delay_ms": 50.0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "seed": 42,
+        "rate_mbit": 1,
+        "down_rate_mbit": null,
+        "sessions": 4,
+        "shared_source": true,
+        "hold": 0,
+        "adaptive": "on",
+        "mode": "both",
+        "schedule": null,
+        "block": "null",
+        "kcp": {
+          "sndwnd": 4096,
+          "rcvwnd": 4096,
+          "smuxbuf": 4194304,
+          "streambuf": 2097152,
+          "ack_timestamps": false,
+          "credit_hints": false,
+          "adaptive_buffers": false,
+          "mode": "manual",
+          "nodelay": 0,
+          "interval": 30,
+          "resend": 2,
+          "nocongestion": 1,
+          "wdelay": true,
+          "acknodelay": false,
+          "small_write_flush": 256,
+          "mtu": 1350
+        }
+      },
+      "results": [
+        {
+          "verified_bytes": 1048576,
+          "cold_transfer_seconds": 12.32307630500054
+        },
+        {
+          "bytes": 10978,
+          "canceled_requests": 4,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 5.854632715897579e-06,
+          "mean_latency_us": 118951.09819639279,
+          "mode": "http",
+          "p50_us_upper": 104000,
+          "p99_us_upper": 408000,
+          "request_gap_seconds": 0,
+          "requests": 499,
+          "requests_per_second": 33.264958613054425,
+          "seconds": 15.000770204,
+          "successful_workers": 4,
+          "workers": 4,
+          "tunnel_cpu_cores": {
+            "client": 0.018,
+            "server": 0.019
+          }
+        },
+        {
+          "bytes": 1298525,
+          "canceled_requests": 4,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 0.0006925171896724882,
+          "mean_latency_us": 0,
+          "mode": "bulk",
+          "p50_us_upper": 0,
+          "p99_us_upper": 0,
+          "request_gap_seconds": 0,
+          "requests": 0,
+          "requests_per_second": 0,
+          "seconds": 15.000638475,
+          "successful_workers": 0,
+          "workers": 4,
+          "tunnel_cpu_cores": {
+            "client": 0.017,
+            "server": 0.017
+          }
+        }
+      ],
+      "processes": {
+        "target": {
+          "peak_rss_kib": 11524,
+          "peak_fds": 10,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 11524,
+          "rss_high_water_kib": 11524,
+          "cpu_seconds": 0.06
+        },
+        "server": {
+          "peak_rss_kib": 23836,
+          "peak_fds": 15,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 23836,
+          "rss_high_water_kib": 23836,
+          "cpu_seconds": 0.75
+        },
+        "client": {
+          "peak_rss_kib": 20292,
+          "peak_fds": 20,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 20292,
+          "rss_high_water_kib": 20292,
+          "cpu_seconds": 0.7
+        }
+      },
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      }
+    },
+    {
+      "fixture": "liveness-static-error-causes",
+      "binary_sha256": "04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf",
+      "parameters": {
+        "duration": 40,
+        "workers": 256,
+        "loss": 0,
+        "delay_ms": 40.0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "seed": 42,
+        "rate_mbit": 100,
+        "down_rate_mbit": null,
+        "sessions": 4,
+        "shared_source": true,
+        "hold": 0,
+        "adaptive": "off",
+        "mode": "http-churn",
+        "schedule": "[{\"at\":5,\"delay_ms\":90}]",
+        "block": "null",
+        "kcp": {
+          "sndwnd": 4096,
+          "rcvwnd": 4096,
+          "smuxbuf": 4194304,
+          "streambuf": 2097152,
+          "ack_timestamps": false,
+          "credit_hints": false,
+          "adaptive_buffers": false,
+          "mode": "manual",
+          "nodelay": 0,
+          "interval": 30,
+          "resend": 2,
+          "nocongestion": 1,
+          "wdelay": true,
+          "acknodelay": false,
+          "small_write_flush": 256,
+          "mtu": 1350
+        }
+      },
+      "results": [
+        {
+          "verified_bytes": 1048576,
+          "cold_transfer_seconds": 0.25691233399993507
+        },
+        {
+          "bytes": 55528,
+          "canceled_requests": 256,
+          "error_kinds": {
+            "request_reset": 37,
+            "request_timeout": 90
+          },
+          "errors": 127,
+          "goodput_gbps": 1.1105203567275945e-05,
+          "mean_latency_us": 1631890.5927099842,
+          "mode": "http-churn",
+          "p50_us_upper": 4194304,
+          "p99_us_upper": 8388608,
+          "request_gap_seconds": 0,
+          "requests": 2524,
+          "requests_per_second": 63.097747541340595,
+          "seconds": 40.001427917,
+          "successful_workers": 256,
+          "workers": 256,
+          "tunnel_cpu_cores": {
+            "client": 0.042,
+            "server": 0.029
+          }
+        }
+      ],
+      "processes": {
+        "target": {
+          "peak_rss_kib": 21080,
+          "peak_fds": 136,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 21080,
+          "rss_high_water_kib": 21080,
+          "cpu_seconds": 0.32
+        },
+        "server": {
+          "peak_rss_kib": 41352,
+          "peak_fds": 155,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 41352,
+          "rss_high_water_kib": 41352,
+          "cpu_seconds": 1.21
+        },
+        "client": {
+          "peak_rss_kib": 50468,
+          "peak_fds": 362,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 50468,
+          "rss_high_water_kib": 50468,
+          "cpu_seconds": 1.72
+        }
+      },
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      }
+    },
+    {
+      "fixture": "recovery-exact-epoch-churn",
+      "binary_sha256": "d3ddafe5c2fe056b24b32ef6fb0658e81c81d7c123db19bc494afaf46c42cfdd",
+      "parameters": {
+        "duration": 60,
+        "workers": 256,
+        "loss": 0,
+        "delay_ms": 40.0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "seed": 42,
+        "rate_mbit": 100,
+        "down_rate_mbit": null,
+        "sessions": 4,
+        "shared_source": true,
+        "hold": 0,
+        "adaptive": "on",
+        "mode": "http-churn",
+        "schedule": "[{\"at\":5,\"delay_ms\":90},{\"at\":45,\"delay_ms\":40}]",
+        "block": "null",
+        "kcp": {
+          "sndwnd": 4096,
+          "rcvwnd": 4096,
+          "smuxbuf": 4194304,
+          "streambuf": 2097152,
+          "ack_timestamps": false,
+          "credit_hints": false,
+          "adaptive_buffers": false,
+          "mode": "manual",
+          "nodelay": 0,
+          "interval": 30,
+          "resend": 2,
+          "nocongestion": 1,
+          "wdelay": true,
+          "acknodelay": false,
+          "small_write_flush": 256,
+          "mtu": 1350
+        }
+      },
+      "results": [
+        {
+          "verified_bytes": 1048576,
+          "cold_transfer_seconds": 1.4732286919997932
+        },
+        {
+          "bytes": 499400,
+          "canceled_requests": 256,
+          "errors": 181,
+          "goodput_gbps": 6.658583264914912e-05,
+          "mean_latency_us": 582198.6205726872,
+          "mode": "http-churn",
+          "p50_us_upper": 186000,
+          "p99_us_upper": 8388608,
+          "request_gap_seconds": 0,
+          "requests": 22700,
+          "requests_per_second": 378.32859459743815,
+          "seconds": 60.000751527,
+          "successful_workers": 256,
+          "workers": 256,
+          "tunnel_cpu_cores": {
+            "client": 0.137,
+            "server": 0.146
+          }
+        }
+      ],
+      "processes": {
+        "target": {
+          "peak_rss_kib": 24016,
+          "peak_fds": 230,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 24016,
+          "rss_high_water_kib": 24016,
+          "cpu_seconds": 2.81
+        },
+        "server": {
+          "peak_rss_kib": 53584,
+          "peak_fds": 358,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 53584,
+          "rss_high_water_kib": 53584,
+          "cpu_seconds": 8.85
+        },
+        "client": {
+          "peak_rss_kib": 49560,
+          "peak_fds": 415,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 49560,
+          "rss_high_water_kib": 49560,
+          "cpu_seconds": 8.29
+        }
+      },
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      }
+    }
+  ],
+  "production_checkpoint": {
+    "hosts": [
+      {
+        "host": "116.202.177.233",
+        "unit": {
+          "MainPID": "791318",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Tue 2026-10-06 21:24:52 UTC",
+          "ActiveState": "active"
+        },
+        "binary_sha256": "04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf",
+        "baseline_config_sha256": "930164f7d2b527d4a6f44e3c710ebc6a0d110cd86312513742fb6b32accd9809",
+        "health": "ok",
+        "counters_at_audit": {
+          "super_paqet_active_connections": 983.0,
+          "super_paqet_errors_total": 0.0,
+          "super_paqet_opening_transport_retries_total": 0.0
+        },
+        "xray_process_pids": [
+          "765574"
+        ],
+        "observer_active": true,
+        "last_sample_utc": "2026-10-06T21:29:58.072138+00:00",
+        "rollback_disarmed": true
+      },
+      {
+        "host": "171.22.132.226",
+        "unit": {
+          "ActiveState": "active",
+          "MainPID": "2965108",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Tue 2026-10-06 21:24:18 UTC"
+        },
+        "binary_sha256": "04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf",
+        "baseline_config_sha256": "0de755836870e857d2d68a05f2965adecfc05b114885e19404dbf46185f1c781",
+        "health": "ok",
+        "counters_at_audit": {
+          "super_paqet_active_connections": 133.0,
+          "super_paqet_errors_total": 0.0,
+          "super_paqet_opening_transport_retries_total": 0.0
+        },
+        "xray_process_pids": [
+          "2929362"
+        ],
+        "observer_active": true,
+        "last_sample_utc": "2026-10-06T21:29:58.758410+00:00",
+        "rollback_disarmed": true
+      },
+      {
+        "host": "65.109.249.222",
+        "unit": {
+          "MainPID": "107867",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Tue 2026-10-06 21:24:33 UTC",
+          "ActiveState": "active"
+        },
+        "binary_sha256": "04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf",
+        "baseline_config_sha256": "ea819ae72876cb963b4662cb37d6f4847af7242a27e5815ea2ba4df9c379d712",
+        "health": "ok",
+        "counters_at_audit": {
+          "super_paqet_active_connections": 500.0,
+          "super_paqet_errors_total": 0.0,
+          "super_paqet_opening_transport_retries_total": 0.0
+        },
+        "xray_process_pids": [
+          "71633"
+        ],
+        "observer_active": true,
+        "last_sample_utc": "2026-10-06T21:30:06.852648+00:00",
+        "rollback_disarmed": true
+      },
+      {
+        "host": "89.45.68.14",
+        "unit": {
+          "MainPID": "258929",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Tue 2026-10-06 21:12:42 UTC",
+          "ActiveState": "active"
+        },
+        "binary_sha256": "04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf",
+        "baseline_config_sha256": "4e788dbfc02abaffe3766edf5a1af1618291a9a97d0b121ff09bdcd4abfa55cf",
+        "health": "ok",
+        "counters_at_audit": {
+          "super_paqet_active_connections": 8.0,
+          "super_paqet_errors_total": 0.0,
+          "super_paqet_opening_transport_retries_total": 0.0
+        },
+        "xray_process_pids": [],
+        "observer_active": true,
+        "last_sample_utc": "2026-10-06T21:30:08.062458+00:00",
+        "rollback_disarmed": true
+      },
+      {
+        "host": "89.45.68.118",
+        "unit": {
+          "MainPID": "938095",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Tue 2026-10-06 21:25:08 UTC",
+          "ActiveState": "active"
+        },
+        "binary_sha256": "04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf",
+        "baseline_config_sha256": "1bc30c25c7371b8b5d2dc5efb1fdf87f5fedce181e0001ca636c9b2670709f33",
+        "health": "ok",
+        "counters_at_audit": {
+          "super_paqet_active_connections": 1638.0,
+          "super_paqet_errors_total": 0.0,
+          "super_paqet_opening_transport_retries_total": 0.0
+        },
+        "xray_process_pids": [],
+        "observer_active": true,
+        "last_sample_utc": "2026-10-06T21:30:12.666204+00:00",
+        "rollback_disarmed": true
+      }
+    ],
+    "configured_carriers_per_peer": 4,
+    "adaptation_enabled_all_endpoints": true,
+    "flags": {
+      "client": "S",
+      "return": "PA"
+    },
+    "encryption": "null",
+    "authenticated_1mib_checks": [
+      {
+        "host": "deir.cloudnet1.ir",
+        "port": 9001,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 2.591329487000621,
+        "error": ""
+      },
+      {
+        "host": "deir.cloudnet1.ir",
+        "port": 9002,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.1643799180001224,
+        "error": ""
+      },
+      {
+        "host": "deir.cloudnet1.ir",
+        "port": 9003,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 2.021250374000374,
+        "error": ""
+      },
+      {
+        "host": "89.45.68.14",
+        "port": 9001,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 2.2641466299992317,
+        "error": ""
+      },
+      {
+        "host": "89.45.68.14",
+        "port": 9002,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 2.129113048000363,
+        "error": ""
+      },
+      {
+        "host": "89.45.68.14",
+        "port": 9003,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 3.870708686999933,
+        "error": ""
+      },
+      {
+        "host": "89.45.68.118",
+        "port": 9001,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.6160940779991506,
+        "error": ""
+      },
+      {
+        "host": "89.45.68.118",
+        "port": 9002,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.2859487550013,
+        "error": ""
+      },
+      {
+        "host": "89.45.68.118",
+        "port": 9003,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.5123402520002855,
+        "error": ""
+      }
+    ],
+    "observation_deadline_utc": "2026-10-07T20:18:00Z",
+    "observation_completed": false,
+    "limitations": [
+      "Finite acceptance checks do not establish sustained peak customer capacity",
+      "Sampled debug/profiling are temporarily active; baseline snapshots have warning logs and profiling off",
+      "Finland transmit drops persist and are being collected",
+      "Replacing the tunnel executable restarted forwarding processes and ended established streams; Xray PIDs were preserved"
+    ]
+  }
+}

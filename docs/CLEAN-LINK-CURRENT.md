@@ -1,6 +1,22 @@
-# Current executable: clean-link unencrypted bulk measurements
+# Clean-link unencrypted bulk measurements
 
-Measured 2026-10-06 on the exact deployed executable, SHA-256
+## Current liveness executable
+
+The deployed `enterprise-2026.10.07-liveness` binary, SHA-256
+`04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf`, measured
+**4.634 Gbit/s upload / 4.808 Gbit/s download** received payload in separate
+five-second runs with sixteen streams and no startup omission. Both endpoints
+shared the laptop's clean uncapped veth link: four shared carriers, null encryption,
+no FEC, MTU1350, production 4 MiB/2 MiB mux buffers and manual adaptive profile.
+Mean occupied client/server cores were 1.60/1.21 for upload and 1.29/1.81 for
+download; peak tunnel RSS was below 150 MiB with no fixture swap. Integrity and
+owned-rule cleanup passed. This is a short local measurement, not backend WAN
+capacity or a matched comparison against the longer older runs below. Parameters
+and receiver receipts are in [liveness evidence](liveness-qualification-2026-10-07.json).
+
+## Earlier executable measurements
+
+Measured 2026-10-06 on the then-deployed executable, SHA-256
 `47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419`.
 Embedded runtime source `abf04f6`, main equivalent `97529dd`. No runtime code was
 changed for these measurements.
@@ -57,7 +73,7 @@ service or configuration was modified by these local tests.
 
 ## Interpretation and remaining gap
 
-The exact current executable's isolated default-setting result is approximately
+That earlier executable's isolated default-setting result is approximately
 **3.50–3.74 Gbit/s upload and 3.08–3.10 Gbit/s download** on this laptop. The
 previous 2.084 Gbit/s measurement was bulk beside a 100k connection hold and HTTP
 load, with swapping; it was not this isolated workload.

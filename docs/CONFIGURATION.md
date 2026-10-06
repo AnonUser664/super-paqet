@@ -361,6 +361,9 @@ those updates; controllers and delivery history are allocated per carrier, not
 per forwarded customer connection. The controller:
 
 - Adjusts pacing and the send window from delivery, queue signals and loss.
+- Uses packet-window control for tiny acknowledged/pending messages without
+  historical bulk byte pacing; a new full-size backlog returns to bulk pacing.
+  This avoids treating queued control packets as saturated bulk delivery.
 - Adjusts ACK delay within the configured ceiling.
 - Applies a 0–50 ms allowance before gap-based retransmission to tolerate reorder.
 - Adjusts the RTO floor to approximately `max(30 ms, 2 × SRTT + 4 × RTT variation)`.

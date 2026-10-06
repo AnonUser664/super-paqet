@@ -238,9 +238,10 @@ Two existing drivers implement this facade:
   storage and sendmmsg/recvmmsg batches. Hash fanout distributes incoming
   carriers; it does not divide every stream of one carrier across workers.
 - **Pcap:** libpcap receive and injection handles, pooled encoders/decoders and
-  serialized injection. It uses one worker. `20227d3` handles recognized Linux
-  transmit ENOBUFS as dropped datagrams; the running base still propagates the
-  pcap error fatally. Permanent errors remain failures in both paths.
+  serialized injection. It uses one worker. Recognized Linux transmit ENOBUFS
+  is counted as dropped datagrams for KCP recovery. Permanent errors remain
+  failures in both paths. AF_PACKET separately retries wholly rejected ENOBUFS
+  batches at most three times; partial sends are never replayed.
 
 ## Concurrency, buffering and backpressure
 
@@ -253,7 +254,13 @@ zero per-connection memory.
 KCP queues/retransmits datagrams and shares a timed scheduler. Its postprocessing
 FIFO handles optional FEC/crypto and bounded packet output. Smux provides
 per-stream credits, an aggregate receive budget and bounded-priority controls.
-Its receive rings grow on demand. Async coalesced credits keep readers from
+Its receive rings grow on demand. Fixed-size control headers are parsed even
+when the aggregate data budget is full; PSH payload admission still waits for
+tokens. An admitted data frame can overshoot the budget by one frame, as before.
+Outgoing streams enter the receive map before SYN submission so a full-duplex
+peer's immediate reply cannot be discarded; failed submissions reclaim that
+registration and any early data without another blocking control write.
+Async coalesced credits keep readers from
 waiting directly on opposite-direction writes; optional WINS hints expedite
 feedback while reliable UPD remains authoritative.
 
@@ -269,7 +276,11 @@ An engine controller belongs to a carrier, not every customer stream. New bulk
 carriers learn at an RTT-based 50–250 ms cadence; idle, static and established
 controllers update every 250 ms. One shared 50 ms ticker dispatches those
 updates. Coherent transport counters drive send window/pacing, ACK delay,
-reorder allowance and RTO floor within limits. Mux receive-window
+reorder allowance and RTO floor within limits. Tiny acknowledged/pending
+messages use packet-window control without historical bulk byte pacing, so
+control traffic does not erase a prior bulk capacity estimate. A new full-size
+backlog resumes bulk pacing before its first ACK. Classification uses sizes,
+not customer payload parsing. Mux receive-window
 adaptation follows drain rate and RTT. Packet worker count, source interface/
 address/MAC and path MTU are not continuously auto-tuned. The earlier physical recovery
 profile disabled the enterprise controller. The final four-carrier profile
@@ -279,9 +290,11 @@ a fixed carrier count. KCP's ordinary RTT-based retries remain in both modes.
 Info summaries, sampled debug lifecycle/transport events and a bounded async
 log queue expose state without blocking forwarding on log output. Optional
 loopback HTTP serves metrics/health and pprof. Health is process liveness, not
-delivery or authentication. In `20227d3`, registered listener observation is
-snapshotted under the existing tuner mutex so startup registration does not
-race the logger; pcap queue drops become visible without per-packet log spam.
+delivery or authentication. Listener observation is snapshotted under the tuner
+mutex so startup registration does not race the logger. Mux capacity/occupancy/
+payload blockage, raw queue drops/retries and small-message classification are
+observable without per-packet log spam. The independent finite production
+observer is described in [DIAGNOSTICS.md](DIAGNOSTICS.md).
 
 ## Testing structure and limits
 

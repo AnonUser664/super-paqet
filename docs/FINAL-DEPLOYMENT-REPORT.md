@@ -1,17 +1,23 @@
 # Final deployment and measured qualification
 
-## Customer-traffic incident recovery — 2026-10-06
+## Current incident liveness release — 2026-10-07
 
-The recovery release now runs on all five hosts. New-opening recovery reserves
-sibling-carrier attempts without dropping established streams; accepted mux
-wrappers no longer close live I/O during GC; warning-level deployments retain
-later incident causes at a bounded rate. All nine authenticated 1 MiB checks
-passed after rollout. Root/mux race suites and delayed/lossy/reordered local
-checks passed. Two thousand held forwards were reverified. Independent 24-hour
-collectors run on every host; main Xray was not changed. Definitive root-cause
-attribution and the full-day observation remain unfinished. Details and exact
-release are in [incident report](PRODUCTION-INCIDENT-2026-10-06.md) and
-[current status](STATUS.md). The results below belong to the earlier release.
+The liveness binary now runs on all five hosts with four adaptive carriers per
+route, S outbound / PA return and null encryption. It retains the initial
+opening/GC/warning fixes and adds mux receive-control admission, immediate-reply
+publication, small-message adaptive control and bounded raw ENOBUFS retries.
+All nine authenticated 1 MiB checks passed after guarded rollout. Main Xray PIDs
+are unchanged. Independent one-day collectors remain active; the full-day
+observation and definitive attribution of the operator's earlier outage are
+unfinished.
+
+Exact-binary local checks measured 4.634/4.808 Gbit/s clean receiver bulk and
+reverified all 100,000 forwards after a 120-second hold. The latter used swap and
+does not establish backend active-customer capacity. Changing-delay churn and
+asymmetric mixed load passed with zero unexpected workload errors; static churn
+still failed. See [status](STATUS.md), [incident report](PRODUCTION-INCIDENT-2026-10-06.md)
+and [qualification receipt](liveness-qualification-2026-10-07.json). All measurements
+below belong to earlier executables/profiles.
 
 ## Earlier adaptive four-carrier checkpoint — 2026-10-06
 
