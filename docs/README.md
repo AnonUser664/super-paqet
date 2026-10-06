@@ -1,10 +1,10 @@
 # Documentation
 
-Start with [current status](STATUS.md). Netherlands forwarding is restored on
-both clients with a qualified directional SYN packet profile. The path evidence
-suggests state-dependent filtering; the exact intervening mechanism remains
-unidentified. See [the diagnosis](NETHERLANDS-DIAGNOSIS.md) for failed controls,
-recovery, and the finite acceptance boundary.
+Start with [current status](STATUS.md). The five-host deployment is finalized,
+all six paths pass authenticated checks, and country peers use S outbound / PA
+return. 171.22.132.226 is France; the historical Netherlands diagnosis describes
+that same host. Measured capacity limitations remain explicit in the status and
+[production evidence](production-deployment-evidence.json).
 
 | Document | Purpose |
 |---|---|

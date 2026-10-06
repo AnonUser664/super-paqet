@@ -260,13 +260,16 @@ streams to another carrier without ending them.
 
 ## Adaptation and observability
 
-An engine controller belongs to a carrier, not every customer stream. Every
-250 ms it reads coherent transport counters and adjusts send window/pacing,
-ACK delay, reorder allowance and RTO floor within limits. Mux receive-window
+An engine controller belongs to a carrier, not every customer stream. New bulk
+carriers learn at an RTT-based 50–250 ms cadence; idle, static and established
+controllers update every 250 ms. One shared 50 ms ticker dispatches those
+updates. Coherent transport counters drive send window/pacing, ACK delay,
+reorder allowance and RTO floor within limits. Mux receive-window
 adaptation follows drain rate and RTT. Packet worker count, source interface/
-address/MAC and path MTU are not continuously auto-tuned. The active recovery
-profile disables the enterprise controller and receive adaptation while KCP's
-ordinary RTT-based retries remain.
+address/MAC and path MTU are not continuously auto-tuned. The earlier physical recovery
+profile disabled the enterprise controller. The final four-carrier profile
+enables transport adaptation while retaining fixed receive-buffer ceilings and
+a fixed carrier count. KCP's ordinary RTT-based retries remain in both modes.
 
 Info summaries, sampled debug lifecycle/transport events and a bounded async
 log queue expose state without blocking forwarding on log output. Optional

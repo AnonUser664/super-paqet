@@ -6,18 +6,18 @@ listeners:
     ipv4:
       addr: 116.202.177.233:29999
       router_mac: d2:74:7f:6e:37:e3
-    backend: pcap
+    backend: packet
     tcp:
       local_flag:
       - PA
       remote_flag:
       - S
-  adaptive: false
+  adaptive: true
   packet_workers: 1
   kcp:
     mode: manual
-    sndwnd: 1024
-    rcvwnd: 1024
+    sndwnd: 4096
+    rcvwnd: 4096
     ack_timestamps: false
     credit_hints: false
     adaptive_buffers: false
@@ -28,10 +28,12 @@ listeners:
     interval: 30
     resend: 2
     nocongestion: 1
-    wdelay: false
+    wdelay: true
     acknodelay: false
-    small_write_flush: 32
+    small_write_flush: 256
   shared_source: true
+  sessions: 4
+  max_sessions: 4
 - address: 91.107.251.85:29999
   enc: 'null'
   network:
@@ -39,18 +41,18 @@ listeners:
     ipv4:
       addr: 91.107.251.85:29999
       router_mac: d2:74:7f:6e:37:e3
-    backend: pcap
+    backend: packet
     tcp:
       local_flag:
       - PA
       remote_flag:
       - S
-  adaptive: false
+  adaptive: true
   packet_workers: 1
   kcp:
     mode: manual
-    sndwnd: 1024
-    rcvwnd: 1024
+    sndwnd: 4096
+    rcvwnd: 4096
     ack_timestamps: false
     credit_hints: false
     adaptive_buffers: false
@@ -61,13 +63,15 @@ listeners:
     interval: 30
     resend: 2
     nocongestion: 1
-    wdelay: false
+    wdelay: true
     acknodelay: false
-    small_write_flush: 32
+    small_write_flush: 256
   shared_source: true
+  sessions: 4
+  max_sessions: 4
 metrics: 127.0.0.1:29090
 log:
-  level: info
+  level: warn
   format: json
   interval: 10s
   flow_sample: 1000

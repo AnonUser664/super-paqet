@@ -354,7 +354,11 @@ The internal dead-link marker is set at 20 transmissions; it is not an exposed
 configuration knob or a documented hard user-stream retry limit. There is no
 currently exposed maximum retransmission count/elapsed-time policy.
 
-When endpoint adaptation is enabled, the controller runs every 250 ms and:
+When endpoint adaptation is enabled, new bulk carriers learn on a cadence
+bounded to 50–250 ms, using the observed RTT. Idle, static and established
+controllers retain the 250 ms update cadence. A shared 50 ms ticker dispatches
+those updates; controllers and delivery history are allocated per carrier, not
+per forwarded customer connection. The controller:
 
 - Adjusts pacing and the send window from delivery, queue signals and loss.
 - Adjusts ACK delay within the configured ceiling.
@@ -363,8 +367,12 @@ When endpoint adaptation is enabled, the controller runs every 250 ms and:
 
 Timeout retries remain active independently of reorder allowance. The fast
 threshold remains static; an adaptive loss-versus-reorder threshold is not yet
-implemented. The active recovery profile sets `adaptive: false`, disabling
-these controller actions while ordinary KCP RTT estimation/retries continue.
+implemented. `adaptive: false` disables these controller actions while ordinary
+KCP RTT estimation/retries continue. The earlier physical recovery profile used
+that override; the final four-session deployment enables endpoint adaptation.
+A fixed `sessions: 4` / `max_sessions: 4` keeps carrier count bounded while send
+windows, pacing, ACK scheduling, reorder allowance and RTO floors adapt.
+Receive-buffer adaptation remains independently configurable.
 No current policy is established as optimal for every bottleneck, loss pattern,
 reordering level or delay. These are final-review decisions, not completed claims.
 

@@ -7,18 +7,18 @@ peers:
       ipv4:
         addr: 89.45.68.118:29998
         router_mac: 58:8d:09:12:9e:00
-      backend: pcap
+      backend: packet
       tcp:
         local_flag:
         - S
         remote_flag:
         - PA
-    adaptive: false
+    adaptive: true
     packet_workers: 1
     kcp:
       mode: manual
-      sndwnd: 128
-      rcvwnd: 512
+      sndwnd: 4096
+      rcvwnd: 4096
       ack_timestamps: false
       credit_hints: false
       adaptive_buffers: false
@@ -29,11 +29,11 @@ peers:
       interval: 30
       resend: 2
       nocongestion: 1
-      wdelay: false
+      wdelay: true
       acknodelay: false
-      small_write_flush: 32
-    sessions: 8
-    max_sessions: 8
+      small_write_flush: 256
+    sessions: 4
+    max_sessions: 4
     shared_source: true
   finland:
     address: 65.109.249.222:29999
@@ -49,12 +49,12 @@ peers:
         - S
         remote_flag:
         - PA
-    adaptive: false
+    adaptive: true
     packet_workers: 1
     kcp:
-      mode: fast
-      sndwnd: 131
-      rcvwnd: 522
+      mode: manual
+      sndwnd: 4096
+      rcvwnd: 4096
       ack_timestamps: false
       credit_hints: false
       adaptive_buffers: false
@@ -65,9 +65,9 @@ peers:
       interval: 30
       resend: 2
       nocongestion: 1
-      wdelay: false
+      wdelay: true
       acknodelay: false
-      small_write_flush: 0
+      small_write_flush: 256
     sessions: 4
     max_sessions: 4
     shared_source: true
@@ -85,12 +85,12 @@ peers:
         - S
         remote_flag:
         - PA
-    adaptive: false
+    adaptive: true
     packet_workers: 1
     kcp:
-      mode: fast
-      sndwnd: 131
-      rcvwnd: 522
+      mode: manual
+      sndwnd: 4096
+      rcvwnd: 4096
       ack_timestamps: false
       credit_hints: false
       adaptive_buffers: false
@@ -101,9 +101,9 @@ peers:
       interval: 30
       resend: 2
       nocongestion: 1
-      wdelay: false
+      wdelay: true
       acknodelay: false
-      small_write_flush: 0
+      small_write_flush: 256
     sessions: 4
     max_sessions: 4
     shared_source: true
@@ -119,7 +119,7 @@ forwards:
   target: 171.22.132.226:2096
 metrics: 127.0.0.1:29090
 log:
-  level: info
+  level: warn
   format: json
   interval: 10s
   flow_sample: 1000

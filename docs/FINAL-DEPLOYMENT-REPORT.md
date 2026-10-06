@@ -1,5 +1,42 @@
 # Final deployment and measured qualification
 
+## Final adaptive four-carrier checkpoint — 2026-10-06
+
+The startup release is deployed on all five hosts. Every endpoint uses four
+configured carriers, adaptive transport control, synchronized KCP settings,
+AF_PACKET/one receive worker, S outbound / PA return and warning-level logging.
+Country peer names are germany/finland/france; 171.22.132.226 is France.
+The binary rollout restarted tunnel processes once; the final log/route update
+applied live. Xray configurations/services were not changed.
+
+Current version/source/hash, final topology/configs, cleanup and recovery archives
+are recorded in [status](STATUS.md), [snapshots](deployed/README.md) and
+[production evidence](production-deployment-evidence.json). These supersede the
+older executable and profiles below. Test resources and historical owned backups
+were removed, retaining complete current/previous recovery sets.
+
+Local clean/loss-reorder/asymmetric/narrow-link regressions passed, as did the
+full application race suite and vet. First 1 MiB time improved 2.34 → 1.44 seconds
+in one matched four-session local comparison. Six-path receiver bulk measured
+0.776 Gbit/s down / 0.956 Gbit/s up, in separate runs. The user clarified that
+1 Gbit/s was an estimate, not an acceptance target or known host link capacity.
+
+12000 held forwards passed final integrity checks and all 3072 authenticated
+workers completed full requests. Extreme authenticated load nevertheless logged
+308 opening timeouts on .14 → France and 25 server control EOF errors, with
+4.6–7.0 second response means. These are unresolved follow-up issues, rather than
+fixed failures hidden by successful worker counts. Same-size native internal
+16 KiB requests passed with 87–115 ms means; controls do not conclusively assign
+all authenticated delay to Xray/external traffic. Backend long-monitor SSH
+failures limit resource evidence; short native monitors succeeded on all hosts.
+
+The user requested final production operation now and further investigation on
+a separate empty server. No additional configuration sweep or untested transport
+change was promoted. This is a finite operational handoff with explicit limits.
+
+## Earlier release qualification
+
+
 Updated 2026-10-06. The requested final release is deployed on the five active
 hosts, with persistent enabled systemd services, rollback backups, live reload,
 configuration validation, and owned-rule cleanup. The excluded backend was not

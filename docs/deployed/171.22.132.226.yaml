@@ -12,12 +12,12 @@ listeners:
       - PA
       remote_flag:
       - S
-  adaptive: false
+  adaptive: true
   packet_workers: 1
   kcp:
-    mode: fast
-    sndwnd: 1044
-    rcvwnd: 1044
+    mode: manual
+    sndwnd: 4096
+    rcvwnd: 4096
     ack_timestamps: false
     credit_hints: false
     adaptive_buffers: false
@@ -28,13 +28,15 @@ listeners:
     interval: 30
     resend: 2
     nocongestion: 1
-    wdelay: false
+    wdelay: true
     acknodelay: false
-    small_write_flush: 0
+    small_write_flush: 256
   shared_source: true
+  sessions: 4
+  max_sessions: 4
 metrics: 127.0.0.1:29090
 log:
-  level: info
+  level: warn
   format: json
   interval: 10s
   flow_sample: 1000

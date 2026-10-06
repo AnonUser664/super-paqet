@@ -129,26 +129,22 @@ cleanup after shutdown; retain unrelated-rule controls in test environments.
 
 ## Rollback
 
-Backups reside in `/root/super-paqet/rollback/<timestamp>/` and contain the
-version at that particular checkpoint. Later intermediate configs are not
-necessarily the original service or the final working recovery. Select a
-matching binary/config/unit set deliberately; inspect prior state when available.
+Final rollout retains two complete archives under
+`/root/super-paqet/rollback/retained/`: one current release and one previous
+accepted release. Both include the matching binary, config and systemd unit;
+Finland also includes its address drop-in. Inspect archive contents before
+selecting a release. Historic intermediate directories are pruned after the
+archives are created.
 
-A chosen restore follows this pattern:
+A full binary restore disconnects active tunnel streams. Extract the chosen
+trusted archive into a private staging directory, validate the staged config,
+then stop the service, restore binary/config/unit (and the Finland drop-in where
+present), daemon-reload and start. Preserve file permissions. Keep the other
+archive intact until authenticated traffic passes after recovery. See the
+archive paths and final hashes in [production evidence](production-deployment-evidence.json).
 
-```sh
-systemctl stop super-paqet.service
-TASK_BACKUP=/root/super-paqet/rollback/SELECTED_TIMESTAMP
-cp "$TASK_BACKUP/super-paqet" /root/super-paqet/super-paqet
-cp "$TASK_BACKUP/conf.yaml" /root/super-paqet/conf.yaml
-cp "$TASK_BACKUP/super-paqet.service" /etc/systemd/system/super-paqet.service
-systemctl daemon-reload
-systemctl enable --now super-paqet.service
-```
-
-Validate the restore and complete application transfers afterward. The excluded
-65.109.192.172 backend is outside the current work scope; its direct 9002 client
-entries remain unchanged and previously unavailable.
+The excluded 65.109.192.172 host is outside the work scope. Port 9002 now uses
+65.109.249.222 directly; no relay through another backend is installed.
 
 ## Reproduce qualification without confusing profiles
 

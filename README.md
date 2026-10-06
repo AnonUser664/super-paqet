@@ -20,12 +20,14 @@ Start with [current status](docs/STATUS.md), then the
 [deployment guide](docs/DEPLOYMENT.md) and [operations runbook](docs/OPERATIONS.md).
 The [documentation map](docs/README.md) links current guides and compact evidence.
 
-Live reload and validation are deployed. The exact executable passed finite
-local scale and WAN simulations, but Netherlands forwarding is currently
-unavailable in current, previous enterprise and upstream controls. See the
-[diagnosis](docs/NETHERLANDS-DIAGNOSIS.md) and
-[release report](docs/FINAL-DEPLOYMENT-REPORT.md). Further path tests and bulk
-tuning are paused. This is not an unconditional production-readiness claim.
+Live reload, validation and the adaptive startup release are deployed. All six
+Germany/Finland/France paths use four adaptive sessions per peer, S outbound / PA
+return, and warning-level production logging. Deployment and test cleanup are
+finalized. Finite qualification includes 12000 held forwards, 3072 authenticated
+workers and separate six-path bulk measurements; extreme authenticated load
+exposed opening timeouts that remain follow-up work. See
+[current status](docs/STATUS.md) and the
+[production evidence](docs/production-deployment-evidence.json) for exact results.
 
 ## Build and run
 
