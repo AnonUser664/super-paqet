@@ -14,3 +14,9 @@ ports. Both clients passed complete authenticated downloads after cleanup.
 These snapshots are host-specific, not generic defaults or a universal link
 profile. See [status](../STATUS.md), [deployment](../DEPLOYMENT.md), and the
 [diagnosis and test limits](../NETHERLANDS-DIAGNOSIS.md).
+
+The replacement Finland snapshot `65.109.211.233.yaml` is also recorded. That
+host runs the older `ecb8e002…` executable; it is not part of the four-host current
+binary statement above. Client 9002 entries now point to it. The IP-only correction
+made its service healthy, but forwarding and the isolated Netherlands-profile
+control failed. Temporary test endpoints were removed; [details](../FINLAND-CHECK.md).

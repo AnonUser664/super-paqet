@@ -1,0 +1,279 @@
+{
+  "finland-ip-check": {
+    "new_ip": "65.109.211.233",
+    "old_ip": "65.109.192.172",
+    "operation": "IP-reference correction only; existing KCP/flags/cipher retained",
+    "requests": {
+      "89.45.68.14": {
+        "new_finland_9002": [
+          {
+            "exit": 28,
+            "response": "000 0 0.000000 8.001569",
+            "error": "curl: (28) SSL connection timeout\n",
+            "passed": false
+          },
+          {
+            "exit": 28,
+            "response": "000 0 0.000000 8.001537",
+            "error": "curl: (28) SSL connection timeout\n",
+            "passed": false
+          }
+        ]
+      },
+      "89.45.68.118": {
+        "new_finland_9002": [
+          {
+            "exit": 28,
+            "response": "000 0 0.000000 8.001685",
+            "error": "curl: (28) SSL connection timeout\n",
+            "passed": false
+          },
+          {
+            "exit": 28,
+            "response": "000 0 0.000000 8.000849",
+            "error": "curl: (28) SSL connection timeout\n",
+            "passed": false
+          }
+        ]
+      }
+    },
+    "restoration": {
+      "65.109.211.233": {
+        "corrected_ip_retained": true,
+        "config_sha256": "f16c780e9049ea3ec3f6c166d9d64f489c06fd0280064c65276077cf1a5384aa",
+        "service": "active"
+      },
+      "89.45.68.14": {
+        "corrected_ip_retained": true,
+        "config_sha256": "d17c679dccbfc0dcee7c02a82660be2a7f5b037db9ff37107420908452820efc",
+        "service": "active"
+      },
+      "89.45.68.118": {
+        "corrected_ip_retained": true,
+        "config_sha256": "6f39ad0e02008e51db9660be2f8131915f09089b2b0197215afb1f84be68071a",
+        "service": "active"
+      }
+    },
+    "backups": {
+      "65.109.211.233": "/root/super-paqet/rollback/20261006T090103Z-finland-ip",
+      "89.45.68.14": "/root/super-paqet/rollback/20261006T090103Z-finland-ip",
+      "89.45.68.118": "/root/super-paqet/rollback/20261006T090103Z-finland-ip"
+    },
+    "backend_local_reality": [
+      {
+        "exit": 0,
+        "response": "200 1048576 0.131778 0.188067",
+        "error": "",
+        "passed": true
+      }
+    ]
+  },
+  "finland-netherlands-profile": {
+    "backend": "65.109.211.233",
+    "profile": "user clarified Netherlands qualified profile: S outbound, PA return, MTU1350, four shared lanes",
+    "profiles": {
+      "qualified-netherlands-S-out-PA-return": {
+        "89.45.68.118": [
+          {
+            "exit": 28,
+            "response": "000 0 0.000000 8.000692",
+            "error": "curl: (28) SSL connection timeout\n",
+            "passed": false
+          },
+          {
+            "exit": 28,
+            "response": "000 0 0.000000 8.001174",
+            "error": "curl: (28) SSL connection timeout\n",
+            "passed": false
+          }
+        ],
+        "89.45.68.14": [
+          {
+            "exit": 28,
+            "response": "000 0 0.000000 8.001229",
+            "error": "curl: (28) SSL connection timeout\n",
+            "passed": false
+          },
+          {
+            "exit": 28,
+            "response": "000 0 0.000000 8.001503",
+            "error": "curl: (28) SSL connection timeout\n",
+            "passed": false
+          }
+        ]
+      }
+    },
+    "cleanup": {
+      "65.109.211.233": {
+        "production_service": "active",
+        "temporary_resources_removed": true
+      },
+      "89.45.68.14": {
+        "production_service": "active",
+        "temporary_resources_removed": true
+      },
+      "89.45.68.118": {
+        "production_service": "active",
+        "temporary_resources_removed": true
+      }
+    },
+    "echo": {
+      "89.45.68.118": [
+        {
+          "bytes": 64,
+          "passed": false,
+          "error": "timed out",
+          "seconds": 5.009290575049818
+        },
+        {
+          "bytes": 16384,
+          "passed": false,
+          "error": "timed out",
+          "seconds": 5.011731334961951
+        },
+        {
+          "bytes": 262144,
+          "passed": false,
+          "error": "timed out",
+          "seconds": 5.119723603129387
+        }
+      ],
+      "89.45.68.14": [
+        {
+          "bytes": 64,
+          "passed": false,
+          "error": "timed out",
+          "seconds": 5.006390533992089
+        },
+        {
+          "bytes": 16384,
+          "passed": false,
+          "error": "timed out",
+          "seconds": 5.012072981917299
+        },
+        {
+          "bytes": 262144,
+          "passed": false,
+          "error": "timed out",
+          "seconds": 5.119617365999147
+        }
+      ]
+    },
+    "capture_stats": {
+      "65.109.211.233": "tcpdump: listening on eth0, link-type EN10MB (Ethernet), snapshot length 1600 bytes\n0 packets captured\n0 packets received by filter\n0 packets dropped by kernel\n",
+      "89.45.68.14": "tcpdump: listening on ens160, link-type EN10MB (Ethernet), snapshot length 1600 bytes\n252 packets captured\n252 packets received by filter\n0 packets dropped by kernel\n",
+      "89.45.68.118": "tcpdump: listening on ens160, link-type EN10MB (Ethernet), snapshot length 1600 bytes\n322 packets captured\n323 packets received by filter\n0 packets dropped by kernel\n"
+    },
+    "packet_counts": {
+      "89.45.68.14": {
+        "forward": {
+          "sent": 252,
+          "matched": 0
+        },
+        "reverse": {
+          "sent": 0,
+          "matched": 0
+        }
+      },
+      "89.45.68.118": {
+        "forward": {
+          "sent": 322,
+          "matched": 0
+        },
+        "reverse": {
+          "sent": 0,
+          "matched": 0
+        }
+      }
+    }
+  },
+  "finland-reachability": {
+    "89.45.68.14": {
+      "icmp": {
+        "exit": 0,
+        "output": "PING 65.109.211.233 (65.109.211.233) 56(84) bytes of data.\n64 bytes from 65.109.211.233: icmp_seq=1 ttl=50 time=89.5 ms\n\n--- 65.109.211.233 ping statistics ---\n3 packets transmitted, 1 received, 66.6667% packet loss, time 2008ms\nrtt min/avg/max/mdev = 89.521/89.521/89.521/0.000 ms\n"
+      },
+      "tcp": [
+        {
+          "port": 22,
+          "connected": true,
+          "seconds": 0.2001399309374392,
+          "banner": "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.17\r\n"
+        },
+        {
+          "port": 2096,
+          "connected": true,
+          "seconds": 0.08996342902537435,
+          "banner": ""
+        }
+      ]
+    },
+    "89.45.68.118": {
+      "icmp": {
+        "exit": 0,
+        "output": "PING 65.109.211.233 (65.109.211.233) 56(84) bytes of data.\n64 bytes from 65.109.211.233: icmp_seq=1 ttl=50 time=94.6 ms\n\n--- 65.109.211.233 ping statistics ---\n3 packets transmitted, 1 received, 66.6667% packet loss, time 2020ms\nrtt min/avg/max/mdev = 94.631/94.631/94.631/0.000 ms\n"
+      },
+      "tcp": [
+        {
+          "port": 22,
+          "connected": true,
+          "seconds": 0.21491173561662436,
+          "banner": "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.17\r\n"
+        },
+        {
+          "port": 2096,
+          "connected": true,
+          "seconds": 0.09305245196446776,
+          "banner": ""
+        }
+      ]
+    }
+  },
+  "final_regression_and_cleanup": {
+    "65.109.211.233": {
+      "state": "active\nenabled\nf16c780e9049ea3ec3f6c166d9d64f489c06fd0280064c65276077cf1a5384aa  /root/super-paqet/conf.yaml\necb8e002173f6f80cd3f403d3ee3080190f0e49889fa2ba9f883b893f96318f3  /root/super-paqet/super-paqet\ninactive\ninactive\ninactive\ninactive\n"
+    },
+    "89.45.68.14": {
+      "working_routes": {
+        "9001": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.450963 0.686571",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "9003": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.873706 1.096766",
+            "error": "",
+            "passed": true
+          }
+        ]
+      },
+      "state": "active\nenabled\nd17c679dccbfc0dcee7c02a82660be2a7f5b037db9ff37107420908452820efc  /root/super-paqet/conf.yaml\n47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419  /root/super-paqet/super-paqet\ninactive\ninactive\ninactive\ninactive\n"
+    },
+    "89.45.68.118": {
+      "working_routes": {
+        "9001": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.452018 0.797986",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "9003": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.597749 0.768026",
+            "error": "",
+            "passed": true
+          }
+        ]
+      },
+      "state": "active\nenabled\n6f39ad0e02008e51db9660be2f8131915f09089b2b0197215afb1f84be68071a  /root/super-paqet/conf.yaml\n47c61ac2919564da49b0958f4347f716af0fb443cf4b5a0d52c2cb89d056a419  /root/super-paqet/super-paqet\ninactive\ninactive\ninactive\ninactive\n"
+    }
+  }
+}

@@ -1,6 +1,8 @@
 # Deployment
 
-Four hosts run the enterprise release under an enabled systemd service. The
+Four hosts run the current enterprise release under enabled systemd services.
+The replacement Finland backend also has an enabled service but retains an
+older enterprise binary and a failing tunnel path; [details](FINLAND-CHECK.md). The
 excluded 65.109.192.172 backend is not part of active deployment work. Netherlands
 forwarding is restored with a qualified directional SYN profile; see
 [NETHERLANDS-DIAGNOSIS.md](NETHERLANDS-DIAGNOSIS.md).
@@ -11,11 +13,15 @@ forwarding is restored with a qualified directional SYN profile; see
 |---|---|---|
 | 116.202.177.233, primary alias 91.107.251.85 | Germany backend | Both local addresses listen on 29999; target 2096. |
 | 171.22.132.226 | Netherlands backend | Tunnel 29999; target 2096. |
-| 89.45.68.14 and 89.45.68.118 | Multi-peer clients | Public TCP 9001/9003 through the respective backend. |
+| 65.109.211.233 | Replacement Finland backend, older binary | Tunnel 2052; target 2096; path test failed. |
+| 89.45.68.14 and 89.45.68.118 | Multi-peer clients | Public TCP 9001/9002/9003 through the respective backend; 9002 fails. |
 
 Both clients use Germany's 91.107.251.85 endpoint. Source ports are 29998 for
 Germany and 29997 for Netherlands. There is no relay through another backend.
-The retained 9002/excluded-backend entries remain unavailable.
+Port 9002 now uses the replacement Finland host 65.109.211.233:2052, targeting
+65.109.211.233:2096. Corrected IP references do not establish a working path;
+[the Finland check](FINLAND-CHECK.md) failed on both clients. The old backend
+65.109.192.172 remains excluded and was not contacted.
 
 ## Installed files
 

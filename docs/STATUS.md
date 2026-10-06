@@ -19,7 +19,7 @@ Both clients, 89.45.68.14 and 89.45.68.118, have these forwards:
 |---|---|---|---|
 | 9001 | 91.107.251.85:29999 | 116.202.177.233:2096 | Germany passed 4/4 authenticated 10 MiB requests. |
 | 9003 | 171.22.132.226:29999 | 171.22.132.226:2096 | Restored; final Reality 10 MiB requests passed 8/8 across both clients. |
-| 9002 | Excluded direct backend entry | 65.109.192.172:2096 | Unavailable/excluded; not contacted. |
+| 9002 | 65.109.211.233:2052 | 65.109.211.233:2096 | Replacement IP corrected; forwarding failed. The isolated Netherlands-profile control also failed. |
 
 Germany uses eight shared KCP carriers per client with PA flags and MTU1350.
 Netherlands uses four, client S / backend PA, MTU1350 and scaled packet windows,
@@ -37,6 +37,12 @@ path, not universal production readiness. [Diagnosis and limits](NETHERLANDS-DIA
 and audited after the profile's qualification. Germany's snapshot/unit remain
 from release cleanup. Client profiling is enabled, backend profiling disabled;
 metrics bind only to localhost. Temporary diagnostic resources were removed.
+
+The replacement Finland host `65.109.211.233` retains the older enterprise
+binary, SHA-256 `ecb8e002173f6f80cd3f403d3ee3080190f0e49889fa2ba9f883b893f96318f3`.
+Its stale old-IP bind was corrected and its service now runs. Both clients’ 9002
+references were updated. A temporary matched-current-binary Netherlands-profile
+control on 29999 failed; it was removed. [Finland check](FINLAND-CHECK.md).
 
 ## Qualification and remaining work
 

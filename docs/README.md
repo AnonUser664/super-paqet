@@ -20,6 +20,7 @@ recovery, and the finite acceptance boundary.
 | [BENCHMARKS.md](BENCHMARKS.md) | Current qualification results, methods and known failed gates. |
 | [CLEAN-LINK-CURRENT.md](CLEAN-LINK-CURRENT.md) | Exact deployed executable's isolated unencrypted bulk results. |
 | [FINAL-DEPLOYMENT-REPORT.md](FINAL-DEPLOYMENT-REPORT.md) | Release measurements, resource limits and deployment evidence. |
+| [FINLAND-CHECK.md](FINLAND-CHECK.md) | Replacement Finland IP check, failed profile control and final state. |
 | [NETHERLANDS-DIAGNOSIS.md](NETHERLANDS-DIAGNOSIS.md) | Same-path version comparisons and paired packet captures. |
 
 Compact evidence: [release](final-deployment-evidence.json),
