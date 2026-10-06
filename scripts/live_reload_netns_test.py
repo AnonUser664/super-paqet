@@ -221,6 +221,7 @@ def main():
     parser.add_argument('--streams', type=int, default=32, help='active streams per original peer')
     parser.add_argument('--carriers', type=int, default=1, help='deterministic source-port carriers per original peer, 1..8')
     parser.add_argument('--shared-source', action='store_true', help='keep one fixed source port for all original peer carriers')
+    parser.add_argument('--small-write-flush', type=int, default=0, help='exercise fast-mode bulk batching with this interactive-write threshold')
     parser.add_argument('--delay-ms', type=int, default=0, help='one-way virtual link delay')
     parser.add_argument('--loss', type=float, default=0)
     parser.add_argument('--reverse-delay-ms', type=int)
@@ -231,7 +232,7 @@ def main():
     args = parser.parse_args()
     if os.geteuid() != 0:
         parser.error('run as root; only owned network namespaces are modified')
-    if not 1 <= args.carriers <= 8 or args.streams < 1 or args.cycles < 1 or min(args.delay_ms, args.reverse_delay_ms or 0, args.rate_mbit, args.reverse_rate_mbit) < 0 or not 0 <= args.loss <= 100 or not 0 <= args.reorder <= 100:
+    if not 0 <= args.small_write_flush <= 65535 or not 1 <= args.carriers <= 8 or args.streams < 1 or args.cycles < 1 or min(args.delay_ms, args.reverse_delay_ms or 0, args.rate_mbit, args.reverse_rate_mbit) < 0 or not 0 <= args.loss <= 100 or not 0 <= args.reorder <= 100:
         parser.error('invalid workload bounds')
     binary = (ROOT/args.binary).resolve()
     out = (ROOT/args.output).resolve()
@@ -336,7 +337,8 @@ def main():
         """Keep transport setup explicit so route discovery does not affect tests."""
         return dict(address=address, enc='null', sessions=1, max_sessions=1, packet_workers=1,
                     adaptive=False, network=dict(interface=iface, backend='packet', ipv4=dict(addr=source, router_mac=mac)),
-                    kcp=dict(mode='fast3', sndwnd=1024, rcvwnd=1024, smuxkalive=1, smuxktimeout=4))
+                    kcp=dict(mode='fast' if args.small_write_flush else 'fast3', small_write_flush=args.small_write_flush,
+                             sndwnd=1024, rcvwnd=1024, smuxkalive=1, smuxktimeout=4))
 
     def rule_count(namespace):
         """Count only owned chain definitions, excluding unrelated fixture rules."""
