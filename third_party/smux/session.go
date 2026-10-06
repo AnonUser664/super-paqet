@@ -267,31 +267,46 @@ func (s *Session) OpenStream() (*Stream, error) {
 	s.nextStreamIDLock.Unlock()
 
 	stream := newStream(sid, s.config.MaxFrameSize, s)
-
-	if _, err := s.writeControlFrame(newFrame(byte(s.config.Version), cmdSYN, sid)); err != nil {
+	// A duplex carrier may deliver the peer's reply before its SYN Write
+	// reports completion. Publish receive ownership first so early data and
+	// credit are retained, and pending opens count as live carrier users.
+	s.streamLock.Lock()
+	var err error
+	select {
+	case <-s.chSocketReadError:
+		err = s.socketReadError.Load().(error)
+	case <-s.chSocketWriteError:
+		err = s.socketWriteError.Load().(error)
+	case <-s.die:
+		err = io.ErrClosedPipe
+	default:
+		s.streams[sid] = stream
+	}
+	s.streamLock.Unlock()
+	if err != nil {
 		return nil, err
 	}
 
-	s.streamLock.Lock()
-	defer s.streamLock.Unlock()
-	select {
-	case <-s.chSocketReadError:
-		return nil, s.socketReadError.Load().(error)
-	case <-s.chSocketWriteError:
-		return nil, s.socketWriteError.Load().(error)
-	case <-s.die:
-		return nil, io.ErrClosedPipe
-	default:
-		s.streams[sid] = stream
-		wrapper := &Stream{stream: stream}
-		// NOTE(x): disabled finalizer for issue #997
-		/*
-			runtime.SetFinalizer(wrapper, func(s *Stream) {
-				s.Close()
-			})
-		*/
-		return wrapper, nil
+	_, err = s.writeControlFrame(newFrame(byte(s.config.Version), cmdSYN, sid))
+	if err == nil {
+		select {
+		case <-s.chSocketReadError:
+			err = s.socketReadError.Load().(error)
+		case <-s.chSocketWriteError:
+			err = s.socketWriteError.Load().(error)
+		case <-s.die:
+			err = io.ErrClosedPipe
+		default:
+		}
 	}
+	if err != nil {
+		// No wrapper escapes on failure. Reclaim any early receive tokens
+		// and pending credits without waiting for another control write.
+		stream.sessionClose()
+		s.streamClosed(sid)
+		return nil, err
+	}
+	return &Stream{stream: stream}, nil
 }
 
 // Open returns a generic ReadWriteCloser
