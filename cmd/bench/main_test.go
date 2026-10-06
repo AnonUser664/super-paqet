@@ -27,10 +27,10 @@ func TestLoadRequiresCompleteResponse(t *testing.T) {
 			}))
 			defer server.Close()
 			result := captureLoad(t, "", server.URL)
-			if complete && result["requests"] == 0 {
-				t.Fatal("complete responses were not counted")
+			if complete && (result["requests"] == 0 || result["successful_workers"] != 2) {
+				t.Fatal("every worker must complete a full response:", result)
 			}
-			if !complete && (result["requests"] != 0 || result["errors"] == 0) {
+			if !complete && (result["requests"] != 0 || result["errors"] == 0 || result["successful_workers"] != 0) {
 				t.Fatal("truncated responses counted as success:", result)
 			}
 		})

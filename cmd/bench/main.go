@@ -287,7 +287,9 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 	}
 	tr.DisableKeepAlives = mode == "http-churn"
 	defer tr.CloseIdleConnections()
-	c := &http.Client{Transport: tr}
+	// A stalled worker must become a recorded failure during a long soak, rather
+	// than waiting until the workload deadline and looking like normal cleanup.
+	c := &http.Client{Transport: tr, Timeout: 30 * time.Second}
 	path := "/"
 	if mode == "bulk" {
 		path = "/bulk?bytes=1048576"
@@ -305,6 +307,7 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 		}
 	}
 	var requests, failed, canceled, bytes atomic.Int64
+	var successfulWorkers atomic.Int64
 	var buckets [32]atomic.Int64
 	// Millisecond buckets resolve WAN latency changes that disappear inside
 	// logarithmic bounds; the logarithmic histogram still covers long stalls.
@@ -316,6 +319,12 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
+			completed := false
+			defer func() {
+				if completed {
+					successfulWorkers.Add(1)
+				}
+			}()
 			for ctx.Err() == nil {
 				t0 := time.Now()
 				r, _ := http.NewRequestWithContext(ctx, "GET", requestURL, nil)
@@ -340,6 +349,7 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 					continue
 				}
 				requests.Add(1)
+				completed = true
 				us := time.Since(t0).Microseconds()
 				latencySum.Add(us)
 				millisecondBuckets[min(int(us/1000), len(millisecondBuckets)-1)].Add(1)
@@ -372,7 +382,7 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 		}
 		return 0
 	}
-	emit(map[string]any{"mode": mode, "workers": workers, "seconds": elapsed, "requests": requests.Load(), "errors": failed.Load(), "canceled_requests": canceled.Load(), "bytes": bytes.Load(), "goodput_gbps": float64(bytes.Load()) * 8 / elapsed / 1e9, "requests_per_second": float64(requests.Load()) / elapsed, "mean_latency_us": float64(latencySum.Load()) / float64(max(1, requests.Load())), "p50_us_upper": percentile(.50), "p99_us_upper": percentile(.99)})
+	emit(map[string]any{"mode": mode, "workers": workers, "successful_workers": successfulWorkers.Load(), "seconds": elapsed, "requests": requests.Load(), "errors": failed.Load(), "canceled_requests": canceled.Load(), "bytes": bytes.Load(), "goodput_gbps": float64(bytes.Load()) * 8 / elapsed / 1e9, "requests_per_second": float64(requests.Load()) / elapsed, "mean_latency_us": float64(latencySum.Load()) / float64(max(1, requests.Load())), "p50_us_upper": percentile(.50), "p99_us_upper": percentile(.99)})
 }
 
 // hold ramps and retains TCP forwards, then verifies every held socket instead of counting

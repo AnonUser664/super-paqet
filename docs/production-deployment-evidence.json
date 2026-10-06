@@ -1086,5 +1086,95 @@
     "Five-path partial runs are not compared against complete six-path aggregate runs.",
     "KCP adaptation and session count both changed in adaptive4096x8; improvement is attributed to the combined profile.",
     "SSH preparation/monitoring failures are recorded separately from receiver or application failures."
-  ]
+  ],
+  "kernel_tcp_control": {
+    "label": "kernel-control",
+    "direction": "download",
+    "seconds": 30,
+    "streams_per_path": 16,
+    "results": {
+      "89.45.68.118": {
+        "germany": {
+          "exit": 0,
+          "error": null,
+          "receiver": {
+            "start": 0,
+            "end": 29.971097,
+            "seconds": 29.971097,
+            "bytes": 553648128,
+            "bits_per_second": 147781878.78808707,
+            "sender": false
+          }
+        },
+        "finland": {
+          "exit": 124,
+          "error": "interrupt - the client has terminated",
+          "receiver": {
+            "start": 0,
+            "end": 47.983745,
+            "seconds": 47.983745,
+            "bytes": 98464,
+            "bits_per_second": 16416.22595318477,
+            "sender": false
+          }
+        },
+        "france": {
+          "exit": 124,
+          "error": "interrupt - the client has terminated",
+          "receiver": {
+            "start": 0,
+            "end": 46.078034,
+            "seconds": 46.078034,
+            "bytes": 57552,
+            "bits_per_second": 9992.092978619703,
+            "sender": false
+          }
+        }
+      },
+      "89.45.68.14": {
+        "germany": {
+          "exit": 0,
+          "error": null,
+          "receiver": {
+            "start": 0,
+            "end": 29.992186,
+            "seconds": 29.992186,
+            "bytes": 633077760,
+            "bits_per_second": 168864719.6306398,
+            "sender": false
+          }
+        },
+        "finland": {
+          "exit": 124,
+          "error": "interrupt - the client has terminated",
+          "receiver": {
+            "start": 0,
+            "end": 47.952088,
+            "seconds": 47.952088,
+            "bytes": 86880,
+            "bits_per_second": 14494.467894703563,
+            "sender": false
+          }
+        },
+        "france": {
+          "exit": 124,
+          "error": "interrupt - the client has terminated",
+          "receiver": {
+            "start": 0,
+            "end": 17.11299,
+            "seconds": 17.11299,
+            "bytes": 14388,
+            "bits_per_second": 6726.118580096173,
+            "sender": false
+          }
+        }
+      }
+    },
+    "cleanup": {
+      "116.202.177.233": true,
+      "171.22.132.226": true,
+      "65.109.249.222": true
+    }
+  },
+  "kernel_tcp_control_limits": "Germany completed at 0.317 Gbit/s aggregate. Four France/Finland tests exceeded the 50-second deadline; their tiny partial counts are failures, not capacity measurements. All owned test servers and firewall rules were removed. Ordinary TCP results do not establish a raw-transport bandwidth ceiling."
 }
