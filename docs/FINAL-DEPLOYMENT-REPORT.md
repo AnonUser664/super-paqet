@@ -3,8 +3,16 @@
 Updated 2026-10-06. The requested final release is deployed on the four active
 hosts, with persistent enabled systemd services, rollback backups, live reload,
 configuration validation, and owned-rule cleanup. The excluded backend was not
-contacted. **The remaining Netherlands authenticated-concurrency tail means
+contacted. **The remaining Netherlands burst failures and complete application-path outages mean
 this is not an unconditional production-readiness or universal-optimality claim.**
+
+Latest recheck: reverting Netherlands peers to four lanes applied on both
+clients, but did not recover acceptance. Germany passed four of four 10 MiB
+Reality downloads; Netherlands failed four of four from both clients with TLS
+timeouts. The public Netherlands request also timed out. The eight-lane snapshots
+below describe the measured capacity configuration before that diagnostic
+reversion. The [test results audit](TEST-RESULTS-AUDIT.md) separates historical
+throughput workloads and examines what the captures establish about filtering.
 
 ## Executable and implementation
 
@@ -48,7 +56,7 @@ Germany also retains its 116.202.177.233 listener. Public client ports remain
 bound on all IPv4 interfaces. The application target and Reality credentials
 have not been changed. There is no relay through an extra backend.
 
-Each working peer has **eight independent KCP/mux lanes**, one fixed verified
+The measured eight-lane capacity configuration uses **eight independent KCP/mux lanes**, one fixed verified
 source port, `shared_source: true`, and quoted `enc: 'null'`. All available Go
 processors are usable; no CPU quota or affinity restriction was added.
 Each backend has two vCPUs/~4 GiB RAM; each client has four vCPUs/~8 GiB RAM.
@@ -85,7 +93,7 @@ affected endpoint, and process replacement still ends established streams.
 | Final eight-lane deployed hold | 4,096 forwards per client, **8,192 verified**, zero errors | Both backends; HTTP/churn/bulk alongside hold |
 | Deployed 256-worker HTTP/churn | Zero forwarding errors; roughly 1,700–2,200 HTTP req/s and 580–1,020 churn req/s per route/client | Final eight-lane stage; deadline cancellations excluded |
 | Final deployed tunnel memory | Clients ~153/155 MiB peak RSS; backends ~184/225 MiB | 8k hold and measured load; excludes test generators/kernel/Xray |
-| Authenticated 10 MiB downloads | Earlier 8/8 passed; latest cleanup recheck passed Germany and .14 Netherlands, failed .118 Netherlands twice | Full VLESS/Reality/Vision, finite bulk checks |
+| Authenticated 10 MiB downloads | Earlier 8/8 passed; latest four-lane NL recheck passed Germany 4/4 and failed Netherlands 0/4 from both clients | Full VLESS/Reality/Vision, finite bulk checks |
 | Public-domain complete 1 MiB | Both ports passed earlier; post-cleanup Germany passed and Netherlands timed out at 12 s | Laptop → deir.cloudnet1.ir |
 | Authenticated burst, 32 workers/client | 1,024/1,024 passed | 256 requests on each of four paths |
 | Authenticated burst, 64 workers/client | Germany 1,024/1,024; Netherlands **1,020/1,024** | Four Netherlands SSL connect timeouts, no retry masking |
@@ -117,8 +125,8 @@ larger-MTU/microflush results looked faster, but burst qualification rejected
 those changes. A blanket 40 ms improvement without tradeoffs was **not** achieved
 on Netherlands and is not claimed.
 
-The four SSL timeouts at 64 workers/client and intermittent post-cleanup .118
-Netherlands failures remain an unresolved acceptance
+The four SSL timeouts at 64 workers/client and subsequent complete Netherlands
+download failures from both clients remain an unresolved acceptance
 limit. A post-cleanup public-domain retest also exceeded the 12-second deadline
 on Netherlands while Germany passed; this is recorded as a failed check. Direct backend Xray controls passed, while ordinary client-to-backend
 VLESS controls failed, so neither aggregate TCP reachability nor a localhost
@@ -139,7 +147,7 @@ These results establish finite forwarding/capacity behavior. They do not prove
 100k busy customers, gigabit throughput on these two-vCPU backends, multi-day
 sustained service, universal detectability invariance, or an absolute maximum
 across every network. Production qualification of the authenticated high-load
-Netherlands tail remains open.
+Netherlands path remains open.
 
 ## Cleanup and rollback
 

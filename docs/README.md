@@ -10,6 +10,8 @@ has verified one active customer; thousands of active customers remain untested.
 
 | Document | Purpose |
 |---|---|
+| [TEST-RESULTS-AUDIT.md](TEST-RESULTS-AUDIT.md) | Throughput comparison by workload/build, latest local and remote results, Netherlands failure evidence and remaining causal gaps. |
+| [test-results-inventory.json](test-results-inventory.json) | Compact inventory of all retained structured result files, matrix gates and final-stage remote reports, including failures. |
 | [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md) | Recorded failures, approaches, rejected experiments, evidence mistakes and decisions through the review pause. |
 | [LIVE-RELOAD.md](LIVE-RELOAD.md) | File watching, validation CLI, exact edit impact, replacement/rollback semantics and qualification. |
 | [CODE-COMMENTS.md](CODE-COMMENTS.md) | Comment coverage, ownership/contract explanations and behavior-preservation verification. |
