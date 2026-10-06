@@ -34,3 +34,8 @@ delivery, cancellation and deadlines.
 * Atomic CloseIfIdle excludes stream registration while retiring a carrier.
 * An asynchronous carrier write error closes the session, clears pending work
   and wakes blocked readers. Fault/integrity/race coverage exercises this path.
+
+* Accepted stream wrappers no longer have a GC finalizer. The session owns the
+  backing stream and callers explicitly close it. Promoted methods retain the
+  backing object without necessarily retaining the wrapper; its finalizer could
+  therefore close live reads/writes. A forced-GC regression covers that lifetime.

@@ -1,0 +1,169 @@
+#!/usr/bin/env python3
+"""Collect bounded, finite production diagnostics without generating customer traffic.
+
+Run separately on each host so samples survive SSH loss. Capture ten-second
+counter/resource snapshots and incident journals; optional loopback Go profiles
+require profiling to be explicitly enabled in the tunnel configuration. No
+customer configurations or payloads are collected; metrics include configured
+peer endpoints.
+"""
+import argparse
+import datetime
+import json
+import logging
+import logging.handlers
+import os
+import pathlib
+import subprocess
+import time
+import urllib.error
+import urllib.request
+
+
+def command(args):
+    """Bound subprocess time and output; tolerate older kernels and vanished PIDs."""
+    try:
+        result = subprocess.run(args, capture_output=True, text=True, timeout=3)
+        return {"rc": result.returncode, "out": result.stdout[-131072:], "err": result.stderr[-1024:]}
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return {"error": str(error)}
+
+
+def read(path):
+    """Read resource metadata without failing the observer on process exit."""
+    try:
+        return pathlib.Path(path).read_text()[:131072]
+    except OSError:
+        return ""
+
+
+def snapshot():
+    """Fetch bounded local metrics and process/cgroup/host counters."""
+    row = {"utc": datetime.datetime.now(datetime.timezone.utc).isoformat(), "monotonic": time.monotonic()}
+    result = command(["systemctl", "show", "super-paqet", "-p", "MainPID,NRestarts,ActiveState,Result,ControlGroup"])
+    row["unit"] = dict(line.split("=", 1) for line in result.get("out", "").splitlines() if "=" in line)
+    base = pathlib.Path("/proc") / row["unit"].get("MainPID", "0")
+    row["proc_status"] = read(base / "status")
+    row["proc_stat"] = read(base / "stat")
+    try:
+        row["fds"] = sum(1 for _ in (base / "fd").iterdir())
+    except OSError:
+        row["fds"] = None
+    group = pathlib.Path("/sys/fs/cgroup") / row["unit"].get("ControlGroup", "").lstrip("/")
+    row["cgroup"] = {name: read(group / name) for name in ["memory.events", "memory.current", "cpu.stat", "pids.events"]}
+    row["host"] = {name: read("/proc/" + name) for name in ["loadavg", "meminfo", "net/dev", "pressure/cpu", "pressure/memory"]}
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:29090/metrics", timeout=3) as response:
+            row["metrics"] = response.read(262144).decode()
+    except (OSError, urllib.error.URLError) as error:
+        row["metrics_error"] = str(error)
+    return row
+
+
+def counters(row):
+    """Extract unlabelled totals for within-process incident comparisons."""
+    result = {}
+    for line in row.get("metrics", "").splitlines():
+        fields = line.split()
+        if len(fields) == 2 and "{" not in fields[0]:
+            try:
+                result[fields[0]] = float(fields[1])
+            except ValueError:
+                pass
+    return result
+
+
+def incident(row, previous):
+    """Detect resets separately from growing failure counters."""
+    reasons = []
+    if "metrics_error" in row:
+        reasons.append("metrics_unavailable")
+    if row["unit"].get("ActiveState") != "active":
+        reasons.append("service_inactive")
+    if previous:
+        if row["unit"].get("MainPID") != previous["unit"].get("MainPID"):
+            reasons.append("process_changed")
+        else:
+            now, old = counters(row), counters(previous)
+            for key in ["errors_total", "rejected_total", "config_reload_rejected_total"]:
+                name = "super_paqet_" + key
+                if now.get(name, 0) - old.get(name, 0) >= (10 if key == "errors_total" else 1):
+                    reasons.append(key + "_increased")
+    if previous:
+        current_drops = {k: v for k, v in counters_with_labels(row).items() if "tx_queue_drops" in k or "capture_drops" in k}
+        old_drops = counters_with_labels(previous)
+        if any(v - old_drops.get(k, v) >= 10 for k, v in current_drops.items()):
+            reasons.append("packet_drops_increased")
+    return reasons
+
+
+def counters_with_labels(row):
+    """Retain endpoint labels when comparing packet-driver counters."""
+    result = {}
+    for line in row.get("metrics", "").splitlines():
+        fields = line.rsplit(" ", 1)
+        if len(fields) == 2 and fields[0].startswith("super_paqet_"):
+            try:
+                result[fields[0]] = float(fields[1])
+            except ValueError:
+                pass
+    return result
+
+
+def capture(directory, count):
+    """Bound profile size/count; disabled profiling produces no artifact."""
+    for name, endpoint, timeout in [("goroutines.txt", "goroutine?debug=2", 4), ("cpu.pprof", "profile?seconds=5", 8)]:
+        try:
+            with urllib.request.urlopen("http://127.0.0.1:29090/debug/pprof/" + endpoint, timeout=timeout) as response:
+                data = response.read(4 * 1024 * 1024)
+            target = directory / (str(count) + "-" + name)
+            target.write_bytes(data)
+            target.chmod(0o600)
+        except (OSError, urllib.error.URLError):
+            pass
+
+
+def main():
+    """Expire after a day and rotate output to bound observer overhead."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--directory", default="/var/log/super-paqet-watch")
+    parser.add_argument("--duration", type=float, default=86400)
+    parser.add_argument("--interval", type=float, default=10)
+    args = parser.parse_args()
+    if args.duration <= 0 or args.interval < 5:
+        parser.error("duration must be positive and interval at least five seconds")
+    os.umask(0o077)
+    directory = pathlib.Path(args.directory)
+    directory.mkdir(parents=True, exist_ok=True, mode=0o700)
+    logger = logging.getLogger("production-watch")
+    logger.setLevel(logging.INFO)
+    handler = logging.handlers.RotatingFileHandler(directory / "samples.jsonl", maxBytes=16 * 1024 * 1024, backupCount=3)
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.addHandler(handler)
+    end, previous, last_capture, captures = time.monotonic() + args.duration, None, -float("inf"), 0
+    while time.monotonic() < end:
+        start = time.monotonic()
+        try:
+            row = snapshot()
+            reasons = incident(row, previous)
+            row["triggers"] = reasons
+            if reasons and start - last_capture >= 300:
+                row["journal"] = command(["journalctl", "-u", "super-paqet", "--since", "-5min", "-n", "120", "--no-pager", "-o", "cat"])
+                row["kernel"] = command(["journalctl", "-k", "-p", "warning", "--since", "-5min", "-n", "50", "--no-pager", "-o", "cat"])
+                last_capture = start
+                if captures < 12:
+                    capture(directory, captures)
+                    captures += 1
+            logger.info(json.dumps(row, separators=(",", ":")))
+            latest = directory / "latest.tmp"
+            latest.write_text(json.dumps(row))
+            os.replace(latest, directory / "latest.json")
+            previous = row
+        except Exception as error:
+            logger.info(json.dumps({"observer_error": str(error), "utc": datetime.datetime.now(datetime.timezone.utc).isoformat()}))
+        time.sleep(max(0, min(args.interval - (time.monotonic() - start), end - time.monotonic())))
+    logger.info(json.dumps({"observer_completed": True, "duration_seconds": args.duration}))
+
+
+if __name__ == "__main__":
+    main()

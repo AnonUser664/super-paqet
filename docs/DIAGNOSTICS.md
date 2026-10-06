@@ -31,6 +31,7 @@ interpreting incomplete traces.
 | `engine.summary` | Active/accepted/rejected/failed/aborted counts, traffic, goroutines and lost logs |
 | `session.connected`, `session.accepted` | Conversation ID and endpoint identity |
 | `session.invalidated`, `session.idle_invalidated` | Carrier replacement |
+| `opening.transport_timeout` | New-stream receipt timeout; carrier identity, attempt, remaining deadline and surviving streams |
 | `flow.open`, `flow.control`, `flow.relay`, `flow.closed` | Sampled lifecycle, correlated by flow ID within the process |
 | `packet.tx_queue` | New transmit queue drops on a shared listener socket, with cumulative and interval counts |
 | `transport.sample` | Delivery estimate, RTT/variance, pacing, windows, queues and wait time |
@@ -130,3 +131,26 @@ Regression floors in the live runner reject catastrophic throughput collapse.
 
 At log levels above info, successful reload logs are filtered normally; metrics
 remain available. `config validate` gives detailed local validation errors.
+
+## Finite production observation
+
+`scripts/production_watch.py` runs independently of the tunnel using Python's
+standard library. Its default is ten-second snapshots for 24 hours, with four
+rotating 16 MiB log files under `/var/log/super-paqet-watch`. It records process,
+file-descriptor, cgroup, host and loopback metric counters. It generates no
+customer traffic and never restarts the tunnel. Metrics include configured peer
+addresses; configuration credentials and application payloads are not read.
+
+Process changes, unavailable metrics, growing opening/error counters and packet
+queue drops trigger bounded journal snapshots. With loopback profiling enabled,
+it also preserves at most twelve five-second CPU profiles and bounded goroutine
+dumps, with at least five minutes between captures. Profiles contain stack
+metadata and require root-only handling. Read `latest.json` for the last sample;
+`observer_completed` in `samples.jsonl` records normal completion. Collection
+alone does not notify an operator or automatically fix a fault.
+
+Warning-level connection errors preserve the first five causes and subsequently
+one cause per ten seconds, including the cumulative `error_id`. Every error is
+still counted. Later incidents therefore remain visible without logging every
+failed flow in a burst. `super_paqet_opening_transport_retries_total` counts new
+attempts made after an unacknowledged opening timed out; a retry need not succeed.

@@ -395,8 +395,9 @@ Kernel buffers, sockets, Xray, the OS, targets and generators need their own
 budgets. Socket buffers and flow ceilings remain explicit configuration; no
 live CPU-budget/RSS feedback controller is implemented.
 
-The deployed runtime does not include the dirty workspace's five-second
-post-half-close TCP read deadline or changed opening retry timing. There is no
+There is no five-second post-half-close TCP read deadline. New-opening receipt
+recovery is bounded separately from the target dial, as described in
+[ARCHITECTURE.md](ARCHITECTURE.md). There is no
 configurable TCP idle lifetime or half-close grace deadline in the current
 schema. Healthy one-direction EOF permits data in the other direction. Process
 restart/crash ends established application streams; new streams can reconnect.

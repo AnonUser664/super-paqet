@@ -30,7 +30,6 @@ import (
 	"errors"
 	"io"
 	"net"
-	"runtime"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -310,11 +309,11 @@ func (s *Session) AcceptStream() (*Stream, error) {
 
 	select {
 	case stream := <-s.chAccepts:
-		wrapper := &Stream{stream: stream}
-		runtime.SetFinalizer(wrapper, func(s *Stream) {
-			s.Close()
-		})
-		return wrapper, nil
+		// The session owns the backing stream until explicit Close/session teardown.
+		// Promoted I/O methods retain that backing stream, not necessarily this
+		// wrapper. A wrapper finalizer could therefore close active I/O during GC.
+		// Match OpenStream's explicit ownership rather than using GC as a reset.
+		return &Stream{stream: stream}, nil
 	case <-deadline:
 		return nil, ErrTimeout
 	case <-s.chSocketReadError:

@@ -167,6 +167,7 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 	}
 	var last error
 	var excluded map[*slot]bool
+	transportRetry := false
 	p.mu.RLock()
 	attemptLimit := len(p.slots) + 1
 	p.mu.RUnlock()
@@ -177,6 +178,10 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 		s, err := p.selectSlot(ctx, excluded)
 		if err != nil {
 			return nil, err
+		}
+		if transportRetry {
+			p.engine.stats.OpenRetries.Add(1)
+			transportRetry = false
 		}
 		c, err := p.connection(ctx, s)
 		if err != nil {
@@ -198,16 +203,7 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 			continue
 		}
 		deadline, _ := ctx.Deadline()
-		firstReply := time.Now().Add(max(2*time.Second, time.Duration(c.UDPSession.GetSRTT())*8*time.Millisecond))
-		// A temporary outage must not kill established forwards just because a
-		// new request missed a short opening deadline. Busy sessions get the
-		// configured opening grace; idle stale sessions retain quick replacement.
-		if c.Session.NumStreams() > 1 {
-			firstReply = deadline
-		}
-		if deadline.Before(firstReply) {
-			firstReply = deadline
-		}
+		firstReply := p.receiptDeadline(time.Now(), deadline, s, excluded, c.UDPSession.GetSRTT())
 		strm.SetDeadline(firstReply)
 		stop := context.AfterFunc(ctx, func() { strm.Close() })
 		err = (&protocol.Proto{Type: kind, Addr: a}).Write(strm)
@@ -234,6 +230,9 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 			transportTimedOut := ack[0] == 0 && errors.As(err, &timeout) && timeout.Timeout()
 			if transportTimedOut && p.engine.ctx.Err() == nil {
 				strm.Close()
+				// Only this new stream failed. Existing forwards retain their carrier.
+				transportRetry = true
+				p.engine.log().Debug("opening.transport_timeout", "remote", p.configuration().Address, "target", target, "conv", c.UDPSession.GetConv(), "attempt", attempts+1, "remaining_ms", time.Until(deadline).Milliseconds(), "streams", c.Session.NumStreams(), "error", err)
 				p.invalidateIdle(s, c)
 				if excluded == nil {
 					excluded = make(map[*slot]bool)
@@ -249,6 +248,27 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 		return strm, nil
 	}
 	return nil, fmt.Errorf("peer unavailable: %w", last)
+}
+
+// receiptDeadline reserves time for untried carriers when one ordered lane
+// stalls. A busy carrier is retained by invalidateIdle; its existing streams do
+// not justify spending the whole new-opening deadline. ACK2 subsequently grants
+// the full target-dial budget, so slow target connections are never retried.
+func (p *peer) receiptDeadline(now, deadline time.Time, selected *slot, excluded map[*slot]bool, rtt int32) time.Time {
+	p.mu.RLock()
+	remaining := 1
+	for _, s := range p.slots {
+		if s != selected && !excluded[s] {
+			remaining++
+		}
+	}
+	p.mu.RUnlock()
+	if remaining == 1 {
+		return deadline
+	}
+	budget := max(2*time.Second, time.Duration(rtt)*8*time.Millisecond)
+	budget = min(budget, deadline.Sub(now)/time.Duration(remaining))
+	return now.Add(budget)
 }
 
 // invalidate retires only the cached generation that failed so an old operation cannot close

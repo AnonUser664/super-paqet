@@ -34,6 +34,8 @@ type Stats struct {
 	// Atomic live/admission/failure/byte/carrier counters; control streams can briefly count as
 	// active work.
 	Active, Accepted, Rejected, Errors, Aborted, Sent, Received, Sessions atomic.Int64
+	// Counts new-opening recovery attempts without counting them as application failures.
+	OpenRetries atomic.Int64
 }
 
 // Engine owns one process runtime and its resource lifetimes; carrier and flow state remain
@@ -74,6 +76,8 @@ type Engine struct {
 	wg sync.WaitGroup
 	// Bounded asynchronous diagnostic output and its shutdown/drop state.
 	diagnostics *diagnostics
+	// Time of the last warning cause; later incidents must remain visible at warn level.
+	failureWarnAt atomic.Int64
 	// Atomic debug correlation IDs; absent debug tracing avoids per-flow records.
 	flowIDs atomic.Uint64
 }
@@ -154,12 +158,24 @@ func (e *Engine) acquire() bool {
 // healthy carriers.
 func (e *Engine) report(err error) {
 	n := e.stats.Errors.Add(1)
-	if n <= 5 {
-		e.log().Warn("connection.failed", "error", err)
+	if e.warnFailure(n, time.Now().UnixNano()) {
+		e.log().Warn("connection.failed", "error_id", n, "error", err)
 	}
 	if e.diagnostics != nil && uint64(n)%e.current().Log.FlowSample == 0 {
 		e.log().Debug("connection.failure_sample", "error_id", n, "error", err)
 	}
+}
+
+// warnFailure preserves the first five causes and at most one subsequent cause
+// per ten seconds. Counters retain every failure, including suppressed records.
+// Atomic admission avoids a global logging lock on concurrent opening failures.
+func (e *Engine) warnFailure(n int64, now int64) bool {
+	if n <= 5 {
+		e.failureWarnAt.Store(now)
+		return true
+	}
+	previous := e.failureWarnAt.Load()
+	return now-previous >= int64(10*time.Second) && e.failureWarnAt.CompareAndSwap(previous, now)
 }
 
 // Reserving a kernel port prevents unrelated outgoing TCP connections using a

@@ -26,7 +26,7 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 		value int64
 	}{
 		{"active_connections", e.stats.Active.Load()}, {"accepted_total", e.stats.Accepted.Load()}, {"rejected_total", e.stats.Rejected.Load()},
-		{"errors_total", e.stats.Errors.Load()}, {"sent_bytes_total", e.stats.Sent.Load()}, {"received_bytes_total", e.stats.Received.Load()},
+		{"errors_total", e.stats.Errors.Load()}, {"opening_transport_retries_total", e.stats.OpenRetries.Load()}, {"sent_bytes_total", e.stats.Sent.Load()}, {"received_bytes_total", e.stats.Received.Load()},
 		{"aborted_connections_total", e.stats.Aborted.Load()},
 		{"server_sessions", e.stats.Sessions.Load()}, {"goroutines", int64(runtime.NumGoroutine())},
 	} {

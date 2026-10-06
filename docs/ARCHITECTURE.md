@@ -176,7 +176,12 @@ flag cycle. The engine associates it with that carrier generation. Each local
 TCP connection then gets its own smux stream. Opening success is distinct from
 transport receipt, so a slow/unreachable destination should not automatically
 be mistaken for a failed transport. Per-opening deadlines, failed-slot exclusion
-and reconnect backoff bound new work. Replacing a carrier loses its existing
+and reconnect backoff bound new work. An unacknowledged opening reserves time
+for each remaining carrier: its first-receipt budget is the smaller of
+`max(2s, 8 × RTT)` and remaining deadline divided by untried carriers. The last
+carrier gets the remaining deadline. Receipt status 2 restores the full target
+dial budget. Retrying a new stream closes that stream while retaining its busy
+carrier and established forwards. Replacing a carrier loses its existing
 streams; retrying a new opening is not transparent replay of an established TCP
 application session.
 
