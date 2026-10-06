@@ -111,18 +111,26 @@ def counters_with_labels(row):
 
 
 def capture(directory, count):
-    """Bound profile size/count; disabled profiling produces no artifact."""
+    """Rotate twelve profile slots; later incidents retain capture coverage.
+
+    Disabled profiling produces no artifact. Remove each old slot artifact first
+    so a failed request cannot make a previous dump look like the new incident.
+    """
+    artifacts = {}
     # Aggregated stacks remain complete when a detailed many-thousand-stream
     # dump hits the byte ceiling. Capture them first, before CPU sampling delays.
     for name, endpoint, timeout in [("goroutines-summary.txt", "goroutine?debug=1", 4), ("goroutines.txt", "goroutine?debug=2", 4), ("cpu.pprof", "profile?seconds=5", 8)]:
+        target = directory / (str(count % 12) + "-" + name)
+        target.unlink(missing_ok=True)
         try:
             with urllib.request.urlopen("http://127.0.0.1:29090/debug/pprof/" + endpoint, timeout=timeout) as response:
                 data = response.read(4 * 1024 * 1024)
-            target = directory / (str(count) + "-" + name)
             target.write_bytes(data)
             target.chmod(0o600)
+            artifacts[name] = len(data)
         except (OSError, urllib.error.URLError):
             pass
+    return artifacts
 
 
 def update_summary(summary, row):
@@ -213,7 +221,8 @@ def main():
     logger.addHandler(handler)
     summary = load_summary(directory)
     summary["completed"] = False
-    end, previous, last_capture, captures = time.monotonic() + args.duration, None, -float("inf"), 0
+    end, previous, last_capture = time.monotonic() + args.duration, None, -float("inf")
+    captures = summary.get("captures", 0)
     while time.monotonic() < end:
         start = time.monotonic()
         try:
@@ -224,9 +233,10 @@ def main():
                 row["journal"] = command(["journalctl", "-u", "super-paqet", "--since", "-5min", "-n", "120", "--no-pager", "-o", "cat"])
                 row["kernel"] = command(["journalctl", "-k", "-p", "warning", "--since", "-5min", "-n", "50", "--no-pager", "-o", "cat"])
                 last_capture = start
-                if captures < 12:
-                    capture(directory, captures)
-                    captures += 1
+                artifacts = capture(directory, captures)
+                write_json_atomic(directory / ("capture-" + str(captures % 12) + ".json"), {"utc": row["utc"], "pid": row["unit"].get("MainPID"), "sequence": captures, "reasons": reasons, "artifacts": artifacts})
+                captures += 1
+                summary["captures"] = captures
             logger.info(json.dumps(row, separators=(",", ":")))
             write_json_atomic(directory / "latest.json", row)
             update_summary(summary, row)

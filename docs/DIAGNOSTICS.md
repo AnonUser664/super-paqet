@@ -143,8 +143,11 @@ addresses; configuration credentials and application payloads are not read.
 
 Process changes, unavailable metrics, growing opening/error counters and packet
 queue drops trigger bounded journal snapshots. With loopback profiling enabled,
-it also preserves at most twelve five-second CPU profiles and bounded goroutine
-dumps, with at least five minutes between captures. Profiles contain stack
+it rotates twelve capture slots containing five-second CPU profiles, aggregated
+stacks and bounded detailed goroutine dumps, with at least five minutes between
+captures. This retains coverage of later incidents throughout the day rather
+than exhausting a lifetime quota early. Slot metadata identifies the captured
+PID, UTC time and causes; failed requests cannot retain stale slot artifacts. Profiles contain stack
 metadata and require root-only handling. Read `latest.json` for the last sample;
 `summary.json` retains full-window resource peaks and within-PID counter deltas
 across raw-log rotation and observer restarts, and marks normal completion.
