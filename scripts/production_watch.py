@@ -125,6 +125,75 @@ def capture(directory, count):
             pass
 
 
+def update_summary(summary, row):
+    """Retain full-window peaks/counter deltas even after raw samples rotate.
+
+    Process-local counters are compared only within one PID. The bounded run
+    list keeps recent process detail while global deltas/peaks survive eviction.
+    A timestamp guard makes startup replay and observer restarts idempotent.
+    """
+    utc = row.get("utc", "")
+    if "metrics" not in row or utc <= summary.get("last_utc", ""):
+        return
+    summary.setdefault("first_utc", utc)
+    summary["last_utc"] = utc
+    summary["samples"] = summary.get("samples", 0) + 1
+    values = counters(row)
+    status = dict(line.split(":", 1) for line in row.get("proc_status", "").splitlines() if ":" in line)
+    rss = int(status.get("VmRSS", "0").strip().split()[0])
+    for name, value in [("active", values.get("super_paqet_active_connections", 0)), ("rss_kib", rss), ("fds", row.get("fds") or 0)]:
+        key = "peak_" + name
+        summary[key] = max(summary.get(key, 0), value)
+    pid = row.get("unit", {}).get("MainPID", "0")
+    runs = summary.setdefault("runs", {})
+    if pid not in runs:
+        if len(runs) >= 32:
+            del runs[next(iter(runs))]
+            summary["evicted_runs"] = summary.get("evicted_runs", 0) + 1
+        runs[pid] = {"first_utc": utc, "last_counters": {}}
+        summary["observed_processes"] = summary.get("observed_processes", 0) + 1
+    run = runs[pid]
+    run["last_utc"] = utc
+    for suffix in ["errors_total", "rejected_total", "opening_transport_retries_total", "config_reload_rejected_total"]:
+        value = values.get("super_paqet_" + suffix)
+        if value is None:
+            continue
+        previous = run["last_counters"].get(suffix)
+        if previous is not None:
+            deltas = summary.setdefault("counter_deltas", {})
+            deltas[suffix] = deltas.get(suffix, 0) + max(0, value - previous)
+        run["last_counters"][suffix] = value
+    triggers = summary.setdefault("triggers", {})
+    for reason in row.get("triggers", []):
+        triggers[reason] = triggers.get(reason, 0) + 1
+
+
+def load_summary(directory):
+    """Resume durable aggregates, or seed them from the retained raw history."""
+    try:
+        return json.loads((directory / "summary.json").read_text())
+    except (OSError, ValueError):
+        summary = {}
+        for name in ["samples.jsonl.3", "samples.jsonl.2", "samples.jsonl.1", "samples.jsonl"]:
+            try:
+                with (directory / name).open() as source:
+                    for line in source:
+                        try:
+                            update_summary(summary, json.loads(line))
+                        except (ValueError, TypeError, KeyError):
+                            continue
+            except OSError:
+                pass
+        return summary
+
+
+def write_json_atomic(path, value):
+    """Publish a complete private snapshot to independent readers."""
+    temporary = path.with_suffix(".tmp")
+    temporary.write_text(json.dumps(value))
+    os.replace(temporary, path)
+
+
 def main():
     """Expire after a day and rotate output to bound observer overhead."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -142,6 +211,8 @@ def main():
     handler = logging.handlers.RotatingFileHandler(directory / "samples.jsonl", maxBytes=16 * 1024 * 1024, backupCount=3)
     handler.setFormatter(logging.Formatter("%(message)s"))
     logger.addHandler(handler)
+    summary = load_summary(directory)
+    summary["completed"] = False
     end, previous, last_capture, captures = time.monotonic() + args.duration, None, -float("inf"), 0
     while time.monotonic() < end:
         start = time.monotonic()
@@ -157,14 +228,16 @@ def main():
                     capture(directory, captures)
                     captures += 1
             logger.info(json.dumps(row, separators=(",", ":")))
-            latest = directory / "latest.tmp"
-            latest.write_text(json.dumps(row))
-            os.replace(latest, directory / "latest.json")
+            write_json_atomic(directory / "latest.json", row)
+            update_summary(summary, row)
+            write_json_atomic(directory / "summary.json", summary)
             previous = row
         except Exception as error:
             logger.info(json.dumps({"observer_error": str(error), "utc": datetime.datetime.now(datetime.timezone.utc).isoformat()}))
         time.sleep(max(0, min(args.interval - (time.monotonic() - start), end - time.monotonic())))
     logger.info(json.dumps({"observer_completed": True, "duration_seconds": args.duration}))
+    summary["completed"] = True
+    write_json_atomic(directory / "summary.json", summary)
 
 
 if __name__ == "__main__":
