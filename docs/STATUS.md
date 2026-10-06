@@ -21,8 +21,8 @@ Both clients, 89.45.68.14 and 89.45.68.118, have these forwards:
 | 9003 | 171.22.132.226:29999 | 171.22.132.226:2096 | Restored; final Reality 10 MiB requests passed 8/8 across both clients. |
 | 9002 | 65.109.249.222:29999 | 65.109.249.222:2096 | Working; 4/4 10 MiB Reality requests and external domain/both-client checks passed. |
 
-Germany uses eight shared KCP carriers per client with PA flags and MTU1350.
-Netherlands and Finland use four, client S / backend PA, MTU1350 and scaled packet windows,
+Germany uses eight shared KCP carriers per client with client S / backend PA flags and MTU1350.
+France and Finland use four, client S / backend PA, MTU1350 and scaled packet windows,
 with the same original source/destination ports. Cipher remains quoted `null`
 and adaptation disabled on these physical-path profiles. Generic adaptive
 defaults have separate virtual-link evidence.
@@ -35,7 +35,7 @@ path, not universal production readiness. [Diagnosis and limits](NETHERLANDS-DIA
 
 [Client and Finland snapshots](deployed/README.md) were freshly fetched
 and audited after Finland qualification. Netherlands/Germany snapshots match
-their previous audits. Client profiling is enabled, backend profiling disabled;
+their previous audits. Profiling is disabled on all instances;
 metrics bind only to localhost. Temporary diagnostic resources were removed.
 
 Finland now runs the current release on `65.109.249.222:29999`, using the
@@ -59,3 +59,15 @@ with timing/credit extensions disabled has a known failed receiver-stream gate.
 
 See [benchmarks](BENCHMARKS.md) and the
 [release report](FINAL-DEPLOYMENT-REPORT.md) for methods and limits.
+
+## Production qualification in progress
+
+Peers are now named `germany`, `finland`, and `france`; 171.22.132.226 is France
+(the earlier Netherlands label was incorrect). Client S / backend PA is now
+applied on every route. All six paths passed two full authenticated 1 MiB
+downloads each after the change. Current counts remain Germany eight carriers,
+Finland/France four; application code and raw framing are unchanged.
+
+The new customer requirement is thousands of active connections and sustained
+multi-gigabit traffic. Deployed-host capacity/window/session comparisons and
+cleanup remain in progress; the small-path checks do not establish that target.

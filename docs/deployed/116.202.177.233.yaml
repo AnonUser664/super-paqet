@@ -7,6 +7,11 @@ listeners:
       addr: 116.202.177.233:29999
       router_mac: d2:74:7f:6e:37:e3
     backend: pcap
+    tcp:
+      local_flag:
+      - PA
+      remote_flag:
+      - S
   adaptive: false
   packet_workers: 1
   kcp:
@@ -35,6 +40,11 @@ listeners:
       addr: 91.107.251.85:29999
       router_mac: d2:74:7f:6e:37:e3
     backend: pcap
+    tcp:
+      local_flag:
+      - PA
+      remote_flag:
+      - S
   adaptive: false
   packet_workers: 1
   kcp:

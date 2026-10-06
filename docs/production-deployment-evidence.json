@@ -1,0 +1,94 @@
+{
+  "status": "qualification in progress",
+  "country_profile_full_reality_acceptance": {
+    "89.45.68.14": {
+      "germany": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.467936 0.621838",
+          "error": "",
+          "passed": true
+        },
+        {
+          "exit": 0,
+          "response": "200 1048576 0.480159 0.643221",
+          "error": "",
+          "passed": true
+        }
+      ],
+      "finland": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.626256 0.801559",
+          "error": "",
+          "passed": true
+        },
+        {
+          "exit": 0,
+          "response": "200 1048576 0.655211 0.778526",
+          "error": "",
+          "passed": true
+        }
+      ],
+      "france": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.878444 1.072113",
+          "error": "",
+          "passed": true
+        },
+        {
+          "exit": 0,
+          "response": "200 1048576 0.869489 1.016929",
+          "error": "",
+          "passed": true
+        }
+      ]
+    },
+    "89.45.68.118": {
+      "germany": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.476500 0.663794",
+          "error": "",
+          "passed": true
+        },
+        {
+          "exit": 0,
+          "response": "200 1048576 0.439091 0.617665",
+          "error": "",
+          "passed": true
+        }
+      ],
+      "finland": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.600639 0.773189",
+          "error": "",
+          "passed": true
+        },
+        {
+          "exit": 0,
+          "response": "200 1048576 0.593973 0.727868",
+          "error": "",
+          "passed": true
+        }
+      ],
+      "france": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.889790 1.044708",
+          "error": "",
+          "passed": true
+        },
+        {
+          "exit": 0,
+          "response": "200 1048576 0.863681 1.024689",
+          "error": "",
+          "passed": true
+        }
+      ]
+    }
+  },
+  "bulk_measurements": "not completed; first attempt rejected executable /run target"
+}
