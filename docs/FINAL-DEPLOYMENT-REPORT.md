@@ -14,6 +14,12 @@ below describe the measured capacity configuration before that diagnostic
 reversion. The [test results audit](TEST-RESULTS-AUDIT.md) separates historical
 throughput workloads and examines what the captures establish about filtering.
 
+The [same-path Netherlands diagnosis](NETHERLANDS-DIAGNOSIS.md) now also records
+four failed requests with the previously working enterprise executable and four
+with unmodified upstream paqet. Paired captures show severe loss before packets
+reach the remote host interface. Testing stopped at the user's request; filtering
+is plausible, but its exact cause is not established.
+
 ## Executable and implementation
 
 Version `enterprise-2026.10.06`, embedded release source `abf04f6` (main equivalent

@@ -1,0 +1,179 @@
+{
+  "nl-current-paired-20261006": {
+    "requests": {
+      "89.45.68.118": [
+        {
+          "exit": 28,
+          "response": "000 0 0.000000 8.001233",
+          "error": "curl: (28) SSL connection timeout\n",
+          "passed": false
+        },
+        {
+          "exit": 28,
+          "response": "000 0 0.000000 8.001798",
+          "error": "curl: (28) SSL connection timeout\n",
+          "passed": false
+        }
+      ],
+      "89.45.68.14": [
+        {
+          "exit": 28,
+          "response": "000 0 0.000000 8.001320",
+          "error": "curl: (28) SSL connection timeout\n",
+          "passed": false
+        },
+        {
+          "exit": 28,
+          "response": "000 0 0.000000 8.001941",
+          "error": "curl: (28) SSL connection timeout\n",
+          "passed": false
+        }
+      ]
+    },
+    "packet_counts": {
+      "89.45.68.14": {
+        "client_to_backend": {
+          "captured_sent": 185,
+          "matching_received": 21
+        },
+        "backend_to_client": {
+          "captured_sent": 538,
+          "matching_received": 5
+        }
+      },
+      "89.45.68.118": {
+        "client_to_backend": {
+          "captured_sent": 83,
+          "matching_received": 0
+        },
+        "backend_to_client": {
+          "captured_sent": 0,
+          "matching_received": 0
+        }
+      }
+    },
+    "capture_statistics": {
+      "171.22.132.226": "tcpdump: listening on net0, link-type EN10MB (Ethernet), snapshot length 200 bytes\n559 packets captured\n562 packets received by filter\n0 packets dropped by kernel\n",
+      "89.45.68.14": "tcpdump: listening on ens160, link-type EN10MB (Ethernet), snapshot length 200 bytes\n190 packets captured\n201 packets received by filter\n0 packets dropped by kernel\n",
+      "89.45.68.118": "tcpdump: listening on ens160, link-type EN10MB (Ethernet), snapshot length 200 bytes\n83 packets captured\n86 packets received by filter\n0 packets dropped by kernel\n"
+    }
+  },
+  "nl-legacy-paired-20261006": {
+    "requests": {
+      "89.45.68.118": [
+        {
+          "exit": 28,
+          "response": "000 0 0.000000 8.000333",
+          "error": "curl: (28) SSL connection timeout\n",
+          "passed": false
+        },
+        {
+          "exit": 28,
+          "response": "000 0 0.000000 8.000756",
+          "error": "curl: (28) SSL connection timeout\n",
+          "passed": false
+        }
+      ],
+      "89.45.68.14": [
+        {
+          "exit": 28,
+          "response": "000 0 0.000000 8.001090",
+          "error": "curl: (28) SSL connection timeout\n",
+          "passed": false
+        },
+        {
+          "exit": 28,
+          "response": "000 0 0.000000 8.001725",
+          "error": "curl: (28) SSL connection timeout\n",
+          "passed": false
+        }
+      ]
+    },
+    "packet_counts": {
+      "89.45.68.14": {
+        "client_to_backend": {
+          "captured_sent": 77,
+          "matching_received": 0
+        },
+        "backend_to_client": {
+          "captured_sent": 0,
+          "matching_received": 0
+        }
+      },
+      "89.45.68.118": {
+        "client_to_backend": {
+          "captured_sent": 91,
+          "matching_received": 0
+        },
+        "backend_to_client": {
+          "captured_sent": 0,
+          "matching_received": 0
+        }
+      }
+    },
+    "capture_statistics": {
+      "171.22.132.226": "tcpdump: listening on net0, link-type EN10MB (Ethernet), snapshot length 200 bytes\n0 packets captured\n1 packet received by filter\n0 packets dropped by kernel\n",
+      "89.45.68.14": "tcpdump: listening on ens160, link-type EN10MB (Ethernet), snapshot length 200 bytes\n77 packets captured\n80 packets received by filter\n0 packets dropped by kernel\n",
+      "89.45.68.118": "tcpdump: listening on ens160, link-type EN10MB (Ethernet), snapshot length 200 bytes\n91 packets captured\n94 packets received by filter\n0 packets dropped by kernel\n"
+    }
+  },
+  "nl-upstream-null-mtu128-20261006": {
+    "requests": {
+      "89.45.68.118": [
+        {
+          "exit": 28,
+          "response": "000 0 0.000000 8.001677",
+          "error": "curl: (28) SSL connection timeout\n",
+          "passed": false
+        },
+        {
+          "exit": 28,
+          "response": "000 0 0.000000 8.001883",
+          "error": "curl: (28) SSL connection timeout\n",
+          "passed": false
+        }
+      ],
+      "89.45.68.14": [
+        {
+          "exit": 28,
+          "response": "000 0 0.000000 8.000467",
+          "error": "curl: (28) SSL connection timeout\n",
+          "passed": false
+        },
+        {
+          "exit": 28,
+          "response": "000 0 0.000000 8.001970",
+          "error": "curl: (28) SSL connection timeout\n",
+          "passed": false
+        }
+      ]
+    },
+    "packet_counts": {
+      "89.45.68.14": {
+        "client_to_backend": {
+          "captured_sent": 492,
+          "matching_received": 0
+        },
+        "backend_to_client": {
+          "captured_sent": 0,
+          "matching_received": 0
+        }
+      },
+      "89.45.68.118": {
+        "client_to_backend": {
+          "captured_sent": 485,
+          "matching_received": 0
+        },
+        "backend_to_client": {
+          "captured_sent": 0,
+          "matching_received": 0
+        }
+      }
+    },
+    "capture_statistics": {
+      "171.22.132.226": "tcpdump: listening on net0, link-type EN10MB (Ethernet), snapshot length 200 bytes\n0 packets captured\n0 packets received by filter\n0 packets dropped by kernel\n",
+      "89.45.68.14": "tcpdump: listening on ens160, link-type EN10MB (Ethernet), snapshot length 200 bytes\n492 packets captured\n492 packets received by filter\n0 packets dropped by kernel\n",
+      "89.45.68.118": "tcpdump: listening on ens160, link-type EN10MB (Ethernet), snapshot length 200 bytes\n485 packets captured\n493 packets received by filter\n0 packets dropped by kernel\n"
+    }
+  }
+}
