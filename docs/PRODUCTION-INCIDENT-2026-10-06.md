@@ -58,6 +58,12 @@ establish a deadlock or prove spare capacity during the reported incident.
 Root race tests, static analysis and repeated new-opening regressions pass.
 An isolated 100 Mbit/s, approximately 80 ms RTT link with 1% loss, 5 ms jitter and
 1% reordering passed integrity, HTTP and bulk checks with zero reported errors.
-Further qualification and the 24-hour production observation remain in progress.
+The mux race suite also passed, including its large-transfer regressions
+(477 seconds). A 10/100 Mbit/s asymmetric, approximately 160 ms RTT link with
+0.5% loss, jitter and reordering passed integrity/HTTP/bulk checks. The combined
+idle-target case initially failed because the lightweight target sent 16 MiB
+regardless of the requested 1 MiB size; this benchmark mismatch was fixed and
+covered with an exact-body regression. Combined qualification and the 24-hour
+production observation remain in progress.
 Private raw receipts/profiles are under `build/incident-20261006`; customer
 credentials and stack dumps are not committed.

@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -92,4 +95,41 @@ func captureLoad(t *testing.T, proxy, target string) map[string]float64 {
 		}
 	}
 	return result
+}
+
+// TestHoldTargetHonorsIntegritySize checks the real idle-target HTTP path so a
+// body-size mismatch cannot be mistaken for tunnel truncation in scale tests.
+func TestHoldTargetHonorsIntegritySize(t *testing.T) {
+	left, right := net.Pipe()
+	defer left.Close()
+	bulk := make([]byte, 65536)
+	for i := range bulk {
+		bulk[i] = byte(i)
+	}
+	go serveHoldConn(right, bulk)
+	left.SetDeadline(time.Now().Add(2 * time.Second))
+	reader := bufio.NewReader(left)
+	for _, size := range []int{1, 1025, 1048576} {
+		request, err := http.NewRequest("GET", "http://benchmark.invalid/bulk?bytes="+strconv.Itoa(size), nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = request.Write(left); err != nil {
+			t.Fatal(err)
+		}
+		response, err := http.ReadResponse(reader, request)
+		if err != nil {
+			t.Fatal(err)
+		}
+		body, err := io.ReadAll(response.Body)
+		response.Body.Close()
+		if err != nil || len(body) != size {
+			t.Fatalf("wanted %d bytes, got %d: %v", size, len(body), err)
+		}
+		for i, v := range body {
+			if v != byte(i) {
+				t.Fatalf("incorrect pattern at %d", i)
+			}
+		}
+	}
 }

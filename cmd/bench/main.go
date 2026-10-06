@@ -228,37 +228,57 @@ func serveHold(ctx context.Context, addr string) {
 		if err != nil {
 			return
 		}
-		go func() {
-			defer conn.Close()
-			var buf [512]byte
-			for {
-				n := 0
-				for !bytes.Contains(buf[:n], []byte("\r\n\r\n")) {
-					if n == len(buf) {
-						return
-					}
-					k, err := conn.Read(buf[n:])
-					if err != nil {
-						return
-					}
-					n += k
-				}
-				if bytes.HasPrefix(buf[:n], []byte("GET /bulk")) {
-					if _, err := io.WriteString(conn, "HTTP/1.1 200 OK\r\nContent-Length: 16777216\r\n\r\n"); err != nil {
-						return
-					}
-					for j := 0; j < 256; j++ {
-						if _, err := conn.Write(bulk); err != nil {
+		go serveHoldConn(conn, bulk)
+	}
+}
+
+// serveHoldConn keeps idle-target state small while preserving exact HTTP body
+// sizes and the integrity pattern used by the normal bulk responder.
+func serveHoldConn(conn net.Conn, bulk []byte) {
+	defer conn.Close()
+	var buf [512]byte
+	for {
+		n := 0
+		for !bytes.Contains(buf[:n], []byte("\r\n\r\n")) {
+			if n == len(buf) {
+				return
+			}
+			k, err := conn.Read(buf[n:])
+			if err != nil {
+				return
+			}
+			n += k
+		}
+		if bytes.HasPrefix(buf[:n], []byte("GET /bulk")) {
+			// Match the normal HTTP target's requested verification size. The
+			// idle target must not turn a valid short integrity check into a
+			// misleading "truncated transfer" failure after sending 16 MiB.
+			size := 16777216
+			fields := strings.Fields(string(buf[:n]))
+			if len(fields) > 1 {
+				if uri, err := url.ParseRequestURI(fields[1]); err == nil {
+					if text := uri.Query().Get("bytes"); text != "" {
+						v, err := strconv.Atoi(text)
+						if err != nil || v < 1 || v > size {
 							return
 						}
-					}
-				} else {
-					if _, err := io.WriteString(conn, "HTTP/1.1 200 OK\r\nContent-Length: 22\r\n\r\nsuper-paqet benchmark\n"); err != nil {
-						return
+						size = v
 					}
 				}
 			}
-		}()
+			if _, err := io.WriteString(conn, "HTTP/1.1 200 OK\r\nContent-Length: "+strconv.Itoa(size)+"\r\n\r\n"); err != nil {
+				return
+			}
+			for left := size; left > 0; left -= len(bulk) {
+				if _, err := conn.Write(bulk[:min(left, len(bulk))]); err != nil {
+					return
+				}
+			}
+		} else {
+			if _, err := io.WriteString(conn, "HTTP/1.1 200 OK\r\nContent-Length: 22\r\n\r\nsuper-paqet benchmark\n"); err != nil {
+				return
+			}
+		}
 	}
 }
 
