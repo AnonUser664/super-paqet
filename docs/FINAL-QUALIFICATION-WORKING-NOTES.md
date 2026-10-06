@@ -1,0 +1,141 @@
+# Final deployment qualification — working notes
+
+This is an unfinished qualification log, not a production acceptance statement.
+The release work is isolated in `build/final-production-source`, branch
+`release/final-production`. The main workspace's six earlier experiments remain
+untouched. The excluded backend `65.109.192.172` has not been contacted.
+
+## Implemented checkpoints
+
+- `2326421` / `836a88d`: ordered peer `source_ports` lists, reservations and
+  reload conflicts; distinct ports allow independently captured carriers.
+- `7d95927`: optional `shared_source` at listener and peer. Several KCP
+  conversations share a single verified source tuple, raw socket and encoder.
+  Their muxes, reliability queues and schedules remain independent. Source-port
+  firewall rules and guard belong to the pool. Lane closure retains siblings.
+  Shared mode rejects FEC because legacy parity packets lack a conversation ID.
+  Ordinary address/reset/FEC behavior remains the default. Flag state uses
+  per-tuple live lane references and is deleted after final server lane closure.
+- `664247b`: a send-ring index of outstanding sequence numbers eliminates linear
+  fast-ACK scans through acknowledged tombstones. Links are sequence numbers,
+  never pointers into a resizing ring. Gap counters, timestamp gating,
+  retransmission decisions and wire encoding are unchanged. Deterministic
+  differential traces cover cumulative/selective ACKs, appends, ring resizing,
+  sequence wrap and unsent paced segments. Sparse-gap benchmark: approximately
+  16,000 ns/op before, 92 ns/op after. Each retained send-ring entry adds eight
+  bytes of link metadata; no per-ACK allocation is introduced.
+- `5161925` / `deee0b1`: static reliability now still samples slot pressure and
+  can grow its configured pool. Adaptive RTT fallback allows the known
+  ACK/update scheduling budget when peer timestamps are disabled. This avoids
+  treating local batching as network congestion. Live reliability edits update
+  that budget. A fixture identifier shadowed its type in the first regression
+  test; the follow-up commit corrected it and root race tests/vet passed.
+
+## Local measurements collected
+
+- Root race tests/vet passed. Full smux race suite passed (488.317 s), initial
+  full KCP suite passed (136.231 s), shared-conversation full KCP suite passed
+  (140.977 s), indexed full KCP suite passed (136.089 s). Targeted encrypted
+  shared-lane, pacing/ACK and differential race tests passed.
+- Ten WAN profiles passed on the first release: random loss, reorder, harsh
+  loss/jitter, mobile, satellite, asymmetric, ACK-limited, outage, pcap
+  restart/functional, MTU576. Seven profiles passed on indexed shared-source
+  unencrypted transport: random, reorder, harsh, asymmetric, ACK-limited,
+  outage and pcap restart/functional.
+- Four shared lanes per peer / 256 active TCP streams passed the 18-checkpoint
+  reload test on 20/70 ms asymmetric delay, 20/50 Mbit/s directional caps,
+  0.3% loss and 5% reorder. Unaffected streams had zero errors. Half-closed
+  relays, descriptors, firewall cleanup and unrelated rules passed. The same
+  test passed on the latest cadence/pressure executable.
+- Unencrypted shared-source bulk: 3.933 Gbit/s upload, 2.970 Gbit/s download;
+  simultaneous directions 1.829 and 1.849 Gbit/s. These are laptop namespace
+  measurements, not deployment throughput promises.
+- Release `664247b`, executable SHA-256
+  `5f57e2083faab4031f80634e0da8d2b76eb767df598402c6e993ba05c9aef46f`:
+  100,000 established forwards, ramp 6.574 s, 120 s soak, all 100,000 fully
+  verified, zero errors; concurrent bulk 2.240 Gbit/s and HTTP 718 req/s.
+  HTTP p99 histogram upper bound 65.536 ms. Tunnel peak resident memory was
+  approximately 1.84/1.97 GiB client/server; RSS plus swap approximately
+  1.92/2.32 GiB. Host backlog was temporarily 65,536 and restored to 1,000.
+  This exact scale result predates the subsequent controller/pressure changes.
+
+## Deployment measurements and failures
+
+All releases were staged and checked on the four hosts before replacement:
+Ubuntu-compatible libpcap linkage, binary hash, configuration validation,
+service validation, enabled/running state and health. Per-host backups retain
+binary, config and unit. The unit adds ExecReload/SIGHUP and TasksMax 65,536;
+CPU quota remains unlimited. Actual hosts have two vCPUs and about 4 GiB RAM
+per backend, four vCPUs and about 8 GiB RAM per client.
+
+The initial new binary retained the proven single-session settings and passed
+all eight authenticated 10 MiB transfers. With four shared lanes and manual
+immediate writes, all eight authenticated 10 MiB transfers also passed.
+
+Controlled HTTP echo baseline, 40 samples per route: warm median approximately
+121–124 ms, new-connection median approximately 245 ms. Immediate writes with
+30 ms maintenance, normal retry floor and delayed ACKs: warm medians about
+86–94 ms; new connections about 172–187 ms. The 10 ms maintenance candidate
+retained the latency reduction but had less consistent bulk results. These are
+controlled forwarded requests, not the user's unmeasured application latency.
+
+On the first shared release, 4,096 forwards per client (8,192 total) remained
+established during HTTP, connection churn and bulk loads. Every held connection
+passed full verification; workload errors were zero. At 256 concurrent HTTP
+workers per client, roughly 2,200–2,800 requests/s per route/client were seen.
+Bulk aggregate Germany was about 265 Mbit/s in the sequential-route load;
+Netherlands about 60 Mbit/s with MTU128. Tunnel RSS peaked at about 184–375 MiB.
+Average stage CPU samples are available; initial maximum CPU samples included
+an excessively short first interval and must not be treated as valid maxima.
+The sampler was corrected. Idle CPU profiles were initially collected after
+load ended; a second set was captured during sustained bulk.
+
+Netherlands busy profile attributed approximately 61% of sampled CPU to the
+old gap-ACK/ring scan. Its MTU128 profile also counted about 1.5 million
+recoverable transmit queue drops during qualification. These were useful
+optimization signals, not application error counts.
+
+Increasing Netherlands MTU with byte-scaled windows passed controlled 10 MiB
+checks at 256, 512 and 1350. Single-flow results increased from roughly
+14–19 Mbit/s at 128 to 31–35 at 256, 46–50 at 512 and 53–59 at 1350. Larger
+MTUs are not accepted merely because these low-concurrency tests passed.
+
+Authenticated concurrency adds a stricter gate: 256 requests per route with
+64 workers per client. Manual MTU1350 passed Germany but had six Netherlands
+TLS timeouts out of 512 requests. The first adaptive trial made Germany's cold
+start worse (19 timeouts on one client), while Netherlands passed. The RTT
+fallback/ACK cadence issue was corrected, but real deployment acceptance must
+still be repeated. Direct backend Xray controls passed 256/256 requests on
+both backends at concurrency 64.
+
+The fast3 candidate then failed three real paths entirely; it is rejected.
+Restoring manual mode did not immediately restore those paths. Packet captures
+showed valid PA packets leaving client 89.45.68.118, correct IP/TCP checksums,
+correct interface and gateway MACs, and no corresponding arrival on Germany's
+116.202.177.233 interface or Netherlands. The primary Germany path from .14 to
+91.107.251.85 remained live. Temporary AES did not restore the failed paths.
+This localizes observed loss before server capture; it does not establish a
+specific firewall/provider/DPI cause. Fresh destination port and primary-IP
+alias tests are underway. AES is diagnostic only and must be removed before
+final acceptance; the requested final cipher remains quoted `null`.
+
+## Harness mistakes and incomplete checks
+
+- Early handwritten Reality/HTTP probe bytes were incorrectly escaped.
+  Corrected greetings were verified as bytes 5,1,0. The attempted custom HTTP
+  target through Xray was not used as an acceptance baseline. Direct-forward
+  HTTP and the existing known-working curl/Reality path replaced it.
+- A Python urllib/HTTP-proxy stress path returned HTTP 403 for every request;
+  it was excluded from acceptance. The stress harness now uses curl through
+  the previously checked local SOCKS Xray test inbound. The tunnel itself has
+  no SOCKS listener.
+- A legacy-control ACK-limited virtual duplex case with peer timestamps,
+  credit hints and adaptive buffers all disabled left one of four upload
+  streams with zero measured receiver bytes. Other uploads and downloads
+  progressed. This case is a failed gate, not a pass inferred from aggregate
+  throughput. A longer no-omit test with adaptive receive buffers is underway.
+- Final cleanup, source integration, no-encryption restoration, final real
+  authenticated stress, local latest-binary scale qualification and final
+  config snapshots remain required before declaring this stage complete.
+
+Detailed private logs/results are retained in `build/final-production`.
