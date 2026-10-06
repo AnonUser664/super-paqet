@@ -46,6 +46,8 @@ type rawPacket struct {
 	packets, drops atomic.Uint64
 	// Atomic local transmit-queue loss count, separate from network retransmission statistics.
 	txDrops atomic.Uint64
+	// Counts bounded retries of wholly rejected transmit batches before KCP loss.
+	txRetries atomic.Uint64
 	// Serializes destructive kernel packet-stat reads while retaining cumulative counters.
 	statsMu sync.Mutex
 	// Owned packet socket file whose close wakes netpoll operations.
@@ -197,7 +199,13 @@ func (p *rawPacket) WriteBatch(ms []ipv4.Message, flags int) (int, error) {
 	var sent int
 	var opErr error
 	err := p.raw.Write(func(fd uintptr) bool {
-		r, _, errno := unix.Syscall6(unix.SYS_SENDMMSG, fd, uintptr(unsafe.Pointer(&p.txHdr[0])), uintptr(n), uintptr(unix.MSG_DONTWAIT), 0, 0)
+		r, errno, retries := sendWithQueueRetry(func() (int, unix.Errno) {
+			r, _, errno := unix.Syscall6(unix.SYS_SENDMMSG, fd, uintptr(unsafe.Pointer(&p.txHdr[0])), uintptr(n), uintptr(unix.MSG_DONTWAIT), 0, 0)
+			return int(r), errno
+		}, waitTXQueue)
+		if retries > 0 {
+			p.txRetries.Add(uint64(retries))
+		}
 		if errno == unix.EAGAIN || errno == unix.EINTR {
 			return false
 		}

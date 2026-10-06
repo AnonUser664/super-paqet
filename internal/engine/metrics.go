@@ -99,6 +99,7 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 				}
 				fmt.Fprintf(w, "super_paqet_peer_send_window{peer=%s,session=%s} %d\nsuper_paqet_peer_pending{peer=%s,session=%s} %d\n", strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), state.SendWindow, strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), state.Pending)
 				packets, drops := c.PacketConn.PacketStats()
+				fmt.Fprintf(w, "super_paqet_peer_tx_queue_retries_total{peer=%s,session=%s} %d\n", strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), c.PacketConn.TXQueueRetries())
 				fmt.Fprintf(w, "super_paqet_peer_tx_queue_drops{peer=%s,session=%s} %d\n", strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), c.PacketConn.TXDrops())
 				fmt.Fprintf(w, "super_paqet_peer_capture_packets{peer=%s,session=%s} %d\nsuper_paqet_peer_capture_drops{peer=%s,session=%s} %d\n", strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), packets, strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), drops)
 				fmt.Fprintf(w, "super_paqet_peer_streams{peer=%s,session=%s} %d\nsuper_paqet_peer_rtt_ms{peer=%s,session=%s} %d\n", strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), c.Session.NumStreams(), strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), c.UDPSession.GetSRTT())
@@ -112,6 +113,7 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 	for _, observed := range packets {
 		i, worker, packet := observed.index, observed.worker, observed.packet
 		packets, drops := packet.PacketStats()
+		fmt.Fprintf(w, "super_paqet_listener_tx_queue_retries_total{listener=\"%d\",worker=\"%d\"} %d\n", i, worker, packet.TXQueueRetries())
 		fmt.Fprintf(w, "super_paqet_listener_tx_queue_drops{listener=\"%d\",worker=\"%d\"} %d\nsuper_paqet_listener_capture_packets{listener=\"%d\",worker=\"%d\"} %d\nsuper_paqet_listener_capture_drops{listener=\"%d\",worker=\"%d\"} %d\n", i, worker, packet.TXDrops(), i, worker, packets, i, worker, drops)
 	}
 }

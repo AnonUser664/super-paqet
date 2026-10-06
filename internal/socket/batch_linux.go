@@ -69,3 +69,13 @@ func (c *PacketConn) ReadBatch(ms []ipv4.Message, flags int) (int, error) {
 	}
 	return 1, nil
 }
+
+// TXQueueRetries reports pre-send recovery attempts without conflating them
+// with emitted retransmissions or unresolved datagram loss. Pcap retains its
+// existing per-packet drop behavior and has no queue-retry counter.
+func (c *PacketConn) TXQueueRetries() uint64 {
+	if c.raw != nil {
+		return c.raw.(*rawPacket).txRetries.Load()
+	}
+	return 0
+}

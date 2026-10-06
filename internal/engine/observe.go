@@ -63,6 +63,7 @@ func (e *Engine) observe() {
 	defer ticker.Stop()
 	previous := make(map[*kcp.Conn]observedState)
 	previousDrops := make(map[*socket.PacketConn]uint64)
+	previousRetries := make(map[*socket.PacketConn]uint64)
 	for {
 		select {
 		case <-e.ctx.Done():
@@ -88,14 +89,17 @@ func (e *Engine) observe() {
 				livePackets[observed.packet] = true
 				packet := observed.packet
 				total := packet.TXDrops()
-				if total != previousDrops[packet] {
-					e.log().Debug("packet.tx_queue", "listener", observed.index, "worker", observed.worker, "local", packet.LocalAddr().String(), "drops_total", total, "drops_delta", total-previousDrops[packet])
+				retries := packet.TXQueueRetries()
+				if total != previousDrops[packet] || retries != previousRetries[packet] {
+					e.log().Debug("packet.tx_queue", "listener", observed.index, "worker", observed.worker, "local", packet.LocalAddr().String(), "drops_total", total, "drops_delta", total-previousDrops[packet], "retries_total", retries, "retries_delta", retries-previousRetries[packet])
 					previousDrops[packet] = total
+					previousRetries[packet] = retries
 				}
 			}
 			for packet := range previousDrops {
 				if !livePackets[packet] {
 					delete(previousDrops, packet)
+					delete(previousRetries, packet)
 				}
 			}
 			live := make(map[*kcp.Conn]struct{}, len(connections))
