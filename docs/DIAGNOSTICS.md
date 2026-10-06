@@ -113,7 +113,7 @@ transit estimates. Full RTT still budgets in-flight data and retransmission
 timers. Jitter/reorder minima alone cannot trigger indefinite pacing backoff.
 Regression floors in the live runner reject catastrophic throughput collapse.
 
-## Live configuration diagnostics (new source; undeployed)
+## Live configuration diagnostics
 
 | Event / metric | Meaning |
 |---|---|
@@ -146,7 +146,10 @@ queue drops trigger bounded journal snapshots. With loopback profiling enabled,
 it also preserves at most twelve five-second CPU profiles and bounded goroutine
 dumps, with at least five minutes between captures. Profiles contain stack
 metadata and require root-only handling. Read `latest.json` for the last sample;
-`observer_completed` in `samples.jsonl` records normal completion. Collection
+`summary.json` retains full-window resource peaks and within-PID counter deltas
+across raw-log rotation and observer restarts, and marks normal completion.
+Detailed run history is bounded to 32 processes; global totals survive eviction.
+`observer_completed` in `samples.jsonl` also records normal completion. Collection
 alone does not notify an operator or automatically fix a fault.
 
 Warning-level connection errors preserve the first five causes and subsequently
@@ -163,3 +166,11 @@ same three values. The blocked gauge denotes payload admission waiting for the
 shared application buffer; ordinary packet/socket input waiting is excluded.
 The configured buffer can overshoot by one admitted wire frame as before; parsing
 control headers while full adds no application payload allocation.
+
+Candidate small-message diagnostics add `transport.sample.small_messages`: true
+means the lane uses packet-window control without historical bulk byte pacing.
+A new full-size backlog returns it to ordinary bulk pacing before its first ACK.
+This classification uses acknowledged and pending sizes, not customer payload
+parsing. The benchmark JSON now separates `error_kinds` (request timeout/EOF/reset,
+HTTP status, body truncation/length) from expected workload-deadline cancellation;
+it never serializes private URLs or body contents.

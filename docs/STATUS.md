@@ -60,7 +60,7 @@ All nine authenticated 1 MiB checks passed again. A deterministic regression
 now reproduces learned capacity loss from a queued tiny-control workload after
 bulk traffic; its candidate fix is not yet deployed. This does not complete the
 24-hour observation. The independent collectors expire around 2026-10-07
-20:16 UTC. No main Xray settings or services were changed.
+20:18 UTC. No main Xray settings or services were changed.
 
 ## Earlier startup-release qualification and operational limits
 
@@ -111,3 +111,28 @@ and the Finland address drop-in where applicable. Hosts were not rebooted.
 See [production evidence](production-deployment-evidence.json),
 [deployment](DEPLOYMENT.md), [configuration guide](CONFIGURATION.md),
 [live reload](LIVE-RELOAD.md) and [operations](OPERATIONS.md).
+
+
+## Additional source qualification in progress
+
+Candidate liveness fixes include mux receive control under full buffers,
+bounded raw ENOBUFS retries, receive publication before outgoing SYN completion,
+and small-message packet control after historical bulk transfers. The deployed
+binary above has not yet been replaced by this candidate.
+
+A paired 60-second, 256-worker HTTP churn fixture changed RTT from roughly
+80 to 180 ms and back, using production 4 MiB/2 MiB mux buffers. The recovery
+binary had 181 request failures/176 client opening errors. The first candidate
+had zero request errors and a 774 ms successful-request mean; its small-message
+refinement had zero errors and a 303 ms mean. The complete publication candidate
+had zero errors and a 315 ms mean. These are individual scheduler-dependent runs,
+not universal latency guarantees. Static-mode runs still failed this harsh test.
+The France fallback is operational mitigation, not full static-link qualification.
+The complete candidate also reverified 2,000 held connections during asymmetric
+10/100 Mbit/s, 160 ms RTT, loss/jitter/reorder mixed load, with zero workload errors.
+
+Earlier incident local fixtures omitted explicit mux buffer values and used
+32 MiB/16 MiB defaults. Their results do not qualify production 4 MiB/2 MiB
+buffer ceilings; new exact-buffer results are identified separately. Live tests
+share the development machine with other processes, so CPU/timing comparisons
+must account for competing work. Private receipts retain fixture/binary hashes.

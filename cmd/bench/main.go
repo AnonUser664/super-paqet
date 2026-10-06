@@ -9,6 +9,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -332,6 +333,15 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 		}
 	}
 	var requests, failed, canceled, bytes atomic.Int64
+	var failureMu sync.Mutex
+	failureKinds := make(map[string]int64)
+	// Retain bounded cause counts, never URLs, credentials or response bodies.
+	recordFailure := func(kind string) {
+		failed.Add(1)
+		failureMu.Lock()
+		failureKinds[kind]++
+		failureMu.Unlock()
+	}
 	var successfulWorkers atomic.Int64
 	var buckets [32]atomic.Int64
 	// Millisecond buckets resolve WAN latency changes that disappear inside
@@ -367,7 +377,7 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 				resp, err := c.Do(r)
 				if err != nil {
 					if ctx.Err() == nil {
-						failed.Add(1)
+						recordFailure("request_" + loadErrorKind(err))
 					} else {
 						canceled.Add(1)
 					}
@@ -378,7 +388,14 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 				bytes.Add(n)
 				if err != nil || resp.StatusCode != 200 || n != expectedBytes {
 					if ctx.Err() == nil {
-						failed.Add(1)
+						switch {
+						case err != nil:
+							recordFailure("body_" + loadErrorKind(err))
+						case resp.StatusCode != 200:
+							recordFailure("http_status_" + strconv.Itoa(resp.StatusCode))
+						default:
+							recordFailure("body_size")
+						}
 					} else {
 						canceled.Add(1)
 					}
@@ -418,7 +435,23 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 		}
 		return 0
 	}
-	emit(map[string]any{"mode": mode, "workers": workers, "successful_workers": successfulWorkers.Load(), "request_gap_seconds": gap.Seconds(), "seconds": elapsed, "requests": requests.Load(), "errors": failed.Load(), "canceled_requests": canceled.Load(), "bytes": bytes.Load(), "goodput_gbps": float64(bytes.Load()) * 8 / elapsed / 1e9, "requests_per_second": float64(requests.Load()) / elapsed, "mean_latency_us": float64(latencySum.Load()) / float64(max(1, requests.Load())), "p50_us_upper": percentile(.50), "p99_us_upper": percentile(.99)})
+	emit(map[string]any{"mode": mode, "workers": workers, "successful_workers": successfulWorkers.Load(), "request_gap_seconds": gap.Seconds(), "seconds": elapsed, "requests": requests.Load(), "errors": failed.Load(), "error_kinds": failureKinds, "canceled_requests": canceled.Load(), "bytes": bytes.Load(), "goodput_gbps": float64(bytes.Load()) * 8 / elapsed / 1e9, "requests_per_second": float64(requests.Load()) / elapsed, "mean_latency_us": float64(latencySum.Load()) / float64(max(1, requests.Load())), "p50_us_upper": percentile(.50), "p99_us_upper": percentile(.99)})
+}
+
+// loadErrorKind distinguishes stalled requests from truncation/reset without
+// serializing a wrapped error that may contain a private target URL.
+func loadErrorKind(err error) string {
+	var timeout net.Error
+	switch {
+	case errors.As(err, &timeout) && timeout.Timeout():
+		return "timeout"
+	case errors.Is(err, io.EOF), errors.Is(err, io.ErrUnexpectedEOF):
+		return "eof"
+	case errors.Is(err, syscall.ECONNRESET), errors.Is(err, syscall.EPIPE):
+		return "reset"
+	default:
+		return "other"
+	}
 }
 
 // waitForLoad makes cohort staggering and pauses interruptible at the workload

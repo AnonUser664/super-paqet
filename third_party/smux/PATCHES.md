@@ -47,3 +47,8 @@ delivery, cancellation and deadlines.
   unordered transport. Duplex-starvation and payload-bound regressions cover it.
 * `ReceiveBufferStats` exposes shared capacity, buffered bytes and whether a
   parsed payload is waiting for tokens, without scanning per-stream buffers.
+* Publish outgoing stream receive ownership before SYN write completion. A
+  full-duplex transport may deliver early peer data/credits before Write returns;
+  those frames must not be discarded as belonging to an unknown stream. Pending
+  opens also count as live users for CloseIfIdle. A failed opening reclaims early
+  receive data/credits. Deterministic duplex-completion regressions cover both.
