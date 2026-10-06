@@ -90,3 +90,51 @@ data frame awaiting capacity still blocks later frames in that carrier. It does
 not expand the configured receive budget. Definitive attribution of the operator's
 outage is still pending; the current production release has not yet received
 this second candidate.
+
+## Captured recurrence and France fallback
+
+At 20:37–20:41 UTC the recovery release experienced another live France-path
+stall. Client .118 errors reached 7,369 and opening retries 3,023; France errors
+reached 3,479, primarily control EOF/timeout. No main PID changed, no admission
+limit was reached, and no OOM/panic appeared. The path recovered through new
+carrier generations before the later manual stack capture. Automatic ten-second
+samples and failure-time profiles were retained privately.
+
+Three older France carriers reduced send windows to roughly 4–31 packets and
+paced rates to roughly 0.02–0.06 Mbit/s. Their remote receive windows stayed
+available. Their learned RTT floors were approximately 80 ms; current RTT had
+risen to approximately 180 ms. A fourth carrier retained a larger window.
+This establishes adaptive-controller collapse as part of the failure pattern;
+it does not establish why the path RTT changed or exclude an underlying link
+problem. The receive-budget fix alone is not proven to explain this recurrence.
+
+A deterministic controller fixture reproduces a distinct defect: after a bulk
+sample, queued tiny control packets can erase learned bulk capacity because
+packet occupancy is mistaken for bulk saturation. The candidate ignores those
+byte-rate observations only when acknowledged packets and the byte backlog are
+small. Its paired regression retains convergence when real bulk payload is
+queued. This candidate remains under qualification; it is not the live binary.
+
+France now uses `adaptive: false` on its listener and both client peers as a
+production fallback. Only France carriers were recreated by live reload;
+other routes and all main process PIDs were retained. The guarded diagnostic
+restoration now preserves that fallback when returning to warning-level logs.
+All nine authenticated 1 MiB checks passed afterward. Germany and Finland retain
+their previous adaptive settings. No Xray service/configuration was changed.
+
+## Bounded transmit-queue retry candidate
+
+Finland's root `fq` qdisc reported per-flow-limit drops, and the packet driver's
+transmit-drop counter grew during observation. The candidate retries a wholly
+rejected `ENOBUFS` batch at most three times, requesting a 50 microsecond sleep
+between attempts. Actual scheduler delay may exceed that requested sleep.
+Partial/successful sends are returned immediately and never replayed; persistent
+failure remains counted loss handled by KCP. This does not change host qdiscs.
+Normal successful packet sends have no added timer. Deterministic syscall-result
+regressions, root race tests/vet and an isolated 100 Mbit/s, 80 ms RTT integrity,
+HTTP and bulk smoke passed. This candidate is not deployed and is not established
+as the cause of the France incident.
+
+The observer now captures aggregated stacks before its bounded detailed dump;
+this retains all stack categories when thousands of streams exceed the detailed
+byte ceiling. The one-day observation is still unfinished.

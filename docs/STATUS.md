@@ -1,8 +1,9 @@
 # Current deployment status
 
 Incident recovery release deployed 2026-10-06 on five hosts. The operator
-reported customer traffic failures; 24-hour observation is still in progress. All six routes use
-the same four-carrier adaptive KCP profile, client S / backend PA flags, quoted
+reported customer traffic failures; 24-hour observation is still in progress. All six routes use four KCP carriers. After a captured France stall at
+20:37–20:41 UTC, France uses a static fallback; Germany and Finland retain
+adaptation. All retain client S / backend PA flags, quoted
 null encryption, AF_PACKET with one receive worker and MTU1350. Country peers
 are `germany`, `finland`, `france`; 171.22.132.226 is France.
 
@@ -15,8 +16,9 @@ Version `enterprise-2026.10.06-recovery`, source `7b6a7fe642c8175b67fe82af990fdf
 The exact executable is retained at `build/incident-20261006/super-paqet-recovery-final`.
 The original raw Ethernet/IP/TCP shaping and sequence/ACK behavior are preserved.
 Startup learns once per observed RTT within 50–250 ms bounds; established and
-idle controllers retain 250 ms updates. Carrier count stays fixed at four while
-pacing, send window, ACK scheduling, reorder allowance and RTO floor adapt.
+idle controllers retain 250 ms updates. Carrier count stays fixed at four. On adaptive endpoints, pacing, send window,
+ACK scheduling, reorder allowance and RTO floor adapt. France currently uses
+the manual base without controller mutations.
 Receive-buffer ceilings remain explicit. Matching KCP settings are recorded in
 [deployed configurations](deployed/README.md).
 
@@ -49,7 +51,14 @@ fixed. The root and mux race suites, repeated recovery regressions and static
 analysis passed. Current isolated loss/reorder and asymmetric checks passed;
 2,000 held forwards were reverified with zero errors. All nine authenticated
 1 MiB checks passed after the five-host rollout (both client IPs and domain).
-These fixes do not establish a definitive production root cause or complete the
+The next observation caught 7,369 accumulated client opening failures and
+3,479 France control errors, with no process restart or OOM. Three France lanes
+collapsed their delivery estimates/windows while another lane remained active.
+France adaptation was disabled through scoped live reload on its server and both
+clients; their main PIDs stayed unchanged, while France carriers were recreated.
+All nine authenticated 1 MiB checks passed again. A deterministic regression
+now reproduces learned capacity loss from a queued tiny-control workload after
+bulk traffic; its candidate fix is not yet deployed. This does not complete the
 24-hour observation. The independent collectors expire around 2026-10-07
 20:16 UTC. No main Xray settings or services were changed.
 

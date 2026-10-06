@@ -112,7 +112,9 @@ def counters_with_labels(row):
 
 def capture(directory, count):
     """Bound profile size/count; disabled profiling produces no artifact."""
-    for name, endpoint, timeout in [("goroutines.txt", "goroutine?debug=2", 4), ("cpu.pprof", "profile?seconds=5", 8)]:
+    # Aggregated stacks remain complete when a detailed many-thousand-stream
+    # dump hits the byte ceiling. Capture them first, before CPU sampling delays.
+    for name, endpoint, timeout in [("goroutines-summary.txt", "goroutine?debug=1", 4), ("goroutines.txt", "goroutine?debug=2", 4), ("cpu.pprof", "profile?seconds=5", 8)]:
         try:
             with urllib.request.urlopen("http://127.0.0.1:29090/debug/pprof/" + endpoint, timeout=timeout) as response:
                 data = response.read(4 * 1024 * 1024)

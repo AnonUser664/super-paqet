@@ -1,14 +1,14 @@
 # Recorded production configuration
 
 Five live snapshots were fetched and validated after final warning-level
-finalization on 2026-10-06. All hosts run `enterprise-2026.10.06-startup`, source
-`5f403c23e53c58f4917ad2b0c5a480bb96719516`, binary SHA-256:
+finalization on 2026-10-06. The live incident release is `enterprise-2026.10.06-recovery`, source
+`7b6a7fe642c8175b67fe82af990fdf3e07188709`, binary SHA-256:
 
-`e4bbd4915cded878ce3b8038c9f114d58cab8c20e4271c0a73646a892d4c4294`
+`d3ddafe5c2fe056b24b32ef6fb0658e81c81d7c123db19bc494afaf46c42cfdd`
 
 Every endpoint uses the same manual KCP base (0/30/2/nc=1), 4096-segment window
-ceilings, MTU1350, batched writes with small-write threshold 256, and endpoint
-adaptation enabled. Send windows, pacing, ACK timing, reorder allowance and RTO
+ceilings, MTU1350, batched writes with small-write threshold 256, and adaptation enabled for Germany/Finland. France adaptation is disabled
+after the captured 20:37–20:41 UTC stall; see the incident report. On adaptive endpoints, send windows, pacing, ACK timing, reorder allowance and RTO
 floors adapt; carrier count is fixed at four. Receive-buffer adaptation and peer
 ACK/credit extensions remain explicitly off. All use AF_PACKET/one receive worker.
 Host addresses/interfaces/MACs and role memory limits are necessarily distinct.
@@ -16,8 +16,9 @@ Host addresses/interfaces/MACs and role memory limits are necessarily distinct.
 Peer names are `germany`, `finland`, `france`. 171.22.132.226 is France; historical
 Netherlands reports refer to that same IP. Every route uses S outbound / PA
 return, quoted null encryption and a shared fixed source tuple per country.
-Source ports are 29998/29996/29997 respectively. Logging is **warn**, profiling is
-off and metrics are loopback-only. These profiles are deployment-specific and
+Source ports are 29998/29996/29997 respectively. These baseline snapshots have **warn** logging and profiling off; current
+one-day diagnostics temporarily enable sampled debug logs and loopback profiling.
+Their guarded restore preserves the France fallback. Metrics are loopback-only. These profiles are deployment-specific and
 contain no encryption keys.
 
 `super-paqet.service` is the common base unit. Finland additionally installs
