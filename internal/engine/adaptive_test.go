@@ -12,6 +12,36 @@ import (
 	"time"
 )
 
+// TestStartupIdlePreservesCapacityAndSamplingBudget models a short first
+// transfer followed by idle keepalives. Startup history must remain useful
+// without keeping every idle carrier on the faster learning cadence.
+func TestStartupIdlePreservesCapacityAndSamplingBudget(t *testing.T) {
+	c := newController(4096, 4096)
+	now := time.Unix(100, 0)
+	s := kcp.TransportStats{SRTT: 80, MSS: 1326, Pending: 100, PendingBytes: 100000}
+	c.update(s, now)
+	now = now.Add(100 * time.Millisecond)
+	s.AckedBytes += 100000
+	s.AckedSegments += 76
+	c.update(s, now)
+	if !c.bulkSeen || !c.startup {
+		t.Fatal("fixture did not finish a short transfer during startup")
+	}
+	window, rate := c.window, c.rate
+	s.Pending, s.PendingBytes = 0, 0
+	sampled := 0
+	for range 20 {
+		now = now.Add(50 * time.Millisecond)
+		if now.Sub(c.last) >= c.sampleInterval(s) {
+			c.update(s, now)
+			sampled++
+		}
+	}
+	if sampled != 4 || c.window != window || c.rate != rate {
+		t.Fatalf("idle changed capacity or sampling cost: updates=%d window=%d rate=%v", sampled, c.window, c.rate)
+	}
+}
+
 // TestLegacyACKCadenceIsNotNetworkCongestion models immediate application
 // replies followed by bulk with timer-batched ACKs. True queue growth beyond
 // the known scheduling bound must still suppress probing and reduce pacing.

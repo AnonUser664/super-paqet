@@ -241,6 +241,21 @@ func (c *controller) pacingRate() uint64 {
 	return uint64(max(1024, c.rate*gain))
 }
 
+// sampleInterval lets a new bulk sender learn once per observed RTT instead
+// of spending 250 ms on every startup step. Idle, static and established
+// controllers retain the lower-cost cadence. The four-segment initial window
+// and existing congestion/pacing bounds still protect unknown narrow links.
+func (c *controller) sampleInterval(s kcplib.TransportStats) time.Duration {
+	if c.passive || !c.startup || s.PendingBytes < uint64(max(1, s.MSS)*2) {
+		return 250 * time.Millisecond
+	}
+	rtt := float64(s.SRTT)
+	if c.minRTT > 0 {
+		rtt = c.minRTT
+	}
+	return max(50*time.Millisecond, min(250*time.Millisecond, time.Duration(rtt)*time.Millisecond))
+}
+
 // addTuner registers adaptive carrier state under the tuner lock and installs its initial
 // receive/send limits.
 func (e *Engine) addTuner(conn *kcp.Conn, maximum, receive int, slots ...*slot) {
@@ -266,7 +281,7 @@ func (e *Engine) addPassive(conn *kcp.Conn) {
 // tune samples every carrier on one shared ticker and applies bounded
 // pacing/window/ACK/reordering/timer adjustments.
 func (e *Engine) tune() {
-	ticker := time.NewTicker(250 * time.Millisecond)
+	ticker := time.NewTicker(50 * time.Millisecond)
 	defer ticker.Stop()
 	for {
 		select {
@@ -280,6 +295,9 @@ func (e *Engine) tune() {
 					continue
 				}
 				s := conn.UDPSession.TransportStats()
+				if !c.last.IsZero() && now.Sub(c.last) < c.sampleInterval(s) {
+					continue
+				}
 				if c.slot != nil && c.slot.conn.Load() == conn {
 					traffic := s.AckedBytes - c.previous.AckedBytes + s.ReceivedBytes - c.previous.ReceivedBytes
 					wait := s.WriteWaitNanoseconds - c.previous.WriteWaitNanoseconds

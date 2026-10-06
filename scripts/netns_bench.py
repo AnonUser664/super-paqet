@@ -28,6 +28,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument('--binary', default='build/super-paqet')
     p.add_argument('--duration', type=int, default=10)
+    p.add_argument('--cold-read-bytes', type=int, help='size of the first integrity-checked transfer before warm-up')
     p.add_argument('--workers', type=int, default=32)
     p.add_argument('--loss', type=float, default=0)
     p.add_argument('--delay-ms', type=float, default=0, help='one-way delay')
@@ -73,6 +74,8 @@ def main():
     p.add_argument('--bridge', action='store_true', help='shape a middle bridge instead of endpoint socket queues')
     p.add_argument('--output', default='build/bench')
     a = p.parse_args()
+    if a.cold_read_bytes is not None and not 1 <= a.cold_read_bytes <= 16777216:
+        p.error('cold read size must be 1..16777216 bytes')
     if a.flow_sample<1:p.error('flow sample must be positive')
     if a.host_backlog<0 or a.host_backlog>1000000:p.error('host backlog must be 0..1000000')
     if a.duplex_http and (not a.enterprise or not a.iperf or 'bidirectional' not in a.iperf_directions):p.error('duplex HTTP requires enterprise bidirectional iperf')
@@ -316,8 +319,15 @@ def main():
         # Force a full integrity check before a performance claim.
         caps = [x for x in (a.rate_mbit,a.down_rate_mbit) if x]
         verify_size = 1048576 if caps and min(caps)<=100 else 16777216
+        if a.cold_read_bytes is not None:
+            verify_size = a.cold_read_bytes
+        # Capture the first transfer before any performance warm-up. A good
+        # steady-state rate must not conceal slow startup on new carriers.
+        verify_started = time.monotonic()
         result = ns(c,str(ROOT/'build/spq-bench'),'-mode','verify','-addr','127.0.0.1:28080','-verify-size',str(verify_size))
-        reports = [json.loads(result.stdout)]
+        first_transfer = json.loads(result.stdout)
+        first_transfer['cold_transfer_seconds'] = time.monotonic() - verify_started
+        reports = [first_transfer]
         if a.restart:
             expected_killed.add(sp.pid);sp.kill();sp.wait()
             ns(s,sys.executable,'-c','from pathlib import Path; assert list(Path("/run/super-paqet").glob("*.json")), "missing crash journal"')
