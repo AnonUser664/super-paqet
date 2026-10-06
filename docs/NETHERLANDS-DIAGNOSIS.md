@@ -67,3 +67,37 @@ change was made, and no bulk throughput work was performed.
 
 The diagnosis stops here at the user's request. A working raw network path is
 needed before Netherlands can be requalified.
+
+## Resumed path investigation: candidate qualification in progress
+
+The user subsequently authorized renewed testing of ports, flags and encryption.
+Fresh ordinary TCP probes from both clients connected to SSH/22 and Xray/2096.
+Five ICMP replies per client returned without loss, with mean RTT 89.313 ms
+from `.14` and 83.505 ms from `.118`. A backend-local authenticated Reality
+control downloaded exactly 1 MiB with HTTP 200 in 0.493 seconds. Its UUID and
+short-ID matched the private probe; credentials are not included in evidence.
+
+Two paired physical-interface experiments sent tagged synthetic raw frames to
+ports 22, 443, 2096, 2052, 29999 and 41080, with PA/A/S/SA/P flags and 64/512/1200
+payload bytes, three copies per case. Sharing one source port delivered
+1002/1080 frames, with missing packets confined to continuing client-to-backend
+traffic on 29999. Fresh source ports per case delivered **1080/1080**. Both
+experiments reported zero kernel capture drops. These synthetic probes do not
+reproduce every upstream SYN header detail or establish actual TCP connections.
+They exclude a complete IP/port outage and suggest tuple/traffic-state effects.
+
+Real KCP echo tests use the exact deployed executable, a temporary loopback
+backend echo service, and additive loopback client forwards. Success requires
+full payload equality on separate 64-byte, 16 KiB and 256 KiB streams. Plaintext,
+AES and AES-GCM PA profiles on 443 still lose continuing forward packets after
+the small echo. AES on 2052 likewise fails the larger streams. The **S and SA
+profiles on 443 passed all three sizes on both clients**. Capture matching
+confirms delivery of thousands of their forward frames.
+
+This establishes a promising SYN-profile workaround, not a proven flag-bit-only
+explanation: the existing SYN encoder also changes sequence/ACK numbers and TCP
+options. The exact filtering device/policy remains unknown. Original production
+9003 tuples, multiple carriers, larger packets, sustained concurrency and full
+Reality transfers still require qualification. Germany resources and the
+installed executable remain unchanged; each temporary configuration has an
+independent systemd rollback timer and exact-byte restoration.
