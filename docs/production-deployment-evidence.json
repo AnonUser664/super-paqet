@@ -1622,6 +1622,374 @@
           }
         }
       }
+    },
+    {
+      "candidate": "adaptive4096x16-small",
+      "direction": "download",
+      "seconds": 30,
+      "streams_per_path": 16,
+      "aggregate_receiver_gbps": 1.0078548050618026,
+      "paths": [
+        {
+          "client": "89.45.68.118",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 29.81932,
+            "seconds": 29.81932,
+            "bytes": 327155712,
+            "bits_per_second": 87770133.45710096,
+            "sender": false
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 29.775755,
+            "seconds": 29.775755,
+            "bytes": 944111616,
+            "bits_per_second": 253659157.52598044,
+            "sender": false
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 28.942937,
+            "seconds": 28.942937,
+            "bytes": 822083584,
+            "bits_per_second": 227228794.09232035,
+            "sender": false
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 30.055738,
+            "seconds": 30.055738,
+            "bytes": 387973120,
+            "bits_per_second": 103267634.286671,
+            "sender": false
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 30.019675,
+            "seconds": 30.019675,
+            "bytes": 723779584,
+            "bits_per_second": 192881391.02105537,
+            "sender": false
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 29.67287,
+            "seconds": 29.67287,
+            "bytes": 530579456,
+            "bits_per_second": 143047694.6786745,
+            "sender": false
+          },
+          "error": null
+        }
+      ],
+      "resources": {
+        "116.202.177.233": {
+          "occupied_cpu_cores_mean": 0.6178863220468039,
+          "start": {
+            "pid": "732319",
+            "time": 1248182.679268259,
+            "cpu_seconds": 2065.74,
+            "rss_kib": 85256,
+            "swap_kib": 0,
+            "fds": 38
+          },
+          "end": {
+            "pid": "732319",
+            "time": 1248222.476232721,
+            "cpu_seconds": 2090.33,
+            "rss_kib": 192840,
+            "swap_kib": 0,
+            "fds": 36
+          }
+        },
+        "171.22.132.226": {
+          "occupied_cpu_cores_mean": 0.5624102336526844,
+          "start": {
+            "pid": "2902208",
+            "time": 5586194.519802399,
+            "cpu_seconds": 453.45,
+            "rss_kib": 33544,
+            "swap_kib": 0,
+            "fds": 9
+          },
+          "end": {
+            "pid": "2902208",
+            "time": 5586234.277258188,
+            "cpu_seconds": 475.81,
+            "rss_kib": 187724,
+            "swap_kib": 0,
+            "fds": 9
+          }
+        },
+        "65.109.249.222": {
+          "occupied_cpu_cores_mean": 0.8780592728395689,
+          "start": {
+            "pid": "58881",
+            "time": 17544.207171537,
+            "cpu_seconds": 554.81,
+            "rss_kib": 30508,
+            "swap_kib": 0,
+            "fds": 8
+          },
+          "end": {
+            "pid": "58881",
+            "time": 17583.874197531,
+            "cpu_seconds": 589.64,
+            "rss_kib": 166488,
+            "swap_kib": 0,
+            "fds": 8
+          }
+        },
+        "89.45.68.14": {
+          "occupied_cpu_cores_mean": 1.9670876265216102,
+          "start": {
+            "pid": "202705",
+            "time": 834445.427378269,
+            "cpu_seconds": 5842.07,
+            "rss_kib": 56884,
+            "swap_kib": 0,
+            "fds": 28
+          },
+          "end": {
+            "pid": "202705",
+            "time": 834484.973150888,
+            "cpu_seconds": 5919.86,
+            "rss_kib": 254512,
+            "swap_kib": 0,
+            "fds": 28
+          }
+        },
+        "89.45.68.118": {
+          "occupied_cpu_cores_mean": 2.2637864856209835,
+          "start": {
+            "pid": "894995",
+            "time": 3796056.177996245,
+            "cpu_seconds": 5633.91,
+            "rss_kib": 63908,
+            "swap_kib": 0,
+            "fds": 50
+          },
+          "end": {
+            "pid": "894995",
+            "time": 3796095.775370189,
+            "cpu_seconds": 5723.55,
+            "rss_kib": 223196,
+            "swap_kib": 0,
+            "fds": 48
+          }
+        }
+      }
+    },
+    {
+      "candidate": "adaptive4096x16-small",
+      "direction": "upload",
+      "seconds": 30,
+      "streams_per_path": 16,
+      "aggregate_receiver_gbps": 0.6470633623410524,
+      "paths": [
+        {
+          "client": "89.45.68.14",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 29.950393,
+            "seconds": 29.950393,
+            "bytes": 238157824,
+            "bits_per_second": 63613942.96228434,
+            "sender": true
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 30.411727,
+            "seconds": 30.411727,
+            "bytes": 100139008,
+            "bits_per_second": 26342208.84594946,
+            "sender": true
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.14",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 30.156797,
+            "seconds": 30.156797,
+            "bytes": 842268672,
+            "bits_per_second": 223437169.93552068,
+            "sender": true
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "france",
+          "receiver": {
+            "start": 0,
+            "end": 30.153463,
+            "seconds": 30.153463,
+            "bytes": 951713792,
+            "bits_per_second": 252498704.24501494,
+            "sender": true
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "finland",
+          "receiver": {
+            "start": 0,
+            "end": 31.769297,
+            "seconds": 31.769297,
+            "bytes": 132120576,
+            "bits_per_second": 33270003.04728178,
+            "sender": true
+          },
+          "error": null
+        },
+        {
+          "client": "89.45.68.118",
+          "peer": "germany",
+          "receiver": {
+            "start": 0,
+            "end": 41.789988,
+            "seconds": 41.789988,
+            "bytes": 250224518,
+            "bits_per_second": 47901333.305001184,
+            "sender": true
+          },
+          "error": null
+        }
+      ],
+      "resources": {
+        "116.202.177.233": {
+          "occupied_cpu_cores_mean": 0.17974753201007937,
+          "start": {
+            "pid": "732319",
+            "time": 1248329.023901743,
+            "cpu_seconds": 2097.17,
+            "rss_kib": 193360,
+            "swap_kib": 0,
+            "fds": 36
+          },
+          "end": {
+            "pid": "732319",
+            "time": 1248378.649061545,
+            "cpu_seconds": 2106.09,
+            "rss_kib": 199916,
+            "swap_kib": 0,
+            "fds": 34
+          }
+        },
+        "171.22.132.226": {
+          "occupied_cpu_cores_mean": 0.44274122456224885,
+          "start": {
+            "pid": "2902208",
+            "time": 5586340.853365056,
+            "cpu_seconds": 480.57,
+            "rss_kib": 187736,
+            "swap_kib": 0,
+            "fds": 9
+          },
+          "end": {
+            "pid": "2902208",
+            "time": 5586390.363098471,
+            "cpu_seconds": 502.49,
+            "rss_kib": 188640,
+            "swap_kib": 0,
+            "fds": 9
+          }
+        },
+        "65.109.249.222": {
+          "occupied_cpu_cores_mean": 0.28834250020593266,
+          "start": {
+            "pid": "58881",
+            "time": 17690.45531041,
+            "cpu_seconds": 597.08,
+            "rss_kib": 166488,
+            "swap_kib": 0,
+            "fds": 8
+          },
+          "end": {
+            "pid": "58881",
+            "time": 17739.979747459,
+            "cpu_seconds": 611.36,
+            "rss_kib": 179168,
+            "swap_kib": 0,
+            "fds": 8
+          }
+        },
+        "89.45.68.14": {
+          "occupied_cpu_cores_mean": 1.6266601042484659,
+          "start": {
+            "pid": "202705",
+            "time": 834591.527780601,
+            "cpu_seconds": 5939.09,
+            "rss_kib": 254512,
+            "swap_kib": 0,
+            "fds": 28
+          },
+          "end": {
+            "pid": "202705",
+            "time": 834641.095603522,
+            "cpu_seconds": 6019.72,
+            "rss_kib": 292036,
+            "swap_kib": 0,
+            "fds": 28
+          }
+        },
+        "89.45.68.118": {
+          "occupied_cpu_cores_mean": 1.3897296782878603,
+          "start": {
+            "pid": "894995",
+            "time": 3796202.299372253,
+            "cpu_seconds": 5750.35,
+            "rss_kib": 231456,
+            "swap_kib": 0,
+            "fds": 48
+          },
+          "end": {
+            "pid": "894995",
+            "time": 3796251.884554952,
+            "cpu_seconds": 5819.26,
+            "rss_kib": 261620,
+            "swap_kib": 0,
+            "fds": 46
+          }
+        }
+      }
     }
   ],
   "incomplete_candidate_tests": [
@@ -2015,5 +2383,29 @@
   },
   "test_fixture_notes": [
     "Authenticating to external HTTPS target succeeded. Owned loopback/public-address HTTP targets returned no completed requests through existing Xray. Those are test-target failures and do not qualify the application path. Temporary public-address HTTP targets are being removed; existing Xray configuration is unchanged."
-  ]
+  ],
+  "integrity_16_sessions": {
+    "89.45.68.14": {
+      "germany": {
+        "verified_bytes": 16777216
+      },
+      "finland": {
+        "verified_bytes": 16777216
+      },
+      "france": {
+        "verified_bytes": 16777216
+      }
+    },
+    "89.45.68.118": {
+      "germany": {
+        "verified_bytes": 16777216
+      },
+      "finland": {
+        "verified_bytes": 16777216
+      },
+      "france": {
+        "verified_bytes": 16777216
+      }
+    }
+  }
 }
