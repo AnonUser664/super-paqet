@@ -24,7 +24,9 @@ shape and sequence/ACK behavior remain preserved.
 | 9003 | france | 171.22.132.226:29999 | 171.22.132.226:2096 |
 
 Clients are 89.45.68.14 and 89.45.68.118. Germany retains its second local
-116.202.177.233 listener. Source ports stay 29998/29996/29997 respectively.
+116.202.177.233 listener. Client .14 uses source ports 29998/29996/29997.
+Client .118 uses 29998/29994/29995 after the 7 October source-tuple recovery;
+see [incident evidence](SOURCE-TUPLE-INCIDENT-2026-10-07.md).
 The working raw tunnel port is 29999, superseding the initial 2052 request.
 Germany administration uses SSH through France, with Finland as a fallback.
 

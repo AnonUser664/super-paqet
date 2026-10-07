@@ -275,3 +275,13 @@ cores on client .118 and 0.024–0.054 on individual backends, with syscall and
 scheduling work leading the profile. These are low-traffic observations, not
 capacity measurements. All rollback timers were disarmed after authenticated
 acceptance; the diagnostic restoration timer and day collectors remain active.
+
+## Live France/Finland tuple failure (7 October, morning)
+
+Paired captures during the operator-identified .118 → France outage showed
+outbound raw packets at the client and none arriving at France. The same binary
+passed on a fresh source port. France and Finland were recovered with scoped
+live source-port edits, without restarting the client or changing Xray. All six
+authenticated public routes passed afterward. This is stronger transport-loss
+evidence for this episode, while the network device/trigger remains unknown.
+See [exact investigation and limits](SOURCE-TUPLE-INCIDENT-2026-10-07.md).

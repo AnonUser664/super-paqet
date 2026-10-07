@@ -41,7 +41,7 @@ peers:
     network:
       interface: ens160
       ipv4:
-        addr: 89.45.68.118:29996
+        addr: 89.45.68.118:29994
         router_mac: 58:8d:09:12:9e:00
       backend: packet
       tcp:
@@ -77,7 +77,7 @@ peers:
     network:
       interface: ens160
       ipv4:
-        addr: 89.45.68.118:29997
+        addr: 89.45.68.118:29995
         router_mac: 58:8d:09:12:9e:00
       backend: packet
       tcp:

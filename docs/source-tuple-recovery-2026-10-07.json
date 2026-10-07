@@ -1,0 +1,106 @@
+{
+  "release_sha256": "37743f5acfd9ec8f83c40e4d5a951a3062bf8197f4c9278ca2e7f3fc3dd6c585",
+  "client_pid_before_and_after": 955116,
+  "changes": {
+    "89.45.68.118": {
+      "france": {
+        "old_source_port": 29997,
+        "new_source_port": 29995
+      },
+      "finland": {
+        "old_source_port": 29996,
+        "new_source_port": 29994
+      }
+    }
+  },
+  "captures": [
+    {
+      "seconds": 20,
+      "client_packets": 72,
+      "france_packets": 0,
+      "kernel_capture_drops": 0
+    },
+    {
+      "seconds": 30,
+      "immediate_mode": true,
+      "client_packets": 95,
+      "france_packets": 0,
+      "kernel_capture_drops": 0
+    }
+  ],
+  "acceptance": [
+    {
+      "host": "89.45.68.118",
+      "port": 9001,
+      "exit_code": 0,
+      "http_status": "200 1048576",
+      "seconds": 1.6099231149999014,
+      "error": ""
+    },
+    {
+      "host": "89.45.68.118",
+      "port": 9002,
+      "exit_code": 0,
+      "http_status": "200 1048576",
+      "seconds": 3.606500938999943,
+      "error": ""
+    },
+    {
+      "host": "89.45.68.118",
+      "port": 9003,
+      "exit_code": 0,
+      "http_status": "200 1048576",
+      "seconds": 1.6464940559999377,
+      "error": ""
+    },
+    {
+      "host": "89.45.68.14",
+      "port": 9001,
+      "exit_code": 0,
+      "http_status": "200 1048576",
+      "seconds": 2.045759179000015,
+      "error": ""
+    },
+    {
+      "host": "89.45.68.14",
+      "port": 9002,
+      "exit_code": 0,
+      "http_status": "200 1048576",
+      "seconds": 1.3274863090000508,
+      "error": ""
+    },
+    {
+      "host": "89.45.68.14",
+      "port": 9003,
+      "exit_code": 0,
+      "http_status": "200 1048576",
+      "seconds": 2.395309553000061,
+      "error": ""
+    }
+  ],
+  "france_canary": [
+    {
+      "host": "89.45.68.118",
+      "port": 19003,
+      "exit_code": 0,
+      "http_status": "200 1048576",
+      "seconds": 3.553279621999991,
+      "error": ""
+    }
+  ],
+  "finland_canary": [
+    {
+      "host": "89.45.68.118",
+      "port": 19002,
+      "exit_code": 0,
+      "http_status": "200 1048576",
+      "seconds": 2.132889750000004,
+      "error": ""
+    }
+  ],
+  "limits": [
+    "No identified dropping device or trigger",
+    "New tuples could later fail",
+    "This acceptance does not measure saturation capacity"
+  ]
+}
