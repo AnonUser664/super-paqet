@@ -23,8 +23,11 @@ def main():
     parser.add_argument('--sequenced-payloads', action='store_true', help='prefix every held exchange with its unique sequence number')
     parser.add_argument('--held-payload-bytes', type=int, default=0, help='larger integrity-checked payloads on held streams')
     parser.add_argument('--packet-workers', type=int, default=2, help='backend fanout workers, including cross-worker migration')
+    parser.add_argument('--stall-seconds', type=int, default=15, help='qualifying delivery stall threshold; retry interval stays 15 seconds')
     parser.add_argument('--output', required=True)
     args = parser.parse_args()
+    if args.stall_seconds <= 0:
+        parser.error('--stall-seconds must be positive')
     if os.geteuid() != 0:
         parser.error('requires root for disposable namespaces')
     binary = pathlib.Path(args.binary).resolve()
@@ -141,7 +144,7 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
             """Use the deployed null/four-session transport profile and exact flags."""
             return {'address':address,'enc':'null','shared_source':True,'sessions':4,'max_sessions':4,'packet_workers':1,'adaptive':True,'kcp':kcp,'network':{'backend':'packet','interface':interface,'ipv4':{'addr':f'{ip}:{port}','router_mac':mac},'tcp':{'local_flag':[flags],'remote_flag':['PA' if flags=='S' else 'S']}}}
         broken = endpoint('198.18.0.1',29997,'spq-c','02:00:00:00:00:02','S','198.18.0.2:29999')
-        broken['path_recovery']={'enabled':True,'stalled_after':'15s','retry_interval':'15s','probe_timeout':'5s','preserve_connections':args.preserve_connections}
+        broken['path_recovery']={'enabled':True,'stalled_after':f'{args.stall_seconds}s','retry_interval':'15s','probe_timeout':'5s','preserve_connections':args.preserve_connections}
         if not args.shared_source:
             broken['shared_source']=False
             broken['network']['ipv4']['addr']='198.18.0.1:0'
@@ -226,6 +229,7 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
         recovered=[r for r in logs if r.get('msg')=='path.recovered'];failed=[r for r in logs if r.get('msg')=='path.recovery_probe_failed']
         result={'case':args.case,'shared_source':args.shared_source,'preserve_connections':args.preserve_connections,'packet_workers':args.packet_workers,'held_payload_bytes':args.held_payload_bytes,'sequenced_payloads':args.sequenced_payloads,'sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'client_pid':client_process.pid,'events':events,'recovered':recovered,'failed_probes':failed,'healthy_successes':sum(r['ok'] for r in rows if r['peer']=='healthy'),'healthy_errors':[r for r in rows if r['peer']=='healthy' and not r['ok']],'broken_successes_after_45s':sum(r['ok'] for r in rows if r['peer']=='broken' and r['at']>(75 if args.case=='whole-peer' else 45)),'broken_errors':sum(not r['ok'] for r in rows if r['peer']=='broken'),'first_success_after_fault':next((r for r in rows if r['peer']=='broken' and r['ok'] and r['at']>6),None),'snapshots':snapshots,'wire':wire}
         (out/'result.json').write_text(json.dumps(result,indent=2)+'\n')
+        result['stall_seconds'] = args.stall_seconds
         assert not result['healthy_errors'],'healthy peer disrupted'
         assert result['broken_successes_after_45s']>10,'path did not recover'
         if args.case in ('tuple','reverse-tuple','established','reverse-established'):assert len(recovered)==1,'single tuple recovery missing or siblings replaced'

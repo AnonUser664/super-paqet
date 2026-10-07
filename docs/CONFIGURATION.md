@@ -181,7 +181,7 @@ its own firewall rules. It must complete PPING/PPONG through KCP/mux within
 `probe_timeout` (1s–1m); local setup/write is not proof. Probes run outside the
 configuration lock, at most one per carrier and four concurrently per process.
 `retry_interval` (10s–10m) is a per-carrier minimum between attempt start times.
-`stalled_after` accepts 15s–10m. These budgets are not a strict outage SLA.
+`stalled_after` accepts 10s–10m (default 15s). These budgets are not a strict outage SLA.
 
 Failed probes retain the existing slot and streams. Before a successful commit,
 configuration/resource/slot identity, cancellation and old-carrier health are

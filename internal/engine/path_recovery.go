@@ -42,7 +42,7 @@ func (r *PathRecoveryConfig) prepare(listener, shared bool) error {
 		fallback string
 		min, max time.Duration
 	}{
-		{"stalled_after", &r.StalledAfter, &r.stalledAfter, "15s", 15 * time.Second, 10 * time.Minute},
+		{"stalled_after", &r.StalledAfter, &r.stalledAfter, "15s", 10 * time.Second, 10 * time.Minute},
 		{"retry_interval", &r.RetryInterval, &r.retryInterval, "15s", 10 * time.Second, 10 * time.Minute},
 		{"probe_timeout", &r.ProbeTimeout, &r.probeTimeout, "5s", time.Second, time.Minute},
 	}

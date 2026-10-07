@@ -191,7 +191,7 @@ func TestFreshSourceSpecPreservesEnvelope(t *testing.T) {
 // TestPathRecoveryConfigValidation prevents unsupported listener/nonshared
 // recovery and rejects unreasonable traffic or detection budgets.
 func TestPathRecoveryConfigValidation(t *testing.T) {
-	for _, r := range []PathRecoveryConfig{{Enabled: true, StalledAfter: "1s"}, {Enabled: true, RetryInterval: "0s"}, {Enabled: true, ProbeTimeout: "2m"}} {
+	for _, r := range []PathRecoveryConfig{{Enabled: true, StalledAfter: "1s"}, {Enabled: true, StalledAfter: "9s"}, {Enabled: true, RetryInterval: "0s"}, {Enabled: true, ProbeTimeout: "2m"}} {
 		if r.prepare(false, true) == nil {
 			t.Fatal("bad recovery budget accepted")
 		}

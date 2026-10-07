@@ -60,6 +60,32 @@ func TestCarrierHealthDirectionalStall(t *testing.T) {
 	}
 }
 
+// TestCarrierHealthTenSecondStallAndCooldown qualifies the deployed override:
+// quicker detection must not accidentally shorten the independent retry budget.
+func TestCarrierHealthTenSecondStallAndCooldown(t *testing.T) {
+	cfg := PathRecoveryConfig{Enabled: true, StalledAfter: "10s", RetryInterval: "15s"}
+	if err := cfg.prepare(false, false); err != nil {
+		t.Fatal(err)
+	}
+	now := time.Now()
+	c := new(kcp.Conn)
+	h := carrierHealth{}
+	h.observeCarrier(now, 0, time.Time{}, c, carrierProgress{acked: 100}, 1024, 1, 100)
+	if h.ready(now.Add(10*time.Second-time.Millisecond), 0, cfg, true) {
+		t.Fatal("recovery before the configured stall threshold")
+	}
+	if !h.ready(now.Add(10*time.Second), 0, cfg, true) {
+		t.Fatal("ten-second stall did not become eligible")
+	}
+	h.lastAttempt = now.Add(10 * time.Second)
+	if h.ready(now.Add(25*time.Second-time.Millisecond), 0, cfg, true) {
+		t.Fatal("shorter stall threshold shortened the retry cooldown")
+	}
+	if !h.ready(now.Add(25*time.Second), 0, cfg, true) {
+		t.Fatal("retry did not become eligible after fifteen seconds")
+	}
+}
+
 // carrierRecoveryFixture supplies independent slots without raw socket creation.
 // Every candidate still exercises the real ownership/commit implementation.
 func carrierRecoveryFixture(t *testing.T) (*Engine, *peer, *slot) {

@@ -39,7 +39,7 @@ peers:
     path_recovery:
       enabled: true
       preserve_connections: true
-      stalled_after: 15s
+      stalled_after: 10s
       retry_interval: 15s
       probe_timeout: 5s
   finland:
@@ -81,7 +81,7 @@ peers:
     path_recovery:
       enabled: true
       preserve_connections: true
-      stalled_after: 15s
+      stalled_after: 10s
       retry_interval: 15s
       probe_timeout: 5s
   france:
@@ -123,7 +123,7 @@ peers:
     path_recovery:
       enabled: true
       preserve_connections: true
-      stalled_after: 15s
+      stalled_after: 10s
       retry_interval: 15s
       probe_timeout: 5s
 forwards:
