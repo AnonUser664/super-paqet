@@ -234,6 +234,16 @@ func (e *Engine) observeMigration(now time.Time, name string, index int, s *slot
 	if e.ctx.Err() != nil {
 		return
 	}
+	// Most slots have no active watch: avoid another transport snapshot then.
+	s.recoveryMu.Lock()
+	active := !s.migrationWatch.at.IsZero() && now.Sub(s.migrationWatch.at) <= time.Minute
+	if !active {
+		s.migrationWatch = migrationObservation{}
+	}
+	s.recoveryMu.Unlock()
+	if !active {
+		return
+	}
 	eligible := s.carrierRecoveryAllowed(now, cfg, false, false)
 	s.recoveryMu.Lock()
 	w := &s.migrationWatch
@@ -252,6 +262,11 @@ func (e *Engine) observeMigration(now time.Time, name string, index int, s *slot
 	closed := c.Session.IsClosed()
 	progress, warning := w.sample(now, acked, eligible || (closed && w.streams > 0))
 	age, oldPort := now.Sub(w.at), w.oldPort
+	// A dead mux may still contain stream buffers while relays unwind. The log
+	// window must not retain those customer buffers after this observation.
+	if closed {
+		w.conn = nil
+	}
 	s.recoveryMu.Unlock()
 	if progress && !closed {
 		e.log().Debug("path.migration_progress", "peer", name, "session", index, "conv", c.UDPSession.GetConv(), "source_port", s.network.Port, "elapsed_ms", age.Milliseconds(), "acked_bytes", acked, "received_bytes", received)

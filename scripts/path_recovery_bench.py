@@ -162,7 +162,7 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
         for namespace,config_path,label,executable in ((client,config,'client',binary),(server,server_config,'server',pathlib.Path(args.server_binary).resolve() if args.server_binary else binary)):
             checked=ns(namespace,str(executable),'config','validate','-c',str(config_path),'--json')
             (out/(label+'-validation.json')).write_text(checked.stdout)
-        capture=spawn(server,'wire', 'tcpdump','-i','spq-s','-n','-U','-w',str(out/'wire.pcap'),'tcp port 29999')
+        capture=spawn(client,'wire', 'tcpdump','-i','spq-c','-n','-U','-w',str(out/'wire.pcap'),'tcp port 29999')
         time.sleep(.25)
         spawn(server,'echo',sys.executable,'-c',echo)
         spawn(server,'server',str(pathlib.Path(args.server_binary).resolve()) if args.server_binary else str(binary),'run','-c',str(server_config))

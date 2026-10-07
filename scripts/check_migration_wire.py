@@ -26,6 +26,11 @@ def check(path):
         tcp = ip[ihl:]; src, dst, seq, ack = struct.unpack_from('!HHII', tcp)
         if src != 29999 and dst != 29999:
             continue
+        # Retired probe ports can receive late returns and generate an ordinary
+        # zero-payload kernel RST after owned firewall cleanup. It is not KCP.
+        if tcp[13] & 4 and struct.unpack_from('!H',ip,2)[0] == ihl + (tcp[12] >> 4) * 4:
+            packets['kernel_RST_without_payload'] += 1
+            continue
         assert ip[1] == 184 and ip[8] == 64 and struct.unpack_from('!H', ip, 6)[0] & 0x4000, 'outer IPv4 envelope changed'
         assert struct.unpack_from('!H', tcp, 14)[0] == 65535, 'outer TCP window changed'
         kinds, timestamp, pos, end = [], None, 20, (tcp[12] >> 4) * 4
@@ -48,7 +53,12 @@ def check(path):
         else:
             packets['return_PA'] += 1
             assert tcp[13] == 24 and kinds == [1, 1, 8], 'PA flag/option rule changed'
-            if backend_seed is None: backend_seed = (seq - 128) & 0xffffffff
+            if backend_seed is None:
+                # Parallel workers may deliver counter 2 before counter 1.
+                difference=(seq-timestamp[0]) & 0xffffffff
+                counter=next((n for n in range(1,65537) if (128*n-(n>>3)) & 0xffffffff == difference),None)
+                assert counter is not None, 'cannot infer initial backend encoder'
+                backend_seed=(seq-128*counter) & 0xffffffff
             distance = (seq - backend_seed) & 0xffffffff
             assert distance % 128 == 0, 'backend encoder seed changed'
             counter = distance // 128

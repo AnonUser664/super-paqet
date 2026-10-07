@@ -255,3 +255,20 @@ func TestMigrationLostCommitReply(t *testing.T) {
 		t.Fatal("delayed lower generation accepted")
 	}
 }
+
+// TestMigrationWatchReleasesClosedCarrier ensures diagnostics cannot extend
+// the lifetime of a dead mux and its customer stream buffers for a minute.
+func TestMigrationWatchReleasesClosedCarrier(t *testing.T) {
+	e := reloadFixture(t)
+	l := migrationServer(t)
+	c := acceptedMigrationConn(t, l, "127.0.0.1")
+	s := &slot{}
+	s.conn.Store(c)
+	s.migrationWatch = migrationObservation{at: time.Now(), conn: c, streams: 1}
+	c.Close()
+	e.observeMigration(time.Now(), "test", 0, s, recoveryConfig(t))
+	if s.migrationWatch.conn != nil || !s.migrationWatch.warned {
+		t.Fatal("closed carrier was retained or failure invisible")
+	}
+	e.observeMigration(time.Now(), "test", 0, s, recoveryConfig(t))
+}
