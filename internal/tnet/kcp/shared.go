@@ -64,6 +64,7 @@ func (d *SharedDialer) Adopt(c *Conn) error {
 		return err
 	}
 	c.livePacket.Store(d.packet)
-	c.UDPSession.RetransmitNow()
+	// The backend commit reply wakes pending ARQ; avoid a forced bulk burst
+	// before the receiving dispatcher has adopted this conversation.
 	return nil
 }

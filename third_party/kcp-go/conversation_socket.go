@@ -16,6 +16,31 @@ type conversationKey struct {
 	conv   uint32
 }
 
+// outgoingHint bypasses address-string allocation and the map lock for the
+// usual one-conversation source socket. The complete map remains authoritative
+// for other conversations; route ownership is rechecked on every hint hit.
+type outgoingHint struct {
+	session *UDPSession
+	remote  *net.UDPAddr
+}
+
+// hintOutgoing changes only an outgoing dispatch optimization, never ownership.
+func (l *Listener) hintOutgoing(s *UDPSession, remote net.Addr) {
+	if !l.dialOnly {
+		return
+	}
+	if udp, ok := remote.(*net.UDPAddr); ok {
+		l.outgoing.Store(&outgoingHint{session: s, remote: udp})
+	}
+}
+
+// clearOutgoing prevents a retired hint from retaining closed protocol buffers.
+func (l *Listener) clearOutgoing(s *UDPSession) {
+	if hint := l.outgoing.Load(); hint != nil && hint.session == s {
+		l.outgoing.CompareAndSwap(hint, nil)
+	}
+}
+
 // conversationKey leaves ordinary ServeConn's reset-by-address semantics intact.
 func (l *Listener) conversationKey(remote net.Addr, conv uint32) conversationKey {
 	if !l.multiConversation {
@@ -63,6 +88,7 @@ func (l *Listener) DialConversation(remote net.Addr) (*UDPSession, error) {
 		}
 		s := newUDPSession(conv, 0, 0, l, l.conn, false, remote, l.block)
 		l.sessions[key] = s
+		l.hintOutgoing(s, remote)
 		return s, nil
 	}
 }

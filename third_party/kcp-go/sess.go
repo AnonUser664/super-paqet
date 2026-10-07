@@ -1233,7 +1233,9 @@ type (
 	// Listener defines a server which will be waiting to accept incoming connections
 	Listener struct {
 		// Marks batched input so feedback can coalesce safely before the batch ends.
-		batchACK   atomic.Bool
+		batchACK atomic.Bool
+		// A validated outgoing route avoids per-packet address formatting/map lookup.
+		outgoing   atomic.Pointer[outgoingHint]
 		pendingACK map[*UDPSession]struct{} // owned by the single packet monitor
 		// Atomic pre-accept conversation ceiling limiting unknown-session allocation.
 		maxSessions  atomic.Int64
@@ -1356,10 +1358,25 @@ func (l *Listener) packetInput(data []byte, addr net.Addr) {
 	if l.multiConversation && !hasConv {
 		return
 	}
-	key := l.conversationKey(addr, conv)
-	l.sessionLock.RLock()
-	s, exist := l.sessions[key]
-	l.sessionLock.RUnlock()
+	var s *UDPSession
+	exist := false
+	// Port-per-session clients normally receive one conversation. Keep this
+	// allocation-free path scoped to outgoing sockets and validate both tuple
+	// and current dispatcher so stale hints cannot accept a retired source.
+	if hint := l.outgoing.Load(); hint != nil && hint.session.kcp.conv == conv {
+		if udp, ok := addr.(*net.UDPAddr); ok && sameUDPAddr(hint.remote, udp) {
+			if route := hint.session.route.Load(); route.listener == l {
+				s, exist = hint.session, true
+			}
+		}
+	}
+	var key conversationKey
+	if !exist {
+		key = l.conversationKey(addr, conv)
+		l.sessionLock.RLock()
+		s, exist = l.sessions[key]
+		l.sessionLock.RUnlock()
+	}
 
 	// on an existing connection
 	if exist {
@@ -1585,6 +1602,7 @@ func (l *Listener) closeSession(remote net.Addr, conv ...uint32) (ret bool) {
 	}
 	key := l.conversationKey(remote, id)
 	if _, ok := l.sessions[key]; ok {
+		l.clearOutgoing(l.sessions[key])
 		delete(l.sessions, key)
 		return true
 	}

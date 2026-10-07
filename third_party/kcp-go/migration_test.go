@@ -4,12 +4,65 @@ package kcp
 
 import (
 	"bytes"
+	"encoding/binary"
 	"io"
 	"net"
 	"sync/atomic"
 	"testing"
 	"time"
 )
+
+// TestMigrationACKBatchFollowsCurrentOwner prevents the original dispatcher
+// from deciding whether feedback on the new socket should be coalesced.
+func TestMigrationACKBatchFollowsCurrentOwner(t *testing.T) {
+	old, next := &Listener{}, &Listener{}
+	s := &UDPSession{l: old, ackNoDelay: true}
+	s.route.Store(&sessionRoute{listener: next})
+	next.batchACK.Store(true)
+	if s.ackImmediately() {
+		t.Fatal("new socket batch emitted an immediate ACK")
+	}
+	next.batchACK.Store(false)
+	old.batchACK.Store(true)
+	if !s.ackImmediately() {
+		t.Fatal("retired socket postponed new socket feedback")
+	}
+}
+
+// TestMigrationOutgoingHintRejectsRetiredTuple simulates an in-flight stale
+// hint load after movement. It cannot deliver otherwise valid original data.
+func TestMigrationOutgoingHintRejectsRetiredTuple(t *testing.T) {
+	client, _ := migrationListener(t, nil, true)
+	server, _ := migrationListener(t, nil, false)
+	next, _ := migrationListener(t, nil, true)
+	c, s := migrationPair(t, client, server)
+	hint := client.outgoing.Load()
+	if hint == nil {
+		t.Fatal("outgoing optimization not initialized")
+	}
+	if err := next.MoveSession(c, server.Addr()); err != nil {
+		t.Fatal(err)
+	}
+	// A reader can have loaded the old hint immediately before the move.
+	client.outgoing.Store(hint)
+	packet := make([]byte, 28)
+	binary.LittleEndian.PutUint32(packet, c.GetConv())
+	packet[4] = IKCP_CMD_PUSH
+	binary.LittleEndian.PutUint16(packet[6:], 4096)
+	binary.LittleEndian.PutUint32(packet[16:], 1)
+	binary.LittleEndian.PutUint32(packet[20:], 4)
+	copy(packet[24:], "late")
+	before := c.TransportStats().ReceivedBytes
+	client.packetInput(packet, s.LocalAddr())
+	if c.TransportStats().ReceivedBytes != before {
+		t.Fatal("retired source delivered into migrated session")
+	}
+	c.Close()
+	if next.outgoing.Load() != nil {
+		t.Fatal("closed outgoing hint retained protocol buffers")
+	}
+	client.outgoing.Store(nil)
+}
 
 // migrationSocket simulates tuple loss while preserving the socket lifecycle.
 type migrationSocket struct {

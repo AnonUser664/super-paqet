@@ -28,7 +28,16 @@ func (s *UDPSession) SetACKDelayLimit(limit time.Duration) {
 // ackImmediately checks whether configured immediate ACKs are compatible with batch and
 // delayed-ACK state.
 func (s *UDPSession) ackImmediately() bool {
-	return s.ackNoDelay && s.ackDelay == 0 && !s.batchACK.Load() && (s.l == nil || !s.l.batchACK.Load())
+	if !s.ackNoDelay || s.ackDelay != 0 || s.batchACK.Load() {
+		return false
+	}
+	// The original listener stays immutable for dedicated-reader compatibility;
+	// batching decisions must follow the current owner after a physical move.
+	owner := s.l
+	if route := s.route.Load(); route != nil {
+		owner = route.listener
+	}
+	return owner == nil || !owner.batchACK.Load()
 }
 
 // flushBatchACK flushes accumulated feedback after a receive batch rather than emitting one

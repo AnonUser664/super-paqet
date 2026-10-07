@@ -76,9 +76,11 @@ func (l *Listener) MoveSession(s *UDPSession, remote net.Addr) error {
 		return fmt.Errorf("conversation migration lost ownership")
 	}
 	s.routeMu.Lock()
+	old.listener.clearOutgoing(s)
 	delete(old.listener.sessions, oldKey)
 	l.sessions[key] = s
 	s.route.Store(&sessionRoute{conn: l.conn, remote: remote, listener: l, platform: makePlatform(l.conn)})
+	l.hintOutgoing(s, remote)
 	s.routeMu.Unlock()
 	return nil
 }
