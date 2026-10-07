@@ -169,6 +169,12 @@ avoided for new opens when a nonsuspect sibling exists; an all-suspect pool keep
 a fallback so the original path can resume. No timers, scan or packet callback
 are added per customer connection. Idle healthy sessions do not rotate.
 
+A live carrier advertising a zero receive window suppresses both recovery
+branches and source-port suspicion, including when opening deadlines expire.
+Failed-opening evidence is retained: after the window reopens, ACK progress
+clears it, or a continuing stall can qualify. A closed conversation has no live
+receiver window and can again qualify through opening failures.
+
 A candidate reserves a fresh available source in 32768–65535 and installs only
 its own firewall rules. It must complete PPING/PPONG through KCP/mux within
 `probe_timeout` (1s–1m); local setup/write is not proof. Probes run outside the

@@ -2,6 +2,10 @@
 
 These five configurations are review artifacts, **not deployed snapshots**.
 `docs/deployed/` continues to describe the running shared-source release.
+The exact qualified candidate and benchmarks are in the
+[carrier recovery report](../CARRIER-RECOVERY-2026-10-07.md). All five files passed
+the validation CLI verbatim in synthetic host namespaces; actual-host preflight
+remains required at deployment.
 
 Both clients use four independently reserved automatic source ports per country,
 15-second stall/retry budgets and a five-second verified recovery probe. The two-vCPU backends use two packet capture workers so distinct client

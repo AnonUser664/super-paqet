@@ -1,7 +1,12 @@
 # Current deployment status
 
-An independent-source-carrier release is being qualified locally and is **not
-deployed**. Proposed five-host configurations are in
+Independent-source release `enterprise-2026.10.07-carrier.4` is locally qualified
+and **not deployed**. It uses four distinct client source ports, carrier-scoped
+verified recovery and 15-second stall/retry defaults. The exact executable,
+behavior, performance ranges, failure tests and limits are in the
+[candidate report](CARRIER-RECOVERY-2026-10-07.md) and
+[receipts](carrier-recovery-qualification-2026-10-07.json).
+Proposed five-host configurations are in
 [proposed-source-ports/](proposed-source-ports/README.md); the running versions
 and configurations below remain unchanged pending user review.
 

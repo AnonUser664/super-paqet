@@ -225,3 +225,8 @@ The recovery namespace fixture also covers four simultaneous tuple failures,
 reverse-direction drops, repeated tuple blocking, five-second loss and persistent
 streams with no new opening failures. `--shared-source` checks legacy pool
 recovery; `--server-binary` tests the candidate against a previous backend binary.
+`--case reverse-established` blocks return traffic while established streams
+continue sending, without manufacturing new-opening failure evidence. The
+deterministic carrier-health suite separately checks idle streams, ACK progress,
+remote zero-window backpressure with failed openings, cooldown boundaries and
+configuration/cancellation races during a probe.

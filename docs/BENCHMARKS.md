@@ -1,5 +1,20 @@
 # Benchmark evidence
 
+## Independent-source candidate, not deployed
+
+The qualified `enterprise-2026.10.07-carrier.4` candidate measured median
+5.881/4.183 Gbit/s clean upload/download in three alternating pairs against
+recovery.1 at 3.531/3.236 Gbit/s. The baseline download range reached 5.192
+Gbit/s, so the median comparison is not a speedup on every run. Both profiles
+use fixed four-carrier pools, S/PA flags and client/backend Go parallelism 4/2.
+At the 1 Gbit/s cap payload was essentially unchanged. Seeded WAN churn passed
+without false recovery but did not establish a consistent speed improvement.
+All 100,000 mostly idle forwards reverified; the laptop used swap. See the
+[full report](CARRIER-RECOVERY-2026-10-07.md) and
+[exact receipts](carrier-recovery-qualification-2026-10-07.json) for CPU/memory,
+individual results, loss/reorder profiles and every fault case. These artifacts
+do not change the existing production deployment.
+
 ## Current ownership executable
 
 The deployed `enterprise-2026.10.07-ownership.2` binary is

@@ -9,6 +9,11 @@ TCP and UDP ports. SOCKS5 and the old role-based configuration have been removed
 
 The transport contract and its reasons are documented in [docs/TRANSPORT.md](docs/TRANSPORT.md).
 Measured results and qualification limits are in [docs/BENCHMARKS.md](docs/BENCHMARKS.md).
+
+The reviewed deployment candidate adds four distinct client source ports and
+carrier-scoped recovery with 15-second stall/retry budgets. It is **not deployed**;
+see its [behavior and benchmark report](docs/CARRIER-RECOVERY-2026-10-07.md) and
+[proposed five-host configs](docs/proposed-source-ports/README.md).
 This is a substantial transport/runtime rewrite; successful local benchmarks do
 not establish universal optimality, WAN behavior, or production readiness on
 untested hardware and firewall products.

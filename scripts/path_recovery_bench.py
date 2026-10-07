@@ -126,7 +126,7 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
         kcp = {'mode':'manual','sndwnd':4096,'rcvwnd':4096,'mtu':1350,'nodelay':0,'interval':30,'resend':2,'nocongestion':1,'wdelay':True,'acknodelay':False,'small_write_flush':256,'smuxbuf':4194304,'streambuf':2097152,'adaptive_buffers':False,'ack_timestamps':False,'credit_hints':False}
         def endpoint(ip, port, interface, mac, flags, address):
             """Use the deployed null/four-session transport profile and exact flags."""
-            return {'address':address,'enc':'null','shared_source':True,'sessions':4,'max_sessions':4,'packet_workers':1,'adaptive':True,'kcp':kcp,'network':{'backend':'packet','interface':interface,'ipv4':{'addr':f'{ip}:{port}','router_mac':mac},'tcp':{'local_flag':[flags],'remote_flag':['PA']}}}
+            return {'address':address,'enc':'null','shared_source':True,'sessions':4,'max_sessions':4,'packet_workers':1,'adaptive':True,'kcp':kcp,'network':{'backend':'packet','interface':interface,'ipv4':{'addr':f'{ip}:{port}','router_mac':mac},'tcp':{'local_flag':[flags],'remote_flag':['PA' if flags=='S' else 'S']}}}
         broken = endpoint('198.18.0.1',29997,'spq-c','02:00:00:00:00:02','S','198.18.0.2:29999')
         broken['path_recovery']={'enabled':True,'stalled_after':'15s','retry_interval':'15s','probe_timeout':'5s'}
         if not args.shared_source:
