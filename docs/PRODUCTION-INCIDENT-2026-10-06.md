@@ -285,3 +285,15 @@ live source-port edits, without restarting the client or changing Xray. All six
 authenticated public routes passed afterward. This is stronger transport-loss
 evidence for this episode, while the network device/trigger remains unknown.
 See [exact investigation and limits](SOURCE-TUPLE-INCIDENT-2026-10-07.md).
+
+
+## Verified source-tuple recovery rollout
+
+Both clients were upgraded to recovery.1, with 30s/30s/5s verified source-tuple
+recovery enabled on every outgoing peer. Each required one client tunnel restart;
+the compatible backend transport and Xray services stayed running. All six routes
+passed authenticated HTTPS and cross-backend 1 MiB upload/download integrity
+checks. Failed Cloudflare/loopback/self-destination comparisons remain recorded
+separately. Fresh-source recovery is scoped to a no-progress peer and never
+commits a failed or obsolete probe. See [incident and limitations](SOURCE-TUPLE-INCIDENT-2026-10-07.md)
+and [exact release evidence](path-recovery-qualification-2026-10-07.json).

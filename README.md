@@ -20,7 +20,9 @@ Start with [current status](docs/STATUS.md), then the
 [deployment guide](docs/DEPLOYMENT.md) and [operations runbook](docs/OPERATIONS.md).
 The [documentation map](docs/README.md) links current guides and compact evidence.
 
-Live reload, validation and the incident ownership release are deployed. All six
+Live reload, validation and the incident ownership transport are deployed.
+Clients additionally enable verified fresh-source recovery after selective tuple
+outages; backends retain the compatible ownership transport. All six
 Germany/Finland/France paths use four adaptive sessions per peer and S outbound /
 PA return. After customer traffic failures, opening recovery and mux stream
 lifetime bugs were fixed; continued observation exposed further controller and

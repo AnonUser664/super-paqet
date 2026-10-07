@@ -11,6 +11,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
 def main():
+    """Own fixture startup, fault injection, verification and bounded teardown."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--binary', required=True)
     parser.add_argument('--case', choices=['tuple', 'whole-peer', 'one-lane'], default='tuple')
@@ -25,17 +26,21 @@ def main():
     config = out / 'client.json'; env = os.environ.copy()
 
     def run(*command):
+        """Bound checked host commands; no global network settings are modified."""
         return subprocess.run(command, check=True, capture_output=True, text=True, timeout=15)
 
     def ns(name, *command):
+        """Restrict network operations to this fixture namespace."""
         return run('ip', 'netns', 'exec', name, *command)
 
     def spawn(name, label, *command):
+        """Track each child and its log so failure still releases owned resources."""
         log = (out / (label + '.log')).open('w'); handles.append(log)
         process = subprocess.Popen(['ip', 'netns', 'exec', name, *command], env=env, stdout=log, stderr=subprocess.STDOUT)
         processes.append(process); return process
 
     def metrics():
+        """Read loopback telemetry from the isolated client, never production."""
         return ns(client, sys.executable, '-c', 'import urllib.request; print(urllib.request.urlopen("http://127.0.0.1:29090/metrics",timeout=2).read().decode())').stdout
 
     # Requests validate echoed bytes; failed new connections during injection are
@@ -81,6 +86,7 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
         ns(router, 'tc', 'qdisc', 'add', 'dev', 'rc', 'clsact')
         kcp = {'mode':'manual','sndwnd':4096,'rcvwnd':4096,'mtu':1350,'nodelay':0,'interval':30,'resend':2,'nocongestion':1,'wdelay':True,'acknodelay':False,'small_write_flush':256,'smuxbuf':4194304,'streambuf':2097152,'adaptive_buffers':False,'ack_timestamps':False,'credit_hints':False}
         def endpoint(ip, port, interface, mac, flags, address):
+            """Use the deployed null/four-session transport profile and exact flags."""
             return {'address':address,'enc':'null','shared_source':True,'sessions':4,'max_sessions':4,'packet_workers':1,'adaptive':True,'kcp':kcp,'network':{'backend':'packet','interface':interface,'ipv4':{'addr':f'{ip}:{port}','router_mac':mac},'tcp':{'local_flag':[flags],'remote_flag':['PA']}}}
         broken = endpoint('198.18.0.1',29997,'spq-c','02:00:00:00:00:02','S','198.18.0.2:29999')
         broken['path_recovery']={'enabled':True,'stalled_after':'30s','retry_interval':'10s','probe_timeout':'3s'}

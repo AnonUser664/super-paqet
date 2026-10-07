@@ -4,7 +4,7 @@ Client 89.45.68.118 → France was failing during investigation. The ownership.2
 process remained PID 955116, without restart or recorded OOM. Germany continued
 carrying traffic. Client .14 could establish new France carriers while .118 could
 not. .118's France opening timeouts started around 04:13 UTC (07:43 Tehran);
-Finland failures were already present by 01:45 UTC. The current episode therefore
+The first retained Finland opening timeout was 01:12:38 UTC (04:42 Tehran). The current episode therefore
 does not show simultaneous failure of every route or establish the cause of
 other reported episodes.
 
@@ -48,3 +48,65 @@ received peer response; RTT zero and repeated unanswered opening attempts are
 consistent with that distinction. Safe automatic source-tuple recovery needs a
 verified fresh-path probe before switching, protection for any progressing
 carrier, bounded retries, scoped firewall cleanup and reload-race handling.
+
+
+## Recovery implementation and qualification
+
+`enterprise-2026.10.07-recovery.1` adds opt-in verified source-tuple recovery to
+outgoing shared peers. Three failed transport opening attempts and 30 seconds
+without progress permit a fresh-source PPING/PPONG probe. Any progressing
+carrier protects its pool. Failed probes keep the old pool; commit also checks
+concurrent reload, live reliability edits and cancellation. The configured source
+remains the restart baseline; successful recovery exposes its transient effective
+port in metrics. Independent peers and forwarding binds retain identity.
+
+The exact release hash is
+`5718f1c4e87f3e91bb9ca2399d3debdf5c7e4b3f8773e40cc8ebc2b94f757465`.
+A persistent source-tuple drop recovered about 38 seconds after injection, with
+zero independent-peer failures and preserved carrier identities. A 65-second
+whole-peer fault produced three failed probes, preserved the old pool, then
+resumed after link restoration. A single conversation drop avoided replacing
+progressing siblings. Fixed-four ceilings, config reload, owned-rule cleanup and
+unrelated-rule preservation passed. Root race/vet and 30 repetitions of the
+health/transaction tests passed, including live reliability edits during a probe.
+Clean null bulk was 4.534/4.831 Gbit/s upload/download; a 20-second changing-delay
+128-worker churn run completed 10,535 requests with zero workload errors. These
+are single local samples, with the production transport parameters; ordinary
+benchmarks use PA/PA while the outage fixture and public routes use S/PA.
+
+The shorter whole-peer fixture restored connectivity before it exercised a
+failed probe. It resumed correctly but was insufficient for that assertion; the
+expanded 65-second blackout supplied the required probe-failure evidence. Probe
+retry/timeout in the deterministic fixture were 10s/3s; production uses 30s/5s.
+Full receipts and limitations are in
+[path-recovery qualification](path-recovery-qualification-2026-10-07.json).
+
+
+## Accepted client rollout
+
+Both clients now run recovery.1 with recovery enabled on all three outgoing
+peers. Client .14 was upgraded and checked first, then .118. Each client had one
+tunnel restart; existing streams on that client ended and needed reconnection.
+Backend tunnel PIDs and all three main Xray PIDs stayed unchanged. Recovery
+archives and diagnostic guards remain, with the original monitoring deadline.
+Conditional rollback timers were disarmed after acceptance.
+
+All six public routes passed authenticated Reality requests to example.com.
+Each also passed SHA-256 verification of a 1 MiB upload and a 1 MiB download,
+using temporary synthetic HTTP origins on a different backend. The origins were
+stopped and their scripts removed after testing. Transport opening-error counters
+remained zero after client replacement through the final inspection.
+
+The first Cloudflare post-deployment check timed out on five routes and passed
+one. Loopback-only synthetic targets timed out, and France self-destination
+checks timed out despite the same France origin working through Germany and
+Finland. These were retained as failed comparisons, not accepted successes or
+proof of a tunnel regression. Cross-backend origins and another HTTPS site
+provided independent acceptance. The precise external/self-target failure causes
+were not investigated further, and Xray settings were not changed.
+
+This repair does not guarantee immediate recovery of every type of filtering.
+A sustained whole-path outage fails the fresh-source proof and preserves the old
+pool. Changing a verified failed source tuple ends streams on that failed peer;
+applications still need reconnect support. Full-day production observation is
+unfinished and continues under the original finite collectors.

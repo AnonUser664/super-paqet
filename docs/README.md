@@ -34,3 +34,7 @@ Earlier compact evidence: [release](final-deployment-evidence.json),
 
 Superseded reports, deployment snapshots and generated experiments were removed
 from the checkout. Their committed versions remain available in Git history.
+
+[Source-tuple incident and verified recovery](SOURCE-TUPLE-INCIDENT-2026-10-07.md)
+records the live .118 France/Finland outage, scoped repair, client rollout and
+[exact recovery qualification](path-recovery-qualification-2026-10-07.json).

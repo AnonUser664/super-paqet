@@ -1,18 +1,26 @@
 # Current deployment status
 
-The ownership.2 release runs on all five hosts. All six routes retain four
+Both clients run recovery.1; the three backends retain ownership.2.
+Verified source-tuple recovery is enabled on every outgoing client peer. The
+server wire protocol is unchanged, so backend and Xray restarts were unnecessary. All six routes retain four
 shared-source KCP carriers (`sessions: 4`, `max_sessions: 4`), adaptation enabled,
 client S / backend PA flags, quoted null encryption, AF_PACKET with one receive
 worker and MTU1350. France is 171.22.132.226.
 
 ## Exact release and topology
 
-Version `enterprise-2026.10.07-ownership.2`, linked runtime source
+Client version `enterprise-2026.10.07-recovery.1`, runtime source
+`efa095aacb2417246c4ae9aa568f03c119d19cf1`, SHA-256:
+
+`5718f1c4e87f3e91bb9ca2399d3debdf5c7e4b3f8773e40cc8ebc2b94f757465`
+
+Backend version `enterprise-2026.10.07-ownership.2`, linked runtime source
 `fe0151e57d7962783007a7c885962e2f1083641f`, SHA-256:
 
 `37743f5acfd9ec8f83c40e4d5a951a3062bf8197f4c9278ca2e7f3fc3dd6c585`
 
-The exact executable is retained at
+The client executable is retained at
+`build/incident-20261006/super-paqet-recovery`; the backend executable is
 `build/incident-20261006/super-paqet-ownership`. Subsequent documentation and
 observer commits do not change this executable. The raw Ethernet/IP/TCP packet
 shape and sequence/ACK behavior remain preserved.
@@ -67,7 +75,7 @@ also recorded temporary opening failures during server replacement. Client .14's
 261 errors belong to that rollout interval and remain visible, rather than being
 cleared. Post-rollout counter growth remains monitored.
 
-## Qualification of the deployed executable
+## Qualification of the ownership transport base
 
 All checks below explicitly bound the outgoing pool at four and use null
 encryption, MTU1350, production 4 MiB/2 MiB mux buffers and the deployed manual
@@ -110,8 +118,11 @@ restart the tunnel. `completed` marks normal observer completion. Collection
 does not itself alert an operator or repair a failure. Temporary diagnostics
 return to warning logs around 19:57 UTC, subject to the unchanged-config guard.
 
-The full-day observation is **unfinished**. The underlying transport stall cause
-remains unproven. Finland transmit queue drops were observed on the earlier
+The full-day observation is **unfinished**. Paired captures and same-binary
+fresh-source tests confirmed selective tuple loss during the .118 France episode.
+The dropping device/trigger and causes of other historical episodes remain
+unproven. [Verified recovery evidence](SOURCE-TUPLE-INCIDENT-2026-10-07.md) records
+the scoped repair and tests. Finland transmit queue drops were observed on the earlier
 release and remain monitored; no host qdisc policy was changed. Ordered KCP
 carrier head-of-line blocking and the ordinary established-stream 30-second
 control-close timeout remain. Preserve incident spools and recovery sets.
@@ -120,3 +131,15 @@ See the [incident report](PRODUCTION-INCIDENT-2026-10-06.md),
 [deployment guide](DEPLOYMENT.md), [live reload](LIVE-RELOAD.md) and
 [operations runbook](OPERATIONS.md). Earlier measurements qualify their named
 executables and workloads, not every production load or future failure mode.
+
+
+## Client source-tuple recovery qualification
+
+The recovery.1 executable passed persistent source-tuple loss, whole-peer outage
+and one-conversation loss with four carriers. Independent-peer identities and
+requests survived; failed probes preserved the old pool. A selective tuple fault
+recovered about 38 seconds after injection. Root race/vet and reload/progress/
+cancellation regressions passed. With recovery enabled, clean null bulk measured
+4.534/4.831 Gbit/s and changing-delay churn completed 10,535 requests with zero
+workload errors. [Exact receipts](path-recovery-qualification-2026-10-07.json)
+include successful and insufficient/failed external-origin comparisons.

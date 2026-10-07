@@ -35,6 +35,11 @@ peers:
     sessions: 4
     max_sessions: 4
     shared_source: true
+    path_recovery:
+      enabled: true
+      stalled_after: 30s
+      retry_interval: 30s
+      probe_timeout: 5s
   finland:
     address: 65.109.249.222:29999
     enc: 'null'
@@ -71,6 +76,11 @@ peers:
     sessions: 4
     max_sessions: 4
     shared_source: true
+    path_recovery:
+      enabled: true
+      stalled_after: 30s
+      retry_interval: 30s
+      probe_timeout: 5s
   france:
     address: 171.22.132.226:29999
     enc: 'null'
@@ -107,6 +117,11 @@ peers:
     sessions: 4
     max_sessions: 4
     shared_source: true
+    path_recovery:
+      enabled: true
+      stalled_after: 30s
+      retry_interval: 30s
+      probe_timeout: 5s
 forwards:
 - listen: 0.0.0.0:9001
   peer: germany
