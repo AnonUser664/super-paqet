@@ -1,0 +1,1080 @@
+{
+  "status": "migration.4 accepted on five hosts",
+  "release": {
+    "version": "enterprise-2026.10.07-migration.4",
+    "runtime_source": "90e98b1186646c3c56660616309e5fe5573e4208",
+    "build_time": "2026-10-07T18:18:17Z",
+    "binary": "build/migration-deploy-20261007/super-paqet-migration-4",
+    "sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+    "kcp_tree": "dfe6b59a94c9c5b562cfc6eac53b1d7e3862f23e",
+    "qualified_parent": {
+      "version": "enterprise-2026.10.07-migration.3",
+      "runtime_source": "f0af3646cd56841ea73d71142ee83ecd3a2f5277",
+      "build_time": "2026-10-07T17:04:18Z",
+      "kcp_tree": "dfe6b59a94c9c5b562cfc6eac53b1d7e3862f23e",
+      "binary": "build/migration-qualification/super-paqet-migration-3",
+      "sha256": "7c3a71192603d55c636a7a43f7bb17c2d793bf33cf5398711e0594069cbb9735",
+      "binary_bytes": 13291072,
+      "baseline_sha256": "6bc3832e4287645b0cfd9565a54d4eafd76dfa05b2d6196f71e81eece894842c",
+      "baseline_runtime_source": "9cb1c6ab69bb0106cefadb0b6d5c1771a97be9b2"
+    },
+    "runtime_delta": "Only config validation minimum for stalled_after changes from 15s to 10s; default remains 15s"
+  },
+  "staged_validation": {
+    "89.45.68.118": {
+      "sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+      "validation": {
+        "forwards": 3,
+        "listeners": 0,
+        "path": "/root/super-paqet/conf.migration-next.yaml",
+        "peers": 3,
+        "valid": true
+      },
+      "config_sha256": "5f788d4490d39b66753f64b4f50f65a132aeafeb81a7ff881fe823061ee23e9d"
+    },
+    "89.45.68.14": {
+      "sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+      "validation": {
+        "forwards": 3,
+        "listeners": 0,
+        "path": "/root/super-paqet/conf.migration-next.yaml",
+        "peers": 3,
+        "valid": true
+      },
+      "config_sha256": "61b976bbe69887aa95aea8779e188826bb8136f4ffd0a5647dfd49fdaa2eacef"
+    },
+    "171.22.132.226": {
+      "sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+      "validation": {
+        "forwards": 0,
+        "listeners": 1,
+        "path": "/root/super-paqet/conf.migration-next.yaml",
+        "peers": 0,
+        "valid": true
+      },
+      "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1"
+    },
+    "116.202.177.233": {
+      "sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+      "validation": {
+        "forwards": 0,
+        "listeners": 2,
+        "path": "/root/super-paqet/conf.migration-next.yaml",
+        "peers": 0,
+        "valid": true
+      },
+      "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475"
+    },
+    "65.109.249.222": {
+      "sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+      "validation": {
+        "forwards": 0,
+        "listeners": 1,
+        "path": "/root/super-paqet/conf.migration-next.yaml",
+        "peers": 0,
+        "valid": true
+      },
+      "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69"
+    }
+  },
+  "accepted": {
+    "116.202.177.233": {
+      "checked_at": 1791398436.8426468,
+      "unit": {
+        "MainPID": "889772",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 18:28:38 UTC",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "running_sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+      "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+      "xray_processes": [
+        {
+          "pid": 765574,
+          "start_ticks": "125163143",
+          "executable": "/usr/local/bin/xray"
+        }
+      ],
+      "health": "ok\n",
+      "rollback_units": {
+        "spq-migration4-rollback.timer": "inactive",
+        "spq-migration4-rollback.service": "inactive"
+      },
+      "staging_removed": true
+    },
+    "171.22.132.226": {
+      "checked_at": 1791398435.6105888,
+      "unit": {
+        "ActiveState": "active",
+        "UnitFileState": "enabled",
+        "MainPID": "3092527",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 18:29:17 UTC"
+      },
+      "running_sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+      "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+      "xray_processes": [
+        {
+          "pid": 2929362,
+          "start_ticks": "558964932",
+          "executable": "/usr/local/bin/xray"
+        }
+      ],
+      "health": "ok\n",
+      "rollback_units": {
+        "spq-migration4-rollback.timer": "inactive",
+        "spq-migration4-rollback.service": "inactive"
+      },
+      "staging_removed": true
+    },
+    "65.109.249.222": {
+      "checked_at": 1791398435.629694,
+      "unit": {
+        "MainPID": "189268",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 18:30:09 UTC",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "running_sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+      "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+      "xray_processes": [
+        {
+          "pid": 71633,
+          "start_ticks": "2098986",
+          "executable": "/usr/local/bin/xray"
+        }
+      ],
+      "health": "ok\n",
+      "rollback_units": {
+        "spq-migration4-rollback.timer": "inactive",
+        "spq-migration4-rollback.service": "inactive"
+      },
+      "staging_removed": true
+    },
+    "89.45.68.14": {
+      "checked_at": 1791398435.7984803,
+      "unit": {
+        "MainPID": "337241",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 18:30:30 UTC",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "running_sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+      "config_sha256": "61b976bbe69887aa95aea8779e188826bb8136f4ffd0a5647dfd49fdaa2eacef",
+      "xray_processes": [],
+      "health": "ok\n",
+      "rollback_units": {
+        "spq-migration4-rollback.timer": "inactive",
+        "spq-migration4-rollback.service": "inactive"
+      },
+      "staging_removed": true
+    },
+    "89.45.68.118": {
+      "checked_at": 1791398435.6856263,
+      "unit": {
+        "MainPID": "1023401",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 18:31:45 UTC",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "running_sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+      "config_sha256": "5f788d4490d39b66753f64b4f50f65a132aeafeb81a7ff881fe823061ee23e9d",
+      "xray_processes": [],
+      "health": "ok\n",
+      "rollback_units": {
+        "spq-migration4-rollback.timer": "inactive",
+        "spq-migration4-rollback.service": "inactive"
+      },
+      "staging_removed": true
+    }
+  },
+  "verified": {
+    "116.202.177.233": {
+      "listeners": 2,
+      "packet_workers": [
+        2,
+        2
+      ]
+    },
+    "171.22.132.226": {
+      "listeners": 1,
+      "packet_workers": [
+        2
+      ]
+    },
+    "65.109.249.222": {
+      "listeners": 1,
+      "packet_workers": [
+        2
+      ]
+    },
+    "89.45.68.14": {
+      "source_ports": {
+        "germany": [
+          57460,
+          50988,
+          47955,
+          50319
+        ],
+        "finland": [
+          32965,
+          64717,
+          50284,
+          49130
+        ],
+        "france": [
+          41951,
+          57817,
+          50756,
+          48981
+        ]
+      },
+      "reality": {
+        "germany": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.520266 0.640892",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 0.474521 0.593881",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "finland": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.538922 0.778397",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 0.528434 0.692859",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "france": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.954961 1.109529",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 0.780641 0.871879",
+            "error": "",
+            "passed": true
+          }
+        ]
+      }
+    },
+    "89.45.68.118": {
+      "source_ports": {
+        "germany": [
+          60239,
+          56714,
+          52102,
+          44585
+        ],
+        "finland": [
+          38262,
+          45938,
+          34149,
+          51757
+        ],
+        "france": [
+          46450,
+          43946,
+          44306,
+          62425
+        ]
+      },
+      "reality": {
+        "germany": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.502570 0.709512",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 0.478644 0.607076",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "finland": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.581432 0.647366",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 0.575706 0.663275",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "france": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.803154 0.956448",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 1.147780 1.258427",
+            "error": "",
+            "passed": true
+          }
+        ]
+      }
+    }
+  },
+  "authenticated_routes": {
+    "89.45.68.118": {
+      "germany": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.502570 0.709512",
+          "error": "",
+          "passed": true
+        },
+        {
+          "exit": 0,
+          "response": "200 1048576 0.478644 0.607076",
+          "error": "",
+          "passed": true
+        }
+      ],
+      "finland": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.581432 0.647366",
+          "error": "",
+          "passed": true
+        },
+        {
+          "exit": 0,
+          "response": "200 1048576 0.575706 0.663275",
+          "error": "",
+          "passed": true
+        }
+      ],
+      "france": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.803154 0.956448",
+          "error": "",
+          "passed": true
+        },
+        {
+          "exit": 0,
+          "response": "200 1048576 1.147780 1.258427",
+          "error": "",
+          "passed": true
+        }
+      ]
+    },
+    "89.45.68.14": {
+      "germany": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.520266 0.640892",
+          "error": "",
+          "passed": true
+        },
+        {
+          "exit": 0,
+          "response": "200 1048576 0.474521 0.593881",
+          "error": "",
+          "passed": true
+        }
+      ],
+      "finland": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.538922 0.778397",
+          "error": "",
+          "passed": true
+        },
+        {
+          "exit": 0,
+          "response": "200 1048576 0.528434 0.692859",
+          "error": "",
+          "passed": true
+        }
+      ],
+      "france": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.954961 1.109529",
+          "error": "",
+          "passed": true
+        },
+        {
+          "exit": 0,
+          "response": "200 1048576 0.780641 0.871879",
+          "error": "",
+          "passed": true
+        }
+      ]
+    }
+  },
+  "post_deployment_audit": {
+    "116.202.177.233": {
+      "unit": {
+        "MainPID": "889772",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 18:28:38 UTC",
+        "MemoryCurrent": "85856256",
+        "TasksCurrent": "11",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "running_sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+      "xray_unchanged": true,
+      "owned_probe_removed": false,
+      "metrics": {
+        "super_paqet_log_dropped_total": "0",
+        "super_paqet_active_connections": "1595",
+        "super_paqet_errors_total": "0",
+        "super_paqet_config_reload_rejected_total": "0"
+      },
+      "warning_events": []
+    },
+    "171.22.132.226": {
+      "unit": {
+        "ActiveState": "active",
+        "UnitFileState": "enabled",
+        "MainPID": "3092527",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 18:29:17 UTC",
+        "MemoryCurrent": "42930176",
+        "TasksCurrent": "10"
+      },
+      "running_sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+      "xray_unchanged": true,
+      "owned_probe_removed": false,
+      "metrics": {
+        "super_paqet_log_dropped_total": "0",
+        "super_paqet_active_connections": "420",
+        "super_paqet_errors_total": "0",
+        "super_paqet_config_reload_rejected_total": "0"
+      },
+      "warning_events": []
+    },
+    "65.109.249.222": {
+      "unit": {
+        "MainPID": "189268",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 18:30:09 UTC",
+        "MemoryCurrent": "54337536",
+        "TasksCurrent": "11",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "running_sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+      "xray_unchanged": true,
+      "owned_probe_removed": false,
+      "metrics": {
+        "super_paqet_log_dropped_total": "0",
+        "super_paqet_active_connections": "606",
+        "super_paqet_errors_total": "0",
+        "super_paqet_config_reload_rejected_total": "0"
+      },
+      "warning_events": []
+    },
+    "89.45.68.14": {
+      "unit": {
+        "MainPID": "337241",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 18:30:30 UTC",
+        "MemoryCurrent": "24891392",
+        "TasksCurrent": "10",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "running_sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+      "xray_unchanged": true,
+      "owned_probe_removed": true,
+      "metrics": {
+        "super_paqet_log_dropped_total": "0",
+        "super_paqet_active_connections": "5",
+        "super_paqet_errors_total": "0",
+        "super_paqet_config_reload_rejected_total": "0"
+      },
+      "warning_events": []
+    },
+    "89.45.68.118": {
+      "unit": {
+        "MainPID": "1023401",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 18:31:45 UTC",
+        "MemoryCurrent": "128434176",
+        "TasksCurrent": "18",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "running_sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+      "xray_unchanged": true,
+      "owned_probe_removed": true,
+      "metrics": {
+        "super_paqet_log_dropped_total": "0",
+        "super_paqet_active_connections": "2625",
+        "super_paqet_errors_total": "0",
+        "super_paqet_config_reload_rejected_total": "0"
+      },
+      "warning_events": []
+    }
+  },
+  "rollback_archives": {
+    "116.202.177.233": "/root/super-paqet/rollback/20261007T182238Z-migration4",
+    "171.22.132.226": "/root/super-paqet/rollback/20261007T182238Z-migration4",
+    "65.109.249.222": "/root/super-paqet/rollback/20261007T182238Z-migration4",
+    "89.45.68.14": "/root/super-paqet/rollback/20261007T182238Z-migration4",
+    "89.45.68.118": "/root/super-paqet/rollback/20261007T182238Z-migration4"
+  },
+  "local_ten_second_qualification": [
+    {
+      "job": {
+        "name": "stall10-all-established",
+        "argv": [
+          "env",
+          "LD_LIBRARY_PATH=/home/shayan/Codes/super-paqet/build/deploy-libs",
+          "python3",
+          "scripts/path_recovery_bench.py",
+          "--binary",
+          "build/migration-deploy-20261007/super-paqet-migration-4",
+          "--case",
+          "all-established",
+          "--preserve-connections",
+          "--stall-seconds",
+          "10",
+          "--output",
+          "build/migration-deploy-20261007/stall10-all-established"
+        ],
+        "timeout": 150,
+        "exit_code": 0,
+        "elapsed_seconds": 56.94055428800493
+      },
+      "source_sha256": "dc97dd0e967765bb147b3592e98e5b00a3e51bcfc810567f3818b4c9da7d1414",
+      "result": {
+        "case": "all-established",
+        "shared_source": false,
+        "preserve_connections": true,
+        "packet_workers": 2,
+        "held_payload_bytes": 0,
+        "sequenced_payloads": false,
+        "sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+        "client_pid": 208752,
+        "events": [
+          {
+            "event": "injected",
+            "at": 5.411964785998862
+          },
+          {
+            "event": "config_reload",
+            "at": 47.17502450100437
+          }
+        ],
+        "recovered": [
+          {
+            "time": "2026-10-07T21:53:06.147157675+03:30",
+            "level": "WARN",
+            "msg": "path.recovered",
+            "peer": "broken",
+            "session": 3,
+            "old_source_port": 29991,
+            "new_source_port": 46355,
+            "local": {
+              "IP": "198.18.0.1",
+              "Port": 46355,
+              "Zone": ""
+            },
+            "connections_preserved": true,
+            "reason": "fresh carrier tuple verified after transport stalled"
+          },
+          {
+            "time": "2026-10-07T21:53:06.275189699+03:30",
+            "level": "WARN",
+            "msg": "path.recovered",
+            "peer": "broken",
+            "session": 1,
+            "old_source_port": 29995,
+            "new_source_port": 42799,
+            "local": {
+              "IP": "198.18.0.1",
+              "Port": 42799,
+              "Zone": ""
+            },
+            "connections_preserved": true,
+            "reason": "fresh carrier tuple verified after transport stalled"
+          },
+          {
+            "time": "2026-10-07T21:53:06.419165056+03:30",
+            "level": "WARN",
+            "msg": "path.recovered",
+            "peer": "broken",
+            "session": 2,
+            "old_source_port": 29993,
+            "new_source_port": 60262,
+            "local": {
+              "IP": "198.18.0.1",
+              "Port": 60262,
+              "Zone": ""
+            },
+            "connections_preserved": true,
+            "reason": "fresh carrier tuple verified after transport stalled"
+          },
+          {
+            "time": "2026-10-07T21:53:06.548098524+03:30",
+            "level": "WARN",
+            "msg": "path.recovered",
+            "peer": "broken",
+            "session": 0,
+            "old_source_port": 29997,
+            "new_source_port": 34612,
+            "local": {
+              "IP": "198.18.0.1",
+              "Port": 34612,
+              "Zone": ""
+            },
+            "connections_preserved": true,
+            "reason": "fresh carrier tuple verified after transport stalled"
+          }
+        ],
+        "failed_probes": [],
+        "healthy_successes": 176,
+        "healthy_errors": [],
+        "broken_successes_after_45s": 174,
+        "broken_errors": 0,
+        "first_success_after_fault": {
+          "peer": "broken",
+          "held": 3,
+          "at": 16.418617668998195,
+          "ok": true
+        },
+        "wire": {
+          "packets": {
+            "outbound_S": 3662,
+            "return_PA": 3896
+          },
+          "sources": {
+            "29996": {
+              "seq": 2,
+              "timestamp": 396007332
+            },
+            "29997": {
+              "seq": 2,
+              "timestamp": 396007493
+            },
+            "29995": {
+              "seq": 2,
+              "timestamp": 396007744
+            },
+            "29993": {
+              "seq": 2,
+              "timestamp": 396007991
+            },
+            "29991": {
+              "seq": 2,
+              "timestamp": 396008240
+            },
+            "46355": {
+              "seq": 2,
+              "timestamp": 396023349
+            },
+            "42799": {
+              "seq": 2,
+              "timestamp": 396023358
+            },
+            "34612": {
+              "seq": 2,
+              "timestamp": 396023372
+            },
+            "60262": {
+              "seq": 2,
+              "timestamp": 396023388
+            }
+          },
+          "backend_seed_retained": true
+        },
+        "stall_seconds": 10,
+        "established_streams_preserved": 4,
+        "source_change_at_seconds": 16.28903700200317,
+        "recovery_after_injection_seconds": 10.877072216004308,
+        "healthy_sibling_carriers_preserved": true,
+        "logical_carriers_preserved": true,
+        "live_sibling_rules_preserved": true,
+        "retired_tuple_rules_removed": true,
+        "healthy_carriers_preserved": true,
+        "fixed_four_ceiling_verified": true
+      },
+      "cleanup": {
+        "spq-rec-c-208654_owned_rules_removed": true,
+        "spq-rec-s-208654_owned_rules_removed": true,
+        "unrelated_rule_preserved": true,
+        "namespaces_removed": true
+      }
+    },
+    {
+      "job": {
+        "name": "stall10-repeat-established",
+        "argv": [
+          "env",
+          "LD_LIBRARY_PATH=/home/shayan/Codes/super-paqet/build/deploy-libs",
+          "python3",
+          "scripts/path_recovery_bench.py",
+          "--binary",
+          "build/migration-deploy-20261007/super-paqet-migration-4",
+          "--case",
+          "repeat-established",
+          "--preserve-connections",
+          "--stall-seconds",
+          "10",
+          "--output",
+          "build/migration-deploy-20261007/stall10-repeat-established",
+          "--held-payload-bytes",
+          "262144",
+          "--sequenced-payloads"
+        ],
+        "timeout": 150,
+        "exit_code": 0,
+        "elapsed_seconds": 57.83001459499792
+      },
+      "source_sha256": "8d218fbc850d731b847ba013208342ad90041601a98072d42834a1d9e917d0a2",
+      "result": {
+        "case": "repeat-established",
+        "shared_source": false,
+        "preserve_connections": true,
+        "packet_workers": 2,
+        "held_payload_bytes": 262144,
+        "sequenced_payloads": true,
+        "sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+        "client_pid": 209563,
+        "events": [
+          {
+            "event": "injected",
+            "at": 5.433653809996031
+          },
+          {
+            "event": "repeated_tuple_drop",
+            "port": 57968,
+            "at": 32.01354595699377
+          },
+          {
+            "event": "config_reload",
+            "at": 47.247990435993415
+          }
+        ],
+        "recovered": [
+          {
+            "time": "2026-10-07T21:54:04.127156771+03:30",
+            "level": "WARN",
+            "msg": "path.recovered",
+            "peer": "broken",
+            "session": 0,
+            "old_source_port": 29997,
+            "new_source_port": 57968,
+            "local": {
+              "IP": "198.18.0.1",
+              "Port": 57968,
+              "Zone": ""
+            },
+            "connections_preserved": true,
+            "reason": "fresh carrier tuple verified after transport stalled"
+          },
+          {
+            "time": "2026-10-07T21:54:30.118187366+03:30",
+            "level": "WARN",
+            "msg": "path.recovered",
+            "peer": "broken",
+            "session": 0,
+            "old_source_port": 57968,
+            "new_source_port": 55059,
+            "local": {
+              "IP": "198.18.0.1",
+              "Port": 55059,
+              "Zone": ""
+            },
+            "connections_preserved": true,
+            "reason": "fresh carrier tuple verified after transport stalled"
+          }
+        ],
+        "failed_probes": [],
+        "healthy_successes": 176,
+        "healthy_errors": [],
+        "broken_successes_after_45s": 66,
+        "broken_errors": 0,
+        "first_success_after_fault": {
+          "peer": "broken",
+          "held": 3,
+          "at": 6.008974595002655,
+          "ok": true
+        },
+        "wire": {
+          "packets": {
+            "outbound_S": 84225,
+            "return_PA": 82653,
+            "kernel_RST_without_payload": 23
+          },
+          "sources": {
+            "29996": {
+              "seq": 2,
+              "timestamp": 396064306
+            },
+            "29997": {
+              "seq": 2,
+              "timestamp": 396064461
+            },
+            "29995": {
+              "seq": 2,
+              "timestamp": 396064705
+            },
+            "29993": {
+              "seq": 2,
+              "timestamp": 396064953
+            },
+            "29991": {
+              "seq": 2,
+              "timestamp": 396065200
+            },
+            "57968": {
+              "seq": 2,
+              "timestamp": 396081322
+            },
+            "55059": {
+              "seq": 2,
+              "timestamp": 396107323
+            }
+          },
+          "backend_seed_retained": true
+        },
+        "stall_seconds": 10,
+        "established_streams_preserved": 4,
+        "source_change_at_seconds": 17.387571781000588,
+        "recovery_after_injection_seconds": 11.953917971004557,
+        "healthy_sibling_carriers_preserved": true,
+        "logical_carriers_preserved": true,
+        "live_sibling_rules_preserved": true,
+        "retired_tuple_rules_removed": true,
+        "healthy_carriers_preserved": true,
+        "fixed_four_ceiling_verified": true
+      },
+      "cleanup": {
+        "spq-rec-c-209471_owned_rules_removed": true,
+        "spq-rec-s-209471_owned_rules_removed": true,
+        "unrelated_rule_preserved": true,
+        "namespaces_removed": true
+      }
+    },
+    {
+      "job": {
+        "name": "stall10-early-stall",
+        "argv": [
+          "env",
+          "LD_LIBRARY_PATH=/home/shayan/Codes/super-paqet/build/deploy-libs",
+          "python3",
+          "scripts/path_recovery_bench.py",
+          "--binary",
+          "build/migration-deploy-20261007/super-paqet-migration-4",
+          "--case",
+          "early-stall",
+          "--preserve-connections",
+          "--stall-seconds",
+          "10",
+          "--output",
+          "build/migration-deploy-20261007/stall10-early-stall"
+        ],
+        "timeout": 150,
+        "exit_code": 0,
+        "elapsed_seconds": 56.95276443899638
+      },
+      "source_sha256": "9e605f68a1ba6d9b02c1bfd804d4f1f830d6a9fb93f9c9ccc0ffdfc285583633",
+      "result": {
+        "case": "early-stall",
+        "shared_source": false,
+        "preserve_connections": true,
+        "packet_workers": 2,
+        "held_payload_bytes": 0,
+        "sequenced_payloads": false,
+        "sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+        "client_pid": 210271,
+        "events": [
+          {
+            "event": "injected",
+            "at": 5.427544691003277
+          },
+          {
+            "event": "repeated_tuple_drop",
+            "port": 58638,
+            "at": 23.336193107003055
+          },
+          {
+            "event": "config_reload",
+            "at": 47.233951506001176
+          }
+        ],
+        "recovered": [
+          {
+            "time": "2026-10-07T21:55:01.983069943+03:30",
+            "level": "WARN",
+            "msg": "path.recovered",
+            "peer": "broken",
+            "session": 0,
+            "old_source_port": 29997,
+            "new_source_port": 58638,
+            "local": {
+              "IP": "198.18.0.1",
+              "Port": 58638,
+              "Zone": ""
+            },
+            "connections_preserved": true,
+            "reason": "fresh carrier tuple verified after transport stalled"
+          },
+          {
+            "time": "2026-10-07T21:55:19.978121355+03:30",
+            "level": "WARN",
+            "msg": "path.recovered",
+            "peer": "broken",
+            "session": 0,
+            "old_source_port": 58638,
+            "new_source_port": 59179,
+            "local": {
+              "IP": "198.18.0.1",
+              "Port": 59179,
+              "Zone": ""
+            },
+            "connections_preserved": true,
+            "reason": "fresh carrier tuple verified after transport stalled"
+          }
+        ],
+        "failed_probes": [],
+        "healthy_successes": 176,
+        "healthy_errors": [],
+        "broken_successes_after_45s": 174,
+        "broken_errors": 0,
+        "first_success_after_fault": {
+          "peer": "broken",
+          "held": 1,
+          "at": 6.028807918999519,
+          "ok": true
+        },
+        "wire": {
+          "packets": {
+            "outbound_S": 3678,
+            "return_PA": 3694,
+            "kernel_RST_without_payload": 24
+          },
+          "sources": {
+            "29996": {
+              "seq": 2,
+              "timestamp": 396122139
+            },
+            "29997": {
+              "seq": 2,
+              "timestamp": 396122298
+            },
+            "29995": {
+              "seq": 2,
+              "timestamp": 396122541
+            },
+            "29993": {
+              "seq": 2,
+              "timestamp": 396122795
+            },
+            "29991": {
+              "seq": 2,
+              "timestamp": 396123040
+            },
+            "58638": {
+              "seq": 2,
+              "timestamp": 396139159
+            },
+            "59179": {
+              "seq": 2,
+              "timestamp": 396157159
+            }
+          },
+          "backend_seed_retained": true
+        },
+        "stall_seconds": 10,
+        "established_streams_preserved": 4,
+        "early_stall_signals": [
+          {
+            "time": "2026-10-07T21:55:19.572097415+03:30",
+            "level": "WARN",
+            "msg": "path.migration_early_stall",
+            "peer": "broken",
+            "session": 0,
+            "conv": 580297071,
+            "old_source_port": 29997,
+            "new_source_port": 58638,
+            "elapsed_ms": 17715,
+            "acked_bytes": 477,
+            "received_bytes": 485,
+            "pending_bytes": 63,
+            "remote_window": 4096,
+            "streams": 1,
+            "carrier_closed": false,
+            "reason": "transport stopped delivering shortly after migration; cause unconfirmed"
+          }
+        ],
+        "source_change_at_seconds": 17.38146778900409,
+        "recovery_after_injection_seconds": 11.953923098000814,
+        "healthy_sibling_carriers_preserved": true,
+        "logical_carriers_preserved": true,
+        "live_sibling_rules_preserved": true,
+        "retired_tuple_rules_removed": true,
+        "healthy_carriers_preserved": true,
+        "fixed_four_ceiling_verified": true
+      },
+      "cleanup": {
+        "spq-rec-c-210178_owned_rules_removed": true,
+        "spq-rec-s-210178_owned_rules_removed": true,
+        "unrelated_rule_preserved": true,
+        "namespaces_removed": true
+      }
+    }
+  ],
+  "root_checks": {
+    "race": {
+      "exit_code": 0,
+      "log_sha256": "169501fec1c6eab1a0caad039f6035e1c363c0c6fa6dfbd6f85001755755fc6e"
+    },
+    "vet": {
+      "exit_code": 0
+    }
+  },
+  "limits": [
+    "Live checks cover bounded authenticated transfers and early customer activity, not sustained busy-customer capacity",
+    "No production fault injection was performed",
+    "Existing application deadlines and closed sessions cannot be undone by migration",
+    "Source ports are automatic reservations and may rotate during recovery or restart"
+  ]
+}

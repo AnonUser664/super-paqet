@@ -1,6 +1,6 @@
 # Benchmark evidence
 
-## Live migration candidate, not deployed
+## Live migration qualification before deployment
 
 `enterprise-2026.10.07-migration.3` preserves established streams during verified
 source-port moves and adds bounded early-stall diagnostics. Clean receiver bulk
@@ -10,8 +10,8 @@ faults. All 10,000 held forwards verified beside mixed traffic; mixed throughput
 varied substantially and the initial migration pair was slower. See the
 [report](MIGRATION-2026-10-07.md) and
 [receipts](migration-qualification-2026-10-07.json) for every result, including
-four follow-up profiling runs. This is local qualification, pending user review
-before deployment; it is not a busy-customer Internet capacity guarantee.
+four follow-up profiling runs. This records local qualification preceding the later [migration.4 rollout](MIGRATION-DEPLOYMENT-2026-10-07.md);
+these measurements are not a busy-customer Internet capacity guarantee.
 
 ## Independent-source candidate, not deployed
 

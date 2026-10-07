@@ -263,8 +263,9 @@ path outage, a closed logical carrier and filtering are different hypotheses.
 This signal adds bounded per-carrier state and uses the existing one-second
 health loop; it adds no packet hook or per-customer logging.
 
-With the proposed 15-second stall threshold, a blocked new tuple reports after
-15 seconds of qualifying stalled delivery. An occupied carrier closing is
+With the deployed 10-second stall threshold, a blocked new tuple reports after
+10 seconds of qualifying stalled delivery. The default remains 15 seconds.
+An occupied carrier closing is
 observed on the next health check. At production `warn` level, both the source
 change and early-failure warning remain visible; the detailed negotiation and
 first-progress events require `debug`.

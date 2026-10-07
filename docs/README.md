@@ -1,7 +1,9 @@
 # Documentation
 
-Start with [current status](STATUS.md). The incident ownership release is deployed on five hosts; the one-day
-observation is still in progress,
+Start with [current status](STATUS.md). Migration.4 is deployed on five hosts
+with four independent client source ports per country, two backend capture
+workers and ten-second stall detection. The finite rollout passed;
+the earlier one-day observation has no completed stability result here,
 all six paths pass authenticated checks, and country peers use S outbound / PA
 return. 171.22.132.226 is France; the historical Netherlands diagnosis describes
 that same host. Measured capacity limitations remain explicit in the status and
@@ -15,6 +17,8 @@ that same host. Measured capacity limitations remain explicit in the status and
 | [CONFIGURATION.md](CONFIGURATION.md) | Every YAML field, defaults, constraints and adaptation boundaries. |
 | [LIVE-RELOAD.md](LIVE-RELOAD.md) | Validation, watching, edit impact and rollback. |
 | [DEPLOYMENT.md](DEPLOYMENT.md) | Deployment topology, installation and service settings. |
+| [MIGRATION-DEPLOYMENT-2026-10-07.md](MIGRATION-DEPLOYMENT-2026-10-07.md) | Exact migration.4 rollout, ten-second qualification and accepted live paths. |
+| [MIGRATION-2026-10-07.md](MIGRATION-2026-10-07.md) | Migration protocol, bounded diagnostics and prior build's full local benchmarks. |
 | [deployed/](deployed/README.md) | Recorded configurations and deployed systemd unit. |
 | [OPERATIONS.md](OPERATIONS.md) | Monitoring, rollout, troubleshooting and rollback procedures. |
 | [DIAGNOSTICS.md](DIAGNOSTICS.md) | Logs, metrics, profiling and reproducible tests. |
@@ -26,7 +30,7 @@ that same host. Measured capacity limitations remain explicit in the status and
 
 The [customer incident report](PRODUCTION-INCIDENT-2026-10-06.md) records observed
 failures, fixes, attribution limits and the monitoring window. Latest same-binary
-local qualification: [ownership evidence](ownership-qualification-2026-10-07.json).
+local qualification and rollout: [migration deployment receipts](migration-deployment-evidence-2026-10-07.json).
 
 Earlier compact evidence: [release](final-deployment-evidence.json),
 [clean bulk](clean-null-current-evidence.json),

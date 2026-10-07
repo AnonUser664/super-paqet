@@ -1,6 +1,27 @@
 # Current deployment status
 
-The migration candidate `enterprise-2026.10.07-migration.3` is locally
+All five hosts run **enterprise-2026.10.07-migration.4** under enabled
+`super-paqet.service`. Runtime source `90e98b1186646c3c56660616309e5fe5573e4208`,
+SHA-256 `633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f`.
+Both clients use four independently reserved automatic source ports per country,
+negotiated connection preservation, **10s stall / 15s retry / 5s probe** budgets.
+Each backend listener uses **two capture workers**. All retain S outbound / PA
+return, quoted null encryption, adaptation enabled, warn logging and profiling off.
+
+All six routes passed two authenticated 1 MiB Reality downloads after rollout.
+Actual-host config validation, exact running-image hashes, twelve distinct ports
+per client, stable Xray process identities and zero automatic restarts were
+verified. Temporary rollback timers were disarmed and staged/probe files removed;
+complete rollback archives remain. See the
+[rollout report](MIGRATION-DEPLOYMENT-2026-10-07.md),
+[receipts](migration-deployment-evidence-2026-10-07.json) and
+[accepted snapshots](deployed/README.md).
+This finite live check does not establish sustained busy-customer capacity or
+one-day stability. Earlier observations below describe their identified versions.
+
+## Qualification and deployment before migration.4
+
+The earlier migration candidate `enterprise-2026.10.07-migration.3` is locally
 qualified and **not deployed**. It adds opt-in preservation of established
 KCP/mux/TCP state during a verified source-port move and bounded early-stall
 diagnostics. Both clients and backends need the new runtime for preservation.
@@ -19,17 +40,17 @@ behavior, performance ranges, failure tests and limits are in the
 [candidate report](CARRIER-RECOVERY-2026-10-07.md) and
 [receipts](carrier-recovery-qualification-2026-10-07.json).
 Proposed five-host configurations are in
-[proposed-source-ports/](proposed-source-ports/README.md); the running versions
-and configurations below remain unchanged pending user review.
+[proposed-source-ports/](proposed-source-ports/README.md); the historical versions
+and configurations below preceded the accepted migration.4 rollout.
 
-Both clients run recovery.1; the three backends retain ownership.2.
+Before migration.4, both clients ran recovery.1 and the three backends retained ownership.2.
 Verified source-tuple recovery is enabled on every outgoing client peer. The
 server wire protocol is unchanged, so backend and Xray restarts were unnecessary. All six routes retain four
 shared-source KCP carriers (`sessions: 4`, `max_sessions: 4`), adaptation enabled,
 client S / backend PA flags, quoted null encryption, AF_PACKET with one receive
 worker and MTU1350. France is 171.22.132.226.
 
-## Exact release and topology
+## Pre-migration.4 release and topology
 
 Client version `enterprise-2026.10.07-recovery.1`, runtime source
 `efa095aacb2417246c4ae9aa568f03c119d19cf1`, SHA-256:

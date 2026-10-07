@@ -1,6 +1,8 @@
 # Deployment
 
 Five hosts run the current enterprise release under enabled systemd services.
+The current migration.4 [rollout report](MIGRATION-DEPLOYMENT-2026-10-07.md)
+records actual-host validation, accepted application checks and rollback archives.
 The excluded 65.109.192.172 backend is not contacted. France and the new
 Finland address are working with the qualified directional SYN profile;
 see [Netherlands](NETHERLANDS-DIAGNOSIS.md) and [Finland](FINLAND-CHECK.md).
@@ -14,9 +16,9 @@ see [Netherlands](NETHERLANDS-DIAGNOSIS.md) and [Finland](FINLAND-CHECK.md).
 | 65.109.249.222 | Finland backend, current binary | Tunnel 29999; target 2096. |
 | 89.45.68.14 and 89.45.68.118 | Multi-peer clients | Public TCP 9001/9002/9003 through the respective backend; all pass. |
 
-Both clients use Germany's 91.107.251.85 endpoint. Source ports are 29998 for
-Germany and 29997 for France. There is no relay through another backend.
-Port 9002 uses Finland's 65.109.249.222 endpoint, with client source 29996.
+Both clients use Germany's 91.107.251.85 endpoint. Each country has four
+independently reserved automatic client source ports. There is no relay through
+another backend. Port 9002 uses Finland's 65.109.249.222 endpoint.
 All three routes passed authenticated post-cleanup checks on both clients.
 The old 65.109.192.172 backend remains excluded. Finland's earlier 65.109.211.233
 address is still assigned as its primary IP but is not a tunnel endpoint.
@@ -37,13 +39,17 @@ and hash are in [STATUS.md](STATUS.md).
 ## Selected settings
 
 All country peers and incoming listeners use synchronized manual 0/30/2/nc=1
-KCP settings, four configured shared carriers, 4096-segment window ceilings,
-AF_PACKET with one receive worker, MTU1350 and batched writes with small-write
+KCP settings, four independently sourced client carriers, 4096-segment window ceilings,
+AF_PACKET with two workers per backend listener and one per client source socket,
+MTU1350 and batched writes with small-write
 threshold 256. Endpoint adaptation is enabled for send-window/pacing/ACK/reorder/
 RTO control; receive-buffer adaptation and timing/credit extensions remain off.
 Every client sends S / expects PA; every backend sends PA / expects S. Encryption
 is quoted null. Host IP/interface/MAC values and role memory budgets remain distinct.
 Logging is warn on every host; metrics are local and profiling is disabled.
+Verified recovery preserves live sessions when supported, with a 10-second stall
+threshold, 15-second retry interval and five-second probe budget. Logical carriers
+are opened lazily inside the fixed four-slot pool.
 
 Backends have two vCPUs/~4 GiB; clients four vCPUs/~8 GiB. Soft Go memory budgets
 are 1,536 and 4,096 MiB respectively. The service uses LimitNOFILE 524288,
@@ -64,12 +70,13 @@ Validate a staged config before atomic replacement. Automatic polling or
 `systemctl reload super-paqet` reconciles it; check `config.applied` and revision
 metrics. See [LIVE-RELOAD.md](LIVE-RELOAD.md) for affected-stream behavior.
 
-Two complete recovery archives per host remain beneath
-`/root/super-paqet/rollback/retained/`; historical owned backups were pruned after
-those archives were created. A full binary rollback requires
+The migration.4 rollback archive, including a restore script, remains beneath
+`/root/super-paqet/rollback/20261007T182238Z-migration4/` on every host.
+Earlier accepted archives and incident evidence are also retained. A full binary rollback requires
 stopping the service, restoring binary/config/unit, daemon-reloading, restarting
 and verifying authenticated application traffic. Detailed procedures are in
-[OPERATIONS.md](OPERATIONS.md). Final deployment cleanup removed only owned test resources and historical backups.
+[OPERATIONS.md](OPERATIONS.md). Migration deployment cleanup removed its owned
+staged files and temporary probes; it retained rollback and incident archives.
 
 Finland also installs the owned `20-finland-address.conf` service drop-in to
 restore its secondary IPv4 before binding after restart/boot. Its idempotent

@@ -1,3 +1,4 @@
+# Deployed migration.4: four independent client sources, 10s stall / 15s retry.
 listeners:
 - address: 171.22.132.226:29999
   enc: 'null'
@@ -13,7 +14,7 @@ listeners:
       remote_flag:
       - S
   adaptive: true
-  packet_workers: 1
+  packet_workers: 2
   kcp:
     mode: manual
     sndwnd: 4096

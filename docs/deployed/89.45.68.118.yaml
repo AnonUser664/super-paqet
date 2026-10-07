@@ -1,3 +1,4 @@
+# Deployed migration.4: four independent client sources, 10s stall / 15s retry.
 peers:
   germany:
     address: 91.107.251.85:29999
@@ -5,7 +6,7 @@ peers:
     network:
       interface: ens160
       ipv4:
-        addr: 89.45.68.118:29998
+        addr: 89.45.68.118:0
         router_mac: 58:8d:09:12:9e:00
       backend: packet
       tcp:
@@ -34,11 +35,12 @@ peers:
       small_write_flush: 256
     sessions: 4
     max_sessions: 4
-    shared_source: true
+    shared_source: false
     path_recovery:
       enabled: true
-      stalled_after: 30s
-      retry_interval: 30s
+      preserve_connections: true
+      stalled_after: 10s
+      retry_interval: 15s
       probe_timeout: 5s
   finland:
     address: 65.109.249.222:29999
@@ -46,7 +48,7 @@ peers:
     network:
       interface: ens160
       ipv4:
-        addr: 89.45.68.118:29994
+        addr: 89.45.68.118:0
         router_mac: 58:8d:09:12:9e:00
       backend: packet
       tcp:
@@ -75,11 +77,12 @@ peers:
       small_write_flush: 256
     sessions: 4
     max_sessions: 4
-    shared_source: true
+    shared_source: false
     path_recovery:
       enabled: true
-      stalled_after: 30s
-      retry_interval: 30s
+      preserve_connections: true
+      stalled_after: 10s
+      retry_interval: 15s
       probe_timeout: 5s
   france:
     address: 171.22.132.226:29999
@@ -87,7 +90,7 @@ peers:
     network:
       interface: ens160
       ipv4:
-        addr: 89.45.68.118:29995
+        addr: 89.45.68.118:0
         router_mac: 58:8d:09:12:9e:00
       backend: packet
       tcp:
@@ -116,11 +119,12 @@ peers:
       small_write_flush: 256
     sessions: 4
     max_sessions: 4
-    shared_source: true
+    shared_source: false
     path_recovery:
       enabled: true
-      stalled_after: 30s
-      retry_interval: 30s
+      preserve_connections: true
+      stalled_after: 10s
+      retry_interval: 15s
       probe_timeout: 5s
 forwards:
 - listen: 0.0.0.0:9001

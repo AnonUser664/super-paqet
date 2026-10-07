@@ -10,10 +10,12 @@ TCP and UDP ports. SOCKS5 and the old role-based configuration have been removed
 The transport contract and its reasons are documented in [docs/TRANSPORT.md](docs/TRANSPORT.md).
 Measured results and qualification limits are in [docs/BENCHMARKS.md](docs/BENCHMARKS.md).
 
-The reviewed deployment candidate adds four distinct client source ports and
-carrier-scoped recovery with 15-second stall/retry budgets. It is **not deployed**;
-see its [behavior and benchmark report](docs/CARRIER-RECOVERY-2026-10-07.md) and
-[proposed five-host configs](docs/proposed-source-ports/README.md).
+The deployed migration release uses four distinct client source ports per country,
+preserves live connections during verified carrier moves, and uses 10-second
+stall detection with a 15-second retry budget. Backend listeners use two capture
+workers. See the [deployment report](docs/MIGRATION-DEPLOYMENT-2026-10-07.md),
+[recorded configs](docs/deployed/README.md) and
+[migration behavior and benchmarks](docs/MIGRATION-2026-10-07.md).
 This is a substantial transport/runtime rewrite; successful local benchmarks do
 not establish universal optimality, WAN behavior, or production readiness on
 untested hardware and firewall products.
@@ -25,9 +27,8 @@ Start with [current status](docs/STATUS.md), then the
 [deployment guide](docs/DEPLOYMENT.md) and [operations runbook](docs/OPERATIONS.md).
 The [documentation map](docs/README.md) links current guides and compact evidence.
 
-Live reload, validation and the incident ownership transport are deployed.
-Clients additionally enable verified fresh-source recovery after selective tuple
-outages; backends retain the compatible ownership transport. All six
+Live reload, validation and negotiated carrier migration are deployed on both
+clients and backends. All six
 Germany/Finland/France paths use four adaptive sessions per peer and S outbound /
 PA return. After customer traffic failures, opening recovery and mux stream
 lifetime bugs were fixed; continued observation exposed further controller and

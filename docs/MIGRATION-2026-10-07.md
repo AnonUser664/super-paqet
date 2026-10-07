@@ -1,6 +1,9 @@
 # Live source-port migration qualification — 7 October 2026
 
-Release `enterprise-2026.10.07-migration.3` is locally qualified and **not deployed**.
+Release `enterprise-2026.10.07-migration.3` was locally qualified and was never
+deployed itself. The subsequent [migration.4 rollout](MIGRATION-DEPLOYMENT-2026-10-07.md)
+deployed the same transport with a 10-second config override and a lower
+validation minimum. Measurements below identify the earlier executable.
 Runtime source: `f0af3646cd56841ea73d71142ee83ecd3a2f5277`.
 Executable: `build/migration-qualification/super-paqet-migration-3`.
 SHA-256: `7c3a71192603d55c636a7a43f7bb17c2d793bf33cf5398711e0594069cbb9735`.
@@ -220,6 +223,7 @@ YAML fields. These were fixture errors, not unexplained runtime crashes.
 
 All owned processes/namespaces and firewall journals were cleaned up; unrelated
 sentinel firewall rules survived. Raw captures and profiles remain private under
-`build/migration-qualification/`; only compact receipts are committed. Deployment
-awaits the user's requested confirmation. This qualification does not establish
+`build/migration-qualification/`; only compact receipts are committed. At this checkpoint deployment
+awaited the user's requested confirmation; the subsequent migration.4 rollout
+is recorded separately. This qualification does not establish
 unknown filtering behavior or sustained thousands-busy-customer Internet capacity.
