@@ -41,6 +41,8 @@ type Stats struct {
 // Engine owns one process runtime and its resource lifetimes; carrier and flow state remain
 // separate objects.
 type Engine struct {
+	// Capability ownership is separate from per-packet dispatch and reload state.
+	migrations migrationRegistry
 	// Protects controller registration and listener-observer snapshots shared by
 	// tuning/diagnostic tasks.
 	tuneMu sync.Mutex
@@ -343,7 +345,8 @@ func (e *Engine) serve(ctx context.Context, listener tnet.Listener, resource *li
 			defer e.stats.Sessions.Add(-1)
 			defer conn.Close()
 			e.addEndpoint(conn.(*kcp.Conn), &resource.settings)
-			defer listener.DeleteClientSession(conn.RemoteAddr(), owner)
+			defer func() { listener.DeleteClientSession(conn.RemoteAddr(), owner) }()
+			defer func() { conn.Close(); e.forgetMigration(conn.(*kcp.Conn)) }()
 			stop := context.AfterFunc(ctx, func() { conn.Close() })
 			defer stop()
 			for {
@@ -355,7 +358,11 @@ func (e *Engine) serve(ctx context.Context, listener tnet.Listener, resource *li
 					strm.Close()
 					continue
 				}
-				e.launch(func() { defer e.stats.Active.Add(-1); defer strm.Close(); e.handle(ctx, listener, strm, owner) })
+				e.launch(func() {
+					defer e.stats.Active.Add(-1)
+					defer strm.Close()
+					e.handle(ctx, listener, strm, owner, conn.(*kcp.Conn))
+				})
 			}
 		})
 	}
@@ -363,7 +370,7 @@ func (e *Engine) serve(ctx context.Context, listener tnet.Listener, resource *li
 
 // handle validates one inner request, acknowledges transport receipt, dials the target and
 // reports its actual opening outcome.
-func (e *Engine) handle(ctx context.Context, listener tnet.Listener, strm tnet.Strm, owner uint32) {
+func (e *Engine) handle(ctx context.Context, listener tnet.Listener, strm tnet.Strm, owner uint32, carrier ...*kcp.Conn) {
 	trace := e.flowTrace()
 	strm.SetDeadline(time.Now().Add(e.current().Limits.OpenDuration))
 	var p protocol.Proto
@@ -375,6 +382,14 @@ func (e *Engine) handle(ctx context.Context, listener tnet.Listener, strm tnet.S
 		e.log().Debug("flow.control", "flow_id", trace, "conv", owner, "stream_id", strm.SID(), "protocol", p.Type, "source", strm.RemoteAddr().String())
 	}
 	switch p.Type {
+	case protocol.PMTOKEN, protocol.PMCHECK, protocol.PMMOVE:
+		var via *kcp.Conn
+		if len(carrier) > 0 {
+			via = carrier[0]
+		}
+		reply := e.migrationControl(listener, via, p)
+		reply.Write(strm)
+		return
 	case protocol.PTCPF:
 		listener.SetClientTCPFSession(strm.RemoteAddr(), owner, p.TCPF)
 		return

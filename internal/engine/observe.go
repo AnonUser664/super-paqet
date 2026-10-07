@@ -121,8 +121,8 @@ func (e *Engine) observe() {
 				drops := conn.UDPSession.PostProcessingDrops()
 				old := previous[conn]
 				var txDrops any
-				if conn.PacketConn != nil {
-					txDrops = conn.PacketConn.TXDrops()
+				if conn.CurrentPacket() != nil {
+					txDrops = conn.CurrentPacket().TXDrops()
 				}
 				seconds := now.Sub(old.at).Seconds()
 				if old.at.IsZero() {

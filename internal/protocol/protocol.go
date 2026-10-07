@@ -38,6 +38,14 @@ const (
 	PTCP2 PType = 0x06
 	// PUDP2 selects enterprise length-framed UDP relay while retaining reliable carrier delivery.
 	PUDP2 PType = 0x07
+	// PMTOKEN negotiates a random session capability, without modifying packets.
+	PMTOKEN PType = 0x08
+	// PMCHECK verifies a candidate can adopt a live session before client movement.
+	PMCHECK PType = 0x09
+	// PMMOVE commits an idempotent physical transport generation.
+	PMMOVE PType = 0x0a
+	// PMREPLY carries an explicit migration result and matching capability/generation.
+	PMREPLY PType = 0x0b
 )
 
 const (
@@ -83,6 +91,12 @@ type Proto struct {
 	Addr *tnet.Addr
 	// Requested peer outer flag cycle, carried inside the reliable stream.
 	TCPF []conf.TCPF
+	// Capability is secret control state; never include it in diagnostic logs.
+	Capability [32]byte
+	// Epoch prevents a delayed older move from reverting the active tuple.
+	Epoch uint64
+	// Status is zero for success and one for an unavailable/invalid migration.
+	Status byte
 }
 
 // encodeTCPF packs configured TCP flag bits into the bounded inner setup message.
@@ -144,6 +158,16 @@ func (p *Proto) Write(w io.Writer) error {
 	switch p.Type {
 	case PPING, PPONG:
 		// no body
+
+	case PMTOKEN:
+		// Empty request; response uses PMREPLY.
+	case PMCHECK, PMMOVE, PMREPLY:
+		if p.Status > 1 {
+			return errors.New("protocol: invalid migration status")
+		}
+		body = append(body, p.Capability[:]...)
+		body = binary.BigEndian.AppendUint64(body, p.Epoch)
+		body = append(body, p.Status)
 
 	case PTCP, PUDP, PTCP2, PUDP2:
 		if p.Addr == nil {
@@ -210,6 +234,7 @@ func (p *Proto) Read(r io.Reader) error {
 	}
 	p.Type = hdr[2]
 	p.Addr, p.TCPF = nil, nil
+	p.Capability, p.Epoch, p.Status = [32]byte{}, 0, 0
 
 	n := int(binary.BigEndian.Uint16(hdr[3:]))
 	if n > maxBodyLen {
@@ -225,6 +250,20 @@ func (p *Proto) Read(r io.Reader) error {
 		if len(body) != 0 {
 			return errors.New("protocol: unexpected ping body")
 		}
+		return nil
+
+	case PMTOKEN:
+		if len(body) != 0 {
+			return errors.New("protocol: unexpected migration token body")
+		}
+		return nil
+	case PMCHECK, PMMOVE, PMREPLY:
+		if len(body) != 41 || body[40] > 1 {
+			return errors.New("protocol: invalid migration body")
+		}
+		copy(p.Capability[:], body[:32])
+		p.Epoch = binary.BigEndian.Uint64(body[32:40])
+		p.Status = body[40]
 		return nil
 
 	case PTCP, PUDP, PTCP2, PUDP2:

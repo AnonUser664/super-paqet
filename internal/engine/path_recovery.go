@@ -18,6 +18,8 @@ import (
 // PathRecoveryConfig is opt-in because some deployments require fixed source
 // ports. Timings bound outage detection and probe traffic, not KCP retransmission.
 type PathRecoveryConfig struct {
+	// PreserveConnections opts into negotiated physical migration of live sessions.
+	PreserveConnections                       bool   `yaml:"preserve_connections"`
 	Enabled                                   bool   `yaml:"enabled"`
 	StalledAfter                              string `yaml:"stalled_after"`
 	RetryInterval                             string `yaml:"retry_interval"`
@@ -27,6 +29,9 @@ type PathRecoveryConfig struct {
 
 // prepare validates explicit budgets even when disabled, catching latent typos.
 func (r *PathRecoveryConfig) prepare(listener, shared bool) error {
+	if r.PreserveConnections && (!r.Enabled || shared || listener) {
+		return fmt.Errorf("path_recovery.preserve_connections requires enabled recovery and independent outgoing source ports")
+	}
 	if r.Enabled && listener {
 		return fmt.Errorf("path_recovery requires an outgoing peer")
 	}

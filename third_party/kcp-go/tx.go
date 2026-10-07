@@ -32,11 +32,11 @@ import (
 )
 
 // defaultTx is the default transmission function for UDP sessions.
-func (s *UDPSession) defaultTx(txqueue []ipv4.Message) {
+func (s *UDPSession) defaultTx(route *sessionRoute, txqueue []ipv4.Message) {
 	nbytes := 0
 	npkts := 0
 	for k := range txqueue {
-		n, err := s.conn.WriteTo(txqueue[k].Buffers[0], txqueue[k].Addr)
+		n, err := route.conn.WriteTo(txqueue[k].Buffers[0], route.remote)
 		if err != nil {
 			s.notifyWriteError(errors.WithStack(err))
 			break

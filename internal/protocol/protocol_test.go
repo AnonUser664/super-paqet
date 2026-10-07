@@ -14,7 +14,7 @@ import (
 // TestRoundTripAndMalformedControls checks Round Trip And Malformed Controls so a change
 // cannot silently weaken the recorded regression contract.
 func TestRoundTripAndMalformedControls(t *testing.T) {
-	for _, p := range []Proto{{Type: PPING}, {Type: PPONG}, {Type: PTCP2, Addr: &tnet.Addr{Host: "example.com", Port: 443}}, {Type: PUDP2, Addr: &tnet.Addr{Host: "::1", Port: 53}}, {Type: PTCPF, TCPF: []conf.TCPF{{PSH: true, ACK: true}, {SYN: true}}}} {
+	for _, p := range []Proto{{Type: PMTOKEN}, {Type: PMCHECK, Capability: [32]byte{1}, Epoch: 7}, {Type: PMMOVE, Capability: [32]byte{2}, Epoch: 8}, {Type: PMREPLY, Capability: [32]byte{3}, Epoch: 9, Status: 1}, {Type: PPING}, {Type: PPONG}, {Type: PTCP2, Addr: &tnet.Addr{Host: "example.com", Port: 443}}, {Type: PUDP2, Addr: &tnet.Addr{Host: "::1", Port: 53}}, {Type: PTCPF, TCPF: []conf.TCPF{{PSH: true, ACK: true}, {SYN: true}}}} {
 		var wire bytes.Buffer
 		if err := p.Write(&wire); err != nil {
 			t.Fatal(err)
@@ -34,7 +34,7 @@ func TestRoundTripAndMalformedControls(t *testing.T) {
 			}
 		}
 	}
-	for _, b := range [][]byte{{MAGIC, VERSION, PPING, 0, 1, 0}, {MAGIC, VERSION, PTCP2, 255, 255}, {0, VERSION, PPING, 0, 0}, {MAGIC, 99, PPING, 0, 0}, {MAGIC, VERSION, PTCPF, 0, 1, 0}} {
+	for _, b := range [][]byte{{MAGIC, VERSION, PPING, 0, 1, 0}, {MAGIC, VERSION, PTCP2, 255, 255}, {0, VERSION, PPING, 0, 0}, {MAGIC, 99, PPING, 0, 0}, {MAGIC, VERSION, PTCPF, 0, 1, 0}, {MAGIC, VERSION, PMTOKEN, 0, 1, 0}, {MAGIC, VERSION, PMMOVE, 0, 0}} {
 		var p Proto
 		if p.Read(bytes.NewReader(b)) == nil {
 			t.Fatal("accepted malformed control")

@@ -157,11 +157,14 @@ type (
 		writeWaitNanoseconds atomic.Uint64
 		// Atomically exposed maximum mux frame bytes from current carrier window/pacing.
 		writeBudget atomic.Uint32
-		conn        net.PacketConn // the underlying packet connection
-		ownConn     bool           // true if we created conn internally, false if provided by caller
-		kcp         *KCP           // KCP ARQ protocol
-		l           *Listener      // pointing to the Listener object if it's been accepted by a Listener
-		block       BlockCrypt     // block encryption object
+		// Physical route changes are serialized against an in-flight transmit batch.
+		routeMu sync.RWMutex
+		route   atomic.Pointer[sessionRoute]
+		conn    net.PacketConn // the underlying packet connection
+		ownConn bool           // true if we created conn internally, false if provided by caller
+		kcp     *KCP           // KCP ARQ protocol
+		l       *Listener      // pointing to the Listener object if it's been accepted by a Listener
+		block   BlockCrypt     // block encryption object
 
 		// kcp receiving is based on packets
 		// recvbuf turns packets into stream
@@ -267,6 +270,7 @@ func newUDPSession(conv uint32, dataShards, parityShards int, l *Listener, conn 
 	sess.block = block
 	sess.recvbuf = make([]byte, mtuLimit)
 	sess.initPlatform()
+	sess.route.Store(&sessionRoute{conn: conn, remote: remote, listener: l, platform: sess.platform})
 
 	// calculate additional header size introduced by encryption
 	switch block := sess.block.(type) {
@@ -549,11 +553,15 @@ func (s *UDPSession) Close() error {
 	s.postQueue.close()
 	s.mu.Unlock()
 
-	if s.l != nil { // belongs to listener
-		s.l.closeSession(s.remote, s.kcp.conv)
+	migrationMu.Lock()
+	route := s.route.Load()
+	if route.listener != nil { // remove from its current dispatcher, not its original socket
+		route.listener.closeSession(route.remote, s.kcp.conv)
+		migrationMu.Unlock()
 		return nil
 	}
 
+	migrationMu.Unlock()
 	if s.ownConn { // client socket close
 		return s.conn.Close()
 	}
@@ -562,10 +570,10 @@ func (s *UDPSession) Close() error {
 }
 
 // LocalAddr returns the local network address. The Addr returned is shared by all invocations of LocalAddr, so do not modify it.
-func (s *UDPSession) LocalAddr() net.Addr { return s.conn.LocalAddr() }
+func (s *UDPSession) LocalAddr() net.Addr { return s.route.Load().conn.LocalAddr() }
 
 // RemoteAddr returns the remote network address. The Addr returned is shared by all invocations of RemoteAddr, so do not modify it.
-func (s *UDPSession) RemoteAddr() net.Addr { return s.remote }
+func (s *UDPSession) RemoteAddr() net.Addr { return s.route.Load().remote }
 
 // SetDeadline sets the deadline associated with the listener. A zero time value disables the deadline.
 func (s *UDPSession) SetDeadline(t time.Time) error {
@@ -832,7 +840,7 @@ func (s *UDPSession) postProcess() {
 
 			// --- Stage 3: TX batching ---
 			var msg ipv4.Message
-			msg.Addr = s.remote
+			msg.Addr = s.RemoteAddr()
 
 			// original copy, move buf to txqueue directly
 			msg.Buffers = [][]byte{buf}
@@ -1527,11 +1535,13 @@ func (l *Listener) SetWriteDeadline(t time.Time) error {
 
 // Close stops listening on the UDP address, and closes the socket
 func (l *Listener) Close() error {
+	migrationMu.Lock()
 	var once bool
 	l.dieOnce.Do(func() {
 		close(l.die)
 		once = true
 	})
+	migrationMu.Unlock()
 
 	if !once {
 		return errors.WithStack(io.ErrClosedPipe)

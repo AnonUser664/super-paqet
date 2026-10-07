@@ -27,6 +27,8 @@
 
 package kcp
 
+import "net"
+
 // platform retains optional platform batch state; generic builds can have no additional
 // platform data.
 type platform struct{}
@@ -34,3 +36,6 @@ type platform struct{}
 // initPlatform selects platform batch support; custom PacketConn implementations keep raw
 // framing rather than UDP substitution.
 func (sess *UDPSession) initPlatform() {}
+
+// makePlatform keeps generic routing ownership without a batch adapter.
+func makePlatform(conn net.PacketConn) platform { return platform{} }

@@ -37,9 +37,15 @@ import (
 // tx is the optimized transmit path for Linux, utilizing the sendmmsg syscall
 // to batch-send multiple UDP packets in a single system call.
 func (s *UDPSession) tx(txqueue []ipv4.Message) {
-	// default version
-	if s.platform.batchConn == nil {
-		s.defaultTx(txqueue)
+	s.routeMu.RLock()
+	defer s.routeMu.RUnlock()
+	route := s.route.Load()
+	for i := range txqueue {
+		txqueue[i].Addr = route.remote
+	}
+	// The output batch uses exactly one physical generation.
+	if route.platform.batchConn == nil {
+		s.defaultTx(route, txqueue)
 		return
 	}
 
@@ -47,7 +53,7 @@ func (s *UDPSession) tx(txqueue []ipv4.Message) {
 	nbytes := 0
 	npkts := 0
 	for len(txqueue) > 0 {
-		n, err := s.platform.batchConn.WriteBatch(txqueue, 0)
+		n, err := route.platform.batchConn.WriteBatch(txqueue, 0)
 		if err != nil {
 			s.notifyWriteError(errors.WithStack(err))
 			break

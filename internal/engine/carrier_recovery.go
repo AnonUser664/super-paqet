@@ -8,6 +8,7 @@ import (
 	"context"
 	"time"
 
+	"paqet/internal/protocol"
 	"paqet/internal/tnet/kcp"
 )
 
@@ -102,6 +103,7 @@ func (e *Engine) checkCarrierRecovery(now time.Time, name string, p *peer) {
 	}
 	for index, s := range slots {
 		cfg := p.configuration().PathRecovery
+		e.observeMigration(now, name, index, s, cfg)
 		if !s.carrierRecoveryAllowed(now, cfg, false, true) {
 			continue
 		}
@@ -158,6 +160,23 @@ func (e *Engine) recoverCarrier(name string, p *peer, index int, oldSlot *slot) 
 		probe = probePeer
 	}
 	err = probe(ctx, candidate.peer)
+	// Check remote support before moving anything. Declined/older/dead sessions
+	// keep the existing verified replacement behavior.
+	oldConn := oldSlot.conn.Load()
+	var migration *kcp.MigrationCapability
+	var control *kcp.Conn
+	if err == nil && contract.endpoint.PathRecovery.PreserveConnections && oldConn != nil && !oldConn.Session.IsClosed() {
+		cap := oldConn.Migration.Load()
+		control = candidate.peer.slots[0].conn.Load()
+		if cap != nil && control != nil && cap.Epoch != ^uint64(0) {
+			request := protocol.Proto{Type: protocol.PMCHECK, Capability: cap.Token, Epoch: cap.Epoch + 1}
+			if _, checkErr := migrationRPC(ctx, control, request); checkErr == nil {
+				migration = &kcp.MigrationCapability{Token: cap.Token, Epoch: cap.Epoch + 1}
+			} else {
+				e.log().Debug("path.migration_fallback", "peer", name, "session", index, "error", checkErr)
+			}
+		}
+	}
 	cancel()
 	e.reloadMu.Lock()
 	defer e.reloadMu.Unlock()
@@ -184,6 +203,22 @@ func (e *Engine) recoverCarrier(name string, p *peer, index int, oldSlot *slot) 
 	// The candidate is unpublished, with exactly one slot. Transfer its journal
 	// and guard into the original pool without canceling that pool's relays.
 	newSlot := candidate.peer.slots[0]
+	preserved := false
+	oldSlot.mu.Lock()
+	if migration != nil && oldSlot.conn.Load() == oldConn && !oldConn.Session.IsClosed() && newSlot.transport != nil {
+		if moveErr := newSlot.transport.Adopt(oldConn); moveErr == nil {
+			oldSlot.retired.Store(true)
+			oldSlot.conn.Store(nil)
+			newSlot.conn.Store(oldConn)
+			oldConn.Migration.Store(migration)
+			stats := oldConn.UDPSession.TransportStats()
+			newSlot.migrationWatch = migrationObservation{at: time.Now(), acked: stats.AckedBytes, received: stats.ReceivedBytes, oldPort: oldSlot.network.Port, conn: oldConn, streams: oldConn.Session.NumStreams()}
+			preserved = true
+		} else {
+			e.log().Warn("path.migration_fallback", "peer", name, "session", index, "error", moveErr)
+		}
+	}
+	oldSlot.mu.Unlock()
 	p.allocationMu.Lock()
 	candidate.peer.allocationMu.Lock()
 	for _, rules := range candidate.peer.slotRules {
@@ -210,7 +245,19 @@ func (e *Engine) recoverCarrier(name string, p *peer, index int, oldSlot *slot) 
 	// Retarget the candidate's adaptive/live reliability registration to the
 	// lasting peer template rather than its one-slot staging configuration.
 	if c := newSlot.conn.Load(); c != nil {
-		e.addEndpoint(c, p.settings, newSlot)
+		if preserved {
+			// Retain learned RTT/window/pacing state instead of rebuilding a controller.
+			e.tuneMu.Lock()
+			if tuner := e.tuners[c]; tuner != nil {
+				tuner.slot = newSlot
+				tuner.endpoint = p.settings
+			}
+			e.tuneMu.Unlock()
+			request := protocol.Proto{Type: protocol.PMMOVE, Capability: migration.Token, Epoch: migration.Epoch}
+			e.launch(func() { e.finishMigration(p, name, c, control, request) })
+		} else {
+			e.addEndpoint(c, p.settings, newSlot)
+		}
 	}
 	candidate.close()
 	retired := &liveResource{fw: oldSlot.fw, release: func() {
@@ -218,6 +265,9 @@ func (e *Engine) recoverCarrier(name string, p *peer, index int, oldSlot *slot) 
 		defer oldSlot.mu.Unlock()
 		if c := oldSlot.conn.Swap(nil); c != nil {
 			c.Close()
+		}
+		if oldSlot.transport != nil {
+			oldSlot.transport.Close()
 		}
 	}, finalize: func() {
 		if oldSlot.guard != nil {
@@ -229,5 +279,5 @@ func (e *Engine) recoverCarrier(name string, p *peer, index int, oldSlot *slot) 
 		e.log().Error("path.recovery_cleanup_failed", "peer", name, "session", index, "error", cleanupErr)
 	}
 	e.pathRecoverySucceeded.Add(1)
-	e.log().Warn("path.recovered", "peer", name, "session", index, "old_source_port", oldSlot.network.Port, "new_source_port", newSlot.network.Port, "local", newSlot.network.IPv4.Addr, "reason", "fresh carrier tuple verified after transport stalled")
+	e.log().Warn("path.recovered", "peer", name, "session", index, "old_source_port", oldSlot.network.Port, "new_source_port", newSlot.network.Port, "local", newSlot.network.IPv4.Addr, "connections_preserved", preserved, "reason", "fresh carrier tuple verified after transport stalled")
 }

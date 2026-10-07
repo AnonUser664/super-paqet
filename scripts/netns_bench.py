@@ -41,6 +41,7 @@ def main():
     p.add_argument('--sessions', type=int, default=4)
     p.add_argument('--max-sessions', type=int, help='carrier ceiling; defaults to --sessions so qualification uses a fixed pool')
     p.add_argument('--path-recovery', action='store_true', help='enable verified fresh-source recovery on the outgoing peer')
+    p.add_argument('--preserve-connections', action='store_true', help='enable negotiated live-session source migration')
     p.add_argument('--shared-source', action='store_true', help='independent KCP lanes on one peer source tuple')
     p.add_argument('--client-memory-mib',type=int,default=0,help='optional client soft Go memory budget')
     p.add_argument('--server-memory-mib',type=int,default=0,help='optional backend soft Go memory budget')
@@ -104,6 +105,7 @@ def main():
         if any(event.get(k,0)>100 for k in ('loss','reorder')): p.error('epoch percentages must be 0..100')
         if event['at']>=a.duration+a.warmup:p.error('epoch must occur within the workload interval')
     epochs.sort(key=lambda event:event['at'])
+    if a.preserve_connections and (not a.path_recovery or a.shared_source):p.error('preserve-connections requires independent source ports and path-recovery')
     if a.path_recovery and not a.enterprise:p.error('path-recovery requires enterprise')
     if min(a.client_memory_mib,a.server_memory_mib)<0:p.error('memory budgets cannot be negative')
     if min(a.client_procs,a.server_procs)<0:p.error('process core budgets cannot be negative')
@@ -279,7 +281,7 @@ def main():
             client = f'peers:\n  remote:\n    address: 198.18.0.2:29999\n    key: benchmark-only-key\n    sessions: {a.sessions}\n    max_sessions: {a.max_sessions}\n    network: {{interface: spq-c, ipv4: {{addr: "198.18.0.1:0", router_mac: "02:00:00:00:00:02"}}}}\nforwards:\n'
             for i in range(8): client += f'  - {{listen: "127.0.0.1:{28080+i}", peer: remote, target: "127.0.0.{i+1}:18080"}}\n'
             server = f'listeners:\n  - address: 198.18.0.2:29999\n    sessions: {a.sessions}\n    max_sessions: {a.max_sessions}\n    key: benchmark-only-key\n    network: {{interface: spq-s, ipv4: {{addr: "198.18.0.2:29999", router_mac: "02:00:00:00:00:01"}}}}\n'
-            if a.path_recovery:client=client.replace('    address:', '    path_recovery: {enabled: true}\n    address:',1)
+            if a.path_recovery:client=client.replace('    address:', '    path_recovery: {enabled: true, preserve_connections: '+str(a.preserve_connections).lower()+'}\n    address:',1)
             client += 'metrics: 127.0.0.1:29090\n'
             server += 'metrics: 127.0.0.1:29090\n'
             kcp_options=json.dumps({'block':a.block,'dshard':a.fec[0],'pshard':a.fec[1],**kcp_overrides})

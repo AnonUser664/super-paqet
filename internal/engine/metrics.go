@@ -111,9 +111,9 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 					fmt.Fprintf(w, "super_paqet_peer_receive_window_min{peer=%s,session=%s} %d\nsuper_paqet_peer_receive_window_max{peer=%s,session=%s} %d\n", strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), minWindow, strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), maxWindow)
 				}
 				fmt.Fprintf(w, "super_paqet_peer_send_window{peer=%s,session=%s} %d\nsuper_paqet_peer_pending{peer=%s,session=%s} %d\n", strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), state.SendWindow, strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), state.Pending)
-				packets, drops := c.PacketConn.PacketStats()
-				fmt.Fprintf(w, "super_paqet_peer_tx_queue_retries_total{peer=%s,session=%s} %d\n", strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), c.PacketConn.TXQueueRetries())
-				fmt.Fprintf(w, "super_paqet_peer_tx_queue_drops{peer=%s,session=%s} %d\n", strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), c.PacketConn.TXDrops())
+				packets, drops := c.CurrentPacket().PacketStats()
+				fmt.Fprintf(w, "super_paqet_peer_tx_queue_retries_total{peer=%s,session=%s} %d\n", strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), c.CurrentPacket().TXQueueRetries())
+				fmt.Fprintf(w, "super_paqet_peer_tx_queue_drops{peer=%s,session=%s} %d\n", strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), c.CurrentPacket().TXDrops())
 				fmt.Fprintf(w, "super_paqet_peer_capture_packets{peer=%s,session=%s} %d\nsuper_paqet_peer_capture_drops{peer=%s,session=%s} %d\n", strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), packets, strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), drops)
 				fmt.Fprintf(w, "super_paqet_peer_streams{peer=%s,session=%s} %d\nsuper_paqet_peer_rtt_ms{peer=%s,session=%s} %d\n", strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), c.Session.NumStreams(), strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), c.UDPSession.GetSRTT())
 			}

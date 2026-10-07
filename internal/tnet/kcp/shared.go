@@ -56,3 +56,14 @@ func (d *SharedDialer) Dial(remote net.Addr, cfg *conf.KCP) (*Conn, error) {
 
 // Close retires all lanes before releasing the physical capture/injection socket.
 func (d *SharedDialer) Close() { d.closeOnce.Do(func() { d.lanes.Close(); d.packet.Close() }) }
+
+// Adopt preserves a live KCP/mux object while changing its outgoing socket.
+// Both sockets must have the same framing/cipher contract and separate ownership.
+func (d *SharedDialer) Adopt(c *Conn) error {
+	if err := d.lanes.MoveSession(c.UDPSession, c.RemoteAddr()); err != nil {
+		return err
+	}
+	c.livePacket.Store(d.packet)
+	c.UDPSession.RetransmitNow()
+	return nil
+}

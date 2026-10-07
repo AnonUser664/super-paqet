@@ -273,6 +273,9 @@ func (e *Endpoint) prepare(listener bool) error {
 	}
 	e.KCP.PacketWorkers = e.PacketWorkers
 	e.KCP.SharedSource = e.SharedSource
+	if e.PathRecovery.PreserveConnections && (e.KCP.Dshard != 0 || e.KCP.Pshard != 0) {
+		return fmt.Errorf("preserve_connections requires FEC disabled")
+	}
 	if e.SharedSource && (len(e.SourcePorts) > 0 || e.KCP.Dshard != 0 || e.KCP.Pshard != 0) {
 		return fmt.Errorf("shared_source requires FEC disabled and no source_ports list")
 	}

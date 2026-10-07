@@ -17,6 +17,8 @@ def main():
     parser.add_argument('--case', choices=['tuple', 'whole-peer', 'one-lane', 'all-tuples', 'reverse-tuple', 'established', 'reverse-established', 'short-loss', 'repeat-tuple'], default='tuple')
     parser.add_argument('--server-binary', help='optional older backend executable for wire compatibility qualification')
     parser.add_argument('--shared-source', action='store_true', help='qualify legacy pool recovery instead of independent carrier recovery')
+    parser.add_argument('--preserve-connections', action='store_true', help='require continuity of established streams during source migration')
+    parser.add_argument('--packet-workers', type=int, default=2, help='backend fanout workers, including cross-worker migration')
     parser.add_argument('--output', required=True)
     args = parser.parse_args()
     if os.geteuid() != 0:
@@ -128,13 +130,14 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
             """Use the deployed null/four-session transport profile and exact flags."""
             return {'address':address,'enc':'null','shared_source':True,'sessions':4,'max_sessions':4,'packet_workers':1,'adaptive':True,'kcp':kcp,'network':{'backend':'packet','interface':interface,'ipv4':{'addr':f'{ip}:{port}','router_mac':mac},'tcp':{'local_flag':[flags],'remote_flag':['PA' if flags=='S' else 'S']}}}
         broken = endpoint('198.18.0.1',29997,'spq-c','02:00:00:00:00:02','S','198.18.0.2:29999')
-        broken['path_recovery']={'enabled':True,'stalled_after':'15s','retry_interval':'15s','probe_timeout':'5s'}
+        broken['path_recovery']={'enabled':True,'stalled_after':'15s','retry_interval':'15s','probe_timeout':'5s','preserve_connections':args.preserve_connections}
         if not args.shared_source:
             broken['shared_source']=False
             broken['network']['ipv4']['addr']='198.18.0.1:0'
             broken['source_ports']=[29997,29995,29993,29991]
         healthy = endpoint('198.18.0.1',29996,'spq-c','02:00:00:00:00:02','S','198.18.0.2:29999')
         listener = endpoint('198.18.0.2',29999,'spq-s','02:00:00:00:00:01','PA','198.18.0.2:29999')
+        listener['packet_workers']=args.packet_workers
         common={'metrics':'127.0.0.1:29090','log':{'level':'debug','interval':'1s','format':'json'},'limits':{'open_timeout':'5s','dial_timeout':'2s'}}
         cfg={**common,'peers':{'broken':broken,'healthy':healthy},'forwards':[{'listen':'127.0.0.1:28080','peer':'broken','target':'127.0.0.1:18080'},{'listen':'127.0.0.1:28081','peer':'healthy','target':'127.0.0.1:18080'}]}
         config.write_text(json.dumps(cfg)); server_config=out/'server.json';server_config.write_text(json.dumps({**common,'listeners':[listener]}))
@@ -206,7 +209,7 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
         drops=json.dumps({dev:json.loads(ns(router,'tc','-j','-s','filter','show','dev',dev,'ingress').stdout) for dev in ('rc','rs')});(out/'filters.json').write_text(drops)
         logs=[json.loads(line) for line in (out/'client.log').read_text().splitlines() if line.startswith('{')]
         recovered=[r for r in logs if r.get('msg')=='path.recovered'];failed=[r for r in logs if r.get('msg')=='path.recovery_probe_failed']
-        result={'case':args.case,'shared_source':args.shared_source,'sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'client_pid':client_process.pid,'events':events,'recovered':recovered,'failed_probes':failed,'healthy_successes':sum(r['ok'] for r in rows if r['peer']=='healthy'),'healthy_errors':[r for r in rows if r['peer']=='healthy' and not r['ok']],'broken_successes_after_45s':sum(r['ok'] for r in rows if r['peer']=='broken' and r['at']>(75 if args.case=='whole-peer' else 45)),'broken_errors':sum(not r['ok'] for r in rows if r['peer']=='broken'),'first_success_after_fault':next((r for r in rows if r['peer']=='broken' and r['ok'] and r['at']>6),None),'snapshots':snapshots}
+        result={'case':args.case,'shared_source':args.shared_source,'preserve_connections':args.preserve_connections,'packet_workers':args.packet_workers,'sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'client_pid':client_process.pid,'events':events,'recovered':recovered,'failed_probes':failed,'healthy_successes':sum(r['ok'] for r in rows if r['peer']=='healthy'),'healthy_errors':[r for r in rows if r['peer']=='healthy' and not r['ok']],'broken_successes_after_45s':sum(r['ok'] for r in rows if r['peer']=='broken' and r['at']>(75 if args.case=='whole-peer' else 45)),'broken_errors':sum(not r['ok'] for r in rows if r['peer']=='broken'),'first_success_after_fault':next((r for r in rows if r['peer']=='broken' and r['ok'] and r['at']>6),None),'snapshots':snapshots}
         (out/'result.json').write_text(json.dumps(result,indent=2)+'\n')
         assert not result['healthy_errors'],'healthy peer disrupted'
         assert result['broken_successes_after_45s']>10,'path did not recover'
@@ -220,9 +223,9 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
         if args.case=='whole-peer':assert failed,'failed probe not exercised'
         if args.case in ('established','reverse-established'):
             held_errors=[r for r in rows if r['peer']=='broken' and not r['ok']]
-            assert len(held_errors)==1,'established sibling streams were disrupted'
+            assert len(held_errors)==(0 if args.preserve_connections and not args.server_binary else 1),'established stream continuity failed'
             assert not any(r.get('msg') in ('opening.transport_timeout','opening.syn_timeout') for r in logs),'established test used new-opening failure evidence'
-            result['established_sibling_streams_preserved']=3
+            result['established_streams_preserved']=4-len(held_errors)
         assert client_process.poll() is None,'client process exited'
         healthy_before=set(re.findall(r'super_paqet_peer_conversation_id\{peer="healthy",session="\d+"\} (\d+)',before))
         healthy_after=set(re.findall(r'super_paqet_peer_conversation_id\{peer="healthy",session="\d+"\} (\d+)',after))
@@ -243,6 +246,10 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
                 after_conv=dict(re.findall(r'super_paqet_peer_conversation_id\{peer="broken",session="(\d+)"\} (\d+)',after))
                 assert all(before_conv[i]==after_conv.get(i) for i,port in before_map.items() if int(port)!=29997),'healthy sibling carrier replaced'
                 result['healthy_sibling_carriers_preserved']=True
+                if args.preserve_connections and not args.server_binary:
+                    assert before_conv==after_conv, 'migration replaced the logical KCP carrier'
+                    assert all(r.get('connections_preserved') for r in recovered), 'migration fell back unexpectedly'
+                    result['logical_carriers_preserved']=True
         # A slot switch must remove the old tuple's rules while retaining all
         # current sibling/probe-adopted ports. This checks ownership while the
         # client is still running, not just after process-wide teardown.

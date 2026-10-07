@@ -80,6 +80,8 @@ type slot struct {
 	score atomic.Uint64
 	// Kernel port reservation owned by this slot until pool teardown.
 	guard io.Closer
+	// Per-source dispatcher permits preserving a conversation when the socket moves.
+	transport *kcp.SharedDialer
 	// Scoped rule ownership transferred with this slot during verified recovery.
 	fw *firewall
 	// Serializes cached-generation replacement and reconnect backoff.
@@ -103,6 +105,8 @@ type slot struct {
 	retired        atomic.Bool
 	recoveryMu     sync.Mutex
 	recoveryHealth carrierHealth
+	// One bounded post-move warning is sampled with ordinary carrier health.
+	migrationWatch migrationObservation
 }
 
 // connection lazily creates or reuses a slot carrier, sends its flag setup and preserves
@@ -147,6 +151,13 @@ func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
 	var conn tnet.Conn
 	if p.shared != nil {
 		conn, err = p.shared.Dial(a, &endpoint.KCP)
+	} else if endpoint.PathRecovery.PreserveConnections {
+		if s.transport == nil {
+			s.transport, err = kcp.NewSharedDialer(&endpoint.KCP, s.network, 2)
+		}
+		if err == nil {
+			conn, err = s.transport.Dial(a, &endpoint.KCP)
+		}
 	} else {
 		conn, err = kcp.Dial(a, &endpoint.KCP, s.network)
 	}
@@ -186,6 +197,9 @@ func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
 	}
 	// Publish only after control setup succeeded; other opens may now reuse this complete carrier generation.
 	s.conn.Store(c)
+	if endpoint.PathRecovery.PreserveConnections {
+		p.engine.launch(func() { p.engine.negotiateMigration(p, c) })
+	}
 	p.engine.log().Debug("session.connected", "conv", c.UDPSession.GetConv(), "remote", p.configuration().Address, "local", c.LocalAddr().String(), "phase", "local_setup", "peer_verified", false)
 	if p.settings != nil {
 		p.engine.addEndpoint(c, p.settings, s)
@@ -384,6 +398,9 @@ func (p *peer) close() {
 		s.mu.Lock()
 		if c := s.conn.Swap(nil); c != nil {
 			c.Close()
+		}
+		if s.transport != nil {
+			s.transport.Close()
 		}
 		if s.guard != nil {
 			s.guard.Close()

@@ -33,5 +33,7 @@ import (
 // tx sends a prepared output batch using the available platform path and accounts
 // attempts/errors.
 func (s *UDPSession) tx(txqueue []ipv4.Message) {
-	s.defaultTx(txqueue)
+	s.routeMu.RLock()
+	defer s.routeMu.RUnlock()
+	s.defaultTx(s.route.Load(), txqueue)
 }

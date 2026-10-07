@@ -90,3 +90,6 @@ func newBatchConn(conn net.PacketConn) batchConn {
 func (sess *UDPSession) initPlatform() {
 	sess.platform.batchConn = newBatchConn(sess.conn)
 }
+
+// makePlatform builds one batch adapter per physical move, never per packet.
+func makePlatform(conn net.PacketConn) platform { return platform{batchConn: newBatchConn(conn)} }

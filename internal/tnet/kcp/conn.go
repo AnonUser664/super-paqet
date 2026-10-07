@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"sync/atomic"
 	"time"
 
 	"github.com/xtaci/kcp-go/v5"
@@ -28,6 +29,9 @@ type Conn struct {
 	Session *smux.Session
 	// Shared dialer owns the packet socket; individual lane closure must retain it.
 	sharedPacket bool
+	// Mutable telemetry socket and negotiated control capability use atomic snapshots.
+	livePacket atomic.Pointer[socket.PacketConn]
+	Migration  atomic.Pointer[MigrationCapability]
 }
 
 // OpenStrm opens one logical mux stream on this carrier without creating another raw socket.
@@ -121,3 +125,17 @@ func (c *Conn) SetReadDeadline(t time.Time) error { return c.UDPSession.SetReadD
 // SetWriteDeadline sets output expiry so backpressure cannot ignore caller cancellation
 // indefinitely.
 func (c *Conn) SetWriteDeadline(t time.Time) error { return c.UDPSession.SetWriteDeadline(t) }
+
+// MigrationCapability follows the logical session across physical socket moves.
+type MigrationCapability struct {
+	Token [32]byte
+	Epoch uint64
+}
+
+// CurrentPacket returns the effective socket for telemetry/adaptive tuning.
+func (c *Conn) CurrentPacket() *socket.PacketConn {
+	if p := c.livePacket.Load(); p != nil {
+		return p
+	}
+	return c.PacketConn
+}
