@@ -32,6 +32,9 @@ func PrepareNetwork(n *Network, role string) error {
 // PrepareKCP applies the existing encryption derivation and transport defaults.
 func PrepareKCP(k *KCP, role string) error {
 	k.setDefaults(role)
+	if k.SmuxRecoveryGrace < 0 || k.SmuxRecoveryGrace > 120 {
+		return fmt.Errorf("smux_recovery_grace must be 0..120 seconds")
+	}
 	if k.WriteBatchMS < 1 || k.WriteBatchMS > 1000 || k.ACKDelayMaxMS < 1 || k.ACKDelayMaxMS > 20 {
 		return fmt.Errorf("write_batch_ms must be 1..1000 and ack_delay_max_ms must be 1..20")
 	}

@@ -86,6 +86,7 @@ func (e *Engine) migrationControl(listener tnet.Listener, via *kcp.Conn, request
 			via.Migration.Store(cap)
 		}
 		reply.Capability, reply.Epoch, reply.Status = cap.Token, cap.Epoch, 0
+		via.Session.EnableRecoveryGrace()
 		return reply
 	}
 	r := e.migrations.entries[request.Capability]
@@ -174,6 +175,7 @@ func (e *Engine) negotiateMigration(p *peer, c *kcp.Conn) {
 		return
 	}
 	c.Migration.Store(&kcp.MigrationCapability{Token: reply.Capability, Epoch: reply.Epoch})
+	c.Session.EnableRecoveryGrace()
 	e.log().Debug("path.migration_ready", "conv", c.UDPSession.GetConv())
 }
 

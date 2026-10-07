@@ -309,6 +309,7 @@ func (e *Engine) tune() {
 			e.tuneMu.Lock()
 			for conn, c := range e.tuners {
 				if conn.Session.IsClosed() {
+					e.logCarrierEnd(conn)
 					delete(e.tuners, conn)
 					continue
 				}

@@ -165,14 +165,27 @@ func (e *Engine) recoverCarrier(name string, p *peer, index int, oldSlot *slot) 
 	oldConn := oldSlot.conn.Load()
 	var migration *kcp.MigrationCapability
 	var control *kcp.Conn
+	// A successful replacement must explain why preservation was unavailable.
+	// This retains evidence at warning level without logging bearer capabilities.
+	preservationReason := "disabled"
+	var preservationError error
+	if contract.endpoint.PathRecovery.PreserveConnections {
+		preservationReason = "no_live_carrier"
+		if oldConn != nil {
+			preservationReason = "carrier_closed"
+		}
+	}
 	if err == nil && contract.endpoint.PathRecovery.PreserveConnections && oldConn != nil && !oldConn.Session.IsClosed() {
+		preservationReason = "capability_unavailable"
 		cap := oldConn.Migration.Load()
 		control = candidate.peer.slots[0].conn.Load()
 		if cap != nil && control != nil && cap.Epoch != ^uint64(0) {
 			request := protocol.Proto{Type: protocol.PMCHECK, Capability: cap.Token, Epoch: cap.Epoch + 1}
 			if _, checkErr := migrationRPC(ctx, control, request); checkErr == nil {
 				migration = &kcp.MigrationCapability{Token: cap.Token, Epoch: cap.Epoch + 1}
+				preservationReason = "carrier_changed_during_probe"
 			} else {
+				preservationReason, preservationError = "capability_check_failed", checkErr
 				e.log().Debug("path.migration_fallback", "peer", name, "session", index, "error", checkErr)
 			}
 		}
@@ -214,11 +227,22 @@ func (e *Engine) recoverCarrier(name string, p *peer, index int, oldSlot *slot) 
 			stats := oldConn.UDPSession.TransportStats()
 			newSlot.migrationWatch = migrationObservation{at: time.Now(), acked: stats.AckedBytes, received: stats.ReceivedBytes, oldPort: oldSlot.network.Port, conn: oldConn, streams: oldConn.Session.NumStreams()}
 			preserved = true
+			preservationReason = "preserved"
 		} else {
+			preservationReason, preservationError = "adoption_failed", moveErr
 			e.log().Warn("path.migration_fallback", "peer", name, "session", index, "error", moveErr)
 		}
 	}
 	oldSlot.mu.Unlock()
+	if !preserved && migration != nil && oldConn.Session.IsClosed() {
+		preservationReason = "carrier_closed_during_probe"
+	}
+	// Snapshot before retiring ownership: cleanup must not masquerade as the
+	// failure that made migration unavailable.
+	oldClosure := ""
+	if oldConn != nil {
+		oldClosure = oldConn.Session.EndCause().Reason
+	}
 	p.allocationMu.Lock()
 	candidate.peer.allocationMu.Lock()
 	for _, rules := range candidate.peer.slotRules {
@@ -279,5 +303,5 @@ func (e *Engine) recoverCarrier(name string, p *peer, index int, oldSlot *slot) 
 		e.log().Error("path.recovery_cleanup_failed", "peer", name, "session", index, "error", cleanupErr)
 	}
 	e.pathRecoverySucceeded.Add(1)
-	e.log().Warn("path.recovered", "peer", name, "session", index, "old_source_port", oldSlot.network.Port, "new_source_port", newSlot.network.Port, "local", newSlot.network.IPv4.Addr, "connections_preserved", preserved, "reason", "fresh carrier tuple verified after transport stalled")
+	e.log().Warn("path.recovered", "peer", name, "session", index, "old_source_port", oldSlot.network.Port, "new_source_port", newSlot.network.Port, "local", newSlot.network.IPv4.Addr, "connections_preserved", preserved, "preservation_reason", preservationReason, "preservation_error", preservationError, "old_close_reason", oldClosure, "reason", "fresh carrier tuple verified after transport stalled")
 }

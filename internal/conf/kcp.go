@@ -85,6 +85,8 @@ type KCP struct {
 	Smuxkalive_ int `yaml:"smuxkalive"`
 	// Configured no-inbound-traffic timeout in integer seconds.
 	Smuxktimeout_ int `yaml:"smuxktimeout"`
+	// Optional extra recovery seconds after ordinary mux expiry; negotiated only.
+	SmuxRecoveryGrace int `yaml:"smux_recovery_grace"`
 
 	// Prepared keepalive duration used when the mux session is constructed.
 	Smuxkalive time.Duration `yaml:"-"`

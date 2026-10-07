@@ -5,6 +5,18 @@ package conf
 
 import "testing"
 
+// TestRecoveryGraceBounds keeps the extra retention finite and disabled by
+// omission, including overflow-sized user inputs before duration conversion.
+func TestRecoveryGraceBounds(t *testing.T) {
+	for _, seconds := range []int{-1, 0, 1, 60, 120, 121, int(^uint(0) >> 1)} {
+		cfg := KCP{Block_: "null", SmuxRecoveryGrace: seconds}
+		err := PrepareKCP(&cfg, "client")
+		if (err == nil) != (seconds >= 0 && seconds <= 120) {
+			t.Fatalf("grace=%d: %v", seconds, err)
+		}
+	}
+}
+
 // TestMTUIncludesEncryptionFECAndCoreMinimum checks MTU Includes Encryption FEC And Core
 // Minimum so a change cannot silently weaken the recorded regression contract.
 func TestMTUIncludesEncryptionFECAndCoreMinimum(t *testing.T) {

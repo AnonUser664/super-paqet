@@ -66,6 +66,9 @@ type Config struct {
 	// KeepAliveTimeout is how long the session
 	// will be closed if no data has arrived
 	KeepAliveTimeout time.Duration
+	// RecoveryGrace adds a finite extension only after EnableRecoveryGrace and
+	// only while streams remain live. Zero preserves ordinary keepalive expiry.
+	RecoveryGrace time.Duration
 
 	// MaxFrameSize is used to control the maximum
 	// frame size to sent to the remote
@@ -94,6 +97,9 @@ func DefaultConfig() *Config {
 
 // VerifyConfig is used to verify the sanity of configuration
 func VerifyConfig(config *Config) error {
+	if config.RecoveryGrace < 0 || config.RecoveryGrace > 2*time.Minute {
+		return errors.New("recovery grace must be between zero and two minutes")
+	}
 	if !(config.Version == 1 || config.Version == 2) {
 		return errors.New("unsupported protocol version")
 	}

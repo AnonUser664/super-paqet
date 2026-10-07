@@ -273,6 +273,9 @@ func (e *Endpoint) prepare(listener bool) error {
 	}
 	e.KCP.PacketWorkers = e.PacketWorkers
 	e.KCP.SharedSource = e.SharedSource
+	if err := e.prepareRecoveryGrace(listener); err != nil {
+		return err
+	}
 	if e.PathRecovery.PreserveConnections && (e.KCP.Dshard != 0 || e.KCP.Pshard != 0) {
 		return fmt.Errorf("preserve_connections requires FEC disabled")
 	}
@@ -376,6 +379,15 @@ func (e *Endpoint) prepare(listener bool) error {
 		return fmt.Errorf("KCP mtu must leave 80 bytes for outer IP/TCP headers within interface MTU %d", e.Network.Interface.MTU)
 	}
 	return conf.PrepareKCP(&e.KCP, role)
+}
+
+// prepareRecoveryGrace rejects retention where physical session migration is
+// unavailable. Shared listener ownership and independent preserving peers differ.
+func (e *Endpoint) prepareRecoveryGrace(listener bool) error {
+	if e.KCP.SmuxRecoveryGrace > 0 && ((!listener && !e.PathRecovery.PreserveConnections) || (listener && !e.SharedSource) || e.KCP.Dshard != 0 || e.KCP.Pshard != 0) {
+		return fmt.Errorf("smux_recovery_grace requires a migration-capable listener or a preserving peer, with FEC disabled")
+	}
+	return nil
 }
 
 // prepareSourcePorts rejects ambiguous reservations before discovery. Explicit

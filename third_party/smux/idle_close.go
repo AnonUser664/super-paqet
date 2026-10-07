@@ -11,7 +11,9 @@ func (s *Session) CloseIfIdle() bool {
 		s.streamLock.Unlock()
 		return false
 	}
+	s.recordEnd("idle_retired", nil)
 	s.dieOnce.Do(func() { close(s.die) })
+	s.recoveryUntil.Store(0)
 	s.streamLock.Unlock()
 	s.clearCredits()
 	s.conn.Close()

@@ -150,6 +150,13 @@ type Session struct {
 	die chan struct{} // flag session has died
 	// Closes lifecycle signals once so failure/explicit close can race safely.
 	dieOnce sync.Once
+	// First terminal cause survives cleanup, which otherwise looks like Close.
+	endCause atomic.Pointer[SessionEnd]
+	// Negotiation gates grace; the existing keepalive goroutine owns its clock.
+	recoveryArmed    atomic.Bool
+	recoveryUntil    atomic.Int64
+	recoveryStarts   atomic.Uint64
+	recoveryDeadline time.Time
 
 	// socket error handling
 	socketReadError atomic.Value
@@ -373,6 +380,7 @@ func (s *Session) Accept() (io.ReadWriteCloser, error) {
 
 // Close is used to close the session and all streams.
 func (s *Session) Close() error {
+	s.recordEnd("local_close", nil)
 	var once bool
 	s.dieOnce.Do(func() {
 		close(s.die)
@@ -382,6 +390,7 @@ func (s *Session) Close() error {
 	if !once {
 		return io.ErrClosedPipe
 	}
+	s.recoveryUntil.Store(0)
 
 	s.streamLock.Lock()
 	for k := range s.streams {
@@ -409,6 +418,7 @@ func (s *Session) notifyBucket() {
 // notifyReadError publishes input failure and releases pending stream reads/accepts.
 func (s *Session) notifyReadError(err error) {
 	s.socketReadErrorOnce.Do(func() {
+		s.recordEnd("transport_read", err)
 		s.socketReadError.Store(err)
 		close(s.chSocketReadError)
 	})
@@ -418,6 +428,7 @@ func (s *Session) notifyReadError(err error) {
 // while clearing pending work.
 func (s *Session) notifyWriteError(err error) {
 	s.socketWriteErrorOnce.Do(func() {
+		s.recordEnd("transport_write", err)
 		s.socketWriteError.Store(err)
 		close(s.chSocketWriteError)
 	})
@@ -427,6 +438,7 @@ func (s *Session) notifyWriteError(err error) {
 // ambiguous session.
 func (s *Session) notifyProtoError(err error) {
 	s.protoErrorOnce.Do(func() {
+		s.recordEnd("protocol_error", err)
 		s.protoError.Store(err)
 		close(s.chProtoError)
 	})
@@ -656,16 +668,14 @@ func (s *Session) keepalive() {
 	for {
 		select {
 		case <-tickerPing.C:
+			if s.checkRecoveryDeadline(time.Now()) {
+				return
+			}
 			s.writeFrameInternal(newFrame(byte(s.config.Version), cmdNOP, 0), tickerPing.C, CLSCTRL)
 			s.notifyBucket() // force a wakeup signal to the recvLoop
 		case <-tickerTimeout.C:
-			if !atomic.CompareAndSwapInt32(&s.sessionIsActive, 1, 0) {
-				// recvLoop may block while bucket is 0, in this case,
-				// session should not be closed.
-				if atomic.LoadInt32(&s.bucket) > 0 {
-					s.Close()
-					return
-				}
+			if s.checkKeepaliveTimeout(time.Now()) {
+				return
 			}
 		case <-s.die:
 			return
