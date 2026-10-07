@@ -193,3 +193,13 @@ func TestCarrierAdmissionPrefersHealthy(t *testing.T) {
 		t.Fatal("all-suspect fallback unavailable")
 	}
 }
+
+// TestCarrierEarlyFailuresSurviveFirstSample covers short opening deadlines
+// whose failures arrive before the one-second health sampler observes the slot.
+func TestCarrierEarlyFailuresSurviveFirstSample(t *testing.T) {
+	s := newSlot(conf.Network{}, nil, nil)
+	s.recoveryFailures.Store(3)
+	if !s.carrierRecoveryAllowed(time.Now().Add(16*time.Second), recoveryConfig(t), false, true) {
+		t.Fatal("first sample erased failures from the new tuple")
+	}
+}

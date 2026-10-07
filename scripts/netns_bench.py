@@ -42,6 +42,8 @@ def main():
     p.add_argument('--max-sessions', type=int, help='carrier ceiling; defaults to --sessions so qualification uses a fixed pool')
     p.add_argument('--path-recovery', action='store_true', help='enable verified fresh-source recovery on the outgoing peer')
     p.add_argument('--shared-source', action='store_true', help='independent KCP lanes on one peer source tuple')
+    p.add_argument('--client-procs',type=int,default=0,help='optional client GOMAXPROCS for target-hardware qualification')
+    p.add_argument('--server-procs',type=int,default=0,help='optional backend GOMAXPROCS for target-hardware qualification')
     p.add_argument('--packet-workers',type=int,help='explicit backend capture worker count for matched deployment tests')
     p.add_argument('--conversation-listener', action='store_true', help='retain the deployed conversation-aware listener with separate client source ports')
     p.add_argument('--client-flag', default='PA', help='client outer packet flags (use S for the deployed profile)')
@@ -101,6 +103,8 @@ def main():
         if event['at']>=a.duration+a.warmup:p.error('epoch must occur within the workload interval')
     epochs.sort(key=lambda event:event['at'])
     if a.path_recovery and not a.enterprise:p.error('path-recovery requires enterprise')
+    if min(a.client_procs,a.server_procs)<0:p.error('process core budgets cannot be negative')
+    if a.packet_workers is not None and not 1<=a.packet_workers<=64:p.error('packet workers must be 1..64')
     if a.duration < 1 or a.workers < 1 or a.sessions < 1: p.error('duration, workers and sessions must be positive')
     if a.max_sessions is None: a.max_sessions = a.sessions
     if not a.sessions <= a.max_sessions <= 256: p.error('max-sessions must be sessions..256')
@@ -135,6 +139,8 @@ def main():
     # spawn: Start a fixture process with retained log/ownership handles for bounded teardown.
     def spawn(n, name, *args):
         f = open(out / (name+'.log'), 'w'); files.append(f)
+        cores = a.client_procs if name in ('client','second-client') else a.server_procs if name in ('server','restarted-server') else 0
+        if cores:args=('env',f'GOMAXPROCS={cores}',*args)
         proc = subprocess.Popen(['ip', 'netns', 'exec', n, *args], stdout=f, stderr=subprocess.STDOUT)
         procs.append(proc)
         if name in ('target','server','client'): tracked[name]=proc

@@ -518,7 +518,7 @@ func (p *peer) allocateSlot(ctx context.Context) (*slot, error) {
 	}
 	endpoint := p.configuration()
 	if endpoint.SharedSource && p.shared != nil {
-		return &slot{network: p.sharedNetwork}, nil
+		return newSlot(p.sharedNetwork, nil, nil), nil
 	}
 	network := endpoint.Network
 	if len(endpoint.SourcePorts) > 0 {
@@ -557,9 +557,17 @@ func (p *peer) allocateSlot(ctx context.Context) (*slot, error) {
 			return nil, err
 		}
 		p.shared, p.sharedGuard, p.sharedNetwork = shared, guard, n
-		return &slot{network: n}, nil
+		return newSlot(n, nil, nil), nil
 	}
-	return &slot{network: n, guard: guard, fw: rules}, nil
+	return newSlot(n, guard, rules), nil
+}
+
+// newSlot starts the evidence clock when the tuple is reserved. Very short
+// opening deadlines must not lose failures that precede the first health tick.
+func newSlot(network conf.Network, guard io.Closer, rules *firewall) *slot {
+	s := &slot{network: network, guard: guard, fw: rules}
+	s.recoveryHealth.lastProgress = time.Now()
+	return s
 }
 
 // cleanSlotRules removes one journal only after successful scoped cleanup.
