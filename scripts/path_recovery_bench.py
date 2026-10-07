@@ -15,6 +15,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--binary', required=True)
     parser.add_argument('--case', choices=['tuple', 'whole-peer', 'one-lane', 'all-tuples', 'reverse-tuple', 'established', 'short-loss', 'repeat-tuple'], default='tuple')
+    parser.add_argument('--server-binary', help='optional older backend executable for wire compatibility qualification')
     parser.add_argument('--shared-source', action='store_true', help='qualify legacy pool recovery instead of independent carrier recovery')
     parser.add_argument('--output', required=True)
     args = parser.parse_args()
@@ -149,8 +150,11 @@ class Server(socketserver.ThreadingTCPServer):
  daemon_threads=True
 Server(('127.0.0.1',18080),Echo).serve_forever()
 '''
+        for namespace,config_path,label,executable in ((client,config,'client',binary),(server,server_config,'server',pathlib.Path(args.server_binary).resolve() if args.server_binary else binary)):
+            checked=ns(namespace,str(executable),'config','validate','-c',str(config_path),'--json')
+            (out/(label+'-validation.json')).write_text(checked.stdout)
         spawn(server,'echo',sys.executable,'-c',echo)
-        spawn(server,'server',str(binary),'run','-c',str(server_config))
+        spawn(server,'server',str(pathlib.Path(args.server_binary).resolve()) if args.server_binary else str(binary),'run','-c',str(server_config))
         client_process=spawn(client,'client',str(binary),'run','-c',str(config))
         for _ in range(80):
             try:metrics();break

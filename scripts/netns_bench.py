@@ -42,6 +42,9 @@ def main():
     p.add_argument('--max-sessions', type=int, help='carrier ceiling; defaults to --sessions so qualification uses a fixed pool')
     p.add_argument('--path-recovery', action='store_true', help='enable verified fresh-source recovery on the outgoing peer')
     p.add_argument('--shared-source', action='store_true', help='independent KCP lanes on one peer source tuple')
+    p.add_argument('--conversation-listener', action='store_true', help='retain the deployed conversation-aware listener with separate client source ports')
+    p.add_argument('--client-flag', default='PA', help='client outer packet flags (use S for the deployed profile)')
+    p.add_argument('--server-flag', default='PA', help='backend outer packet flags')
     p.add_argument('--hold', type=int, default=0)
     fixture = p.add_mutually_exclusive_group()
     fixture.add_argument('--enterprise', dest='enterprise', action='store_true', help='enterprise configuration fixture (default)')
@@ -304,15 +307,23 @@ def main():
                 p.error('--shared-source requires --enterprise')
             client = client.replace('    address:', '    shared_source: true\n    address:')
             server = server.replace('  - address:', '  - shared_source: true\n    address:')
+        if a.enterprise:
+            if a.conversation_listener and not a.shared_source:server=server.replace('  - address:', '  - shared_source: true\n    address:')
+            client=client.replace('network: {', f'network: {{tcp: {{local_flag: [{a.client_flag}], remote_flag: [{a.server_flag}]}}, ',1)
+            server=server.replace('network: {', f'network: {{tcp: {{local_flag: [{a.server_flag}], remote_flag: [{a.client_flag}]}}, ',1)
         (out/'client.yaml').write_text(client); (out/'server.yaml').write_text(server)
         if a.socket_buffer_mib:
-            client = client.replace('network: {interface:',f'network: {{pcap: {{sockbuf: {a.socket_buffer_mib<<20}}}, interface:')
-            server = server.replace('network: {interface:',f'network: {{pcap: {{sockbuf: {a.socket_buffer_mib<<20}}}, interface:')
+            client = client.replace('network: {',f'network: {{pcap: {{sockbuf: {a.socket_buffer_mib<<20}}}, ',1)
+            server = server.replace('network: {',f'network: {{pcap: {{sockbuf: {a.socket_buffer_mib<<20}}}, ',1)
             (out/'client.yaml').write_text(client); (out/'server.yaml').write_text(server)
         if not a.enterprise:
             for args in (['-t','raw','-A','PREROUTING','-p','tcp','--dport','29999','-j','NOTRACK'], ['-t','raw','-A','OUTPUT','-p','tcp','--sport','29999','-j','NOTRACK'], ['-t','mangle','-A','OUTPUT','-p','tcp','--sport','29999','--tcp-flags','RST','RST','-j','DROP']): ns(s,'iptables',*args)
         spawn(s,'target',str(ROOT/'build/spq-bench'),'-mode','hold-serve' if a.hold else 'serve','-addr',':18080')
         binary = str((ROOT/a.binary).resolve())
+        if a.enterprise:
+            for namespace,label in ((c,'client'),(s,'server')):
+                checked=ns(namespace,binary,'config','validate','-c',str(out/(label+'.yaml')),'--json')
+                (out/(label+'-validation.json')).write_text(checked.stdout)
         sp = spawn(s,'server',binary,'run','-c',str(out/'server.yaml'))
         cp = spawn(c,'client',binary,'run','-c',str(out/'client.yaml'))
         time.sleep(2)

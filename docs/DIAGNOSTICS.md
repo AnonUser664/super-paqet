@@ -212,3 +212,16 @@ on one blocked tuple from an actual physical-source change.
 source tuple, a whole peer, or one KCP conversation. An independent peer keeps
 serving integrity-checked requests. It also checks config reload and cleanup.
 Drops in endpoint INPUT chains would be an invalid packet-socket outage emulator.
+
+Independent source carriers additionally export
+`super_paqet_peer_carrier_suspect`, `super_paqet_peer_carrier_recovery_pending`
+and `super_paqet_peer_carrier_transport_failures_total` with peer/session labels.
+The failure counter belongs to a slot generation and resets when replaced;
+process-wide recovery outcome counters remain cumulative. Recovery logs include
+session index, old source port and (after success) new source port. Probe success
+proves tunnel reachability, not destination-application health.
+
+The recovery namespace fixture also covers four simultaneous tuple failures,
+reverse-direction drops, repeated tuple blocking, five-second loss and persistent
+streams with no new opening failures. `--shared-source` checks legacy pool
+recovery; `--server-binary` tests the candidate against a previous backend binary.

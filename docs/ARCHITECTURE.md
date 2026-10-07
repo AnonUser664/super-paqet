@@ -352,16 +352,24 @@ endpoints still sample slot pressure for configured pool selection/growth.
 
 ## Verified source-tuple recovery
 
-[path_recovery.go](../internal/engine/path_recovery.go) samples each opted-in peer's
-bounded carrier pool once per second. Delivered/received bytes and successful
-openings reset its no-progress evidence; outgoing ACK attempts do not. Three
-transport opening failures plus sustained no-progress permit a bounded probe.
-Each candidate owns a new reserved source tuple and its own firewall journal.
-The candidate remains unpublished until PPONG proves bidirectional delivery.
-Probe I/O runs outside the reload lock; commit validates resource identity and
-checks the old pool again. Config changes or resumed progress discard the
-candidate. Publication replaces only the failed peer's bindings; cleanup ends
-that peer's old streams and removes its old rules. The resource retains the
-configured specification so identical reloads preserve its recovered socket.
-At most four candidates are staged concurrently. Failed cleanup remains owned
-for later retry and shutdown. The feature is disabled unless explicitly enabled.
+[path_recovery.go](../internal/engine/path_recovery.go) retains compatibility
+with shared-source peer recovery. [carrier_recovery.go](../internal/engine/carrier_recovery.go)
+extends it to independently reserved client source tuples. A one-second sampler
+records each slot's opening failures and outbound ACK progress, including a
+separate established-data stall clock. Inbound traffic cannot conceal an
+outbound half-path failure; remote zero windows are treated as backpressure.
+
+Each candidate is an unpublished one-slot resource with its own guard, socket
+and journal. PPONG proves a protocol round trip outside the reload lock. Commit
+rechecks resource/config/slot identity and old-slot progress, transfers the
+verified slot/journal into the lasting pool, and retargets its adaptive/live
+reliability registration. Only the old slot closes: sibling slots, peer lifecycle
+context and route/listener identities stay intact. Retired slots reject late
+opens so a pre-publication reader cannot resurrect a released tuple. A failed
+old-rule cleanup retains the guard until cleanup succeeds.
+
+The configured resource specification stays unchanged; effective slot ports
+survive identical reloads. One probe per slot and four process-wide bound
+candidate resources. Failed/stale candidates are closed without touching live
+streams. Old failed streams reconnect rather than migrate; each application
+stream remains pinned to one ordered KCP/mux session. The feature is opt-in.

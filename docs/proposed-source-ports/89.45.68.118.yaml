@@ -1,0 +1,153 @@
+# Proposed configuration: NOT DEPLOYED. Requires candidate release and review.
+peers:
+  germany:
+    address: 91.107.251.85:29999
+    enc: 'null'
+    network:
+      interface: ens160
+      ipv4:
+        addr: 89.45.68.118:0
+        router_mac: 58:8d:09:12:9e:00
+      backend: packet
+      tcp:
+        local_flag:
+        - S
+        remote_flag:
+        - PA
+    adaptive: true
+    packet_workers: 1
+    kcp:
+      mode: manual
+      sndwnd: 4096
+      rcvwnd: 4096
+      ack_timestamps: false
+      credit_hints: false
+      adaptive_buffers: false
+      smuxbuf: 4194304
+      streambuf: 2097152
+      mtu: 1350
+      nodelay: 0
+      interval: 30
+      resend: 2
+      nocongestion: 1
+      wdelay: true
+      acknodelay: false
+      small_write_flush: 256
+    sessions: 4
+    max_sessions: 4
+    shared_source: false
+    path_recovery:
+      enabled: true
+      stalled_after: 15s
+      retry_interval: 15s
+      probe_timeout: 5s
+  finland:
+    address: 65.109.249.222:29999
+    enc: 'null'
+    network:
+      interface: ens160
+      ipv4:
+        addr: 89.45.68.118:0
+        router_mac: 58:8d:09:12:9e:00
+      backend: packet
+      tcp:
+        local_flag:
+        - S
+        remote_flag:
+        - PA
+    adaptive: true
+    packet_workers: 1
+    kcp:
+      mode: manual
+      sndwnd: 4096
+      rcvwnd: 4096
+      ack_timestamps: false
+      credit_hints: false
+      adaptive_buffers: false
+      smuxbuf: 4194304
+      streambuf: 2097152
+      mtu: 1350
+      nodelay: 0
+      interval: 30
+      resend: 2
+      nocongestion: 1
+      wdelay: true
+      acknodelay: false
+      small_write_flush: 256
+    sessions: 4
+    max_sessions: 4
+    shared_source: false
+    path_recovery:
+      enabled: true
+      stalled_after: 15s
+      retry_interval: 15s
+      probe_timeout: 5s
+  france:
+    address: 171.22.132.226:29999
+    enc: 'null'
+    network:
+      interface: ens160
+      ipv4:
+        addr: 89.45.68.118:0
+        router_mac: 58:8d:09:12:9e:00
+      backend: packet
+      tcp:
+        local_flag:
+        - S
+        remote_flag:
+        - PA
+    adaptive: true
+    packet_workers: 1
+    kcp:
+      mode: manual
+      sndwnd: 4096
+      rcvwnd: 4096
+      ack_timestamps: false
+      credit_hints: false
+      adaptive_buffers: false
+      smuxbuf: 4194304
+      streambuf: 2097152
+      mtu: 1350
+      nodelay: 0
+      interval: 30
+      resend: 2
+      nocongestion: 1
+      wdelay: true
+      acknodelay: false
+      small_write_flush: 256
+    sessions: 4
+    max_sessions: 4
+    shared_source: false
+    path_recovery:
+      enabled: true
+      stalled_after: 15s
+      retry_interval: 15s
+      probe_timeout: 5s
+forwards:
+- listen: 0.0.0.0:9001
+  peer: germany
+  target: 116.202.177.233:2096
+- listen: 0.0.0.0:9002
+  peer: finland
+  target: 65.109.249.222:2096
+- listen: 0.0.0.0:9003
+  peer: france
+  target: 171.22.132.226:2096
+metrics: 127.0.0.1:29090
+log:
+  level: warn
+  format: json
+  interval: 10s
+  flow_sample: 1000
+profiling: false
+reload:
+  enabled: true
+  interval: 250ms
+  debounce: 500ms
+limits:
+  connections: 200000
+  sessions: 1024
+  open_timeout: 15s
+  dial_timeout: 5s
+  udp_idle: 60s
+  memory_mib: 4096
