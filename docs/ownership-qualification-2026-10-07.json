@@ -23,7 +23,7 @@
       "Fixed-four 10000 held plus HTTP and 3.888 Gbit/s bulk: all verified"
     ]
   },
-  "stage": "Local qualification passed; canary deployment next",
+  "stage": "Deployed and accepted on all five hosts; one-day production observation unfinished",
   "validation": {
     "root_race_and_vet": "passed",
     "smux_full_race_seconds": 490.171,
@@ -2879,6 +2879,280 @@
           "live_carriers": 4
         }
       }
+    },
+    {
+      "parameters": {
+        "binary": "/home/shayan/Codes/super-paqet/build/incident-20261006/super-paqet-liveness",
+        "duration": 60,
+        "cold_read_bytes": 1048576,
+        "workers": 256,
+        "loss": 0,
+        "delay_ms": 40.0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "burst_loss": null,
+        "seed": 42,
+        "rate_mbit": 100,
+        "down_rate_mbit": null,
+        "sessions": 4,
+        "max_sessions": 4,
+        "shared_source": true,
+        "hold": 0,
+        "enterprise": true,
+        "profile": false,
+        "debug": true,
+        "flow_sample": 1000,
+        "backend": "packet",
+        "duplex_http": false,
+        "mtu": 1500,
+        "ipv6": false,
+        "warmup": 0,
+        "schedule": "[{\"at\":5,\"delay_ms\":90},{\"at\":45,\"delay_ms\":40}]",
+        "mode": "http-churn",
+        "ramp_timeout": 600,
+        "queue_packets": 0,
+        "adaptive": "on",
+        "kcp_options": "{\"sndwnd\": 4096, \"rcvwnd\": 4096, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"ack_timestamps\": false, \"credit_hints\": false, \"adaptive_buffers\": false, \"mode\": \"manual\", \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"mtu\": 1350}",
+        "functional": false,
+        "block": "null",
+        "fec": [
+          0,
+          0
+        ],
+        "iperf": false,
+        "iperf_directions": [
+          "upload",
+          "download",
+          "bidirectional"
+        ],
+        "direct_iperf": false,
+        "tcp_buffer_mib": 0,
+        "capture": false,
+        "restart": false,
+        "mixed": false,
+        "socket_buffer_mib": 0,
+        "host_backlog": 0,
+        "bridge": false,
+        "output": "/home/shayan/Codes/super-paqet/build/production-qualification/liveness-fixed4-epoch-churn"
+      },
+      "results": [
+        {
+          "verified_bytes": 1048576,
+          "cold_transfer_seconds": 1.4781297379995522
+        },
+        {
+          "bytes": 1231890,
+          "canceled_requests": 256,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 0.00016424826887336243,
+          "mean_latency_us": 273872.62664523616,
+          "mode": "http-churn",
+          "p50_us_upper": 361000,
+          "p99_us_upper": 365000,
+          "request_gap_seconds": 0,
+          "requests": 55995,
+          "requests_per_second": 933.228800416832,
+          "seconds": 60.001362983,
+          "successful_workers": 256,
+          "workers": 256,
+          "tunnel_cpu_cores": {
+            "client": 0.166,
+            "server": 0.18
+          }
+        }
+      ],
+      "processes": {
+        "target": {
+          "peak_rss_kib": 20956,
+          "peak_fds": 187,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 20956,
+          "rss_high_water_kib": 20956,
+          "cpu_seconds": 4.01
+        },
+        "server": {
+          "peak_rss_kib": 50824,
+          "peak_fds": 267,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 50824,
+          "rss_high_water_kib": 50824,
+          "cpu_seconds": 10.87
+        },
+        "client": {
+          "peak_rss_kib": 43864,
+          "peak_fds": 280,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 43864,
+          "rss_high_water_kib": 43864,
+          "cpu_seconds": 10.01
+        }
+      },
+      "kernel": "7.2.4-arch1-2",
+      "binary_sha256": "04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf",
+      "name": "liveness-fixed4-epoch-churn",
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      },
+      "internal_metrics": {
+        "server-http-churn-metrics.txt": {
+          "super_paqet_errors_total": 0.0,
+          "super_paqet_opening_transport_retries_total": 0.0,
+          "live_carriers": 4
+        },
+        "client-http-churn-metrics.txt": {
+          "super_paqet_errors_total": 0.0,
+          "super_paqet_opening_transport_retries_total": 0.0,
+          "live_carriers": 4
+        }
+      }
+    },
+    {
+      "parameters": {
+        "binary": "/home/shayan/Codes/super-paqet/build/incident-20261006/super-paqet-ownership",
+        "duration": 30,
+        "cold_read_bytes": 1048576,
+        "workers": 512,
+        "loss": 0,
+        "delay_ms": 0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "burst_loss": null,
+        "seed": 42,
+        "rate_mbit": 0,
+        "down_rate_mbit": null,
+        "sessions": 4,
+        "max_sessions": 4,
+        "shared_source": true,
+        "hold": 100000,
+        "enterprise": true,
+        "profile": false,
+        "debug": false,
+        "flow_sample": 1000,
+        "backend": "packet",
+        "duplex_http": false,
+        "mtu": 1500,
+        "ipv6": false,
+        "warmup": 0,
+        "schedule": null,
+        "mode": "http",
+        "ramp_timeout": 600,
+        "queue_packets": 0,
+        "adaptive": "on",
+        "kcp_options": "{\"sndwnd\": 4096, \"rcvwnd\": 4096, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"ack_timestamps\": false, \"credit_hints\": false, \"adaptive_buffers\": false, \"mode\": \"manual\", \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"mtu\": 1350}",
+        "functional": false,
+        "block": "null",
+        "fec": [
+          0,
+          0
+        ],
+        "iperf": false,
+        "iperf_directions": [
+          "upload",
+          "download",
+          "bidirectional"
+        ],
+        "direct_iperf": false,
+        "tcp_buffer_mib": 0,
+        "capture": false,
+        "restart": false,
+        "mixed": false,
+        "socket_buffer_mib": 0,
+        "host_backlog": 0,
+        "bridge": false,
+        "output": "/home/shayan/Codes/super-paqet/build/production-qualification/ownership2-fixed4-100k-held"
+      },
+      "results": [
+        {
+          "verified_bytes": 1048576,
+          "cold_transfer_seconds": 0.4378976110019721
+        },
+        {
+          "connections": 100000,
+          "errors": 0,
+          "phase": "established",
+          "ramp_seconds": 5.6361545920000005
+        },
+        {
+          "connections": 100000,
+          "errors": 0,
+          "phase": "verified",
+          "verified": 100000
+        },
+        {
+          "connections": 100000,
+          "errors": 0,
+          "phase": "closed"
+        }
+      ],
+      "processes": {
+        "target": {
+          "peak_rss_kib": 406396,
+          "peak_fds": 100006,
+          "peak_swap_kib": 82936,
+          "peak_rss_plus_swap_kib": 423036,
+          "rss_high_water_kib": 407844,
+          "cpu_seconds": 5.59
+        },
+        "server": {
+          "peak_rss_kib": 1850892,
+          "peak_fds": 100011,
+          "peak_swap_kib": 604912,
+          "peak_rss_plus_swap_kib": 1871248,
+          "rss_high_water_kib": 1850892,
+          "cpu_seconds": 22.99
+        },
+        "client": {
+          "peak_rss_kib": 1796156,
+          "peak_fds": 100016,
+          "peak_swap_kib": 221436,
+          "peak_rss_plus_swap_kib": 1824560,
+          "rss_high_water_kib": 1796156,
+          "cpu_seconds": 21.25
+        }
+      },
+      "kernel": "7.2.4-arch1-2",
+      "binary_sha256": "37743f5acfd9ec8f83c40e4d5a951a3062bf8197f4c9278ca2e7f3fc3dd6c585",
+      "name": "ownership2-fixed4-100k-held",
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      },
+      "internal_metrics": {
+        "server-hold-metrics.txt": {
+          "super_paqet_errors_total": 0.0,
+          "super_paqet_opening_transport_retries_total": 0.0,
+          "live_carriers": 4
+        },
+        "server-hold-established-metrics.txt": {
+          "super_paqet_errors_total": 0.0,
+          "super_paqet_opening_transport_retries_total": 0.0,
+          "live_carriers": 4
+        },
+        "client-hold-established-metrics.txt": {
+          "super_paqet_errors_total": 0.0,
+          "super_paqet_opening_transport_retries_total": 0.0,
+          "live_carriers": 4
+        },
+        "client-hold-metrics.txt": {
+          "super_paqet_errors_total": 0.0,
+          "super_paqet_opening_transport_retries_total": 0.0,
+          "live_carriers": 4
+        }
+      }
     }
   ],
   "limitations": [
@@ -2886,7 +3160,8 @@
     "Namespace fixture defaults PA/PA; deployed raw S/PA still requires public acceptance",
     "Fixed-four fixture now explicitly includes max_sessions",
     "Production full-day observation unfinished",
-    "Transport stall cause not proven"
+    "Transport stall cause not proven",
+    "100k idle hold used laptop swap; it does not establish busy Xray customer capacity"
   ],
   "latest_incident": {
     "utc": "2026-10-06T22:18\u201322:20Z",
@@ -2895,5 +3170,524 @@
     "restart": false,
     "captured_opening_syn_waiters": 204,
     "captured_failed_open_close_waiters": 39
+  },
+  "matched_churn_interpretation": "Both exact fixed-four releases passed the same changing-delay churn. Baseline: 55,995 requests, mean 273.9ms, zero internal retries. Candidate: 55,512 requests, mean 276.4ms, 121 internal retries. These individual runs do not demonstrate a throughput/latency improvement; the change addresses independently reproduced ownership/cancellation/deadline defects.",
+  "deployment": {
+    "audit_utc": "2026-10-07T01:06:12.957399+00:00",
+    "hosts": [
+      {
+        "host": "116.202.177.233",
+        "unit": "MainPID=811023\nNRestarts=0\nExecMainStartTimestamp=Wed 2026-10-07 00:59:43 UTC\nActiveState=active\n",
+        "binary_sha256": "37743f5acfd9ec8f83c40e4d5a951a3062bf8197f4c9278ca2e7f3fc3dd6c585",
+        "health": "ok",
+        "metrics": {
+          "active_connections": 223.0,
+          "errors_total": 0.0,
+          "opening_transport_retries_total": 0.0,
+          "rejected_total": 0.0
+        },
+        "observer": "MainPID=811274\nActiveState=active\n",
+        "observer_summary": {
+          "first_utc": "2026-10-06T19:55:51.741041+00:00",
+          "last_utc": "2026-10-07T01:04:59.806258+00:00",
+          "samples": 1849,
+          "peak_active": 1706.0,
+          "peak_rss_kib": 103180,
+          "peak_fds": 1716,
+          "runs": {
+            "768573": {
+              "first_utc": "2026-10-06T19:55:51.741041+00:00",
+              "last_counters": {
+                "errors_total": 386.0,
+                "rejected_total": 0.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-06T20:15:17.336098+00:00"
+            },
+            "785061": {
+              "first_utc": "2026-10-06T20:15:27.382273+00:00",
+              "last_counters": {
+                "errors_total": 0.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-06T21:24:46.594375+00:00"
+            },
+            "791318": {
+              "first_utc": "2026-10-06T21:24:56.642269+00:00",
+              "last_counters": {
+                "errors_total": 0.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-07T00:59:38.258268+00:00"
+            },
+            "811023": {
+              "first_utc": "2026-10-07T00:59:48.306262+00:00",
+              "last_counters": {
+                "errors_total": 0.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-07T01:04:59.806258+00:00"
+            }
+          },
+          "observed_processes": 4,
+          "triggers": {
+            "process_changed": 3
+          },
+          "counter_deltas": {
+            "errors_total": 0,
+            "rejected_total": 0,
+            "config_reload_rejected_total": 0,
+            "opening_transport_retries_total": 0
+          },
+          "completed": false,
+          "captures": 2
+        },
+        "xray_process_pids": [
+          "765574"
+        ],
+        "rollback_timer": "ActiveState=inactive\n",
+        "restore_timer": "NextElapseUSecRealtime=\nActiveState=active\n",
+        "configuration": "Validated unchanged; 4 initial / 4 maximum, adaptive true, null encryption, S outbound / PA return"
+      },
+      {
+        "host": "171.22.132.226",
+        "unit": "ActiveState=active\nMainPID=2995993\nNRestarts=0\nExecMainStartTimestamp=Wed 2026-10-07 00:58:11 UTC\n",
+        "binary_sha256": "37743f5acfd9ec8f83c40e4d5a951a3062bf8197f4c9278ca2e7f3fc3dd6c585",
+        "health": "ok",
+        "metrics": {
+          "active_connections": 57.0,
+          "errors_total": 0.0,
+          "opening_transport_retries_total": 0.0,
+          "rejected_total": 0.0
+        },
+        "observer": "ActiveState=active\nMainPID=2996610\n",
+        "observer_summary": {
+          "first_utc": "2026-10-06T19:55:50.025722+00:00",
+          "last_utc": "2026-10-07T01:05:02.001337+00:00",
+          "samples": 1859,
+          "peak_active": 1556.0,
+          "peak_rss_kib": 72684,
+          "peak_fds": 810,
+          "runs": {
+            "2933030": {
+              "first_utc": "2026-10-06T19:55:50.025722+00:00",
+              "last_counters": {
+                "errors_total": 1303.0,
+                "rejected_total": 0.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-06T20:14:10.038072+00:00"
+            },
+            "2955005": {
+              "first_utc": "2026-10-06T20:14:20.038164+00:00",
+              "last_counters": {
+                "errors_total": 3479.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-06T21:24:08.754540+00:00"
+            },
+            "2965108": {
+              "first_utc": "2026-10-06T21:24:18.754617+00:00",
+              "last_counters": {
+                "errors_total": 74.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-07T00:58:08.902324+00:00"
+            },
+            "2995993": {
+              "first_utc": "2026-10-07T00:58:18.902413+00:00",
+              "last_counters": {
+                "errors_total": 0.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-07T01:05:02.001337+00:00"
+            }
+          },
+          "observed_processes": 4,
+          "triggers": {
+            "process_changed": 3,
+            "errors_total_increased": 23,
+            "packet_drops_increased": 4
+          },
+          "counter_deltas": {
+            "errors_total": 3553.0,
+            "rejected_total": 0,
+            "config_reload_rejected_total": 0,
+            "opening_transport_retries_total": 0
+          },
+          "completed": false,
+          "captures": 3
+        },
+        "xray_process_pids": [
+          "2929362"
+        ],
+        "rollback_timer": "ActiveState=inactive\n",
+        "restore_timer": "ActiveState=active\nNextElapseUSecRealtime=\n",
+        "configuration": "Validated unchanged; 4 initial / 4 maximum, adaptive true, null encryption, S outbound / PA return"
+      },
+      {
+        "host": "65.109.249.222",
+        "unit": "MainPID=125024\nNRestarts=0\nExecMainStartTimestamp=Wed 2026-10-07 00:58:46 UTC\nActiveState=active\n",
+        "binary_sha256": "37743f5acfd9ec8f83c40e4d5a951a3062bf8197f4c9278ca2e7f3fc3dd6c585",
+        "health": "ok",
+        "metrics": {
+          "active_connections": 152.0,
+          "errors_total": 0.0,
+          "opening_transport_retries_total": 0.0,
+          "rejected_total": 0.0
+        },
+        "observer": "MainPID=125359\nActiveState=active\n",
+        "observer_summary": {
+          "first_utc": "2026-10-06T19:55:51.883875+00:00",
+          "last_utc": "2026-10-07T01:05:17.017037+00:00",
+          "samples": 1851,
+          "peak_active": 873.0,
+          "peak_rss_kib": 73080,
+          "peak_fds": 881,
+          "runs": {
+            "74707": {
+              "first_utc": "2026-10-06T19:55:51.883875+00:00",
+              "last_counters": {
+                "errors_total": 289.0,
+                "rejected_total": 0.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-06T20:15:07.420289+00:00"
+            },
+            "98753": {
+              "first_utc": "2026-10-06T20:15:17.468276+00:00",
+              "last_counters": {
+                "errors_total": 2.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-06T21:24:25.236253+00:00"
+            },
+            "107867": {
+              "first_utc": "2026-10-06T21:24:35.286235+00:00",
+              "last_counters": {
+                "errors_total": 0.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-07T00:58:44.916181+00:00"
+            },
+            "125024": {
+              "first_utc": "2026-10-07T00:58:54.941386+00:00",
+              "last_counters": {
+                "errors_total": 0.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-07T01:05:17.017037+00:00"
+            }
+          },
+          "observed_processes": 4,
+          "triggers": {
+            "process_changed": 3,
+            "packet_drops_increased": 117
+          },
+          "counter_deltas": {
+            "errors_total": 2.0,
+            "rejected_total": 0,
+            "config_reload_rejected_total": 0,
+            "opening_transport_retries_total": 0
+          },
+          "completed": false,
+          "captures": 26
+        },
+        "xray_process_pids": [
+          "71633"
+        ],
+        "rollback_timer": "ActiveState=inactive\n",
+        "restore_timer": "NextElapseUSecRealtime=\nActiveState=active\n",
+        "configuration": "Validated unchanged; 4 initial / 4 maximum, adaptive true, null encryption, S outbound / PA return"
+      },
+      {
+        "host": "89.45.68.14",
+        "unit": "MainPID=277974\nNRestarts=0\nExecMainStartTimestamp=Wed 2026-10-07 00:56:34 UTC\nActiveState=active\n",
+        "binary_sha256": "37743f5acfd9ec8f83c40e4d5a951a3062bf8197f4c9278ca2e7f3fc3dd6c585",
+        "health": "ok",
+        "metrics": {
+          "active_connections": 9.0,
+          "errors_total": 261.0,
+          "opening_transport_retries_total": 753.0,
+          "rejected_total": 0.0
+        },
+        "observer": "MainPID=278600\nActiveState=active\n",
+        "observer_summary": {
+          "first_utc": "2026-10-06T19:55:48.853135+00:00",
+          "last_utc": "2026-10-07T01:05:19.800708+00:00",
+          "samples": 1854,
+          "peak_active": 132.0,
+          "peak_rss_kib": 35936,
+          "peak_fds": 148,
+          "runs": {
+            "252822": {
+              "first_utc": "2026-10-06T19:55:48.853135+00:00",
+              "last_counters": {
+                "errors_total": 0.0,
+                "rejected_total": 0.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-06T20:13:11.896469+00:00"
+            },
+            "254027": {
+              "first_utc": "2026-10-06T20:13:21.942646+00:00",
+              "last_counters": {
+                "errors_total": 59.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 11.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-06T21:12:31.889912+00:00"
+            },
+            "258929": {
+              "first_utc": "2026-10-06T21:12:51.988549+00:00",
+              "last_counters": {
+                "errors_total": 0.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-07T00:56:26.274517+00:00"
+            },
+            "277974": {
+              "first_utc": "2026-10-07T00:56:36.319974+00:00",
+              "last_counters": {
+                "errors_total": 261.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 753.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-07T01:05:19.800708+00:00"
+            }
+          },
+          "observed_processes": 4,
+          "triggers": {
+            "process_changed": 3,
+            "errors_total_increased": 5
+          },
+          "counter_deltas": {
+            "errors_total": 320.0,
+            "rejected_total": 0,
+            "config_reload_rejected_total": 0,
+            "opening_transport_retries_total": 764.0
+          },
+          "completed": false,
+          "captures": 1
+        },
+        "xray_process_pids": [],
+        "rollback_timer": "ActiveState=inactive\n",
+        "restore_timer": "NextElapseUSecRealtime=\nActiveState=active\n",
+        "configuration": "Validated unchanged; 4 initial / 4 maximum, adaptive true, null encryption, S outbound / PA return"
+      },
+      {
+        "host": "89.45.68.118",
+        "unit": "MainPID=955116\nNRestarts=0\nExecMainStartTimestamp=Wed 2026-10-07 01:00:10 UTC\nActiveState=active\n",
+        "binary_sha256": "37743f5acfd9ec8f83c40e4d5a951a3062bf8197f4c9278ca2e7f3fc3dd6c585",
+        "health": "ok",
+        "metrics": {
+          "active_connections": 425.0,
+          "errors_total": 0.0,
+          "opening_transport_retries_total": 0.0,
+          "rejected_total": 0.0
+        },
+        "observer": "MainPID=955366\nActiveState=active\n",
+        "observer_summary": {
+          "first_utc": "2026-10-06T19:55:48.757839+00:00",
+          "last_utc": "2026-10-07T01:05:23.361746+00:00",
+          "samples": 1848,
+          "peak_active": 3780.0,
+          "peak_rss_kib": 136412,
+          "peak_fds": 3768,
+          "runs": {
+            "931006": {
+              "first_utc": "2026-10-06T19:55:48.757839+00:00",
+              "last_counters": {
+                "errors_total": 1930.0,
+                "rejected_total": 0.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-06T20:15:24.385795+00:00"
+            },
+            "933033": {
+              "first_utc": "2026-10-06T20:16:04.577889+00:00",
+              "last_counters": {
+                "errors_total": 7658.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 3942.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-06T21:25:01.175077+00:00"
+            },
+            "938095": {
+              "first_utc": "2026-10-06T21:25:11.225260+00:00",
+              "last_counters": {
+                "errors_total": 778.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 607.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-07T01:00:02.497881+00:00"
+            },
+            "955116": {
+              "first_utc": "2026-10-07T01:00:12.545769+00:00",
+              "last_counters": {
+                "errors_total": 0.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0
+              },
+              "last_utc": "2026-10-07T01:05:23.361746+00:00"
+            }
+          },
+          "observed_processes": 4,
+          "triggers": {
+            "errors_total_increased": 36,
+            "process_changed": 3,
+            "packet_drops_increased": 1
+          },
+          "counter_deltas": {
+            "errors_total": 9090.0,
+            "rejected_total": 0,
+            "config_reload_rejected_total": 0,
+            "opening_transport_retries_total": 4549.0
+          },
+          "completed": false,
+          "captures": 3
+        },
+        "xray_process_pids": [],
+        "rollback_timer": "ActiveState=inactive\n",
+        "restore_timer": "NextElapseUSecRealtime=\nActiveState=active\n",
+        "configuration": "Validated unchanged; 4 initial / 4 maximum, adaptive true, null encryption, S outbound / PA return"
+      }
+    ],
+    "canary": [
+      {
+        "host": "89.45.68.14",
+        "port": 9001,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 2.0822096030024113,
+        "error": ""
+      },
+      {
+        "host": "89.45.68.14",
+        "port": 9002,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.30384493100064,
+        "error": ""
+      },
+      {
+        "host": "89.45.68.14",
+        "port": 9003,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 4.16775853999934,
+        "error": ""
+      }
+    ],
+    "authenticated_acceptance": [
+      {
+        "host": "deir.cloudnet1.ir",
+        "port": 9001,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.2985166899998148,
+        "error": ""
+      },
+      {
+        "host": "deir.cloudnet1.ir",
+        "port": 9002,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.2519838939988404,
+        "error": ""
+      },
+      {
+        "host": "deir.cloudnet1.ir",
+        "port": 9003,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.297038288001204,
+        "error": ""
+      },
+      {
+        "host": "89.45.68.14",
+        "port": 9001,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 2.203838049998012,
+        "error": ""
+      },
+      {
+        "host": "89.45.68.14",
+        "port": 9002,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.1971363039992866,
+        "error": ""
+      },
+      {
+        "host": "89.45.68.14",
+        "port": 9003,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 2.5174080269971455,
+        "error": ""
+      },
+      {
+        "host": "89.45.68.118",
+        "port": 9001,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.0529717360004724,
+        "error": ""
+      },
+      {
+        "host": "89.45.68.118",
+        "port": 9002,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.4724708909998299,
+        "error": ""
+      },
+      {
+        "host": "89.45.68.118",
+        "port": 9003,
+        "exit_code": 0,
+        "http_status": "200 1048576",
+        "seconds": 1.5838350960002572,
+        "error": ""
+      }
+    ],
+    "rollout_error_scope": "Client .14 accumulated 261 opening errors while servers were replaced, then counts stabilized; process counters retained",
+    "post_rollout_cpu_profile_utc": "2026-10-07T01:04:36Z",
+    "sampled_mean_cpu_cores": {
+      "germany": 0.032,
+      "france": 0.024,
+      "finland": 0.054,
+      "client14": 0.046,
+      "client118": 0.22
+    },
+    "profile_scope": "Five-second profiles at low production traffic, not saturation tests; syscall/scheduling led sampled CPU",
+    "original_observation_deadline_utc": "2026-10-07T20:18:00Z"
   }
 }

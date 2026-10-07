@@ -1,8 +1,26 @@
 # Clean-link unencrypted bulk measurements
 
-## Current liveness executable
+## Current ownership executable
 
-The deployed `enterprise-2026.10.07-liveness` binary, SHA-256
+The deployed `enterprise-2026.10.07-ownership.2` binary, SHA-256
+`37743f5acfd9ec8f83c40e4d5a951a3062bf8197f4c9278ca2e7f3fc3dd6c585`, measured
+**4.479 Gbit/s upload / 4.836 Gbit/s download** received payload in separate
+five-second runs with sixteen streams and no startup omission. The pool is
+explicitly fixed at four shared-source carriers. Null encryption, MTU1350,
+production 4 MiB/2 MiB mux buffers and manual adaptive reliability parameters
+match the deployed profile. Namespace flags default to PA/PA; real S/PA paths
+passed separate authenticated acceptance.
+
+The matched older liveness executable measured **4.486/4.901 Gbit/s**, a difference
+of about 0.2%/1.3% in these individual samples. Mean release client/server core
+usage was 1.793/1.250 during upload and 1.331/1.899 during download; peak RSS was
+below 155 MiB with no fixture swap. These are finite laptop measurements, not
+backend WAN capacity or confidence intervals. Integrity and cleanup passed.
+See [exact receipts](ownership-qualification-2026-10-07.json).
+
+## Previous liveness executable
+
+The previous `enterprise-2026.10.07-liveness` binary, SHA-256
 `04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf`, measured
 **4.634 Gbit/s upload / 4.808 Gbit/s download** received payload in separate
 five-second runs with sixteen streams and no startup omission. Both endpoints
@@ -17,7 +35,7 @@ and receiver receipts are in [liveness evidence](liveness-qualification-2026-10-
 
 A corrected fixed-four rerun on 7 October explicitly sets `sessions: 4` and
 `max_sessions: 4`: **4.486 Gbit/s upload / 4.901 Gbit/s download** on the same
-04508 executable. The staged ownership.2 candidate measured **4.479 / 4.836
+04508 executable. The now-deployed ownership.2 release measured **4.479 / 4.836
 Gbit/s**, using identical parameters and production mux buffer ceilings. These
 single five-second pairs differ by about 0.2%/1.3%; they do not establish a
 statistically significant performance change or backend WAN capacity. Local raw
@@ -37,7 +55,8 @@ changed for these measurements.
 Both endpoints and iperf3 run on the i5-13420H laptop in disposable network
 namespaces connected by a clean veth pair. No injected loss, delay or bandwidth
 cap; null encryption, no FEC, AF_PACKET backend, 1500-byte virtual interface MTU,
-eight initial shared-source KCP lanes and default adaptive reliability settings.
+eight initial shared-source KCP lanes with CPU-derived growth allowed, and
+default adaptive reliability settings.
 These are generic clean-link settings, not the conservative deployed WAN profile.
 The small-write threshold defaults to zero. Debug/profiling are disabled.
 
@@ -115,10 +134,12 @@ Reproduce a default run:
 ```sh
 sudo env LD_LIBRARY_PATH="$PWD/build/deploy-libs" python3 scripts/netns_bench.py \
   --enterprise --binary build/final-production/super-paqet-small-flush \
-  --block null --shared-source --sessions 8 --workers 8 \
+  --block null --shared-source --sessions 8 --max-sessions 24 --workers 8 \
   --duration 30 --warmup 5 --iperf --output build/clean-null-reproduction
 ```
 
+The explicit ceiling 24 reproduces the old CPU-derived growth allowance on the
+twelve-thread test host; use a different ceiling to test a different pool.
 The compatibility-library environment variable is only needed where the expected
 libpcap loader name is unavailable. This fixture measures local capacity, not WAN
 gigabit throughput, physical filtering or performance on every machine.

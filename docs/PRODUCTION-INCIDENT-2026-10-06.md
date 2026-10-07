@@ -1,6 +1,6 @@
 # Customer-traffic incident, 6 October 2026
 
-Updated after the `enterprise-2026.10.07-liveness` rollout. The initial recovery
+Updated after the `enterprise-2026.10.07-ownership.2` rollout. The initial recovery
 and temporary fallback below are chronological checkpoints; the current binary
 includes all listed fixes and all countries again use adaptation. The full-day
 observation remains unfinished. Exact release and active topology are in
@@ -250,6 +250,28 @@ Gbit/s on the running liveness binary and 4.479/4.836 on the ownership.2 candida
 these single samples show no material collapse but are not confidence intervals.
 The candidate's fixed-four changing-delay churn completed 55,512 requests with
 zero workload/client/server errors and 121 internal carrier retries; mean latency
-276 ms and p99 histogram upper bound 460 ms. WAN mixed qualification and production
-promotion are still pending at this checkpoint. This fix addresses reproduced
+276 ms and p99 histogram upper bound 460 ms. Asymmetric mixed qualification subsequently passed with all 2,000 held streams
+verified, zero workload/client/server errors and 42.90 Mbit/s bulk. A clean 10k
+held/mixed run delivered 3.888 Gbit/s with all streams verified; the fixed-four
+100k idle test reverified every stream after 30 seconds, with laptop swap. This fix addresses reproduced
 ownership/deadline defects, not a proven explanation of every transport stall.
+
+The ownership.2 binary (source `fe0151e57d7962783007a7c885962e2f1083641f`,
+SHA-256 `37743f5acfd9ec8f83c40e4d5a951a3062bf8197f4c9278ca2e7f3fc3dd6c585`)
+was canaried on .14 at 00:56 UTC on 7 October, followed by France, Finland,
+Germany and .118 through 01:00 UTC. All nine authenticated 1 MiB checks passed.
+Host configuration hashes and main Xray PIDs stayed unchanged. Client .14
+recorded 261 opening errors during server replacement, then recovered without
+another restart; replacement intentionally ends established streams. The matched
+old fixed-four churn check also passed (55,995 requests, zero retries), so the
+candidate's normal-link request counts do not prove a speedup. This release fixes
+independently reproduced ownership/opening-bound defects. Exact receipts and
+limitations are in [ownership evidence](ownership-qualification-2026-10-07.json).
+Observer queue/network metadata was added without resetting the original day
+window or restarting tunnels. The one-day observation remains unfinished.
+
+A 01:04 UTC post-rollout five-second profile sampled roughly 0.22 occupied CPU
+cores on client .118 and 0.024–0.054 on individual backends, with syscall and
+scheduling work leading the profile. These are low-traffic observations, not
+capacity measurements. All rollback timers were disarmed after authenticated
+acceptance; the diagnostic restoration timer and day collectors remain active.

@@ -1,10 +1,10 @@
 # Recorded production configuration
 
-Five baseline snapshots were fetched and validated after the incident liveness
-rollout. The live release is `enterprise-2026.10.07-liveness`, source
-`323d5dc4b548678ab3e8c6d5f3e6b15ee832588b`, binary SHA-256:
+Five baseline snapshots were fetched and validated after the incident ownership
+rollout. The live release is `enterprise-2026.10.07-ownership.2`, source
+`fe0151e57d7962783007a7c885962e2f1083641f`, binary SHA-256:
 
-`04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf`
+`37743f5acfd9ec8f83c40e4d5a951a3062bf8197f4c9278ca2e7f3fc3dd6c585`
 
 Every endpoint uses the same manual KCP base (0/30/2/nc=1), 4096-segment window
 ceilings, MTU1350, batched writes with small-write threshold 256, and adaptation

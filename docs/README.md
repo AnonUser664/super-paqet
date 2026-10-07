@@ -1,6 +1,6 @@
 # Documentation
 
-Start with [current status](STATUS.md). The incident liveness release is deployed on five hosts; the one-day
+Start with [current status](STATUS.md). The incident ownership release is deployed on five hosts; the one-day
 observation is still in progress,
 all six paths pass authenticated checks, and country peers use S outbound / PA
 return. 171.22.132.226 is France; the historical Netherlands diagnosis describes
@@ -19,14 +19,14 @@ that same host. Measured capacity limitations remain explicit in the status and
 | [OPERATIONS.md](OPERATIONS.md) | Monitoring, rollout, troubleshooting and rollback procedures. |
 | [DIAGNOSTICS.md](DIAGNOSTICS.md) | Logs, metrics, profiling and reproducible tests. |
 | [BENCHMARKS.md](BENCHMARKS.md) | Current qualification results, methods and known failed gates. |
-| [CLEAN-LINK-CURRENT.md](CLEAN-LINK-CURRENT.md) | Latest liveness bulk result and earlier executable comparisons. |
+| [CLEAN-LINK-CURRENT.md](CLEAN-LINK-CURRENT.md) | Latest ownership bulk result and earlier executable comparisons. |
 | [FINAL-DEPLOYMENT-REPORT.md](FINAL-DEPLOYMENT-REPORT.md) | Release measurements, resource limits and deployment evidence. |
 | [FINLAND-CHECK.md](FINLAND-CHECK.md) | Finland working deployment, previous failed IP control and final state. |
 | [NETHERLANDS-DIAGNOSIS.md](NETHERLANDS-DIAGNOSIS.md) | Same-path version comparisons and paired packet captures. |
 
 The [customer incident report](PRODUCTION-INCIDENT-2026-10-06.md) records observed
 failures, fixes, attribution limits and the monitoring window. Latest same-binary
-local qualification: [liveness evidence](liveness-qualification-2026-10-07.json).
+local qualification: [ownership evidence](ownership-qualification-2026-10-07.json).
 
 Earlier compact evidence: [release](final-deployment-evidence.json),
 [clean bulk](clean-null-current-evidence.json),

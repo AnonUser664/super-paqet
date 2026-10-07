@@ -185,7 +185,7 @@ carrier and established forwards. Replacing a carrier loses its existing
 streams; retrying a new opening is not transparent replay of an established TCP
 application session.
 
-In the staged ownership candidate, the reserved receipt deadline also covers
+In the deployed ownership release, the reserved receipt deadline also covers
 SYN queue/submission via `OpenStreamContext`; it does not set a shared KCP
 connection deadline. Failed new streams release local ownership immediately and
 queue a best-effort reset without waiting for ordinary close. Successful carrier
@@ -193,7 +193,7 @@ setup retains normal PTCPF close semantics. Established stream close is unchange
 
 After opening, a relay copies in both directions. The TCP-to-stream side waits
 for netpoll readiness, peeks queued bytes, then acquires a size-class buffer and
-returns it after the write. The ownership candidate snapshots asynchronously
+returns it after the write. The ownership release snapshots asynchronously
 queued payloads into pooled size classes, so an opening/write timeout cannot
 return scratch storage that the carrier still references. Caller and sender
 each release a reference before queued storage is recycled. Expired frames

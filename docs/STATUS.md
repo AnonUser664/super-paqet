@@ -1,23 +1,21 @@
 # Current deployment status
 
-The liveness release runs on all five hosts after the 6 October customer-traffic
-incident. All six routes use four shared-source KCP carriers with adaptation
-**enabled**, client S / backend PA flags, quoted null encryption, AF_PACKET with
-one receive worker and MTU1350. France's temporary static fallback was retired
-only after the revised controller passed changing-delay stress and the binary
-was replaced. 171.22.132.226 is France.
+The ownership.2 release runs on all five hosts. All six routes retain four
+shared-source KCP carriers (`sessions: 4`, `max_sessions: 4`), adaptation enabled,
+client S / backend PA flags, quoted null encryption, AF_PACKET with one receive
+worker and MTU1350. France is 171.22.132.226.
 
 ## Exact release and topology
 
-Version `enterprise-2026.10.07-liveness`, source
-`323d5dc4b548678ab3e8c6d5f3e6b15ee832588b`, SHA-256:
+Version `enterprise-2026.10.07-ownership.2`, linked runtime source
+`fe0151e57d7962783007a7c885962e2f1083641f`, SHA-256:
 
-`04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf`
+`37743f5acfd9ec8f83c40e4d5a951a3062bf8197f4c9278ca2e7f3fc3dd6c585`
 
 The exact executable is retained at
-`build/incident-20261006/super-paqet-liveness`. Later source checkpoints include a staged write-ownership/opening-deadline fix;
-that candidate is not yet deployed.
-The original raw Ethernet/IP/TCP shaping and sequence/ACK behavior are preserved.
+`build/incident-20261006/super-paqet-ownership`. Subsequent documentation and
+observer commits do not change this executable. The raw Ethernet/IP/TCP packet
+shape and sequence/ACK behavior remain preserved.
 
 | Client port, on both .14 and .118 | Peer | Raw endpoint | Application target |
 |---|---|---|---|
@@ -40,81 +38,83 @@ have warn logging and profiling off. One-day diagnostics temporarily enable
 sampled debug logs and loopback profiling; their guarded timer returns to those
 baseline settings while preserving the revised adaptive profile.
 
-## Fixes and verified rollout
+## Fixes and rollout
 
-The initial recovery release fixed busy-carrier opening retry budgets, accepted
-stream GC lifetime and suppressed later warnings. Continued observation caught
-another France stall without a process restart/OOM. Three lanes collapsed their
-windows/pacing after bulk traffic while RTT rose. Deterministic tests reproduced
-small-control capacity erosion, mux control starvation under full receive buffers,
-and an outgoing-stream publication race that could discard immediate replies.
-The current release fixes those defects and adds bounded wholly-rejected
-AF_PACKET ENOBUFS retries. Details, causality limits and failed checks are in the
-[incident report](PRODUCTION-INCIDENT-2026-10-06.md).
+Continued observation caught a France opening failure burst without a process
+restart: 645 client .118 opening errors and 74 server control errors at
+22:18–22:20 UTC on 6 October. The captured client stack showed 204 SYN-submission
+waiters and 39 failed-opening close waiters. Independently, deterministic tests
+reproduced caller scratch-buffer reuse after a timed-out mux write and expired
+queued frames still reaching the carrier.
 
-Client .14 was canaried first; France, Finland, Germany and client .118 followed
-with per-host backups and conditional rollback timers. Replacing the executable
-restarted each tunnel and ended that host's established streams. France adaptation
-on .14 was then enabled by scoped live reload with its main PID unchanged.
-All nine authenticated 1 MiB checks passed after rollout: both client IPs and the
-public domain, on ports 9001/9002/9003. No main Xray configuration/service was
-edited or restarted. Rollback archives and incident evidence are retained.
+The release owns queued payload bytes until caller and sender release them,
+skips expired queued frames and refunds only unsent credit. SYN submission now
+shares the opening's reserved receipt deadline; failed new streams locally abort
+without another 30-second control-close wait. A busy carrier and its established
+forwards survive a failed new opening. Successful PTCPF setup retains normal
+close semantics, bounded by the unpublished carrier's setup context. Previously
+verified controller/mux/GC/raw-queue fixes remain included. These are confirmed
+code defects and fixes, not proof of the original transport stall's cause.
 
-## Qualification of this exact executable
+Client .14 was canaried with three authenticated checks before the remaining
+hosts were rolled with backups and conditional rollback timers. All nine
+post-rollout authenticated 1 MiB checks passed across both client IPs and the
+public domain. All main Xray PIDs stayed unchanged. Binary replacement restarted
+tunnels and ended established streams on the replaced host; existing clients
+also recorded temporary opening failures during server replacement. Client .14's
+261 errors belong to that rollout interval and remain visible, rather than being
+cleared. Post-rollout counter growth remains monitored.
 
-The earlier fixtures below start with four shared carriers, null encryption,
-MTU1350 and production 4 MiB aggregate / 2 MiB per-stream mux buffers. They
-omitted `max_sessions`, allowing automatic pool growth; changing-delay tests
-reached fourteen client carriers. They therefore do **not** qualify the deployed
-fixed-four pool. The fixture now explicitly defaults `max_sessions` to `sessions`.
-Disposable namespace cleanup and unrelated firewall-rule preservation passed.
+## Qualification of the deployed executable
 
-| Workload | Result | Limit |
+All checks below explicitly bound the outgoing pool at four and use null
+encryption, MTU1350, production 4 MiB/2 MiB mux buffers and the deployed manual
+adaptive reliability parameters. Namespace tests use the default PA/PA outer
+flags; public acceptance verifies the deployed S/PA paths. Local cleanup and
+unrelated-rule preservation passed.
+
+| Workload | Result | Scope |
 |---|---|---|
-| Clean uncapped bulk, 16 streams | Receiver 4.634 Gbit/s upload / 4.808 Gbit/s download | Separate five-second runs without startup omission; laptop capacity, not backend WAN capacity. |
-| 100,000 held TCP forwards | 11.93 s ramp, 120 s hold, all 100,000 reverified, zero errors | Mostly idle retention; shared 8 GiB laptop used swap. |
-| 256-worker connection churn, RTT 80 → 180 → 80 ms, 100 Mbit/s | 48,714 successful requests, zero unexpected errors, mean 315 ms | One 60-second run; p99 histogram upper bound 4.194 s. |
-| 2,000 held forwards beside asymmetric mixed load | All reverified; zero workload errors; bulk 35.67 Mbit/s | 10/100 Mbit/s, 160 ms RTT, 0.5% loss, jitter and 1% reorder. |
-| 1 Mbit/s, 100 ms RTT, 2% loss | Cold 1 MiB integrity passed in 12.32 s; 499 HTTP successes, zero unexpected errors | Four bulk responses did not finish within 15 s; streamed rate 0.693 Mbit/s and deadline cancellations are recorded. |
+| Clean uncapped bulk, 16 streams | Receiver 4.479 Gbit/s upload / 4.836 Gbit/s download | Separate five-second local runs; baseline liveness binary 4.486/4.901 on identical fixed-four parameters. |
+| 256-worker churn, RTT 80 → 180 → 80 ms, 100 Mbit/s | 55,512 successful requests, zero workload/client/server errors; 121 carrier retries | 60 seconds; mean 276 ms, p99 histogram upper bound 460 ms. Baseline also passed, so this does not establish a normal-link speed improvement. |
+| 2,000 held forwards with asymmetric mixed traffic | All reverified, zero workload/client/server errors; 42.90 Mbit/s bulk | 10/100 Mbit/s, 160 ms RTT, 0.5% loss, jitter, 1% reorder. |
+| 10,000 held forwards with HTTP and bulk | All reverified, zero workload/client/server errors; 3.888 Gbit/s bulk | 30-second hold, shared clean laptop link; peak tunnel RSS about 274/304 MiB, no fixture swap. |
+| 100,000 held forwards | 5.64 s ramp, 30 s hold, all reverified, zero workload/client/server errors | Mostly idle retention; laptop swapping occurred. |
+| TCP/UDP functional integrity | Multi-target 16 MiB checks, seven UDP sizes through 65,507 bytes, TCP half-close and ping passed | Disposable local links, plus HTTP/bulk workload. |
 
-Root race tests/vet, the full mux race suite (495 seconds), mux vet and repeated
-publication/credit/GC regressions passed. [Machine-readable evidence](liveness-qualification-2026-10-07.json)
-retains parameters, hashes, resources, deadline cancellations and failed static
-comparisons. Static changing-delay churn still failed: the latest run had 90
-request timeouts and 37 resets. The old recovery adaptive run had 181 request
-failures; the corresponding new adaptive run had zero. Timing comparisons are
-individual runs on a shared machine, not universal guarantees.
+Root full race/vet, full mux race (490.171 seconds)/vet and repeated deterministic
+ownership/cancellation/credit regressions passed. [Exact receipts](ownership-qualification-2026-10-07.json)
+retain hashes, parameters, resources, internal retries, workload deadline
+cancellations, cleanup and deployment verification. Single samples on a shared
+laptop are not statistical guarantees or backend WAN capacity measurements.
+The 100k test peaked near 1.71/1.77 GiB client/server RSS; separate sampled swap
+peaks were about 216/591 MiB. Generators, kernel sockets and other applications
+are additional. It does not prove 100k simultaneously busy Xray customers.
 
-The 100k fixture peaked at about 1.34/1.68 GiB client/server RSS, with sampled swap
-peaks around 338/398 MiB. Generators, kernel sockets and other applications are
-additional. It does not establish 100k simultaneously busy Xray customers or
-capacity under the backend memory limits. Older incident fixtures omitted explicit
-mux buffers and used larger defaults; those results do not qualify production
-buffer ceilings.
+Earlier liveness fixtures started with four carriers but omitted `max_sessions`
+and permitted growth; churn reached fourteen client carriers. Their real results
+remain in [historical liveness receipts](liveness-qualification-2026-10-07.json),
+with the corrected scope. They do not qualify a fixed-four pool. The benchmark
+now defaults the maximum to the explicit initial count.
 
 ## Observation still in progress
 
 Independent ten-second collectors continue until approximately **2026-10-07
-20:18 UTC**, even if SSH disconnects. `/var/log/super-paqet-watch/summary.json`
-retains full-window peaks/counter deltas across raw-log rotation and observer
-restarts; twelve rotating incident-profile slots preserve late-day coverage.
-`completed` marks normal collector completion. Collection does not itself notify
-an operator or repair a failure. Temporary diagnostics return to warning logs
-around 19:57 UTC, subject to the unchanged-config guard.
+20:18 UTC**. Durable summaries retain peaks and within-PID counter deltas across
+raw-log rotation and observer restarts; twelve profile slots preserve late-day
+capture coverage. Incidents additionally capture bounded qdisc, socket, netstat
+and softnet metadata. Observer updates preserve the original end time and do not
+restart the tunnel. `completed` marks normal observer completion. Collection
+does not itself alert an operator or repair a failure. Temporary diagnostics
+return to warning logs around 19:57 UTC, subject to the unchanged-config guard.
 
-The full-day observation is **unfinished**. A later burst at 22:18–22:20 UTC
-recorded 645 failed France openings on client .118 and 74 server control errors
-with both processes unchanged; errors then stopped. Captured .118 stacks show
-204 openings waiting to submit SYN and 39 failed openings waiting in ordinary
-stream close. Those waits are addressed by the staged deadline/abort fix; this
-is evidence of the blocked paths, not proof of the original transport stall cause.
- Successful acceptance and local
-regressions do not establish freedom from future customer stalls, universal WAN
-optimality or multi-gigabit capacity on these backends. Underlying causes of the
-captured RTT increase remain unproven. Backend transmit drops were observed and
-remain monitored. Preserve incident spools and recovery sets until review.
+The full-day observation is **unfinished**. The underlying transport stall cause
+remains unproven. Finland transmit queue drops were observed on the earlier
+release and remain monitored; no host qdisc policy was changed. Ordered KCP
+carrier head-of-line blocking and the ordinary established-stream 30-second
+control-close timeout remain. Preserve incident spools and recovery sets.
 
-Earlier backend load/bulk measurements belong to earlier executables and remain
-in [production evidence](production-deployment-evidence.json) and the
-[deployment report](FINAL-DEPLOYMENT-REPORT.md). Operational instructions are in
-[deployment](DEPLOYMENT.md), [live reload](LIVE-RELOAD.md) and [operations](OPERATIONS.md).
+See the [incident report](PRODUCTION-INCIDENT-2026-10-06.md),
+[deployment guide](DEPLOYMENT.md), [live reload](LIVE-RELOAD.md) and
+[operations runbook](OPERATIONS.md). Earlier measurements qualify their named
+executables and workloads, not every production load or future failure mode.

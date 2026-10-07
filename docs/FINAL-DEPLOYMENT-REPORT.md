@@ -1,23 +1,27 @@
 # Final deployment and measured qualification
 
-## Current incident liveness release — 2026-10-07
+## Current incident ownership release — 2026-10-07
 
-The liveness binary now runs on all five hosts with four adaptive carriers per
-route, S outbound / PA return and null encryption. It retains the initial
-opening/GC/warning fixes and adds mux receive-control admission, immediate-reply
-publication, small-message adaptive control and bounded raw ENOBUFS retries.
-All nine authenticated 1 MiB checks passed after guarded rollout. Main Xray PIDs
-are unchanged. Independent one-day collectors remain active; the full-day
-observation and definitive attribution of the operator's earlier outage are
-unfinished.
+The ownership.2 binary runs on all five hosts with four fixed adaptive carriers
+per route, S outbound / PA return and null encryption. It adds safe queued-write
+payload ownership, expired-work cancellation and bounded SYN/failed-opening
+cleanup to the prior liveness fixes. All nine authenticated 1 MiB checks passed;
+main Xray PIDs and tunnel configurations are unchanged. Rolling binary replacement
+ended established tunnels and caused temporary opening failures on surviving
+clients; these are retained in monitoring rather than erased.
 
-Exact-binary local checks measured 4.634/4.808 Gbit/s clean receiver bulk and
-reverified all 100,000 forwards after a 120-second hold. The latter used swap and
-does not establish backend active-customer capacity. Changing-delay churn and
-asymmetric mixed load passed with zero unexpected workload errors; static churn
-still failed. See [status](STATUS.md), [incident report](PRODUCTION-INCIDENT-2026-10-06.md)
-and [qualification receipt](liveness-qualification-2026-10-07.json). All measurements
-below belong to earlier executables/profiles.
+Exact fixed-four local checks measured 4.479/4.836 Gbit/s clean bulk and reverified
+100,000 held forwards after 30 seconds. That test used swap and does not establish
+backend active-customer capacity. Changing-delay churn, asymmetric mixed load,
+10k hold beside bulk/HTTP, UDP and half-close integrity passed. The matched older
+liveness binary also passed fixed-four churn; the ownership fix is justified by
+reproduced correctness/deadline defects, not a demonstrated normal-link speedup.
+
+One-day collectors remain active until 7 October 20:18 UTC; definitive stall
+attribution remains unfinished. See [status](STATUS.md),
+[incident report](PRODUCTION-INCIDENT-2026-10-06.md) and
+[exact qualification](ownership-qualification-2026-10-07.json). Measurements below
+belong to earlier executables/profiles.
 
 ## Earlier adaptive four-carrier checkpoint — 2026-10-06
 

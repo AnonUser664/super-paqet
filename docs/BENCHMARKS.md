@@ -1,15 +1,19 @@
 # Benchmark evidence
 
-## Current liveness executable
+## Current ownership executable
 
-The deployed `enterprise-2026.10.07-liveness` binary is
-`04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf`.
-Exact-production-buffer local checks measured 4.634/4.808 Gbit/s clean receiver
-bulk, reverified 100,000 held forwards after 120 seconds, and passed changing-delay
-churn/asymmetric mixed load. The 100k run used swap. Static changing-delay churn
-still failed; one-day production observation is unfinished. See
-[status](STATUS.md) and [same-binary evidence](liveness-qualification-2026-10-07.json)
-for parameters/resources/cancellations and failure counts.
+The deployed `enterprise-2026.10.07-ownership.2` binary is
+`37743f5acfd9ec8f83c40e4d5a951a3062bf8197f4c9278ca2e7f3fc3dd6c585`.
+Explicit fixed-four, production-buffer local checks measured 4.479/4.836 Gbit/s
+clean receiver bulk, reverified 100,000 mostly idle forwards after 30 seconds,
+and passed changing-delay churn and asymmetric mixed load. The 100k run used
+swap. A separate 10k hold beside HTTP/bulk delivered 3.888 Gbit/s without swap.
+All nine authenticated deployed checks passed. One-day observation is unfinished.
+See [status](STATUS.md) and [exact receipts](ownership-qualification-2026-10-07.json)
+for parameters, resources, retries and expected deadline cancellations.
+
+Historical liveness receipts omitted `max_sessions` and allowed pool growth.
+They remain measured results of that profile and are not fixed-four proof.
 
 ## Earlier executable and configuration evidence
 
