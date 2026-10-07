@@ -150,6 +150,17 @@ file-descriptor, cgroup, host and loopback metric counters. It generates no
 customer traffic and never restarts the tunnel. Metrics include configured peer
 addresses; configuration credentials and application payloads are not read.
 
+The accepted five-host window uses sixteen 32 MiB sample files and eight 8 MiB
+journal files in a dated subdirectory, with warning logging and profiling off.
+Its exact deadline, verified installation and review commands are in
+[production observation](PRODUCTION-OBSERVATION-2026-10-07.md).
+`--until` takes an ISO 8601 timestamp with an offset, retaining the fixed deadline
+across restarts. `--sample-file-mib` (1..64) and `--sample-backups` (0..31) set raw
+retention; defaults remain 16 MiB and three backups. `--journal-since` enables a
+private continuous service-journal copy, resuming its saved cursor after restart.
+Recovery counters, existing-slot source-port changes and newly suspect/pending
+carriers also trigger evidence capture; they do not establish a filtering cause.
+
 Process changes, unavailable metrics, growing opening/error counters and packet
 queue drops trigger bounded journal snapshots. With loopback profiling enabled,
 it rotates twelve capture slots containing five-second CPU profiles, aggregated

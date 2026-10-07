@@ -1,0 +1,485 @@
+{
+  "window": {
+    "start_utc": "2026-10-07T19:14:08.869669+00:00",
+    "until_utc": "2026-10-08T19:14:08.869669+00:00",
+    "directory": "/var/log/super-paqet-watch/migration4-20261007T191408Z",
+    "observer_sha256": "19fdc526bfc9665f2a99fe94743130ae6ea2daadc3e2a4b812cdcff4a99644dc",
+    "sample_interval_seconds": 10,
+    "sample_max_bytes": 536870912,
+    "journal_max_bytes": 67108864,
+    "profiling": false,
+    "log_level": "warn",
+    "journal_since": "2026-10-07 18:28:00 UTC"
+  },
+  "runtime_source": "90e98b1186646c3c56660616309e5fe5573e4208",
+  "binary_sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+  "observer_tests_passed": 12,
+  "hosts": {
+    "116.202.177.233": {
+      "checked_utc": "2026-10-07T19:19:39.398993+00:00",
+      "tunnel": {
+        "MainPID": "889772",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 18:28:38 UTC",
+        "MemoryCurrent": "90193920",
+        "CPUUsageNSec": "855534739000",
+        "ActiveState": "active"
+      },
+      "observer": {
+        "MainPID": "894093",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 19:18:57 UTC",
+        "MemoryCurrent": "13963264",
+        "CPUUsageNSec": "131520000",
+        "ActiveState": "active"
+      },
+      "summary": {
+        "completed": false,
+        "until": "2026-10-08T19:14:08.869669+00:00",
+        "journal_recorder": {
+          "records": 1248,
+          "cursor_resume": true,
+          "last_realtime_usec": "1791397718295857"
+        },
+        "first_utc": "2026-10-07T19:14:18.397625+00:00",
+        "last_utc": "2026-10-07T19:19:37.494495+00:00",
+        "samples": 33,
+        "peak_active": 1900.0,
+        "peak_rss_kib": 89308,
+        "peak_fds": 1912,
+        "runs": {
+          "889772": {
+            "first_utc": "2026-10-07T19:14:18.397625+00:00",
+            "last_counters": {
+              "errors_total": 0.0,
+              "rejected_total": 0.0,
+              "opening_transport_retries_total": 0.0,
+              "config_reload_rejected_total": 0.0,
+              "path_recovery_attempts_total": 0.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 0.0,
+              "log_dropped_total": 0.0
+            },
+            "last_utc": "2026-10-07T19:19:37.494495+00:00"
+          }
+        },
+        "observed_processes": 1,
+        "triggers": {},
+        "counter_deltas": {
+          "errors_total": 0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        }
+      },
+      "latest_utc": "2026-10-07T19:19:37.494495+00:00",
+      "sample_bytes": 21723,
+      "journal_rows": 1248,
+      "current_pid_log_events": [],
+      "xray_processes": [
+        {
+          "pid": 765574,
+          "start_ticks": "125163143",
+          "executable": "/usr/local/bin/xray"
+        }
+      ],
+      "removed": [
+        "/var/lib/super-paqet-watch/conf.original.yaml",
+        "/var/lib/super-paqet-watch/restore.py",
+        "/var/log/super-paqet-watch/migration4-20261007T191206Z"
+      ],
+      "private_modes": {
+        "installation.json": "0o600",
+        "latest.json": "0o600",
+        "final-check.json": "0o600",
+        "tunnel.journal.jsonl": "0o600",
+        "window.json": "0o600",
+        "summary.json": "0o600",
+        "journal-state.json": "0o600",
+        "samples.jsonl": "0o600"
+      },
+      "remaining_dropins": "",
+      "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+      "unchanged_tunnel_and_xray": true,
+      "observer_enabled": true,
+      "cursor_resume_verified": true
+    },
+    "171.22.132.226": {
+      "checked_utc": "2026-10-07T19:19:38.167317+00:00",
+      "tunnel": {
+        "ActiveState": "active",
+        "MainPID": "3092527",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 18:29:17 UTC",
+        "MemoryCurrent": "48230400",
+        "MemoryPeak": "53194752",
+        "CPUUsageNSec": "453252200000"
+      },
+      "observer": {
+        "ActiveState": "active",
+        "MainPID": "3095194",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 19:18:55 UTC",
+        "MemoryCurrent": "18341888",
+        "MemoryPeak": "19886080",
+        "CPUUsageNSec": "150054000"
+      },
+      "summary": {
+        "completed": false,
+        "until": "2026-10-08T19:14:08.869669+00:00",
+        "journal_recorder": {
+          "records": 792,
+          "cursor_resume": true,
+          "last_realtime_usec": "1791397757515860"
+        },
+        "first_utc": "2026-10-07T19:14:17.019281+00:00",
+        "last_utc": "2026-10-07T19:19:36.051743+00:00",
+        "samples": 33,
+        "peak_active": 764.0,
+        "peak_rss_kib": 59508,
+        "peak_fds": 774,
+        "runs": {
+          "3092527": {
+            "first_utc": "2026-10-07T19:14:17.019281+00:00",
+            "last_counters": {
+              "errors_total": 0.0,
+              "rejected_total": 0.0,
+              "opening_transport_retries_total": 0.0,
+              "config_reload_rejected_total": 0.0,
+              "path_recovery_attempts_total": 0.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 0.0,
+              "log_dropped_total": 0.0
+            },
+            "last_utc": "2026-10-07T19:19:36.051743+00:00"
+          }
+        },
+        "observed_processes": 1,
+        "triggers": {},
+        "counter_deltas": {
+          "errors_total": 0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        }
+      },
+      "latest_utc": "2026-10-07T19:19:36.051743+00:00",
+      "sample_bytes": 20776,
+      "journal_rows": 792,
+      "current_pid_log_events": [],
+      "xray_processes": [
+        {
+          "pid": 2929362,
+          "start_ticks": "558964932",
+          "executable": "/usr/local/bin/xray"
+        }
+      ],
+      "removed": [
+        "/var/lib/super-paqet-watch/conf.original.yaml",
+        "/var/lib/super-paqet-watch/restore.py",
+        "/var/log/super-paqet-watch/migration4-20261007T191206Z"
+      ],
+      "private_modes": {
+        "installation.json": "0o600",
+        "journal-state.json": "0o600",
+        "latest.json": "0o600",
+        "window.json": "0o600",
+        "summary.json": "0o600",
+        "final-check.json": "0o600",
+        "samples.jsonl": "0o600",
+        "tunnel.journal.jsonl": "0o600"
+      },
+      "remaining_dropins": "",
+      "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+      "unchanged_tunnel_and_xray": true,
+      "observer_enabled": true,
+      "cursor_resume_verified": true
+    },
+    "65.109.249.222": {
+      "checked_utc": "2026-10-07T19:19:38.705107+00:00",
+      "tunnel": {
+        "MainPID": "189268",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 18:30:09 UTC",
+        "MemoryCurrent": "53161984",
+        "CPUUsageNSec": "748080222000",
+        "ActiveState": "active"
+      },
+      "observer": {
+        "MainPID": "192641",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 19:18:56 UTC",
+        "MemoryCurrent": "13377536",
+        "CPUUsageNSec": "149878000",
+        "ActiveState": "active"
+      },
+      "summary": {
+        "completed": false,
+        "until": "2026-10-08T19:14:08.869669+00:00",
+        "journal_recorder": {
+          "records": 949,
+          "cursor_resume": true,
+          "last_realtime_usec": "1791397809407774"
+        },
+        "first_utc": "2026-10-07T19:14:17.728437+00:00",
+        "last_utc": "2026-10-07T19:19:36.388330+00:00",
+        "samples": 33,
+        "peak_active": 1000.0,
+        "peak_rss_kib": 62108,
+        "peak_fds": 1009,
+        "runs": {
+          "189268": {
+            "first_utc": "2026-10-07T19:14:17.728437+00:00",
+            "last_counters": {
+              "errors_total": 0.0,
+              "rejected_total": 0.0,
+              "opening_transport_retries_total": 0.0,
+              "config_reload_rejected_total": 0.0,
+              "path_recovery_attempts_total": 0.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 0.0,
+              "log_dropped_total": 0.0
+            },
+            "last_utc": "2026-10-07T19:19:36.388330+00:00"
+          }
+        },
+        "observed_processes": 1,
+        "triggers": {},
+        "counter_deltas": {
+          "errors_total": 0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        }
+      },
+      "latest_utc": "2026-10-07T19:19:36.388330+00:00",
+      "sample_bytes": 20125,
+      "journal_rows": 949,
+      "current_pid_log_events": [],
+      "xray_processes": [
+        {
+          "pid": 71633,
+          "start_ticks": "2098986",
+          "executable": "/usr/local/bin/xray"
+        }
+      ],
+      "removed": [
+        "/var/lib/super-paqet-watch/conf.original.yaml",
+        "/var/lib/super-paqet-watch/restore.py",
+        "/var/log/super-paqet-watch/migration4-20261007T191206Z"
+      ],
+      "private_modes": {
+        "tunnel.journal.jsonl": "0o600",
+        "installation.json": "0o600",
+        "summary.json": "0o600",
+        "samples.jsonl": "0o600",
+        "final-check.json": "0o600",
+        "window.json": "0o600",
+        "latest.json": "0o600",
+        "journal-state.json": "0o600"
+      },
+      "remaining_dropins": "",
+      "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+      "unchanged_tunnel_and_xray": true,
+      "observer_enabled": true,
+      "cursor_resume_verified": true
+    },
+    "89.45.68.14": {
+      "checked_utc": "2026-10-07T19:19:38.265317+00:00",
+      "tunnel": {
+        "MainPID": "337241",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 18:30:30 UTC",
+        "MemoryCurrent": "25804800",
+        "CPUUsageNSec": "426310941000",
+        "ActiveState": "active"
+      },
+      "observer": {
+        "MainPID": "340291",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 19:18:55 UTC",
+        "MemoryCurrent": "13799424",
+        "CPUUsageNSec": "395097000",
+        "ActiveState": "active"
+      },
+      "summary": {
+        "completed": false,
+        "until": "2026-10-08T19:14:08.869669+00:00",
+        "journal_recorder": {
+          "records": 415,
+          "cursor_resume": true,
+          "last_realtime_usec": "1791397830273792"
+        },
+        "first_utc": "2026-10-07T19:14:17.512170+00:00",
+        "last_utc": "2026-10-07T19:19:35.852024+00:00",
+        "samples": 33,
+        "peak_active": 17.0,
+        "peak_rss_kib": 35808,
+        "peak_fds": 51,
+        "runs": {
+          "337241": {
+            "first_utc": "2026-10-07T19:14:17.512170+00:00",
+            "last_counters": {
+              "errors_total": 0.0,
+              "rejected_total": 0.0,
+              "opening_transport_retries_total": 0.0,
+              "config_reload_rejected_total": 0.0,
+              "path_recovery_attempts_total": 0.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 0.0,
+              "log_dropped_total": 0.0
+            },
+            "last_utc": "2026-10-07T19:19:35.852024+00:00"
+          }
+        },
+        "observed_processes": 1,
+        "triggers": {},
+        "counter_deltas": {
+          "errors_total": 0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        }
+      },
+      "latest_utc": "2026-10-07T19:19:35.852024+00:00",
+      "sample_bytes": 41216,
+      "journal_rows": 415,
+      "current_pid_log_events": [],
+      "xray_processes": [],
+      "removed": [
+        "/var/lib/super-paqet-watch/conf.original.yaml",
+        "/var/lib/super-paqet-watch/restore.py",
+        "/var/log/super-paqet-watch/migration4-20261007T191206Z"
+      ],
+      "private_modes": {
+        "samples.jsonl": "0o600",
+        "journal-state.json": "0o600",
+        "tunnel.journal.jsonl": "0o600",
+        "summary.json": "0o600",
+        "window.json": "0o600",
+        "latest.json": "0o600",
+        "installation.json": "0o600",
+        "final-check.json": "0o600"
+      },
+      "remaining_dropins": "",
+      "config_sha256": "61b976bbe69887aa95aea8779e188826bb8136f4ffd0a5647dfd49fdaa2eacef",
+      "unchanged_tunnel_and_xray": true,
+      "observer_enabled": true,
+      "cursor_resume_verified": true
+    },
+    "89.45.68.118": {
+      "checked_utc": "2026-10-07T19:19:39.128046+00:00",
+      "tunnel": {
+        "MainPID": "1023401",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 18:31:45 UTC",
+        "MemoryCurrent": "151916544",
+        "CPUUsageNSec": "3889841201000",
+        "ActiveState": "active"
+      },
+      "observer": {
+        "MainPID": "1025249",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Wed 2026-10-07 19:18:56 UTC",
+        "MemoryCurrent": "16785408",
+        "CPUUsageNSec": "3300459000",
+        "ActiveState": "active"
+      },
+      "summary": {
+        "completed": false,
+        "until": "2026-10-08T19:14:08.869669+00:00",
+        "journal_recorder": {
+          "records": 26934,
+          "cursor_resume": true,
+          "last_realtime_usec": "1791397897781608"
+        },
+        "first_utc": "2026-10-07T19:14:18.470830+00:00",
+        "last_utc": "2026-10-07T19:19:36.964801+00:00",
+        "samples": 33,
+        "peak_active": 3425.0,
+        "peak_rss_kib": 144568,
+        "peak_fds": 3456,
+        "runs": {
+          "1023401": {
+            "first_utc": "2026-10-07T19:14:18.470830+00:00",
+            "last_counters": {
+              "errors_total": 0.0,
+              "rejected_total": 0.0,
+              "opening_transport_retries_total": 0.0,
+              "config_reload_rejected_total": 0.0,
+              "path_recovery_attempts_total": 0.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 0.0,
+              "log_dropped_total": 0.0
+            },
+            "last_utc": "2026-10-07T19:19:36.964801+00:00"
+          }
+        },
+        "observed_processes": 1,
+        "triggers": {},
+        "counter_deltas": {
+          "errors_total": 0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        }
+      },
+      "latest_utc": "2026-10-07T19:19:36.964801+00:00",
+      "sample_bytes": 38134,
+      "journal_rows": 26934,
+      "current_pid_log_events": [],
+      "xray_processes": [],
+      "removed": [
+        "/var/lib/super-paqet-watch/conf.original.yaml",
+        "/var/lib/super-paqet-watch/restore.py",
+        "/var/log/super-paqet-watch/migration4-20261007T191206Z"
+      ],
+      "private_modes": {
+        "samples.jsonl": "0o600",
+        "journal-state.json": "0o600",
+        "tunnel.journal.jsonl": "0o600",
+        "summary.json": "0o600",
+        "window.json": "0o600",
+        "latest.json": "0o600",
+        "installation.json": "0o600",
+        "final-check.json": "0o600",
+        "tunnel.journal.jsonl.1": "0o600"
+      },
+      "remaining_dropins": "",
+      "config_sha256": "5f788d4490d39b66753f64b4f50f65a132aeafeb81a7ff881fe823061ee23e9d",
+      "unchanged_tunnel_and_xray": true,
+      "observer_enabled": true,
+      "cursor_resume_verified": true
+    }
+  }
+}

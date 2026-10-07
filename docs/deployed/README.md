@@ -38,3 +38,10 @@ owned standalone client probe binaries were removed; prior incident archives and
 observer spools remain available. See the
 [deployment report](../MIGRATION-DEPLOYMENT-2026-10-07.md) for accepted live checks,
 cleanup and qualification limits.
+
+`super-paqet-watch.service` is the independent enabled observer unit installed on
+all five hosts. It retains private metrics and journal copies until 8 October
+19:14:08 UTC without changing the tunnel configuration. See the
+[observation report](../PRODUCTION-OBSERVATION-2026-10-07.md) for retention, paths,
+cleanup and review instructions. This unit's fixed deadline is specific to this
+window; renew it explicitly for another observation period.

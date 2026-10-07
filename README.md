@@ -34,6 +34,7 @@ PA return. After customer traffic failures, opening recovery and mux stream
 lifetime bugs were fixed; continued observation exposed further controller and
 mux liveness and queued-payload ownership/deadline defects, fixed and redeployed. 24-hour production observation remains
 in progress. See the [incident report](docs/PRODUCTION-INCIDENT-2026-10-06.md) and
+[current observation and log locations](docs/PRODUCTION-OBSERVATION-2026-10-07.md), plus
 [current status](docs/STATUS.md). Earlier load/bulk measurements are retained in
 [production evidence](docs/production-deployment-evidence.json); they qualify the
 earlier executable and do not prove this release is production-ready.

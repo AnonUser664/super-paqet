@@ -1,0 +1,23 @@
+[Unit]
+Description=Finite super-paqet production incident observer
+After=super-paqet.service
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/python3 /var/lib/super-paqet-watch/production_watch.py --directory /var/log/super-paqet-watch/migration4-20261007T191408Z --duration 86400 --until 2026-10-08T19:14:08.869669+00:00 --interval 10 --sample-file-mib 32 --sample-backups 15 --journal-since '2026-10-07 18:28:00 UTC'
+Restart=on-failure
+RestartSec=10
+RuntimeMaxSec=86500
+Nice=10
+IOSchedulingClass=idle
+MemoryMax=128M
+TasksMax=16
+UMask=0077
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/log/super-paqet-watch
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

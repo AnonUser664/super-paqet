@@ -19,6 +19,12 @@ complete rollback archives remain. See the
 This finite live check does not establish sustained busy-customer capacity or
 one-day stability. Earlier observations below describe their identified versions.
 
+All five hosts now have independent, enabled ten-second observers and private
+rotating metric/journal archives through **2026-10-08 19:14:08 UTC**. Production
+stays at warning logs with profiling off. Installing and cleaning the observers
+left all tunnel configs/PIDs and Xray process identities unchanged. See the
+[current observation window and tomorrow's review](PRODUCTION-OBSERVATION-2026-10-07.md).
+
 ## Qualification and deployment before migration.4
 
 The earlier migration candidate `enterprise-2026.10.07-migration.3` is locally
@@ -150,16 +156,18 @@ remain in [historical liveness receipts](liveness-qualification-2026-10-07.json)
 with the corrected scope. They do not qualify a fixed-four pool. The benchmark
 now defaults the maximum to the explicit initial count.
 
-## Observation still in progress
+## Historical observation before migration.4
 
-Independent ten-second collectors continue until approximately **2026-10-07
-20:18 UTC**. Durable summaries retain peaks and within-PID counter deltas across
+Before migration.4, independent ten-second collectors were scheduled until approximately
+**2026-10-07 20:18 UTC**. They have been superseded by the fresh window above;
+their evidence remains available. Durable summaries retain peaks and within-PID counter deltas across
 raw-log rotation and observer restarts; twelve profile slots preserve late-day
 capture coverage. Incidents additionally capture bounded qdisc, socket, netstat
 and softnet metadata. Observer updates preserve the original end time and do not
 restart the tunnel. `completed` marks normal observer completion. Collection
 does not itself alert an operator or repair a failure. Temporary diagnostics
-return to warning logs around 19:57 UTC, subject to the unchanged-config guard.
+previously had a guarded warning-log restore timer; that obsolete timer is now
+disarmed, and migration.4 already uses warning logs with profiling off.
 
 The full-day observation is **unfinished**. Paired captures and same-binary
 fresh-source tests confirmed selective tuple loss during the .118 France episode.
