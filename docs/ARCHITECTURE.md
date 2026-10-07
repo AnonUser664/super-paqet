@@ -349,3 +349,19 @@ encoding remain unchanged.
 writes under bulk batching. It preserves FIFO byte order and the ACK policy;
 zero preserves preset behavior. Reliability reload updates it in place. Static
 endpoints still sample slot pressure for configured pool selection/growth.
+
+## Verified source-tuple recovery
+
+[path_recovery.go](../internal/engine/path_recovery.go) samples each opted-in peer's
+bounded carrier pool once per second. Delivered/received bytes and successful
+openings reset its no-progress evidence; outgoing ACK attempts do not. Three
+transport opening failures plus sustained no-progress permit a bounded probe.
+Each candidate owns a new reserved source tuple and its own firewall journal.
+The candidate remains unpublished until PPONG proves bidirectional delivery.
+Probe I/O runs outside the reload lock; commit validates resource identity and
+checks the old pool again. Config changes or resumed progress discard the
+candidate. Publication replaces only the failed peer's bindings; cleanup ends
+that peer's old streams and removes its old rules. The resource retains the
+configured specification so identical reloads preserve its recovered socket.
+At most four candidates are staged concurrently. Failed cleanup remains owned
+for later retry and shutdown. The feature is disabled unless explicitly enabled.

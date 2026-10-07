@@ -64,6 +64,8 @@ type Endpoint struct {
 	// Shares one peer raw socket/source tuple across independent KCP conversations.
 	// Both peers and listeners must enable this; parity-only FEC is incompatible.
 	SharedSource bool `yaml:"shared_source"`
+	// Optional verified source-tuple recovery for an otherwise unresponsive shared peer.
+	PathRecovery PathRecoveryConfig `yaml:"path_recovery"`
 	// Physical interface/source/next-hop metadata prepared before raw socket construction.
 	Network conf.Network `yaml:"network"`
 	// Reliability/cipher/mux settings for each carrier at this endpoint.
@@ -239,6 +241,9 @@ func (c *Config) prepare() error {
 // prepare combines endpoint overrides, discovery and transport defaults while enforcing
 // worker/source-port/cipher compatibility.
 func (e *Endpoint) prepare(listener bool) error {
+	if err := e.PathRecovery.prepare(listener, e.SharedSource); err != nil {
+		return err
+	}
 	if err := e.prepareSourcePorts(listener); err != nil {
 		return err
 	}

@@ -17,6 +17,7 @@ import (
 // metrics exports process and carrier snapshots; expensive stream scans are bounded separately
 // by mux telemetry.
 func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "super_paqet_path_recovery_attempts_total %d\nsuper_paqet_path_recovery_succeeded_total %d\nsuper_paqet_path_recovery_rejected_total %d\n", e.pathRecoveryAttempts.Load(), e.pathRecoverySucceeded.Load(), e.pathRecoveryRejected.Load())
 	w.Header().Set("Content-Type", "text/plain; version=0.0.4")
 	if e.diagnostics != nil {
 		fmt.Fprintf(w, "super_paqet_log_dropped_total %d\n", e.diagnostics.dropped.Load())
@@ -93,6 +94,7 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 		p.mu.RLock()
 		for i, s := range p.slots {
 			if c := s.conn.Load(); c != nil && !c.Session.IsClosed() {
+				fmt.Fprintf(w, "super_paqet_peer_conversation_id{peer=%s,session=%s} %d\nsuper_paqet_peer_source_port{peer=%s,session=%s} %d\n", strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), c.UDPSession.GetConv(), strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), s.network.Port)
 				state := c.UDPSession.TransportStats()
 				fmt.Fprintf(w, "super_paqet_peer_rto_ms{peer=%s,session=%s} %d\n", strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), state.RTO)
 				minWindow, maxWindow := c.Session.ReceiveWindowStats()

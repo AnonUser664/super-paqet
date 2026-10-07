@@ -61,6 +61,13 @@ type peer struct {
 	sharedNetwork conf.Network
 	// Atomic selection cursor used to distribute equal-pressure choices.
 	next atomic.Uint64
+	// Recovery only responds to transport failures, never target rejection or an idle peer.
+	recoveryFailures atomic.Uint64
+	recoverySuccess  atomic.Int64
+	recoveryPending  atomic.Bool
+	// Serializes low-frequency progress accounting with a staged probe's final check.
+	recoveryMu     sync.Mutex
+	recoveryHealth pathHealth
 }
 
 // slot retains a source reservation and an atomically published carrier generation, plus
@@ -158,7 +165,7 @@ func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
 	}
 	// Publish only after control setup succeeded; other opens may now reuse this complete carrier generation.
 	s.conn.Store(c)
-	p.engine.log().Debug("session.connected", "conv", c.UDPSession.GetConv(), "remote", p.configuration().Address, "local", c.LocalAddr().String())
+	p.engine.log().Debug("session.connected", "conv", c.UDPSession.GetConv(), "remote", p.configuration().Address, "local", c.LocalAddr().String(), "phase", "local_setup", "peer_verified", false)
 	if p.settings != nil {
 		p.engine.addEndpoint(c, p.settings, s)
 	} else if p.endpoint.Adaptive == nil || *p.endpoint.Adaptive {
@@ -219,6 +226,7 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 			}
 			var timeout interface{ Timeout() bool }
 			if errors.As(err, &timeout) && timeout.Timeout() && p.engine.ctx.Err() == nil {
+				p.recoveryFailures.Add(1)
 				p.invalidateIdle(s, c)
 				transportRetry = true
 				p.engine.log().Debug("opening.syn_timeout", "remote", p.configuration().Address, "conv", c.UDPSession.GetConv(), "attempt", attempts+1, "remaining_ms", time.Until(deadline).Milliseconds(), "streams", c.Session.NumStreams(), "error", err)
@@ -257,6 +265,7 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 			var timeout interface{ Timeout() bool }
 			transportTimedOut := ack[0] == 0 && errors.As(err, &timeout) && timeout.Timeout()
 			if transportTimedOut && p.engine.ctx.Err() == nil {
+				p.recoveryFailures.Add(1)
 				abortOpening(strm)
 				// Only this new stream failed. Existing forwards retain their carrier.
 				transportRetry = true
@@ -273,6 +282,7 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 			return nil, err
 		}
 		strm.SetDeadline(time.Time{})
+		p.recoverySuccess.Store(time.Now().UnixNano())
 		return strm, nil
 	}
 	return nil, fmt.Errorf("peer unavailable: %w", last)

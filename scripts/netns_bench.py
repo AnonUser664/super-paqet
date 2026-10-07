@@ -40,6 +40,7 @@ def main():
     p.add_argument('--down-rate-mbit', type=int, help='reverse direction bandwidth cap')
     p.add_argument('--sessions', type=int, default=4)
     p.add_argument('--max-sessions', type=int, help='carrier ceiling; defaults to --sessions so qualification uses a fixed pool')
+    p.add_argument('--path-recovery', action='store_true', help='enable verified fresh-source recovery on the shared outgoing peer')
     p.add_argument('--shared-source', action='store_true', help='independent KCP lanes on one peer source tuple')
     p.add_argument('--hold', type=int, default=0)
     fixture = p.add_mutually_exclusive_group()
@@ -95,6 +96,7 @@ def main():
         if any(event.get(k,0)>100 for k in ('loss','reorder')): p.error('epoch percentages must be 0..100')
         if event['at']>=a.duration+a.warmup:p.error('epoch must occur within the workload interval')
     epochs.sort(key=lambda event:event['at'])
+    if a.path_recovery and (not a.enterprise or not a.shared_source):p.error('path-recovery requires enterprise and shared-source')
     if a.duration < 1 or a.workers < 1 or a.sessions < 1: p.error('duration, workers and sessions must be positive')
     if a.max_sessions is None: a.max_sessions = a.sessions
     if not a.sessions <= a.max_sessions <= 256: p.error('max-sessions must be sessions..256')
@@ -264,6 +266,7 @@ def main():
             client = f'peers:\n  remote:\n    address: 198.18.0.2:29999\n    key: benchmark-only-key\n    sessions: {a.sessions}\n    max_sessions: {a.max_sessions}\n    network: {{interface: spq-c, ipv4: {{addr: "198.18.0.1:0", router_mac: "02:00:00:00:00:02"}}}}\nforwards:\n'
             for i in range(8): client += f'  - {{listen: "127.0.0.1:{28080+i}", peer: remote, target: "127.0.0.{i+1}:18080"}}\n'
             server = f'listeners:\n  - address: 198.18.0.2:29999\n    sessions: {a.sessions}\n    max_sessions: {a.max_sessions}\n    key: benchmark-only-key\n    network: {{interface: spq-s, ipv4: {{addr: "198.18.0.2:29999", router_mac: "02:00:00:00:00:01"}}}}\n'
+            if a.path_recovery:client=client.replace('    address:', '    path_recovery: {enabled: true}\n    address:',1)
             client += 'metrics: 127.0.0.1:29090\n'
             server += 'metrics: 127.0.0.1:29090\n'
             kcp_options=json.dumps({'block':a.block,'dshard':a.fec[0],'pshard':a.fec[1],**kcp_overrides})

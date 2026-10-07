@@ -29,7 +29,9 @@ interpreting incomplete traces.
 |---|---|
 | `engine.start`, `listener.ready`, `forward.ready` | Runtime capacity and configured endpoints |
 | `engine.summary` | Active/accepted/rejected/failed/aborted counts, traffic, goroutines and lost logs |
-| `session.connected`, `session.accepted` | Conversation ID and endpoint identity |
+| `session.connected`, `session.accepted` | Conversation ID and endpoint identity. Outgoing `session.connected` is local setup (`peer_verified: false`), not proof of a peer reply. |
+| `path.recovery_probe`, `path.recovery_probe_failed`, `path.recovered` | Warn-level fresh-tuple proof and scoped recovery. Failed probes preserve the old pool. |
+| `path.recovery_discarded` | Debug-level candidate discarded after old-path progress or a config change. |
 | `session.invalidated`, `session.idle_invalidated` | Carrier replacement |
 | `opening.syn_timeout` | SYN submission exceeded this carrier's receipt budget; identity, attempts and remaining opening time |
 | `opening.transport_timeout` | New-stream receipt timeout; carrier identity, attempt, remaining deadline and surviving streams |
@@ -199,3 +201,14 @@ and softnet counters. These help distinguish injection queue drops from NIC,
 socket and packet-processing pressure. Capture is read-only and occurs with the
 existing five-minute incident cooldown; a missing tool is recorded as diagnostic
 failure and does not affect the tunnel. No queue policy is changed.
+
+Verified source-tuple recovery exports attempt/success/rejection counters as
+`super_paqet_path_recovery_*_total`. Per-peer/session conversation IDs and actual
+source ports are `super_paqet_peer_conversation_id` and
+`super_paqet_peer_source_port`. These distinguish repeated conversation recycling
+on one blocked tuple from an actual physical-source change.
+
+`scripts/path_recovery_bench.py` uses a middle bridge to drop a particular raw
+source tuple, a whole peer, or one KCP conversation. An independent peer keeps
+serving integrity-checked requests. It also checks config reload and cleanup.
+Drops in endpoint INPUT chains would be an invalid packet-socket outage emulator.

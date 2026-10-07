@@ -80,6 +80,12 @@ type Engine struct {
 	failureWarnAt atomic.Int64
 	// Atomic debug correlation IDs; absent debug tracing avoids per-flow records.
 	flowIDs atomic.Uint64
+	// Bounds concurrent unpublished source-tuple probes independently of peer count.
+	recoverySlots chan struct{}
+	// Optional deterministic probe seam; production proves PPONG over the real carrier.
+	pathProbe func(context.Context, *peer) error
+	// Cumulative bounded-probe outcomes, including discarded stale candidates.
+	pathRecoveryAttempts, pathRecoverySucceeded, pathRecoveryRejected atomic.Uint64
 }
 
 // Run owns one engine lifecycle, including admission resources and cleanup after partial
@@ -112,6 +118,8 @@ func run(ctx context.Context, cfg *Config, watch func(*Engine)) (err error) {
 	e.log().Info("engine.start", "cpus", runtime.GOMAXPROCS(0), "connection_limit", cfg.Limits.Connections, "session_limit", cfg.Limits.Sessions, "log_flow_sample", cfg.Log.FlowSample)
 	e.launch(e.tune)
 	e.launch(e.observe)
+	e.recoverySlots = make(chan struct{}, 4)
+	e.launch(e.recoverPaths)
 	if watch != nil {
 		e.launch(func() { watch(e) })
 	}

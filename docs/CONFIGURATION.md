@@ -128,9 +128,44 @@ Both use the same endpoint object. Some fields only affect outgoing peers.
 | `max_sessions` | `min(256, max(sessions, 2 × GOMAXPROCS))` | Maximum outgoing carrier pool. Must be at least `sessions`. Defaults to `sessions` for fixed source ports or `adaptive: false`. |
 | `source_ports` | Optional list, empty | Peer-only ordered distinct ports, 1–65535, at most 256. Carrier i reserves entry i. Requires port 0 in the network address. Initial and maximum session counts cannot exceed the list. With a list, initial defaults to `min(list length, 8, max(2, GOMAXPROCS))`, maximum to list length. |
 | `shared_source` | Boolean, `false` | Both listener and peer opt into independent KCP conversations on one peer source tuple. Permits multiple `sessions` with a fixed source port. Uses one physical receive socket/encoder/reservation per peer pool, distinct KCP/mux queues and schedules per lane. Requires FEC disabled and no `source_ports` list. Changing it replaces that endpoint. |
+| `path_recovery` | Disabled | Optional verified source-tuple recovery for outgoing `shared_source` peers; details below. |
 | `packet_workers` | Listener `min(4, GOMAXPROCS)` for `packet`; otherwise 1 | Incoming packet workers, 1–64. A peer cannot use more than one; use multiple `sessions` for outgoing parallelism. Pcap requires 1. |
 | `network` | Discovery plus defaults | Physical interface, source address, next-hop MAC, driver and outer flags. |
 | `kcp` | Defaults below | Reliability, windows, packet size, encryption aliases and mux ceilings. |
+
+### Verified source-tuple recovery
+
+```yaml
+path_recovery:
+  enabled: true
+  stalled_after: 30s
+  retry_interval: 30s
+  probe_timeout: 5s
+```
+
+This peer-only opt-in requires `shared_source: true`. It addresses selective
+source-port failures that recreating KCP conversations on the same tuple cannot
+repair. It requires at least three transport opening attempt failures and no carrier
+progress for `stalled_after` (15s–10m). A successful opening, acknowledged data or
+received data on **any** carrier resets that evidence. Idle peers and target
+rejections do not trigger recovery.
+
+The engine reserves a fresh source in 32768–65535, installs its owned firewall
+rules and checks PPING/PPONG using an unpublished carrier. A successful local
+write alone is insufficient. Probes have `probe_timeout` (1s–1m) and at least
+`retry_interval` (10s–10m) between attempts. At most four probes run concurrently
+per process and one per peer. A failed probe keeps the old pool. Before commit,
+the engine rechecks progress, configuration generation and cancellation.
+
+A verified switch replaces only that peer; its already stalled application
+streams end and clients must reconnect. Other peers and listening sockets stay
+live. Flags, packet fields, encryption, destination and reliability parameters
+are preserved; the source port changes. The effective port appears in
+`super_paqet_peer_source_port` and `path.recovered`. It persists through identical
+config reloads; restarting begins again at the configured source port. This is
+unsuitable for remote ACLs restricted to the configured client source port and
+cannot repair a whole-IP outage. Enabling/disabling/changing these settings
+replaces the affected peer generation.
 
 `GOMAXPROCS` means the effective Go runtime CPU parallelism, rather than a
 promise to occupy every logical CPU continuously. Listener client-carrier
