@@ -230,3 +230,50 @@ continue sending, without manufacturing new-opening failure evidence. The
 deterministic carrier-health suite separately checks idle streams, ACK progress,
 remote zero-window backpressure with failed openings, cooldown boundaries and
 configuration/cancellation races during a probe.
+
+
+## Migration diagnostics
+
+`path.recovered` includes `connections_preserved`: true means the original KCP
+and mux objects were retained locally, while false means ordinary replacement.
+It retains peer/session and old/new source-port fields. A candidate round trip
+is proof of transport reachability at that time, not a permanent health guarantee.
+
+At debug level, `path.migration_ready` records negotiated support;
+`path.migration_accepted` records backend routing adoption;
+`path.migration_confirmed` records its reply; and `path.migration_progress`
+records the first post-move ACK advancement with elapsed milliseconds and
+ACKed/received byte deltas. Progress is logged at most once during the watch. Controls
+never log capability tokens, keys or customer payloads.
+
+`path.migration_commit_retry` and `path.migration_fallback` explain bounded
+control failures. After three unavailable responses, warning-level
+`path.migration_unconfirmed` states that the live session remains retained and
+ordinary transport health checks continue. An unconfirmed reply alone does not
+tear down established TCP connections or revert to an ambiguous old tuple.
+
+Warning-level `path.migration_early_stall` is emitted at most once per adopted
+source during its first **60 seconds** when ordinary health evidence qualifies
+a stall, or a carrier holding streams at migration closes. Fields include peer,
+slot, conversation ID, old/new ports, elapsed time, ACKed/received byte deltas,
+pending bytes, remote receive window, current stream count and `carrier_closed`.
+Healthy, idle, briefly delayed and zero-window carriers do not emit a stall
+warning. The reason explicitly says **cause unconfirmed**: tuple loss, a whole
+path outage, a closed logical carrier and filtering are different hypotheses.
+This signal adds bounded per-carrier state and uses the existing one-second
+health loop; it adds no packet hook or per-customer logging.
+
+With the proposed 15-second stall threshold, a blocked new tuple reports after
+15 seconds of qualifying stalled delivery. An occupied carrier closing is
+observed on the next health check. At production `warn` level, both the source
+change and early-failure warning remain visible; the detailed negotiation and
+first-progress events require `debug`.
+
+`--preserve-connections` enables continuity assertions in the recovery fixture;
+`--case all-established` blocks all four active tuples;
+`--case repeat-established --held-payload-bytes 262144` verifies repeated moves
+with larger payloads; `--case early-stall` blocks the newly adopted source and
+requires exactly one warning. Two backend workers exercise fanout ownership.
+The fixture captures and checks fixed S/PA flags, TCP options, initial client
+sequence rules and retained backend sequence/ACK/timestamp formulas using
+`scripts/check_migration_wire.py`. These packet checks do not predict censorship.

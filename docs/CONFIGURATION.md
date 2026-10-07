@@ -141,6 +141,7 @@ sessions: 4
 max_sessions: 4
 path_recovery:
   enabled: true
+  preserve_connections: true  # opt-in; both ends need the migration runtime
   stalled_after: 15s
   retry_interval: 15s
   probe_timeout: 5s
@@ -185,11 +186,38 @@ configuration lock, at most one per carrier and four concurrently per process.
 Failed probes retain the existing slot and streams. Before a successful commit,
 configuration/resource/slot identity, cancellation and old-carrier health are
 rechecked. If the old carrier resumes or configuration changes, the candidate
-is discarded. Otherwise only that slot is switched; its stalled streams close
-and applications reconnect. Healthy sibling streams, other peers and listener
-bindings retain their ownership. There is no cross-session byte striping or
-transparent TCP migration. The published pool still contains at most
+is discarded. Otherwise only that slot is switched. With the default
+`preserve_connections: false`, its stalled streams close and applications reconnect.
+With `preserve_connections: true`, a negotiated move retains the same live KCP
+and mux objects, streams, pending bytes and backend TCP sockets while adopting
+the verified candidate's physical source socket. Healthy siblings, other peers
+and listener bindings retain their ownership. There is no cross-session byte
+striping or per-TCP replay buffer. The published pool still contains at most
 `max_sessions`; up to four unpublished probe carriers temporarily add sockets.
+
+`preserve_connections` defaults to **false** and requires enabled recovery,
+independent outgoing source ports (`shared_source: false`) and FEC disabled.
+The backend needs the migration-capable executable and conversation-aware
+listeners (`shared_source: true`); backend client-facing ports do not change.
+Capability negotiation runs asynchronously after ordinary carrier setup. Older
+backends or an already closed logical session retain ordinary replacement.
+Changing this option replaces the affected peer pool on live reload.
+
+The candidate is checked before local movement. Commits carry a session
+capability and monotonically increasing generation; repeated commits on the
+same tuple are safe. Missing commit responses are retried three times, each
+bounded by `probe_timeout`, while established streams stay alive. A later move
+can supersede an unconfirmed earlier generation. A continuing new-path stall
+uses the existing health/recovery detector. Neither an application deadline,
+a closed mux session nor a backend restart can be undone by migration.
+
+Capabilities are 32 random bytes, scoped to the accepting listener generation
+and original client IP, and removed with the accepted session. They are bearer
+control tokens, never logged. Under `enc: 'null'`, an on-path observer can read
+these controls; they do not add encryption or packet authentication. Migration
+preserves the configured outer flags/options/field-building rules, but retaining
+an unencrypted KCP conversation ID across tuples can link those tuples. Local
+header checks cannot establish how a real filter classifies that traffic.
 
 Existing shared-source configurations remain supported. Their whole-peer
 opening-failure/no-progress detector and replacement scope remain unchanged:

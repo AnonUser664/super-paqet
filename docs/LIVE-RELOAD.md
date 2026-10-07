@@ -102,7 +102,11 @@ relays whose opposite TCP writer remains idle. Ordinary directional EOF keeps
 that writer open; full carrier closure/cancellation ends it. This uses existing
 lifecycle channels without additional per-flow timers or goroutines.
 
-No application bytes are migrated between old and new KCP conversations.
+No application bytes are migrated between old and new KCP conversations during
+configuration replacement. Opt-in source-port recovery can retain the **same**
+conversation and mux through a physical move; it does not make key/MTU/backend
+changes or endpoint removal transparent. Changing
+`path_recovery.preserve_connections` replaces only that peer pool.
 Changing a server listener alone can leave the remote client's old carrier stale
 until its configured keepalive/opening recovery expires. Coordinate structural
 changes across both ends and verify new target flows. Reliability settings can

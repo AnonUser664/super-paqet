@@ -1,7 +1,19 @@
 # Current deployment status
 
-Independent-source release `enterprise-2026.10.07-carrier.4` is locally qualified
-and **not deployed**. It uses four distinct client source ports, carrier-scoped
+The migration candidate `enterprise-2026.10.07-migration.3` is locally
+qualified and **not deployed**. It adds opt-in preservation of established
+KCP/mux/TCP state during a verified source-port move and bounded early-stall
+diagnostics. Both clients and backends need the new runtime for preservation.
+Its [report](MIGRATION-2026-10-07.md) and
+[receipts](migration-qualification-2026-10-07.json) retain 12 fault scenarios,
+17 primary workloads, four profiling repeats and five config validations.
+Clean median receiver bulk was 5.812/4.284 Gbit/s upload/download versus
+carrier.4 at 5.992/4.332. The first mixed-load pair was slower; repeated profiling
+runs varied substantially in both versions. These are finite local tests, not a
+production filtering or busy-customer capacity guarantee.
+
+The previous independent-source release `enterprise-2026.10.07-carrier.4` is
+locally qualified and **not deployed**. It uses four distinct client source ports, carrier-scoped
 verified recovery and 15-second stall/retry defaults. The exact executable,
 behavior, performance ranges, failure tests and limits are in the
 [candidate report](CARRIER-RECOVERY-2026-10-07.md) and

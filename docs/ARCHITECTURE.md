@@ -317,7 +317,7 @@ integrity checks, HTTP/iperf workloads, scale soaks and service recovery. Real
 Reality probes established the current deployment profile separately.
 
 There is currently no distributed control plane,
-per-customer authentication/ACL layer, transparent session migration, universal
+per-customer authentication/ACL layer, migration across backend restarts, universal
 path-MTU discovery, automatic FEC selection, or proven thousands-busy-customer
 capacity on the current hosts. See [CONFIGURATION.md](CONFIGURATION.md),
 [OPERATIONS.md](OPERATIONS.md)
@@ -373,3 +373,54 @@ survive identical reloads. One probe per slot and four process-wide bound
 candidate resources. Failed/stale candidates are closed without touching live
 streams. Old failed streams reconnect rather than migrate; each application
 stream remains pinned to one ordered KCP/mux session. The feature is opt-in.
+
+
+## Live source-port migration
+
+`path_recovery.preserve_connections` adds a negotiated physical move to the
+independent-source recovery transaction. Each opted-in client slot owns a
+one-source `SharedDialer`; it normally holds one logical KCP/mux carrier and
+briefly holds the existing carrier plus the candidate control carrier after a
+move. Closing a logical conversation never closes that slot-owned socket.
+
+[internal/engine/migration.go](../internal/engine/migration.go) owns the bounded
+capability registry and token/check/move/reply inner controls. A check proves
+backend support without mutating routing. Candidate PPONG, capability checks
+and ordinary generation/config rechecks precede the local socket transfer.
+An idempotent commit moves the backend session to the candidate's actual receive
+worker and new return address. Higher epochs supersede ambiguous older commits;
+delayed lower epochs cannot revert the tuple. Lost replies are retried without
+closing the preserved mux or redialing its application targets.
+
+[third_party/kcp-go/migration.go](../third_party/kcp-go/migration.go) transfers
+conversation-map ownership under a control-plane mutex and existing listener
+locks. An immutable atomic route snapshot supplies current addresses and socket
+ownership. A read lock per output batch excludes an in-flight batch submission
+from a move; queued output is retargeted when transmitted. Old socket retirement
+cannot close the session after its map entry has transferred. Old in-flight
+packets can be discarded; the original KCP sequence/reorder/ARQ state handles
+retransmission and duplicate suppression. Pending ARQ is woken after backend
+confirmation; the backend also wakes it when committing the move. Normal ARQ
+continues while confirmation is pending.
+There is no additional global per-packet routing lookup, no per-TCP migration
+state and no additional application-byte copy for migration.
+
+Each outgoing listener publishes an atomic one-conversation receive hint. Input
+uses it only when conversation ID, remote tuple and current route ownership all
+match; otherwise the authoritative listener map handles the packet. This avoids
+address formatting and map locking on ordinary client input without letting a
+stale hint deliver retired-tuple packets after migration. The hint is cleared
+when its conversation moves or closes. Immediate ACK batching follows the current
+listener owner, including after a move between capture workers.
+
+The outgoing `Conn` retains the same KCP and smux pointers. Its atomic effective
+packet reference keeps telemetry correct. Its adaptive controller is retargeted
+to the new slot without discarding learned RTT/window/pacing state. Firewall
+journals and reservations transfer with the adopted slot as in ordinary recovery.
+The backend encoder's seed/counter remain shared and live; the new client source
+uses normal fresh-encoder initialization. Both fixed S/PA and the existing
+TCP option/sequence/ACK/timestamp code remain unchanged.
+
+One minute of post-move health observation emits at most one early-stall warning.
+Normal idle queues, brief gaps and remote zero-window backpressure do not qualify
+as transport stalls. This is correlation evidence, not proof of filtering.

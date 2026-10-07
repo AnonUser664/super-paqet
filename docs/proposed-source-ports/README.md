@@ -2,13 +2,15 @@
 
 These five configurations are review artifacts, **not deployed snapshots**.
 `docs/deployed/` continues to describe the running shared-source release.
-The exact qualified candidate and benchmarks are in the
-[carrier recovery report](../CARRIER-RECOVERY-2026-10-07.md). All five files passed
-the validation CLI verbatim in synthetic host namespaces; actual-host preflight
-remains required at deployment.
+The exact qualified migration candidate and benchmarks are in the
+[migration report](../MIGRATION-2026-10-07.md). All five files passed read-only
+`config validate` checks with that executable in synthetic host namespaces.
+Actual-host preflight remains required at deployment.
 
 Both clients use four independently reserved automatic source ports per country,
-15-second stall/retry budgets and a five-second verified recovery probe. The two-vCPU backends use two packet capture workers so distinct client
+15-second stall/retry budgets, a five-second verified recovery probe and
+`preserve_connections: true`. This now requires the migration runtime on **both**
+clients and backends; older backends fall back to ordinary replacement. The two-vCPU backends use two packet capture workers so distinct client
 tuples can spread receive processing across both CPUs. Backend
 listener ports, country peer names, target/customer ports, S outbound / PA return,
 null encryption, memory/admission limits and KCP parameters remain unchanged.
