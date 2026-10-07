@@ -140,7 +140,9 @@ func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
 		setupDeadline, _ := setupCtx.Deadline()
 		strm.SetDeadline(setupDeadline)
 		err = (&protocol.Proto{Type: protocol.PTCPF, TCPF: p.configuration().Network.TCP.RF}).Write(strm)
-		abortOpening(strm)
+		// Setup owns an unpublished carrier: its context can close the carrier
+		// if this ordinary close stalls, without affecting other forwards.
+		strm.Close()
 	}
 	stopped := stopSetup()
 	if err == nil && !stopped {

@@ -39,6 +39,7 @@ def main():
     p.add_argument('--rate-mbit', type=int, default=0)
     p.add_argument('--down-rate-mbit', type=int, help='reverse direction bandwidth cap')
     p.add_argument('--sessions', type=int, default=4)
+    p.add_argument('--max-sessions', type=int, help='carrier ceiling; defaults to --sessions so qualification uses a fixed pool')
     p.add_argument('--shared-source', action='store_true', help='independent KCP lanes on one peer source tuple')
     p.add_argument('--hold', type=int, default=0)
     fixture = p.add_mutually_exclusive_group()
@@ -95,6 +96,8 @@ def main():
         if event['at']>=a.duration+a.warmup:p.error('epoch must occur within the workload interval')
     epochs.sort(key=lambda event:event['at'])
     if a.duration < 1 or a.workers < 1 or a.sessions < 1: p.error('duration, workers and sessions must be positive')
+    if a.max_sessions is None: a.max_sessions = a.sessions
+    if not a.sessions <= a.max_sessions <= 256: p.error('max-sessions must be sessions..256')
     if min(a.delay_ms,a.jitter_ms,a.rate_mbit,a.down_rate_mbit or 0,a.tcp_buffer_mib,a.queue_packets) < 0: p.error('delays and resource budgets cannot be negative')
     if any(not 0<=x<=100 for x in [a.loss,a.reorder,*(a.burst_loss or [])]): p.error('percentages must be within 0..100')
     if (a.jitter_ms or a.reorder) and not a.delay_ms: p.error('jitter and reordering require delay')
@@ -258,9 +261,9 @@ def main():
         server = 'role: server\n'+base+'network:\n  interface: spq-s\n  ipv4: {addr: "198.18.0.2:29999", router_mac: "02:00:00:00:00:01"}\nlisten: {addr: ":29999"}\n'
         if a.enterprise:
             # New schema, filled in alongside the application implementation.
-            client = f'peers:\n  remote:\n    address: 198.18.0.2:29999\n    key: benchmark-only-key\n    sessions: {a.sessions}\n    network: {{interface: spq-c, ipv4: {{addr: "198.18.0.1:0", router_mac: "02:00:00:00:00:02"}}}}\nforwards:\n'
+            client = f'peers:\n  remote:\n    address: 198.18.0.2:29999\n    key: benchmark-only-key\n    sessions: {a.sessions}\n    max_sessions: {a.max_sessions}\n    network: {{interface: spq-c, ipv4: {{addr: "198.18.0.1:0", router_mac: "02:00:00:00:00:02"}}}}\nforwards:\n'
             for i in range(8): client += f'  - {{listen: "127.0.0.1:{28080+i}", peer: remote, target: "127.0.0.{i+1}:18080"}}\n'
-            server = 'listeners:\n  - address: 198.18.0.2:29999\n    key: benchmark-only-key\n    network: {interface: spq-s, ipv4: {addr: "198.18.0.2:29999", router_mac: "02:00:00:00:00:01"}}\n'
+            server = f'listeners:\n  - address: 198.18.0.2:29999\n    sessions: {a.sessions}\n    max_sessions: {a.max_sessions}\n    key: benchmark-only-key\n    network: {{interface: spq-s, ipv4: {{addr: "198.18.0.2:29999", router_mac: "02:00:00:00:00:01"}}}}\n'
             client += 'metrics: 127.0.0.1:29090\n'
             server += 'metrics: 127.0.0.1:29090\n'
             kcp_options=json.dumps({'block':a.block,'dshard':a.fec[0],'pshard':a.fec[1],**kcp_overrides})
@@ -285,7 +288,7 @@ def main():
             if a.functional:
                 ns(s,'ip','addr','add','198.18.0.3/24','dev','spq-s')
                 server = server.replace('metrics:', '  - address: 198.18.0.3:29999\n    key: benchmark-only-key\n    network: {interface: spq-s, ipv4: {addr: "198.18.0.3:29999", router_mac: "02:00:00:00:00:01"}}\nmetrics:')
-                peer2 = f'  other:\n    address: 198.18.0.3:29999\n    key: benchmark-only-key\n    sessions: {a.sessions}\n    network: {{interface: spq-c, ipv4: {{addr: "198.18.0.1:0", router_mac: "02:00:00:00:00:02"}}}}\n'
+                peer2 = f'  other:\n    address: 198.18.0.3:29999\n    key: benchmark-only-key\n    sessions: {a.sessions}\n    max_sessions: {a.max_sessions}\n    network: {{interface: spq-c, ipv4: {{addr: "198.18.0.1:0", router_mac: "02:00:00:00:00:02"}}}}\n'
                 client = client.replace('forwards:', peer2+'forwards:')
                 client = client.replace('metrics:', '  - {listen: "127.0.0.1:28088", peer: other, target: "127.0.0.1:18080"}\n  - {listen: "127.0.0.1:28090", peer: remote, target: "127.0.0.1:18081", protocol: udp}\n  - {listen: "127.0.0.1:28091", peer: remote, target: "127.0.0.1:18082"}\nmetrics:')
             if a.iperf:
