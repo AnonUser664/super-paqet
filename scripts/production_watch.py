@@ -232,6 +232,14 @@ def main():
             if reasons and start - last_capture >= 300:
                 row["journal"] = command(["journalctl", "-u", "super-paqet", "--since", "-5min", "-n", "120", "--no-pager", "-o", "cat"])
                 row["kernel"] = command(["journalctl", "-k", "-p", "warning", "--since", "-5min", "-n", "50", "--no-pager", "-o", "cat"])
+                # Injection drops may come from a shared qdisc rather than CPU
+                # or NIC capacity. Retain bounded kernel/queue metadata at the
+                # incident, without inspecting application payloads or changing
+                # queue policy. Missing tools remain diagnostic errors only.
+                row["qdisc"] = command(["tc", "-s", "qdisc", "show"])
+                row["sockets"] = command(["ss", "-s"])
+                row["netstat"] = read("/proc/net/netstat")
+                row["softnet"] = read("/proc/net/softnet_stat")
                 last_capture = start
                 artifacts = capture(directory, captures)
                 write_json_atomic(directory / ("capture-" + str(captures % 12) + ".json"), {"utc": row["utc"], "pid": row["unit"].get("MainPID"), "sequence": captures, "reasons": reasons, "artifacts": artifacts})

@@ -193,3 +193,9 @@ as skipped. The second counts failed new-stream reset notifications rejected by
 the bounded queue; local stream ownership is still released immediately. These
 are per-session cumulative counters, not application error totals. Their presence
 requires the candidate runtime; the older liveness executable lacks them.
+
+Incident captures also retain bounded `tc -s qdisc show`, `ss -s`, kernel netstat
+and softnet counters. These help distinguish injection queue drops from NIC,
+socket and packet-processing pressure. Capture is read-only and occurs with the
+existing five-minute incident cooldown; a missing tool is recorded as diagnostic
+failure and does not affect the tunnel. No queue policy is changed.
