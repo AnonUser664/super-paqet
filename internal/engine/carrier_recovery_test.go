@@ -203,3 +203,21 @@ func TestCarrierEarlyFailuresSurviveFirstSample(t *testing.T) {
 		t.Fatal("first sample erased failures from the new tuple")
 	}
 }
+
+// TestCarrierBackpressurePreservesFailureEvidence prevents legitimate remote
+// flow control from rotating a tuple, while retaining evidence if it later
+// reopens its window without delivering the queued traffic.
+func TestCarrierBackpressurePreservesFailureEvidence(t *testing.T) {
+	cfg, now := recoveryConfig(t), time.Now()
+	c := new(kcp.Conn)
+	h := carrierHealth{}
+	h.observeCarrier(now, 0, time.Time{}, c, carrierProgress{acked: 100}, 1024, 1, 100)
+	h.observeCarrier(now.Add(16*time.Second), 3, time.Time{}, c, carrierProgress{acked: 100}, 1024, 1, 0)
+	if h.ready(now.Add(16*time.Second), 3, cfg, true) {
+		t.Fatal("failed openings during remote backpressure rotated a live carrier")
+	}
+	h.observeCarrier(now.Add(17*time.Second), 3, time.Time{}, c, carrierProgress{acked: 100}, 1024, 1, 100)
+	if !h.ready(now.Add(17*time.Second), 3, cfg, true) {
+		t.Fatal("remote window reopening erased failed-opening evidence")
+	}
+}

@@ -14,7 +14,7 @@ def main():
     """Own fixture startup, fault injection, verification and bounded teardown."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--binary', required=True)
-    parser.add_argument('--case', choices=['tuple', 'whole-peer', 'one-lane', 'all-tuples', 'reverse-tuple', 'established', 'short-loss', 'repeat-tuple'], default='tuple')
+    parser.add_argument('--case', choices=['tuple', 'whole-peer', 'one-lane', 'all-tuples', 'reverse-tuple', 'established', 'reverse-established', 'short-loss', 'repeat-tuple'], default='tuple')
     parser.add_argument('--server-binary', help='optional older backend executable for wire compatibility qualification')
     parser.add_argument('--shared-source', action='store_true', help='qualify legacy pool recovery instead of independent carrier recovery')
     parser.add_argument('--output', required=True)
@@ -66,7 +66,7 @@ def worker(peer,port,index):
 with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
  list(pool.map(lambda x:worker(*x),[('broken',28080,i) for i in range(4)]+[('healthy',28081,4)]))
 '''
-    if args.case == 'established':
+    if args.case in ('established','reverse-established'):
         # Four connections are opened once and kept for the entire workload.
         # No new broken-peer openings can supply recovery-failure evidence.
         requester = r'''import concurrent.futures,socket,time,json
@@ -167,7 +167,7 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
                 before=metrics();(out/'before-metrics.txt').write_text(before)
                 if args.case in ('tuple','established','short-loss','repeat-tuple'):
                     ns(router,'tc','filter','add','dev','rc','ingress','protocol','ip','pref','20','flower','ip_proto','tcp','src_port','29997','dst_port','29999','action','drop')
-                elif args.case=='reverse-tuple':
+                elif args.case in ('reverse-tuple','reverse-established'):
                     ns(router,'tc','filter','add','dev','rs','ingress','protocol','ip','pref','20','flower','ip_proto','tcp','src_port','29999','dst_port','29997','action','drop')
                 elif args.case=='all-tuples':
                     for pref,port in enumerate((29997,29995,29993,29991),20):
@@ -210,7 +210,7 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
         (out/'result.json').write_text(json.dumps(result,indent=2)+'\n')
         assert not result['healthy_errors'],'healthy peer disrupted'
         assert result['broken_successes_after_45s']>10,'path did not recover'
-        if args.case in ('tuple','reverse-tuple','established'):assert len(recovered)==1,'single tuple recovery missing or siblings replaced'
+        if args.case in ('tuple','reverse-tuple','established','reverse-established'):assert len(recovered)==1,'single tuple recovery missing or siblings replaced'
         if args.case=='repeat-tuple':assert len(recovered)==2 and all(r.get('session')==0 for r in recovered),'repeated carrier recovery missing'
         if args.case=='all-tuples':assert len(recovered)==4,'not all four blocked tuples recovered'
         if args.case=='short-loss':assert not recovered,'transient loss rotated source tuple'
@@ -218,7 +218,7 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
             if args.shared_source:assert not recovered,'progressing shared pool was replaced'
             else:assert len(recovered)<=1 and all(r.get('session')==0 for r in recovered),'conversation fault replaced sibling tuples'
         if args.case=='whole-peer':assert failed,'failed probe not exercised'
-        if args.case=='established':
+        if args.case in ('established','reverse-established'):
             held_errors=[r for r in rows if r['peer']=='broken' and not r['ok']]
             assert len(held_errors)==1,'established sibling streams were disrupted'
             assert not any(r.get('msg') in ('opening.transport_timeout','opening.syn_timeout') for r in logs),'established test used new-opening failure evidence'
@@ -231,7 +231,7 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
             assert len(re.findall(r'super_paqet_peer_conversation_id\{peer="broken",',snapshot['metrics']))<=4,'carrier pool exceeded fixed four'
         initial_ports={29997} if args.shared_source else {29997,29995,29993,29991}
         changed=[x for x in snapshots if any(int(p) not in initial_ports for p in re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',x['metrics']))]
-        if args.case in ('tuple','reverse-tuple','established','all-tuples','repeat-tuple') or (args.case=='one-lane' and recovered):
+        if args.case in ('tuple','reverse-tuple','established','reverse-established','all-tuples','repeat-tuple') or (args.case=='one-lane' and recovered):
             assert changed,'effective source did not change'
             port_before_reload=re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',next(x['metrics'] for x in snapshots if x['at']>45))
             if args.case!='repeat-tuple':assert set(port_before_reload)==set(re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',after)),'reload reset recovered source'
@@ -243,6 +243,20 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
                 after_conv=dict(re.findall(r'super_paqet_peer_conversation_id\{peer="broken",session="(\d+)"\} (\d+)',after))
                 assert all(before_conv[i]==after_conv.get(i) for i,port in before_map.items() if int(port)!=29997),'healthy sibling carrier replaced'
                 result['healthy_sibling_carriers_preserved']=True
+        # A slot switch must remove the old tuple's rules while retaining all
+        # current sibling/probe-adopted ports. This checks ownership while the
+        # client is still running, not just after process-wide teardown.
+        rules=ns(client,'iptables-save').stdout
+        (out/'live-firewall-after.txt').write_text(rules)
+        ports=set(re.findall(r'super_paqet_peer_source_port\{peer="(?:broken|healthy)",session="\d+"\} (\d+)',after))
+        for port in ports:
+            assert '--dport '+port+' ' in rules and '--sport '+port+' ' in rules,'live carrier rules missing'
+        for record in recovered:
+            retired=record.get('old_source_port')
+            if retired is not None and str(retired) not in ports:
+                assert '--dport '+str(retired)+' ' not in rules and '--sport '+str(retired)+' ' not in rules,'retired tuple rules leaked'
+        result['live_sibling_rules_preserved']=True
+        result['retired_tuple_rules_removed']=True
         result['healthy_carriers_preserved']=True
         result['fixed_four_ceiling_verified']=True
         (out/'result.json').write_text(json.dumps(result,indent=2)+'\n')

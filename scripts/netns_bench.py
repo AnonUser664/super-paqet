@@ -42,6 +42,8 @@ def main():
     p.add_argument('--max-sessions', type=int, help='carrier ceiling; defaults to --sessions so qualification uses a fixed pool')
     p.add_argument('--path-recovery', action='store_true', help='enable verified fresh-source recovery on the outgoing peer')
     p.add_argument('--shared-source', action='store_true', help='independent KCP lanes on one peer source tuple')
+    p.add_argument('--client-memory-mib',type=int,default=0,help='optional client soft Go memory budget')
+    p.add_argument('--server-memory-mib',type=int,default=0,help='optional backend soft Go memory budget')
     p.add_argument('--client-procs',type=int,default=0,help='optional client GOMAXPROCS for target-hardware qualification')
     p.add_argument('--server-procs',type=int,default=0,help='optional backend GOMAXPROCS for target-hardware qualification')
     p.add_argument('--packet-workers',type=int,help='explicit backend capture worker count for matched deployment tests')
@@ -103,6 +105,7 @@ def main():
         if event['at']>=a.duration+a.warmup:p.error('epoch must occur within the workload interval')
     epochs.sort(key=lambda event:event['at'])
     if a.path_recovery and not a.enterprise:p.error('path-recovery requires enterprise')
+    if min(a.client_memory_mib,a.server_memory_mib)<0:p.error('memory budgets cannot be negative')
     if min(a.client_procs,a.server_procs)<0:p.error('process core budgets cannot be negative')
     if a.packet_workers is not None and not 1<=a.packet_workers<=64:p.error('packet workers must be 1..64')
     if a.duration < 1 or a.workers < 1 or a.sessions < 1: p.error('duration, workers and sessions must be positive')
@@ -315,6 +318,8 @@ def main():
             client = client.replace('    address:', '    shared_source: true\n    address:')
             server = server.replace('  - address:', '  - shared_source: true\n    address:')
         if a.enterprise:
+            if a.client_memory_mib:client+=f'limits: {{memory_mib: {a.client_memory_mib}}}\n'
+            if a.server_memory_mib:server+=f'limits: {{memory_mib: {a.server_memory_mib}}}\n'
             if a.conversation_listener and not a.shared_source:server=server.replace('  - address:', '  - shared_source: true\n    address:')
             if a.packet_workers is not None:server=server.replace('    address:', f'    packet_workers: {a.packet_workers}\n    address:',1)
             client=client.replace('network: {', f'network: {{tcp: {{local_flag: [{a.client_flag}], remote_flag: [{a.server_flag}]}}, ',1)

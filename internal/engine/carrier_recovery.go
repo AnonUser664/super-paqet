@@ -15,9 +15,10 @@ import (
 // clock. Inbound traffic cannot hide outbound data whose ACKs have stopped.
 type carrierHealth struct {
 	pathHealth
-	pendingSince time.Time
-	lastConn     *kcp.Conn
-	lastAcked    uint64
+	pendingSince  time.Time
+	lastConn      *kcp.Conn
+	lastAcked     uint64
+	remoteBlocked bool
 }
 
 // observeCarrier counts actual delivery, not attempted sends. A closed/recreated
@@ -32,6 +33,9 @@ func (h *carrierHealth) observeCarrier(now time.Time, failures uint64, success t
 		current[conn] = carrierProgress{acked: sample.acked}
 	}
 	h.observe(now, failures, success, current)
+	// A full receive window can also expire new stream openings. Preserve
+	// their evidence, but never hop while the live receiver requests a pause.
+	h.remoteBlocked = conn != nil && remoteWindow == 0
 	if conn == nil || conn != h.lastConn || sample.acked > h.lastAcked || pending == 0 || streams == 0 || remoteWindow == 0 {
 		h.pendingSince = time.Time{}
 	}
@@ -44,7 +48,7 @@ func (h *carrierHealth) observeCarrier(now time.Time, failures uint64, success t
 // ready allows either repeated failed openings or sustained unacknowledged
 // established traffic. The cooldown applies independently to each source port.
 func (h *carrierHealth) ready(now time.Time, failures uint64, cfg PathRecoveryConfig, cooldown bool) bool {
-	if !cfg.Enabled || (cooldown && !h.lastAttempt.IsZero() && now.Sub(h.lastAttempt) < cfg.retryInterval) {
+	if !cfg.Enabled || h.remoteBlocked || (cooldown && !h.lastAttempt.IsZero() && now.Sub(h.lastAttempt) < cfg.retryInterval) {
 		return false
 	}
 	return (failures >= h.failuresAtProgress+3 && now.Sub(h.lastProgress) >= cfg.stalledAfter) ||
@@ -78,7 +82,7 @@ func (s *slot) carrierRecoveryAllowed(now time.Time, cfg PathRecoveryConfig, cla
 	h.observeCarrier(now, failures, time.Unix(0, s.recoverySuccess.Load()), c, sample, pending, streams, remoteWindow)
 	// Avoid repeatedly assigning new opens to a proven failing tuple, while
 	// keeping all-suspect pools usable if the original path resumes.
-	s.suspect.Store(failures >= h.failuresAtProgress+3 || (!h.pendingSince.IsZero() && now.Sub(h.pendingSince) >= cfg.stalledAfter))
+	s.suspect.Store(!h.remoteBlocked && (failures >= h.failuresAtProgress+3 || (!h.pendingSince.IsZero() && now.Sub(h.pendingSince) >= cfg.stalledAfter)))
 	ready := h.ready(now, failures, cfg, cooldown)
 	if ready && claim {
 		h.lastAttempt = now
