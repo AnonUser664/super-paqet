@@ -40,7 +40,7 @@ def main():
     p.add_argument('--down-rate-mbit', type=int, help='reverse direction bandwidth cap')
     p.add_argument('--sessions', type=int, default=4)
     p.add_argument('--max-sessions', type=int, help='carrier ceiling; defaults to --sessions so qualification uses a fixed pool')
-    p.add_argument('--path-recovery', action='store_true', help='enable verified fresh-source recovery on the shared outgoing peer')
+    p.add_argument('--path-recovery', action='store_true', help='enable verified fresh-source recovery on the outgoing peer')
     p.add_argument('--shared-source', action='store_true', help='independent KCP lanes on one peer source tuple')
     p.add_argument('--hold', type=int, default=0)
     fixture = p.add_mutually_exclusive_group()
@@ -96,7 +96,7 @@ def main():
         if any(event.get(k,0)>100 for k in ('loss','reorder')): p.error('epoch percentages must be 0..100')
         if event['at']>=a.duration+a.warmup:p.error('epoch must occur within the workload interval')
     epochs.sort(key=lambda event:event['at'])
-    if a.path_recovery and (not a.enterprise or not a.shared_source):p.error('path-recovery requires enterprise and shared-source')
+    if a.path_recovery and not a.enterprise:p.error('path-recovery requires enterprise')
     if a.duration < 1 or a.workers < 1 or a.sessions < 1: p.error('duration, workers and sessions must be positive')
     if a.max_sessions is None: a.max_sessions = a.sessions
     if not a.sessions <= a.max_sessions <= 256: p.error('max-sessions must be sessions..256')

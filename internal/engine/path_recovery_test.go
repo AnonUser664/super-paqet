@@ -37,10 +37,10 @@ func TestPathHealthRequiresFailuresAndNoProgress(t *testing.T) {
 	if h.eligible(start.Add(time.Minute), 0, cfg) {
 		t.Fatal("idle peer was eligible")
 	}
-	if h.eligible(start.Add(29*time.Second), 3, cfg) {
+	if h.eligible(start.Add(14*time.Second), 3, cfg) {
 		t.Fatal("brief outage was eligible")
 	}
-	if !h.eligible(start.Add(30*time.Second), 3, cfg) {
+	if !h.eligible(start.Add(15*time.Second), 3, cfg) {
 		t.Fatal("stalled peer was not eligible")
 	}
 	h.observe(start.Add(31*time.Second), 4, time.Time{}, map[*kcp.Conn]carrierProgress{conn: {acked: 101}})
@@ -197,7 +197,10 @@ func TestPathRecoveryConfigValidation(t *testing.T) {
 		}
 	}
 	r := PathRecoveryConfig{Enabled: true}
-	if r.prepare(true, true) == nil || r.prepare(false, false) == nil {
+	if r.prepare(true, true) == nil {
 		t.Fatal("unsupported source contract accepted")
+	}
+	if err := r.prepare(false, false); err != nil {
+		t.Fatal(err)
 	}
 }

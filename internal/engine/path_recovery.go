@@ -27,8 +27,8 @@ type PathRecoveryConfig struct {
 
 // prepare validates explicit budgets even when disabled, catching latent typos.
 func (r *PathRecoveryConfig) prepare(listener, shared bool) error {
-	if r.Enabled && (listener || !shared) {
-		return fmt.Errorf("path_recovery requires an outgoing shared_source peer")
+	if r.Enabled && listener {
+		return fmt.Errorf("path_recovery requires an outgoing peer")
 	}
 	fields := []struct {
 		name     string
@@ -37,8 +37,8 @@ func (r *PathRecoveryConfig) prepare(listener, shared bool) error {
 		fallback string
 		min, max time.Duration
 	}{
-		{"stalled_after", &r.StalledAfter, &r.stalledAfter, "30s", 15 * time.Second, 10 * time.Minute},
-		{"retry_interval", &r.RetryInterval, &r.retryInterval, "30s", 10 * time.Second, 10 * time.Minute},
+		{"stalled_after", &r.StalledAfter, &r.stalledAfter, "15s", 15 * time.Second, 10 * time.Minute},
+		{"retry_interval", &r.RetryInterval, &r.retryInterval, "15s", 10 * time.Second, 10 * time.Minute},
 		{"probe_timeout", &r.ProbeTimeout, &r.probeTimeout, "5s", time.Second, time.Minute},
 	}
 	for _, f := range fields {
@@ -138,6 +138,10 @@ func (e *Engine) recoverPaths() {
 				continue
 			}
 			for name, p := range view.peers {
+				if p.configuration().PathRecovery.Enabled && !p.configuration().SharedSource {
+					e.checkCarrierRecovery(now, name, p)
+					continue
+				}
 				if !p.configuration().PathRecovery.Enabled || !p.recoveryCheck(now, false) {
 					continue
 				}
@@ -167,6 +171,9 @@ func (e *Engine) recoverPaths() {
 // freshSourceSpec requests a reserved ephemeral source while preserving flags,
 // address families, target listener, encryption and all reliability settings.
 func freshSourceSpec(spec resourceSpec) resourceSpec {
+	// Explicit initial ports are a startup contract, not a limit on verified
+	// recovery. A candidate must reserve a port different from every live lane.
+	spec.endpoint.SourcePorts = nil
 	spec.endpoint.Network.Port = 0
 	for _, a := range []*net.UDPAddr{spec.endpoint.Network.IPv4.Addr, spec.endpoint.Network.IPv6.Addr} {
 		if a == nil {

@@ -47,6 +47,9 @@ type peer struct {
 	manageFirewall bool
 	// Serializes real slot allocation with final firewall teardown.
 	allocationMu sync.Mutex
+	// Nonshared carriers own individual journals so one tuple can be retired
+	// without removing sibling rules. Allocation and transfer hold allocationMu.
+	slotRules []*firewall
 	// Prepared peer configuration inherited by newly allocated slots.
 	endpoint Endpoint
 	// Resource-owned live reliability template; nil permits small unit fixtures.
@@ -77,6 +80,8 @@ type slot struct {
 	score atomic.Uint64
 	// Kernel port reservation owned by this slot until pool teardown.
 	guard io.Closer
+	// Scoped rule ownership transferred with this slot during verified recovery.
+	fw *firewall
 	// Serializes cached-generation replacement and reconnect backoff.
 	mu sync.Mutex
 	// Atomically published owned outgoing carrier generation; readers validate it before
@@ -88,16 +93,32 @@ type slot struct {
 	retry time.Time
 	// Bounded reconnect delay; successful creation resets it.
 	backoff time.Duration
+	// Low-frequency health accounting is independent for each physical tuple.
+	recoveryFailures atomic.Uint64
+	recoverySuccess  atomic.Int64
+	recoveryPending  atomic.Bool
+	suspect          atomic.Bool
+	// A selected old slot may outlive publication briefly; it must never reopen
+	// a released source reservation after a successful recovery transaction.
+	retired        atomic.Bool
+	recoveryMu     sync.Mutex
+	recoveryHealth carrierHealth
 }
 
 // connection lazily creates or reuses a slot carrier, sends its flag setup and preserves
 // reconnect backoff.
 func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
+	if s.retired.Load() {
+		return nil, net.ErrClosed
+	}
 	if c := s.conn.Load(); c != nil && !c.Session.IsClosed() {
 		return c, nil
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if s.retired.Load() {
+		return nil, net.ErrClosed
+	}
 	p.mu.RLock()
 	closed := p.closed
 	p.mu.RUnlock()
@@ -227,6 +248,7 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 			var timeout interface{ Timeout() bool }
 			if errors.As(err, &timeout) && timeout.Timeout() && p.engine.ctx.Err() == nil {
 				p.recoveryFailures.Add(1)
+				s.recordTransportFailure()
 				p.invalidateIdle(s, c)
 				transportRetry = true
 				p.engine.log().Debug("opening.syn_timeout", "remote", p.configuration().Address, "conv", c.UDPSession.GetConv(), "attempt", attempts+1, "remaining_ms", time.Until(deadline).Milliseconds(), "streams", c.Session.NumStreams(), "error", err)
@@ -266,6 +288,7 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 			transportTimedOut := ack[0] == 0 && errors.As(err, &timeout) && timeout.Timeout()
 			if transportTimedOut && p.engine.ctx.Err() == nil {
 				p.recoveryFailures.Add(1)
+				s.recordTransportFailure()
 				abortOpening(strm)
 				// Only this new stream failed. Existing forwards retain their carrier.
 				transportRetry = true
@@ -283,6 +306,8 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 		}
 		strm.SetDeadline(time.Time{})
 		p.recoverySuccess.Store(time.Now().UnixNano())
+		s.recoverySuccess.Store(time.Now().UnixNano())
+		s.suspect.Store(false)
 		return strm, nil
 	}
 	return nil, fmt.Errorf("peer unavailable: %w", last)
@@ -391,7 +416,11 @@ func (p *peer) bestSlotLocked(excluded map[*slot]bool) *slot {
 		if excluded[candidate] {
 			continue
 		}
-		if best == nil || candidate.score.Load() < best.score.Load() {
+		// Prefer a progressing tuple over one with repeated transport failures;
+		// retain a fallback when every tuple is suspect so restored paths can
+		// still prove progress before a replacement is ready.
+		if best == nil || (best.suspect.Load() && !candidate.suspect.Load()) ||
+			(best.suspect.Load() == candidate.suspect.Load() && candidate.score.Load() < best.score.Load()) {
 			best = candidate
 		}
 	}
@@ -506,9 +535,18 @@ func (p *peer) allocateSlot(ctx context.Context) (*slot, error) {
 		guard.Close()
 		return nil, err
 	}
+	var rules *firewall
 	if p.manageFirewall {
-		if err := p.fw.add(&n); err != nil {
+		rules = &p.fw
+		if !endpoint.SharedSource {
+			rules = &firewall{}
+			p.slotRules = append(p.slotRules, rules)
+		}
+		if err := rules.add(&n); err != nil {
 			guard.Close()
+			if !endpoint.SharedSource {
+				p.cleanSlotRules(rules)
+			}
 			return nil, err
 		}
 	}
@@ -521,7 +559,33 @@ func (p *peer) allocateSlot(ctx context.Context) (*slot, error) {
 		p.shared, p.sharedGuard, p.sharedNetwork = shared, guard, n
 		return &slot{network: n}, nil
 	}
-	return &slot{network: n, guard: guard}, nil
+	return &slot{network: n, guard: guard, fw: rules}, nil
+}
+
+// cleanSlotRules removes one journal only after successful scoped cleanup.
+// The caller holds allocationMu; a failed cleanup remains owned for shutdown.
+func (p *peer) cleanSlotRules(rules *firewall) error {
+	if err := rules.close(); err != nil {
+		return err
+	}
+	for i, owned := range p.slotRules {
+		if owned == rules {
+			p.slotRules = append(p.slotRules[:i], p.slotRules[i+1:]...)
+			break
+		}
+	}
+	return nil
+}
+
+// closeSlotRules retries every nonshared journal after sockets have stopped.
+func (p *peer) closeSlotRules() error {
+	p.allocationMu.Lock()
+	defer p.allocationMu.Unlock()
+	var errs []error
+	for _, rules := range append([]*firewall(nil), p.slotRules...) {
+		errs = append(errs, p.cleanSlotRules(rules))
+	}
+	return errors.Join(errs...)
 }
 
 // configuration supplies a coherent immutable endpoint template. Live reload

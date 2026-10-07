@@ -14,7 +14,8 @@ def main():
     """Own fixture startup, fault injection, verification and bounded teardown."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--binary', required=True)
-    parser.add_argument('--case', choices=['tuple', 'whole-peer', 'one-lane'], default='tuple')
+    parser.add_argument('--case', choices=['tuple', 'whole-peer', 'one-lane', 'all-tuples', 'reverse-tuple', 'established', 'short-loss', 'repeat-tuple'], default='tuple')
+    parser.add_argument('--shared-source', action='store_true', help='qualify legacy pool recovery instead of independent carrier recovery')
     parser.add_argument('--output', required=True)
     args = parser.parse_args()
     if os.geteuid() != 0:
@@ -23,7 +24,7 @@ def main():
     out = pathlib.Path(args.output).resolve(); out.mkdir(parents=True, exist_ok=True)
     suffix = str(os.getpid()); client, router, server = [f'spq-rec-{x}-{suffix}' for x in ('c', 'r', 's')]
     namespaces, processes, handles, rows, events = [], [], [], [], []
-    config = out / 'client.json'; env = os.environ.copy()
+    config = out / 'client.json'; env = os.environ.copy(); repeated = False
 
     def run(*command):
         """Bound checked host commands; no global network settings are modified."""
@@ -64,6 +65,43 @@ def worker(peer,port,index):
 with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
  list(pool.map(lambda x:worker(*x),[('broken',28080,i) for i in range(4)]+[('healthy',28081,4)]))
 '''
+    if args.case == 'established':
+        # Four connections are opened once and kept for the entire workload.
+        # No new broken-peer openings can supply recovery-failure evidence.
+        requester = r'''import concurrent.futures,socket,time,json
+start=time.monotonic();end=start+55
+def held(index):
+ time.sleep(index*.25)
+ try:
+  with socket.create_connection(('127.0.0.1',28080),2) as s:
+   s.settimeout(25)
+   while time.monotonic()<end:
+    at=time.monotonic()-start;payload=('held-'+str(index)+'\n').encode();s.sendall(payload);data=b''
+    while len(data)<len(payload):
+     part=s.recv(len(payload)-len(data))
+     if not part:raise RuntimeError('held connection EOF')
+     data+=part
+    if data!=payload:raise RuntimeError('held payload corruption')
+    print(json.dumps({'peer':'broken','held':index,'at':at,'ok':True}),flush=True);time.sleep(.15)
+ except Exception as exc:print(json.dumps({'peer':'broken','held':index,'at':time.monotonic()-start,'ok':False,'error':str(exc)}),flush=True)
+def healthy():
+ while time.monotonic()<end:
+  at=time.monotonic()-start
+  try:
+   with socket.create_connection(('127.0.0.1',28081),2) as s:
+    s.settimeout(7);s.sendall(b'healthy');data=b''
+    while len(data)<7:
+     part=s.recv(7-len(data))
+     if not part:raise RuntimeError('healthy EOF')
+     data+=part
+    if data!=b'healthy':raise RuntimeError('healthy corruption')
+   row={'peer':'healthy','at':at,'ok':True}
+  except Exception as exc:row={'peer':'healthy','at':at,'ok':False,'error':str(exc)}
+  print(json.dumps(row),flush=True);time.sleep(.15)
+with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
+ futures=[pool.submit(held,index) for index in range(4)]+[pool.submit(healthy)]
+ for future in futures:future.result()
+'''
     duration = 90 if args.case == 'whole-peer' else 55
     if args.case == 'whole-peer':
         requester = requester.replace('+55;', '+90;')
@@ -83,13 +121,17 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
         for iface in ('rc', 'rs'):
             ns(router, 'ip', 'link', 'set', iface, 'master', 'br0'); ns(router, 'ip', 'link', 'set', iface, 'up')
             ns(router, 'tc', 'qdisc', 'add', 'dev', iface, 'root', 'netem', 'delay', '40ms', 'limit', '10000')
-        ns(router, 'tc', 'qdisc', 'add', 'dev', 'rc', 'clsact')
+        for iface in ('rc','rs'):ns(router, 'tc', 'qdisc', 'add', 'dev', iface, 'clsact')
         kcp = {'mode':'manual','sndwnd':4096,'rcvwnd':4096,'mtu':1350,'nodelay':0,'interval':30,'resend':2,'nocongestion':1,'wdelay':True,'acknodelay':False,'small_write_flush':256,'smuxbuf':4194304,'streambuf':2097152,'adaptive_buffers':False,'ack_timestamps':False,'credit_hints':False}
         def endpoint(ip, port, interface, mac, flags, address):
             """Use the deployed null/four-session transport profile and exact flags."""
             return {'address':address,'enc':'null','shared_source':True,'sessions':4,'max_sessions':4,'packet_workers':1,'adaptive':True,'kcp':kcp,'network':{'backend':'packet','interface':interface,'ipv4':{'addr':f'{ip}:{port}','router_mac':mac},'tcp':{'local_flag':[flags],'remote_flag':['PA']}}}
         broken = endpoint('198.18.0.1',29997,'spq-c','02:00:00:00:00:02','S','198.18.0.2:29999')
-        broken['path_recovery']={'enabled':True,'stalled_after':'30s','retry_interval':'10s','probe_timeout':'3s'}
+        broken['path_recovery']={'enabled':True,'stalled_after':'15s','retry_interval':'15s','probe_timeout':'5s'}
+        if not args.shared_source:
+            broken['shared_source']=False
+            broken['network']['ipv4']['addr']='198.18.0.1:0'
+            broken['source_ports']=[29997,29995,29993,29991]
         healthy = endpoint('198.18.0.1',29996,'spq-c','02:00:00:00:00:02','S','198.18.0.2:29999')
         listener = endpoint('198.18.0.2',29999,'spq-s','02:00:00:00:00:01','PA','198.18.0.2:29999')
         common={'metrics':'127.0.0.1:29090','log':{'level':'debug','interval':'1s','format':'json'},'limits':{'open_timeout':'5s','dial_timeout':'2s'}}
@@ -119,18 +161,31 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
             elapsed=time.monotonic()-started
             if elapsed>5 and not injected:
                 before=metrics();(out/'before-metrics.txt').write_text(before)
-                if args.case=='tuple':
+                if args.case in ('tuple','established','short-loss','repeat-tuple'):
                     ns(router,'tc','filter','add','dev','rc','ingress','protocol','ip','pref','20','flower','ip_proto','tcp','src_port','29997','dst_port','29999','action','drop')
+                elif args.case=='reverse-tuple':
+                    ns(router,'tc','filter','add','dev','rs','ingress','protocol','ip','pref','20','flower','ip_proto','tcp','src_port','29999','dst_port','29997','action','drop')
+                elif args.case=='all-tuples':
+                    for pref,port in enumerate((29997,29995,29993,29991),20):
+                        ns(router,'tc','filter','add','dev','rc','ingress','protocol','ip','pref',str(pref),'flower','ip_proto','tcp','src_port',str(port),'dst_port','29999','action','drop')
                 elif args.case=='whole-peer':
                     ns(router,'tc','filter','add','dev','rc','ingress','protocol','ip','pref','10','flower','ip_proto','tcp','src_port','29996','dst_port','29999','action','pass')
                     ns(router,'tc','filter','add','dev','rc','ingress','protocol','ip','pref','20','flower','ip_proto','tcp','dst_port','29999','action','drop')
                 else:
                     convs=re.findall(r'super_paqet_peer_conversation_id\{peer="broken",session="\d+"\} (\d+)',before)
-                    if len(convs)!=4:raise RuntimeError('expected four active shared conversations before injection')
+                    if len(convs)!=4:raise RuntimeError('expected four active conversations before injection')
                     conv=int(convs[0]);network_value=struct.unpack('!I',struct.pack('<I',conv))[0]
                     ns(router,'tc','filter','add','dev','rc','ingress','protocol','ip','pref','20','u32','match','ip','protocol','6','0xff','match','u16','29997','0xffff','at','20','match','u32',hex(network_value),'0xffffffff','at','60','action','drop')
                     events.append({'event':'blocked_conversation','conv':conv,'at':elapsed})
                 events.append({'event':'injected','at':elapsed});injected=True
+            if args.case=='repeat-tuple' and elapsed>32 and not repeated:
+                current=dict(re.findall(r'super_paqet_peer_source_port\{peer="broken",session="(\d+)"\} (\d+)',metrics()))
+                port=current['0']
+                assert int(port)!=29997,'first recovery did not finish before repeated fault'
+                ns(router,'tc','filter','add','dev','rc','ingress','protocol','ip','pref','21','flower','ip_proto','tcp','src_port',port,'dst_port','29999','action','drop')
+                events.append({'event':'repeated_tuple_drop','port':int(port),'at':elapsed});repeated=True
+            if args.case=='short-loss' and elapsed>10 and not restored:
+                ns(router,'tc','filter','del','dev','rc','ingress','protocol','ip','pref','20');events.append({'event':'restored','at':elapsed});restored=True
             if args.case=='whole-peer' and elapsed>70 and not restored:
                 ns(router,'tc','filter','del','dev','rc','ingress','protocol','ip','pref','20');events.append({'event':'restored','at':elapsed});restored=True
             if elapsed>(82 if args.case=='whole-peer' else 47) and not reloaded:
@@ -144,28 +199,43 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
         workload.wait(timeout=1)
         rows=[json.loads(line) for line in (out/'requests.log').read_text().splitlines()]
         after=metrics();(out/'after-metrics.txt').write_text(after)
-        drops=ns(router,'tc','-j','-s','filter','show','dev','rc','ingress').stdout;(out/'filters.json').write_text(drops)
+        drops=json.dumps({dev:json.loads(ns(router,'tc','-j','-s','filter','show','dev',dev,'ingress').stdout) for dev in ('rc','rs')});(out/'filters.json').write_text(drops)
         logs=[json.loads(line) for line in (out/'client.log').read_text().splitlines() if line.startswith('{')]
         recovered=[r for r in logs if r.get('msg')=='path.recovered'];failed=[r for r in logs if r.get('msg')=='path.recovery_probe_failed']
-        result={'case':args.case,'sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'client_pid':client_process.pid,'events':events,'recovered':recovered,'failed_probes':failed,'healthy_successes':sum(r['ok'] for r in rows if r['peer']=='healthy'),'healthy_errors':[r for r in rows if r['peer']=='healthy' and not r['ok']],'broken_successes_after_45s':sum(r['ok'] for r in rows if r['peer']=='broken' and r['at']>(75 if args.case=='whole-peer' else 45)),'broken_errors':sum(not r['ok'] for r in rows if r['peer']=='broken'),'first_success_after_fault':next((r for r in rows if r['peer']=='broken' and r['ok'] and r['at']>6),None),'snapshots':snapshots}
+        result={'case':args.case,'shared_source':args.shared_source,'sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'client_pid':client_process.pid,'events':events,'recovered':recovered,'failed_probes':failed,'healthy_successes':sum(r['ok'] for r in rows if r['peer']=='healthy'),'healthy_errors':[r for r in rows if r['peer']=='healthy' and not r['ok']],'broken_successes_after_45s':sum(r['ok'] for r in rows if r['peer']=='broken' and r['at']>(75 if args.case=='whole-peer' else 45)),'broken_errors':sum(not r['ok'] for r in rows if r['peer']=='broken'),'first_success_after_fault':next((r for r in rows if r['peer']=='broken' and r['ok'] and r['at']>6),None),'snapshots':snapshots}
         (out/'result.json').write_text(json.dumps(result,indent=2)+'\n')
         assert not result['healthy_errors'],'healthy peer disrupted'
         assert result['broken_successes_after_45s']>10,'path did not recover'
-        if args.case=='tuple':assert len(recovered)==1 and recovered[0]['local']!='198.18.0.1:29997','fresh tuple recovery missing'
-        if args.case=='one-lane':assert not recovered,'progressing sibling carriers were replaced'
+        if args.case in ('tuple','reverse-tuple','established'):assert len(recovered)==1,'single tuple recovery missing or siblings replaced'
+        if args.case=='repeat-tuple':assert len(recovered)==2 and all(r.get('session')==0 for r in recovered),'repeated carrier recovery missing'
+        if args.case=='all-tuples':assert len(recovered)==4,'not all four blocked tuples recovered'
+        if args.case in ('one-lane','short-loss'):assert not recovered,'transient/conversation-only loss rotated source tuple'
         if args.case=='whole-peer':assert failed,'failed probe not exercised'
+        if args.case=='established':
+            held_errors=[r for r in rows if r['peer']=='broken' and not r['ok']]
+            assert len(held_errors)==1,'established sibling streams were disrupted'
+            assert not any(r.get('msg') in ('opening.transport_timeout','opening.syn_timeout') for r in logs),'established test used new-opening failure evidence'
+            result['established_sibling_streams_preserved']=3
         assert client_process.poll() is None,'client process exited'
         healthy_before=set(re.findall(r'super_paqet_peer_conversation_id\{peer="healthy",session="\d+"\} (\d+)',before))
         healthy_after=set(re.findall(r'super_paqet_peer_conversation_id\{peer="healthy",session="\d+"\} (\d+)',after))
         assert healthy_before==healthy_after,'healthy peer carriers replaced'
         for snapshot in snapshots:
             assert len(re.findall(r'super_paqet_peer_conversation_id\{peer="broken",',snapshot['metrics']))<=4,'carrier pool exceeded fixed four'
-        changed=[x for x in snapshots if any(int(p)!=29997 for p in re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',x['metrics']))]
-        if args.case=='tuple':
+        initial_ports={29997} if args.shared_source else {29997,29995,29993,29991}
+        changed=[x for x in snapshots if any(int(p) not in initial_ports for p in re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',x['metrics']))]
+        if args.case in ('tuple','reverse-tuple','established','all-tuples','repeat-tuple'):
             assert changed,'effective source did not change'
             port_before_reload=re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',next(x['metrics'] for x in snapshots if x['at']>45))
-            assert set(port_before_reload)==set(re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',after)),'reload reset recovered source'
+            if args.case!='repeat-tuple':assert set(port_before_reload)==set(re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',after)),'reload reset recovered source'
             result['source_change_at_seconds']=changed[0]['at']
+            result['recovery_after_injection_seconds']=changed[0]['at']-next(e['at'] for e in events if e['event']=='injected')
+            if not args.shared_source and args.case!='all-tuples':
+                before_map=dict(re.findall(r'super_paqet_peer_source_port\{peer="broken",session="(\d+)"\} (\d+)',before))
+                before_conv=dict(re.findall(r'super_paqet_peer_conversation_id\{peer="broken",session="(\d+)"\} (\d+)',before))
+                after_conv=dict(re.findall(r'super_paqet_peer_conversation_id\{peer="broken",session="(\d+)"\} (\d+)',after))
+                assert all(before_conv[i]==after_conv.get(i) for i,port in before_map.items() if int(port)!=29997),'healthy sibling carrier replaced'
+                result['healthy_sibling_carriers_preserved']=True
         result['healthy_carriers_preserved']=True
         result['fixed_four_ceiling_verified']=True
         (out/'result.json').write_text(json.dumps(result,indent=2)+'\n')

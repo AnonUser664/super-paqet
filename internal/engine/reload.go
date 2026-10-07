@@ -73,6 +73,9 @@ type liveResource struct {
 	release func()
 	// Prevents repeated socket teardown while allowing failed rule cleanup retries.
 	released bool
+	// Optional post-rule teardown keeps a retired recovery source reserved if
+	// firewall cleanup fails; another application must not inherit its rules.
+	finalize func()
 }
 
 // current reads settings without a lock on the admission and relay paths; the
@@ -157,14 +160,20 @@ func (r *liveResource) close() error {
 		r.released = true
 		r.release()
 	}
-	if r.fw == nil {
-		return nil
-	}
+	var slotErr error
 	if r.peer != nil {
+		slotErr = r.peer.closeSlotRules()
 		r.peer.allocationMu.Lock()
 		defer r.peer.allocationMu.Unlock()
 	}
-	return r.fw.close()
+	if r.fw != nil {
+		slotErr = errors.Join(slotErr, r.fw.close())
+	}
+	if slotErr == nil && r.finalize != nil {
+		r.finalize()
+		r.finalize = nil
+	}
+	return slotErr
 }
 
 // buildResource reserves resources without admitting traffic. Each failure

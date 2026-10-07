@@ -93,6 +93,15 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 	for name, p := range view.peers {
 		p.mu.RLock()
 		for i, s := range p.slots {
+			labels := fmt.Sprintf("peer=%s,session=%s", strconv.Quote(name), strconv.Quote(strconv.Itoa(i)))
+			suspect, probing := 0, 0
+			if s.suspect.Load() {
+				suspect = 1
+			}
+			if s.recoveryPending.Load() {
+				probing = 1
+			}
+			fmt.Fprintf(w, "super_paqet_peer_carrier_suspect{%s} %d\nsuper_paqet_peer_carrier_recovery_pending{%s} %d\nsuper_paqet_peer_carrier_transport_failures_total{%s} %d\n", labels, suspect, labels, probing, labels, s.recoveryFailures.Load())
 			if c := s.conn.Load(); c != nil && !c.Session.IsClosed() {
 				fmt.Fprintf(w, "super_paqet_peer_conversation_id{peer=%s,session=%s} %d\nsuper_paqet_peer_source_port{peer=%s,session=%s} %d\n", strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), c.UDPSession.GetConv(), strconv.Quote(name), strconv.Quote(strconv.Itoa(i)), s.network.Port)
 				state := c.UDPSession.TransportStats()
