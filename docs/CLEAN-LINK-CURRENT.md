@@ -6,13 +6,24 @@ The deployed `enterprise-2026.10.07-liveness` binary, SHA-256
 `04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf`, measured
 **4.634 Gbit/s upload / 4.808 Gbit/s download** received payload in separate
 five-second runs with sixteen streams and no startup omission. Both endpoints
-shared the laptop's clean uncapped veth link: four shared carriers, null encryption,
+shared the laptop's clean uncapped veth link: four initial shared carriers with
+automatic growth allowed, null encryption,
 no FEC, MTU1350, production 4 MiB/2 MiB mux buffers and manual adaptive profile.
 Mean occupied client/server cores were 1.60/1.21 for upload and 1.29/1.81 for
 download; peak tunnel RSS was below 150 MiB with no fixture swap. Integrity and
 owned-rule cleanup passed. This is a short local measurement, not backend WAN
 capacity or a matched comparison against the longer older runs below. Parameters
 and receiver receipts are in [liveness evidence](liveness-qualification-2026-10-07.json).
+
+A corrected fixed-four rerun on 7 October explicitly sets `sessions: 4` and
+`max_sessions: 4`: **4.486 Gbit/s upload / 4.901 Gbit/s download** on the same
+04508 executable. The staged ownership.2 candidate measured **4.479 / 4.836
+Gbit/s**, using identical parameters and production mux buffer ceilings. These
+single five-second pairs differ by about 0.2%/1.3%; they do not establish a
+statistically significant performance change or backend WAN capacity. Local raw
+receipts are `build/production-qualification/liveness-fixed4-clean-bulk-a` and
+`ownership2-fixed4-clean-bulk`. Historical fixtures with an omitted
+`max_sessions` must not be described as fixed-four tests.
 
 ## Earlier executable measurements
 

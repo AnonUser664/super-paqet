@@ -31,6 +31,7 @@ interpreting incomplete traces.
 | `engine.summary` | Active/accepted/rejected/failed/aborted counts, traffic, goroutines and lost logs |
 | `session.connected`, `session.accepted` | Conversation ID and endpoint identity |
 | `session.invalidated`, `session.idle_invalidated` | Carrier replacement |
+| `opening.syn_timeout` | Candidate: SYN submission exceeded this carrier's receipt budget; identity, attempts and remaining opening time |
 | `opening.transport_timeout` | New-stream receipt timeout; carrier identity, attempt, remaining deadline and surviving streams |
 | `flow.open`, `flow.control`, `flow.relay`, `flow.closed` | Sampled lifecycle, correlated by flow ID within the process |
 | `packet.tx_queue` | New transmit queue drops on a shared listener socket, with cumulative and interval counts |
@@ -183,3 +184,12 @@ This classification uses acknowledged and pending sizes, not customer payload
 parsing. The benchmark JSON now separates `error_kinds` (request timeout/EOF/reset,
 HTTP status, body truncation/length) from expected workload-deadline cancellation;
 it never serializes private URLs or body contents.
+
+The ownership candidate adds `super_paqet_session_mux_canceled_writes_total` and
+`super_paqet_session_mux_abort_queue_drops_total`, exposed as `mux_canceled_writes`
+and `mux_abort_queue_drops` in transport samples. The first counts expired queued
+frames actually skipped by the shared sender; an in-flight timeout is not counted
+as skipped. The second counts failed new-stream reset notifications rejected by
+the bounded queue; local stream ownership is still released immediately. These
+are per-session cumulative counters, not application error totals. Their presence
+requires the candidate runtime; the older liveness executable lacks them.

@@ -15,8 +15,8 @@ Version `enterprise-2026.10.07-liveness`, source
 `04508dd5254663042f161c812e001d03e3c8491a2ce37c2034778cf7e2de05bf`
 
 The exact executable is retained at
-`build/incident-20261006/super-paqet-liveness`. Later source checkpoints update
-observer/benchmark/documentation code rather than the linked tunnel runtime.
+`build/incident-20261006/super-paqet-liveness`. Later source checkpoints include a staged write-ownership/opening-deadline fix;
+that candidate is not yet deployed.
 The original raw Ethernet/IP/TCP shaping and sequence/ACK behavior are preserved.
 
 | Client port, on both .14 and .118 | Peer | Raw endpoint | Application target |
@@ -62,9 +62,12 @@ edited or restarted. Rollback archives and incident evidence are retained.
 
 ## Qualification of this exact executable
 
-All fixtures below use four shared carriers, null encryption, MTU1350 and the
-production 4 MiB aggregate / 2 MiB per-stream mux buffers. They run in disposable
-local namespaces; cleanup and unrelated firewall-rule preservation passed.
+The earlier fixtures below start with four shared carriers, null encryption,
+MTU1350 and production 4 MiB aggregate / 2 MiB per-stream mux buffers. They
+omitted `max_sessions`, allowing automatic pool growth; changing-delay tests
+reached fourteen client carriers. They therefore do **not** qualify the deployed
+fixed-four pool. The fixture now explicitly defaults `max_sessions` to `sessions`.
+Disposable namespace cleanup and unrelated firewall-rule preservation passed.
 
 | Workload | Result | Limit |
 |---|---|---|
@@ -99,7 +102,13 @@ restarts; twelve rotating incident-profile slots preserve late-day coverage.
 an operator or repair a failure. Temporary diagnostics return to warning logs
 around 19:57 UTC, subject to the unchanged-config guard.
 
-The full-day observation is **unfinished**. Successful acceptance and local
+The full-day observation is **unfinished**. A later burst at 22:18–22:20 UTC
+recorded 645 failed France openings on client .118 and 74 server control errors
+with both processes unchanged; errors then stopped. Captured .118 stacks show
+204 openings waiting to submit SYN and 39 failed openings waiting in ordinary
+stream close. Those waits are addressed by the staged deadline/abort fix; this
+is evidence of the blocked paths, not proof of the original transport stall cause.
+ Successful acceptance and local
 regressions do not establish freedom from future customer stalls, universal WAN
 optimality or multi-gigabit capacity on these backends. Underlying causes of the
 captured RTT increase remain unproven. Backend transmit drops were observed and

@@ -166,8 +166,10 @@ This is a reproduced defect, not definitive attribution of the France incident.
 ## Exact release qualification and promotion
 
 Root race tests/vet, the full mux race suite (495 seconds), mux vet and repeated
-credit/GC regressions passed. Four shared carriers and production 4 MiB/2 MiB mux
-buffers were used for the following checks of the exact liveness binary:
+credit/GC regressions passed. Four initial shared carriers and production
+4 MiB/2 MiB mux buffers were used for the following checks of the exact liveness
+binary. The fixtures omitted `max_sessions` and permitted pool growth (fourteen
+client carriers in churn), so these checks did not establish fixed-four capacity:
 
 - Clean uncapped null bulk: receiver 4.634 Gbit/s upload / 4.808 Gbit/s download,
   sixteen streams, separate five-second measurements without startup omission.
@@ -215,3 +217,39 @@ monitored. No underlying cause of the earlier RTT increase is proven. KCP
 ordered-carrier head-of-line blocking remains; static changing-delay churn and
 end-to-end timeout limits require further qualification. No claim of arbitrary
 saturation capacity or every-link optimality follows from these checks.
+
+## Later recurrence and staged ownership fix (7 October)
+
+At 22:18–22:20 UTC on 6 October, client .118 recorded 645 failed France openings
+(630 deadline failures, 15 exhausted-carrier attempts). France recorded 74
+control errors. Both tunnel PIDs remained unchanged; no growing opening errors
+were recorded afterward through 00:50 UTC. This is a forwarding incident even
+though no process crash occurred. The captured client stack contained 204
+openings waiting for SYN submission and 39 failed openings waiting for ordinary
+stream close. Three shared KCP writers were blocked on send credit. Server
+receive buffers were not full; the cause of absent transport progress remains
+unproven. Finland separately accumulated transmit queue drops.
+
+Independent deterministic tests reproduced two mux defects: a timed-out write
+could retain a caller-owned scratch buffer and later transmit its recycled bytes,
+and an expired queued frame could still reach the carrier. The candidate snapshots
+queued payloads into pooled size classes, retains storage until both producer
+and sender release it, skips expired queued work and refunds only unsent stream
+credit. In-flight writes may still complete, but their bytes remain owned.
+Opening contexts now include SYN queue/submission; failed new streams use an
+immediate local abort with bounded best-effort peer reset instead of another
+30-second close. Existing streams retain their busy carrier. Successful initial
+PTCPF setup continues to use ordinary close, bounded by its unpublished carrier's
+setup context. Wire headers, raw flags, retransmission profile and configuration
+are unchanged.
+
+The full mux race suite passed in 490.171 seconds, plus vet, repeated ownership/
+cancellation/credit tests and root race/vet. The corrected benchmark fixes both
+initial and maximum sessions at four. Five-second null bulk measured 4.486/4.901
+Gbit/s on the running liveness binary and 4.479/4.836 on the ownership.2 candidate;
+these single samples show no material collapse but are not confidence intervals.
+The candidate's fixed-four changing-delay churn completed 55,512 requests with
+zero workload/client/server errors and 121 internal carrier retries; mean latency
+276 ms and p99 histogram upper bound 460 ms. WAN mixed qualification and production
+promotion are still pending at this checkpoint. This fix addresses reproduced
+ownership/deadline defects, not a proven explanation of every transport stall.

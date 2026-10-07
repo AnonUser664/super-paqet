@@ -386,7 +386,7 @@ reordering level or delay. These are final-review decisions, not completed claim
 | `connections` | 200000 | Active handled-flow/stream admission limit (brief control streams also count). It is not preallocation or a throughput guarantee. |
 | `sessions` | 1024 | Accepted server carrier admission limit; outgoing pools have separate endpoint limits. |
 | `memory_mib` | 0 | Optional soft Go runtime memory limit in MiB; zero leaves existing runtime/environment behavior. Excludes kernel socket buffers and other processes. |
-| `open_timeout` | `10s` | Overall opening deadline; positive duration. |
+| `open_timeout` | `10s` | Overall opening deadline; positive duration. The ownership candidate includes SYN submission in this budget. |
 | `dial_timeout` | `5s` | Remote target dial deadline; positive and less than `open_timeout`. |
 | `udp_idle` | `60s` | UDP flow inactivity/read deadlines; positive duration. |
 
@@ -397,6 +397,12 @@ that capacity is logged. A Go soft limit is not an RSS/cgroup/OOM boundary.
 Kernel buffers, sockets, Xray, the OS, targets and generators need their own
 budgets. Socket buffers and flow ceilings remain explicit configuration; no
 live CPU-budget/RSS feedback controller is implemented.
+
+The staged ownership candidate bounds SYN submission with the remaining carrier
+receipt budget and locally aborts failed new openings without another control
+close wait. Ordinary established-stream close retains its 30-second mux control
+timeout; this change does not make every established write/end-to-end operation
+subject to `open_timeout`.
 
 There is no five-second post-half-close TCP read deadline. New-opening receipt
 recovery is bounded separately from the target dial, as described in

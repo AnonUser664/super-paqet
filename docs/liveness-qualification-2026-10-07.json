@@ -1013,5 +1013,13 @@
       "Finland transmit drops persist and are being collected",
       "Replacing the tunnel executable restarted forwarding processes and ended established streams; Xray PIDs were preserved"
     ]
+  },
+  "fixture_scope_correction": {
+    "detected_utc": "2026-10-07T00:50:00Z",
+    "initial_sessions": 4,
+    "max_sessions": "Omitted in the historical namespace fixtures; engine CPU-derived growth allowed",
+    "observed_churn_client_carriers": 14,
+    "deployed_max_sessions": 4,
+    "limitation": "These retained historical receipts do not qualify a fixed-four pool. Corrected fixtures now set both counts explicitly."
   }
 }
