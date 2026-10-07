@@ -7,6 +7,7 @@ package engine
 import (
 	"io"
 	"net"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -52,6 +53,12 @@ func migrationServer(t *testing.T) *kcplib.Listener {
 // acceptedMigrationConn creates a real accepted KCP/mux carrier from a chosen
 // loopback IP, making peer scope checks use actual socket addresses.
 func acceptedMigrationConn(t *testing.T, l *kcplib.Listener, ip string) *kcp.Conn {
+	server, _ := acceptedMigrationPair(t, l, ip)
+	return server
+}
+
+// acceptedMigrationPair exposes both mux ends for lost-control-reply tests.
+func acceptedMigrationPair(t *testing.T, l *kcplib.Listener, ip string) (*kcp.Conn, *kcp.Conn) {
 	t.Helper()
 	p, err := net.ListenPacket("udp", net.JoinHostPort(ip, "0"))
 	if err != nil {
@@ -88,7 +95,13 @@ func acceptedMigrationConn(t *testing.T, l *kcplib.Listener, ip string) *kcp.Con
 	}
 	conn := &kcp.Conn{UDPSession: s, Session: mux}
 	t.Cleanup(func() { conn.Close(); c.Close() })
-	return conn
+	clientMux, err := smux.Client(c, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	client := &kcp.Conn{UDPSession: c, Session: clientMux}
+	t.Cleanup(func() { client.Close() })
+	return conn, client
 }
 
 // TestMigrationCapabilityScopeAndReplay verifies check-before-move, idempotent
@@ -193,5 +206,52 @@ func TestMigrationWarningIsBounded(t *testing.T) {
 	w = migrationObservation{at: start}
 	if progress, warn := w.sample(start.Add(61*time.Second), 0, true); progress || warn {
 		t.Fatal("watch did not expire")
+	}
+}
+
+// TestMigrationLostCommitReply retries a real control stream after the first
+// response disappears. The backend moves exactly once and retains its mux.
+func TestMigrationLostCommitReply(t *testing.T) {
+	e := reloadFixture(t)
+	l := migrationServer(t)
+	identity := &migrationIdentity{}
+	old := acceptedMigrationConn(t, l, "127.0.0.1")
+	via, control := acceptedMigrationPair(t, l, "127.0.0.1")
+	token := e.migrationControl(identity, old, protocol.Proto{Type: protocol.PMTOKEN})
+	request := protocol.Proto{Type: protocol.PMMOVE, Capability: token.Capability, Epoch: 1}
+	var requests atomic.Int32
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		for {
+			stream, err := via.Session.AcceptStream()
+			if err != nil {
+				return
+			}
+			var incoming protocol.Proto
+			if incoming.Read(stream) == nil {
+				reply := e.migrationControl(identity, via, incoming)
+				if requests.Add(1) > 1 {
+					reply.Write(stream)
+				}
+			}
+			stream.Close()
+		}
+	}()
+	e.finishMigration(&peer{engine: e, ctx: e.ctx, endpoint: Endpoint{PathRecovery: recoveryConfig(t)}}, "test", old, control, request)
+	via.Close()
+	<-done
+	if requests.Load() != 2 || len(identity.added) != 1 || old.Session.IsClosed() {
+		t.Fatal("lost reply did not retain/idempotently commit live carrier")
+	}
+	// A skipped local generation can supersede a commit that never arrived.
+	next := acceptedMigrationConn(t, l, "127.0.0.1")
+	request.Epoch = 3
+	if r := e.migrationControl(identity, next, request); r.Status != 0 {
+		t.Fatal("newer recovery cannot supersede ambiguous commit")
+	}
+	request.Epoch = 2
+	if r := e.migrationControl(identity, via, request); r.Status == 0 {
+		t.Fatal("delayed lower generation accepted")
 	}
 }

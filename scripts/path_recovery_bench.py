@@ -7,6 +7,8 @@ Only fixture namespaces/interfaces/rules are changed; customer hosts are unused.
 """
 import argparse, concurrent.futures, hashlib, json, os, pathlib, re, signal, socket, struct, subprocess, sys, time
 
+from check_migration_wire import check as check_wire
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
@@ -14,10 +16,11 @@ def main():
     """Own fixture startup, fault injection, verification and bounded teardown."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--binary', required=True)
-    parser.add_argument('--case', choices=['tuple', 'whole-peer', 'one-lane', 'all-tuples', 'reverse-tuple', 'established', 'reverse-established', 'short-loss', 'repeat-tuple'], default='tuple')
+    parser.add_argument('--case', choices=['tuple', 'whole-peer', 'one-lane', 'all-tuples', 'reverse-tuple', 'established', 'reverse-established', 'short-loss', 'repeat-tuple', 'repeat-established', 'early-stall', 'all-established'], default='tuple')
     parser.add_argument('--server-binary', help='optional older backend executable for wire compatibility qualification')
     parser.add_argument('--shared-source', action='store_true', help='qualify legacy pool recovery instead of independent carrier recovery')
     parser.add_argument('--preserve-connections', action='store_true', help='require continuity of established streams during source migration')
+    parser.add_argument('--held-payload-bytes', type=int, default=0, help='larger integrity-checked payloads on held streams')
     parser.add_argument('--packet-workers', type=int, default=2, help='backend fanout workers, including cross-worker migration')
     parser.add_argument('--output', required=True)
     args = parser.parse_args()
@@ -68,7 +71,7 @@ def worker(peer,port,index):
 with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
  list(pool.map(lambda x:worker(*x),[('broken',28080,i) for i in range(4)]+[('healthy',28081,4)]))
 '''
-    if args.case in ('established','reverse-established'):
+    if args.case in ('established','reverse-established','repeat-established','early-stall','all-established'):
         # Four connections are opened once and kept for the entire workload.
         # No new broken-peer openings can supply recovery-failure evidence.
         requester = r'''import concurrent.futures,socket,time,json
@@ -108,6 +111,9 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
     duration = 90 if args.case == 'whole-peer' else 55
     if args.case == 'whole-peer':
         requester = requester.replace('+55;', '+90;')
+    if args.held_payload_bytes:
+        if not 1 <= args.held_payload_bytes <= 1048576: parser.error('held-payload-bytes must be 1..1048576')
+        requester=requester.replace("('held-'+str(index)+'\\n').encode()", "((b'held-integrity-'+bytes([index]))*"+str((args.held_payload_bytes+14)//15)+")[:"+str(args.held_payload_bytes)+"]")
     workload = None
     try:
         for name in (client, router, server):
@@ -156,6 +162,8 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
         for namespace,config_path,label,executable in ((client,config,'client',binary),(server,server_config,'server',pathlib.Path(args.server_binary).resolve() if args.server_binary else binary)):
             checked=ns(namespace,str(executable),'config','validate','-c',str(config_path),'--json')
             (out/(label+'-validation.json')).write_text(checked.stdout)
+        capture=spawn(server,'wire', 'tcpdump','-i','spq-s','-n','-U','-w',str(out/'wire.pcap'),'tcp port 29999')
+        time.sleep(.25)
         spawn(server,'echo',sys.executable,'-c',echo)
         spawn(server,'server',str(pathlib.Path(args.server_binary).resolve()) if args.server_binary else str(binary),'run','-c',str(server_config))
         client_process=spawn(client,'client',str(binary),'run','-c',str(config))
@@ -168,11 +176,11 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
             elapsed=time.monotonic()-started
             if elapsed>5 and not injected:
                 before=metrics();(out/'before-metrics.txt').write_text(before)
-                if args.case in ('tuple','established','short-loss','repeat-tuple'):
+                if args.case in ('tuple','established','short-loss','repeat-tuple','repeat-established','early-stall'):
                     ns(router,'tc','filter','add','dev','rc','ingress','protocol','ip','pref','20','flower','ip_proto','tcp','src_port','29997','dst_port','29999','action','drop')
                 elif args.case in ('reverse-tuple','reverse-established'):
                     ns(router,'tc','filter','add','dev','rs','ingress','protocol','ip','pref','20','flower','ip_proto','tcp','src_port','29999','dst_port','29997','action','drop')
-                elif args.case=='all-tuples':
+                elif args.case in ('all-tuples','all-established'):
                     for pref,port in enumerate((29997,29995,29993,29991),20):
                         ns(router,'tc','filter','add','dev','rc','ingress','protocol','ip','pref',str(pref),'flower','ip_proto','tcp','src_port',str(port),'dst_port','29999','action','drop')
                 elif args.case=='whole-peer':
@@ -185,7 +193,7 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
                     ns(router,'tc','filter','add','dev','rc','ingress','protocol','ip','pref','20','u32','match','ip','protocol','6','0xff','match','u16','29997','0xffff','at','20','match','u32',hex(network_value),'0xffffffff','at','60','action','drop')
                     events.append({'event':'blocked_conversation','conv':conv,'at':elapsed})
                 events.append({'event':'injected','at':elapsed});injected=True
-            if args.case=='repeat-tuple' and elapsed>32 and not repeated:
+            if args.case in ('repeat-tuple','repeat-established','early-stall') and elapsed>(23 if args.case=='early-stall' else 32) and not repeated:
                 current=dict(re.findall(r'super_paqet_peer_source_port\{peer="broken",session="(\d+)"\} (\d+)',metrics()))
                 port=current['0']
                 assert int(port)!=29997,'first recovery did not finish before repeated fault'
@@ -208,24 +216,30 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
         after=metrics();(out/'after-metrics.txt').write_text(after)
         drops=json.dumps({dev:json.loads(ns(router,'tc','-j','-s','filter','show','dev',dev,'ingress').stdout) for dev in ('rc','rs')});(out/'filters.json').write_text(drops)
         logs=[json.loads(line) for line in (out/'client.log').read_text().splitlines() if line.startswith('{')]
+        capture.send_signal(signal.SIGINT);capture.wait(timeout=5)
+        wire=check_wire(out/'wire.pcap')
         recovered=[r for r in logs if r.get('msg')=='path.recovered'];failed=[r for r in logs if r.get('msg')=='path.recovery_probe_failed']
-        result={'case':args.case,'shared_source':args.shared_source,'preserve_connections':args.preserve_connections,'packet_workers':args.packet_workers,'sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'client_pid':client_process.pid,'events':events,'recovered':recovered,'failed_probes':failed,'healthy_successes':sum(r['ok'] for r in rows if r['peer']=='healthy'),'healthy_errors':[r for r in rows if r['peer']=='healthy' and not r['ok']],'broken_successes_after_45s':sum(r['ok'] for r in rows if r['peer']=='broken' and r['at']>(75 if args.case=='whole-peer' else 45)),'broken_errors':sum(not r['ok'] for r in rows if r['peer']=='broken'),'first_success_after_fault':next((r for r in rows if r['peer']=='broken' and r['ok'] and r['at']>6),None),'snapshots':snapshots}
+        result={'case':args.case,'shared_source':args.shared_source,'preserve_connections':args.preserve_connections,'packet_workers':args.packet_workers,'sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'client_pid':client_process.pid,'events':events,'recovered':recovered,'failed_probes':failed,'healthy_successes':sum(r['ok'] for r in rows if r['peer']=='healthy'),'healthy_errors':[r for r in rows if r['peer']=='healthy' and not r['ok']],'broken_successes_after_45s':sum(r['ok'] for r in rows if r['peer']=='broken' and r['at']>(75 if args.case=='whole-peer' else 45)),'broken_errors':sum(not r['ok'] for r in rows if r['peer']=='broken'),'first_success_after_fault':next((r for r in rows if r['peer']=='broken' and r['ok'] and r['at']>6),None),'snapshots':snapshots,'wire':wire}
         (out/'result.json').write_text(json.dumps(result,indent=2)+'\n')
         assert not result['healthy_errors'],'healthy peer disrupted'
         assert result['broken_successes_after_45s']>10,'path did not recover'
         if args.case in ('tuple','reverse-tuple','established','reverse-established'):assert len(recovered)==1,'single tuple recovery missing or siblings replaced'
-        if args.case=='repeat-tuple':assert len(recovered)==2 and all(r.get('session')==0 for r in recovered),'repeated carrier recovery missing'
-        if args.case=='all-tuples':assert len(recovered)==4,'not all four blocked tuples recovered'
+        if args.case in ('repeat-tuple','repeat-established','early-stall'):assert len(recovered)==2 and all(r.get('session')==0 for r in recovered),'repeated carrier recovery missing'
+        if args.case in ('all-tuples','all-established'):assert len(recovered)==4,'not all four blocked tuples recovered'
         if args.case=='short-loss':assert not recovered,'transient loss rotated source tuple'
         if args.case=='one-lane':
             if args.shared_source:assert not recovered,'progressing shared pool was replaced'
             else:assert len(recovered)<=1 and all(r.get('session')==0 for r in recovered),'conversation fault replaced sibling tuples'
         if args.case=='whole-peer':assert failed,'failed probe not exercised'
-        if args.case in ('established','reverse-established'):
+        if args.case in ('established','reverse-established','repeat-established','early-stall','all-established'):
             held_errors=[r for r in rows if r['peer']=='broken' and not r['ok']]
-            assert len(held_errors)==(0 if args.preserve_connections and not args.server_binary else 1),'established stream continuity failed'
+            assert len(held_errors)==(0 if args.preserve_connections and not args.server_binary else (4 if args.case=='all-established' else 1)),'established stream continuity failed'
             assert not any(r.get('msg') in ('opening.transport_timeout','opening.syn_timeout') for r in logs),'established test used new-opening failure evidence'
             result['established_streams_preserved']=4-len(held_errors)
+        if args.case=='early-stall':
+            signals=[r for r in logs if r.get('msg')=='path.migration_early_stall']
+            assert len(signals)==1, 'early reblocked carrier warning missing or duplicated'
+            result['early_stall_signals']=signals
         assert client_process.poll() is None,'client process exited'
         healthy_before=set(re.findall(r'super_paqet_peer_conversation_id\{peer="healthy",session="\d+"\} (\d+)',before))
         healthy_after=set(re.findall(r'super_paqet_peer_conversation_id\{peer="healthy",session="\d+"\} (\d+)',after))
@@ -234,10 +248,10 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
             assert len(re.findall(r'super_paqet_peer_conversation_id\{peer="broken",',snapshot['metrics']))<=4,'carrier pool exceeded fixed four'
         initial_ports={29997} if args.shared_source else {29997,29995,29993,29991}
         changed=[x for x in snapshots if any(int(p) not in initial_ports for p in re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',x['metrics']))]
-        if args.case in ('tuple','reverse-tuple','established','reverse-established','all-tuples','repeat-tuple') or (args.case=='one-lane' and recovered):
+        if args.case in ('tuple','reverse-tuple','established','reverse-established','all-tuples','repeat-tuple','repeat-established','early-stall','all-established') or (args.case=='one-lane' and recovered):
             assert changed,'effective source did not change'
             port_before_reload=re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',next(x['metrics'] for x in snapshots if x['at']>45))
-            if args.case!='repeat-tuple':assert set(port_before_reload)==set(re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',after)),'reload reset recovered source'
+            if args.case not in ('repeat-tuple','repeat-established','early-stall'):assert set(port_before_reload)==set(re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',after)),'reload reset recovered source'
             result['source_change_at_seconds']=changed[0]['at']
             result['recovery_after_injection_seconds']=changed[0]['at']-next(e['at'] for e in events if e['event']=='injected')
             if not args.shared_source and args.case!='all-tuples':
@@ -246,7 +260,7 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
                 after_conv=dict(re.findall(r'super_paqet_peer_conversation_id\{peer="broken",session="(\d+)"\} (\d+)',after))
                 assert all(before_conv[i]==after_conv.get(i) for i,port in before_map.items() if int(port)!=29997),'healthy sibling carrier replaced'
                 result['healthy_sibling_carriers_preserved']=True
-                if args.preserve_connections and not args.server_binary:
+                if args.preserve_connections and not args.server_binary and args.case in ('established','reverse-established','repeat-established','early-stall','all-established'):
                     assert before_conv==after_conv, 'migration replaced the logical KCP carrier'
                     assert all(r.get('connections_preserved') for r in recovered), 'migration fell back unexpectedly'
                     result['logical_carriers_preserved']=True
