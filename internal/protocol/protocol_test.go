@@ -61,5 +61,14 @@ func TestControlShortWrite(t *testing.T) {
 // crashes and unsafe boundary assumptions.
 func FuzzControlRead(f *testing.F) {
 	f.Add([]byte{MAGIC, VERSION, PPING, 0, 0})
+	// Seed every new fixed-length migration branch, not only random header mutations.
+	for _, kind := range []PType{PMTOKEN, PMCHECK, PMMOVE, PMREPLY} {
+		var wire bytes.Buffer
+		request := Proto{Type: kind, Capability: [32]byte{1}, Epoch: 1}
+		if err := request.Write(&wire); err != nil {
+			f.Fatal(err)
+		}
+		f.Add(wire.Bytes())
+	}
 	f.Fuzz(func(t *testing.T, b []byte) { var p Proto; _ = p.Read(bytes.NewReader(b)) })
 }

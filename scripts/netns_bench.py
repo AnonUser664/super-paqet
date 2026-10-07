@@ -281,7 +281,9 @@ def main():
             client = f'peers:\n  remote:\n    address: 198.18.0.2:29999\n    key: benchmark-only-key\n    sessions: {a.sessions}\n    max_sessions: {a.max_sessions}\n    network: {{interface: spq-c, ipv4: {{addr: "198.18.0.1:0", router_mac: "02:00:00:00:00:02"}}}}\nforwards:\n'
             for i in range(8): client += f'  - {{listen: "127.0.0.1:{28080+i}", peer: remote, target: "127.0.0.{i+1}:18080"}}\n'
             server = f'listeners:\n  - address: 198.18.0.2:29999\n    sessions: {a.sessions}\n    max_sessions: {a.max_sessions}\n    key: benchmark-only-key\n    network: {{interface: spq-s, ipv4: {{addr: "198.18.0.2:29999", router_mac: "02:00:00:00:00:01"}}}}\n'
-            if a.path_recovery:client=client.replace('    address:', '    path_recovery: {enabled: true, preserve_connections: '+str(a.preserve_connections).lower()+'}\n    address:',1)
+            if a.path_recovery:
+                recovery_fields='{enabled: true'+(', preserve_connections: true' if a.preserve_connections else '')+'}'
+                client=client.replace('    address:', '    path_recovery: '+recovery_fields+'\n    address:',1)
             client += 'metrics: 127.0.0.1:29090\n'
             server += 'metrics: 127.0.0.1:29090\n'
             kcp_options=json.dumps({'block':a.block,'dshard':a.fec[0],'pshard':a.fec[1],**kcp_overrides})

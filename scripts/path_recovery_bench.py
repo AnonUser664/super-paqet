@@ -20,6 +20,7 @@ def main():
     parser.add_argument('--server-binary', help='optional older backend executable for wire compatibility qualification')
     parser.add_argument('--shared-source', action='store_true', help='qualify legacy pool recovery instead of independent carrier recovery')
     parser.add_argument('--preserve-connections', action='store_true', help='require continuity of established streams during source migration')
+    parser.add_argument('--sequenced-payloads', action='store_true', help='prefix every held exchange with its unique sequence number')
     parser.add_argument('--held-payload-bytes', type=int, default=0, help='larger integrity-checked payloads on held streams')
     parser.add_argument('--packet-workers', type=int, default=2, help='backend fanout workers, including cross-worker migration')
     parser.add_argument('--output', required=True)
@@ -114,6 +115,10 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
     if args.held_payload_bytes:
         if not 1 <= args.held_payload_bytes <= 1048576: parser.error('held-payload-bytes must be 1..1048576')
         requester=requester.replace("('held-'+str(index)+'\\n').encode()", "((b'held-integrity-'+bytes([index]))*"+str((args.held_payload_bytes+14)//15)+")[:"+str(args.held_payload_bytes)+"]")
+    if args.sequenced_payloads:
+        if args.case not in ('established','reverse-established','repeat-established','early-stall','all-established'): parser.error('sequenced-payloads requires held streams')
+        requester=requester.replace(' time.sleep(index*.25)', ' sequence=0;time.sleep(index*.25)')
+        requester=requester.replace(";s.sendall(payload);data=b''", ";payload=sequence.to_bytes(8,'big')+payload;sequence+=1;s.sendall(payload);data=b''")
     workload = None
     try:
         for name in (client, router, server):
@@ -219,7 +224,7 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
         capture.send_signal(signal.SIGINT);capture.wait(timeout=5)
         wire=check_wire(out/'wire.pcap')
         recovered=[r for r in logs if r.get('msg')=='path.recovered'];failed=[r for r in logs if r.get('msg')=='path.recovery_probe_failed']
-        result={'case':args.case,'shared_source':args.shared_source,'preserve_connections':args.preserve_connections,'packet_workers':args.packet_workers,'sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'client_pid':client_process.pid,'events':events,'recovered':recovered,'failed_probes':failed,'healthy_successes':sum(r['ok'] for r in rows if r['peer']=='healthy'),'healthy_errors':[r for r in rows if r['peer']=='healthy' and not r['ok']],'broken_successes_after_45s':sum(r['ok'] for r in rows if r['peer']=='broken' and r['at']>(75 if args.case=='whole-peer' else 45)),'broken_errors':sum(not r['ok'] for r in rows if r['peer']=='broken'),'first_success_after_fault':next((r for r in rows if r['peer']=='broken' and r['ok'] and r['at']>6),None),'snapshots':snapshots,'wire':wire}
+        result={'case':args.case,'shared_source':args.shared_source,'preserve_connections':args.preserve_connections,'packet_workers':args.packet_workers,'held_payload_bytes':args.held_payload_bytes,'sequenced_payloads':args.sequenced_payloads,'sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'client_pid':client_process.pid,'events':events,'recovered':recovered,'failed_probes':failed,'healthy_successes':sum(r['ok'] for r in rows if r['peer']=='healthy'),'healthy_errors':[r for r in rows if r['peer']=='healthy' and not r['ok']],'broken_successes_after_45s':sum(r['ok'] for r in rows if r['peer']=='broken' and r['at']>(75 if args.case=='whole-peer' else 45)),'broken_errors':sum(not r['ok'] for r in rows if r['peer']=='broken'),'first_success_after_fault':next((r for r in rows if r['peer']=='broken' and r['ok'] and r['at']>6),None),'snapshots':snapshots,'wire':wire}
         (out/'result.json').write_text(json.dumps(result,indent=2)+'\n')
         assert not result['healthy_errors'],'healthy peer disrupted'
         assert result['broken_successes_after_45s']>10,'path did not recover'
