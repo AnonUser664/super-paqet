@@ -1,5 +1,10 @@
 # Current deployment status
 
+An independent-source-carrier release is being qualified locally and is **not
+deployed**. Proposed five-host configurations are in
+[proposed-source-ports/](proposed-source-ports/README.md); the running versions
+and configurations below remain unchanged pending user review.
+
 Both clients run recovery.1; the three backends retain ownership.2.
 Verified source-tuple recovery is enabled on every outgoing client peer. The
 server wire protocol is unchanged, so backend and Xray restarts were unnecessary. All six routes retain four

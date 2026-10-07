@@ -14,7 +14,7 @@ listeners:
       remote_flag:
       - S
   adaptive: true
-  packet_workers: 1
+  packet_workers: 2
   kcp:
     mode: manual
     sndwnd: 4096

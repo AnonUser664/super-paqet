@@ -213,7 +213,10 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
         if args.case in ('tuple','reverse-tuple','established'):assert len(recovered)==1,'single tuple recovery missing or siblings replaced'
         if args.case=='repeat-tuple':assert len(recovered)==2 and all(r.get('session')==0 for r in recovered),'repeated carrier recovery missing'
         if args.case=='all-tuples':assert len(recovered)==4,'not all four blocked tuples recovered'
-        if args.case in ('one-lane','short-loss'):assert not recovered,'transient/conversation-only loss rotated source tuple'
+        if args.case=='short-loss':assert not recovered,'transient loss rotated source tuple'
+        if args.case=='one-lane':
+            if args.shared_source:assert not recovered,'progressing shared pool was replaced'
+            else:assert len(recovered)<=1 and all(r.get('session')==0 for r in recovered),'conversation fault replaced sibling tuples'
         if args.case=='whole-peer':assert failed,'failed probe not exercised'
         if args.case=='established':
             held_errors=[r for r in rows if r['peer']=='broken' and not r['ok']]
@@ -228,7 +231,7 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
             assert len(re.findall(r'super_paqet_peer_conversation_id\{peer="broken",',snapshot['metrics']))<=4,'carrier pool exceeded fixed four'
         initial_ports={29997} if args.shared_source else {29997,29995,29993,29991}
         changed=[x for x in snapshots if any(int(p) not in initial_ports for p in re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',x['metrics']))]
-        if args.case in ('tuple','reverse-tuple','established','all-tuples','repeat-tuple'):
+        if args.case in ('tuple','reverse-tuple','established','all-tuples','repeat-tuple') or (args.case=='one-lane' and recovered):
             assert changed,'effective source did not change'
             port_before_reload=re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',next(x['metrics'] for x in snapshots if x['at']>45))
             if args.case!='repeat-tuple':assert set(port_before_reload)==set(re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',after)),'reload reset recovered source'

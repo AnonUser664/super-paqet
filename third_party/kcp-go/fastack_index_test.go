@@ -3,9 +3,51 @@
 package kcp
 
 import (
+	"fmt"
 	"math/rand"
 	"testing"
 )
+
+// TestFastACKUsesOneEventClock prevents dense gaps from taking O(window)
+// clock samples or assigning different arrival times to the same ACK event.
+func TestFastACKUsesOneEventClock(t *testing.T) {
+	k := NewKCP(1, func([]byte, int) {})
+	calls := 0
+	k.clock = func() uint32 { calls++; return uint32(1000 + calls) }
+	k.fastresend, k.reorderGrace = 2, 25
+	k.snd_nxt = 4096
+	for sn := uint32(0); sn < 4096; sn++ {
+		k.snd_buf.Push(segment{sn: sn, ts: 100, xmit: 1})
+	}
+	k.parse_fastack(4095, 100)
+	if calls != 1 {
+		t.Fatalf("one ACK sampled clock %d times", calls)
+	}
+	for i := 0; i < 4095; i++ {
+		seg, _ := k.snd_buf.At(i)
+		if seg.gapAt != 1001 || seg.fastack != 1 {
+			t.Fatal("inconsistent gap evidence")
+		}
+	}
+}
+
+// BenchmarkDenseFastACK measures real clock and gap processing under receiver
+// overload, the hotspot exposed by independently transmitting client tuples.
+func BenchmarkDenseFastACK(b *testing.B) {
+	for _, window := range []int{64, 4096} {
+		b.Run(fmt.Sprint(window), func(b *testing.B) {
+			k := NewKCP(1, func([]byte, int) {})
+			k.snd_nxt = uint32(window)
+			for sn := uint32(0); sn < uint32(window); sn++ {
+				k.snd_buf.Push(segment{sn: sn, ts: 100, xmit: 1})
+			}
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				k.parse_fastack(uint32(window-1), 100)
+			}
+		})
+	}
+}
 
 // BenchmarkSparseFastACK isolates the large-window/reordered-ACK hot path seen
 // in the deployed MTU128 profile; acknowledged tombstones carry no payload.

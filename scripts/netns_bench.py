@@ -42,6 +42,7 @@ def main():
     p.add_argument('--max-sessions', type=int, help='carrier ceiling; defaults to --sessions so qualification uses a fixed pool')
     p.add_argument('--path-recovery', action='store_true', help='enable verified fresh-source recovery on the outgoing peer')
     p.add_argument('--shared-source', action='store_true', help='independent KCP lanes on one peer source tuple')
+    p.add_argument('--packet-workers',type=int,help='explicit backend capture worker count for matched deployment tests')
     p.add_argument('--conversation-listener', action='store_true', help='retain the deployed conversation-aware listener with separate client source ports')
     p.add_argument('--client-flag', default='PA', help='client outer packet flags (use S for the deployed profile)')
     p.add_argument('--server-flag', default='PA', help='backend outer packet flags')
@@ -309,6 +310,7 @@ def main():
             server = server.replace('  - address:', '  - shared_source: true\n    address:')
         if a.enterprise:
             if a.conversation_listener and not a.shared_source:server=server.replace('  - address:', '  - shared_source: true\n    address:')
+            if a.packet_workers is not None:server=server.replace('    address:', f'    packet_workers: {a.packet_workers}\n    address:',1)
             client=client.replace('network: {', f'network: {{tcp: {{local_flag: [{a.client_flag}], remote_flag: [{a.server_flag}]}}, ',1)
             server=server.replace('network: {', f'network: {{tcp: {{local_flag: [{a.server_flag}], remote_flag: [{a.client_flag}]}}, ',1)
         (out/'client.yaml').write_text(client); (out/'server.yaml').write_text(server)

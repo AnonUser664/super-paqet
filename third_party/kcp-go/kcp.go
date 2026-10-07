@@ -634,6 +634,14 @@ func (kcp *KCP) parse_fastack(sn, ts uint32) int {
 	if !kcp.hasPending {
 		return 0
 	}
+	if _itimediff(sn, kcp.pendingHead) <= 0 {
+		return 0
+	}
+	// All gap evidence in this ACK belongs to one protocol event. Sampling the
+	// monotonic clock per outstanding segment made dense loss recovery spend
+	// substantial CPU reading time, and gave one ACK inconsistent gap ages.
+	// Sequence/timestamp gating and fast-retransmit counters stay unchanged.
+	now := kcp.now()
 	for next := kcp.pendingHead; ; {
 		seg, ok := kcp.pendingSegment(next)
 		if !ok || _itimediff(sn, seg.sn) <= 0 {
@@ -642,10 +650,10 @@ func (kcp *KCP) parse_fastack(sn, ts uint32) int {
 		if seg.xmit > 0 && _itimediff(seg.ts, ts) <= 0 {
 			if seg.fastack != 0xFFFFFFFF {
 				if seg.fastack == 0 {
-					seg.gapAt = kcp.now()
+					seg.gapAt = now
 				}
 				seg.fastack++
-				if seg.fastack >= uint32(kcp.fastresend) && kcp.reorderReady(seg, kcp.now()) {
+				if seg.fastack >= uint32(kcp.fastresend) && kcp.reorderReady(seg, now) {
 					shouldFastAck = 1
 				}
 			}

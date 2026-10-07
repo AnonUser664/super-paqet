@@ -4,7 +4,8 @@ These five configurations are review artifacts, **not deployed snapshots**.
 `docs/deployed/` continues to describe the running shared-source release.
 
 Both clients use four independently reserved automatic source ports per country,
-15-second stall/retry budgets and a five-second verified recovery probe. Backend
+15-second stall/retry budgets and a five-second verified recovery probe. The two-vCPU backends use two packet capture workers so distinct client
+tuples can spread receive processing across both CPUs. Backend
 listener ports, country peer names, target/customer ports, S outbound / PA return,
 null encryption, memory/admission limits and KCP parameters remain unchanged.
 Backend listener settings remain conversation-aware and accept both layouts.
