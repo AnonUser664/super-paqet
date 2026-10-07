@@ -25,6 +25,13 @@ stays at warning logs with profiling off. Installing and cleaning the observers
 left all tunnel configs/PIDs and Xray process identities unchanged. See the
 [current observation window and tomorrow's review](PRODUCTION-OBSERVATION-2026-10-07.md).
 
+The [8 October production review](PRODUCTION-REVIEW-2026-10-08.md) covers the
+first three hours of this window: all twelve authenticated transfer checks passed,
+with no process restarts or OOM events. France suffered a roughly minute-long
+carrier incident; four migrations retained sessions and two used replacement
+after the originals disappeared. Production settings remain unchanged. The full
+day is still in progress; this is not an incident-free stability pass.
+
 ## Qualification and deployment before migration.4
 
 The earlier migration candidate `enterprise-2026.10.07-migration.3` is locally

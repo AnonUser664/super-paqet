@@ -1,0 +1,1510 @@
+{
+  "review_date_tehran": "2026-10-08",
+  "runtime_source": "90e98b1186646c3c56660616309e5fe5573e4208",
+  "binary_sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+  "runtime_changed": false,
+  "production_config_restored": true,
+  "full_day_completed": false,
+  "hosts": {
+    "89.45.68.14": {
+      "archive_sha256": "ea9b47691d8e85ea07272bc9f1fb00e2a62eae5ef01ff9a3f88fa89f4b271dd7",
+      "first_utc": "2026-10-07T19:14:17.512170+00:00",
+      "last_utc": "2026-10-07T22:15:58.599936+00:00",
+      "window_summary_at_download": {
+        "completed": false,
+        "until": "2026-10-08T19:14:08.869669+00:00",
+        "journal_recorder": {
+          "records": 423,
+          "cursor_resume": true,
+          "last_realtime_usec": "1791410524433581"
+        },
+        "first_utc": "2026-10-07T19:14:17.512170+00:00",
+        "last_utc": "2026-10-07T22:15:58.599936+00:00",
+        "samples": 1088,
+        "peak_active": 147.0,
+        "peak_rss_kib": 48416,
+        "peak_fds": 181,
+        "runs": {
+          "337241": {
+            "first_utc": "2026-10-07T19:14:17.512170+00:00",
+            "last_counters": {
+              "errors_total": 0.0,
+              "rejected_total": 0.0,
+              "opening_transport_retries_total": 0.0,
+              "config_reload_rejected_total": 0.0,
+              "path_recovery_attempts_total": 4.0,
+              "path_recovery_succeeded_total": 2.0,
+              "path_recovery_rejected_total": 2.0,
+              "log_dropped_total": 0.0
+            },
+            "last_utc": "2026-10-07T22:15:58.599936+00:00"
+          }
+        },
+        "observed_processes": 1,
+        "triggers": {
+          "path_recovery_attempts_total_increased": 2,
+          "path_recovery_succeeded_total_increased": 1,
+          "source_port_changed": 1,
+          "carrier_became_suspect": 1,
+          "carrier_recovery_started": 1,
+          "path_recovery_rejected_total_increased": 2
+        },
+        "counter_deltas": {
+          "errors_total": 0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 4.0,
+          "path_recovery_succeeded_total": 2.0,
+          "path_recovery_rejected_total": 2.0,
+          "log_dropped_total": 0
+        },
+        "captures": 1
+      },
+      "statistics": {
+        "super_paqet_active_connections": {
+          "first": 17.0,
+          "last": 0.0,
+          "max": 147.0
+        },
+        "super_paqet_goroutines": {
+          "first": 124.0,
+          "last": 81.0,
+          "max": 385.0
+        },
+        "super_paqet_heap_bytes": {
+          "first": 15421616.0,
+          "last": 17955384.0,
+          "max": 31153056.0
+        },
+        "super_paqet_aborted_connections_total": {
+          "first": 484.0,
+          "last": 11927.0,
+          "max": 11927.0
+        },
+        "super_paqet_kcp_RetransSegs": {
+          "first": 138.0,
+          "last": 3177.0,
+          "max": 3177.0
+        },
+        "super_paqet_kcp_OutSegs": {
+          "first": 55597.0,
+          "last": 507143.0,
+          "max": 507143.0
+        },
+        "super_paqet_kcp_FastRetransSegs": {
+          "first": 24.0,
+          "last": 671.0,
+          "max": 671.0
+        },
+        "super_paqet_kcp_LostSegs": {
+          "first": 102.0,
+          "last": 2160.0,
+          "max": 2160.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"0\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"germany\",session=\"0\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"1\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"germany\",session=\"1\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"2\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"germany\",session=\"2\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"3\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"germany\",session=\"3\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"0\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"finland\",session=\"0\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"1\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"finland\",session=\"1\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"2\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"finland\",session=\"2\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"3\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"finland\",session=\"3\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"2\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"france\",session=\"2\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"3\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"france\",session=\"3\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "mbps": {
+          "mean": 0.5741476639517815,
+          "p95": 2.6664445121259353,
+          "max": 8.510989951590268
+        },
+        "cpu_cores": {
+          "mean": 0.16039460441727002,
+          "p95": 0.2605657609169968,
+          "max": 0.35917097872513737
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\n",
+        "pids_events": "max 0\n",
+        "last_pressure": {
+          "pressure/cpu": "some avg10=0.05 avg60=0.21 avg300=0.31 total=4675195663\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+          "pressure/memory": "some avg10=0.00 avg60=0.00 avg300=0.00 total=0\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n"
+        },
+        "observed_gap_max_s": 10.051421
+      },
+      "log_counts": [
+        {
+          "level": "WARN",
+          "msg": "path.recovery_probe",
+          "count": 4
+        },
+        {
+          "level": "WARN",
+          "msg": "path.recovered",
+          "count": 2
+        },
+        {
+          "level": "WARN",
+          "msg": "path.recovery_probe_failed",
+          "count": 2
+        }
+      ],
+      "recovery_events": [
+        {
+          "time": "2026-10-07T22:01:43.080091671Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe",
+          "peer": "france",
+          "session": 3,
+          "old_source_port": 48981,
+          "remote": "171.22.132.226:29999"
+        },
+        {
+          "time": "2026-10-07T22:01:43.184345605Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe",
+          "peer": "france",
+          "session": 1,
+          "old_source_port": 57817,
+          "remote": "171.22.132.226:29999"
+        },
+        {
+          "time": "2026-10-07T22:01:43.28640931Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe",
+          "peer": "france",
+          "session": 2,
+          "old_source_port": 50756,
+          "remote": "171.22.132.226:29999"
+        },
+        {
+          "time": "2026-10-07T22:01:43.8015303Z",
+          "level": "WARN",
+          "msg": "path.recovered",
+          "peer": "france",
+          "session": 3,
+          "old_source_port": 48981,
+          "new_source_port": 36051,
+          "local": {
+            "IP": "89.45.68.14",
+            "Port": 36051,
+            "Zone": ""
+          },
+          "connections_preserved": true,
+          "reason": "fresh carrier tuple verified after transport stalled"
+        },
+        {
+          "time": "2026-10-07T22:01:44.184769183Z",
+          "level": "WARN",
+          "msg": "path.recovered",
+          "peer": "france",
+          "session": 2,
+          "old_source_port": 50756,
+          "new_source_port": 62900,
+          "local": {
+            "IP": "89.45.68.14",
+            "Port": 62900,
+            "Zone": ""
+          },
+          "connections_preserved": true,
+          "reason": "fresh carrier tuple verified after transport stalled"
+        },
+        {
+          "time": "2026-10-07T22:01:48.59816754Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe_failed",
+          "peer": "france",
+          "session": 1,
+          "error": "timeout"
+        },
+        {
+          "time": "2026-10-07T22:01:59.073325345Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe",
+          "peer": "france",
+          "session": 1,
+          "old_source_port": 57817,
+          "remote": "171.22.132.226:29999"
+        },
+        {
+          "time": "2026-10-07T22:02:04.433383159Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe_failed",
+          "peer": "france",
+          "session": 1,
+          "error": "timeout"
+        }
+      ],
+      "collection_errors": {},
+      "final": {
+        "checked_utc": "2026-10-07T22:24:33.071683+00:00",
+        "unit": {
+          "MainPID": "337241",
+          "Result": "success",
+          "NRestarts": "0",
+          "TasksCurrent": "10",
+          "CPUQuotaPerSecUSec": "infinity",
+          "ActiveState": "active"
+        },
+        "health": "ok",
+        "config_sha256": "61b976bbe69887aa95aea8779e188826bb8136f4ffd0a5647dfd49fdaa2eacef",
+        "binary_sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+        "config_validation": {
+          "forwards": 3,
+          "listeners": 0,
+          "path": "/root/super-paqet/conf.yaml",
+          "peers": 3,
+          "valid": true
+        },
+        "profiling": "profiling: false",
+        "log_level": "  level: warn",
+        "observer_active": "active",
+        "latest_utc": "2026-10-07T22:24:30.404741+00:00",
+        "xray_processes": [],
+        "probe_absent": true
+      },
+      "authenticated_checks": {
+        "germany": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.538948 2.130330",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 0.539884 0.660833",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "finland": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.556502 0.650306",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 0.532753 0.676398",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "france": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.933156 2.196201",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 0.960158 2.263991",
+            "error": "",
+            "passed": true
+          }
+        ]
+      }
+    },
+    "89.45.68.118": {
+      "archive_sha256": "1ee892729bdd0aba9596021dd15bfe224095096837fb4dcc753fccb0898a3892",
+      "first_utc": "2026-10-07T19:14:18.470830+00:00",
+      "last_utc": "2026-10-07T22:15:57.813941+00:00",
+      "window_summary_at_download": {
+        "completed": false,
+        "until": "2026-10-08T19:14:08.869669+00:00",
+        "journal_recorder": {
+          "records": 29844,
+          "cursor_resume": true,
+          "last_realtime_usec": "1791410552902345"
+        },
+        "first_utc": "2026-10-07T19:14:18.470830+00:00",
+        "last_utc": "2026-10-07T22:15:57.813941+00:00",
+        "samples": 1086,
+        "peak_active": 3900.0,
+        "peak_rss_kib": 174128,
+        "peak_fds": 3931,
+        "runs": {
+          "1023401": {
+            "first_utc": "2026-10-07T19:14:18.470830+00:00",
+            "last_counters": {
+              "errors_total": 9.0,
+              "rejected_total": 0.0,
+              "opening_transport_retries_total": 147.0,
+              "config_reload_rejected_total": 0.0,
+              "path_recovery_attempts_total": 11.0,
+              "path_recovery_succeeded_total": 4.0,
+              "path_recovery_rejected_total": 7.0,
+              "log_dropped_total": 0.0
+            },
+            "last_utc": "2026-10-07T22:15:57.813941+00:00"
+          }
+        },
+        "observed_processes": 1,
+        "triggers": {
+          "opening_transport_retries_total_increased": 6,
+          "path_recovery_attempts_total_increased": 4,
+          "path_recovery_succeeded_total_increased": 3,
+          "source_port_changed": 2,
+          "carrier_became_suspect": 2,
+          "carrier_recovery_started": 2,
+          "path_recovery_rejected_total_increased": 3
+        },
+        "counter_deltas": {
+          "errors_total": 9.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 147.0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 11.0,
+          "path_recovery_succeeded_total": 4.0,
+          "path_recovery_rejected_total": 7.0,
+          "log_dropped_total": 0
+        },
+        "captures": 2
+      },
+      "statistics": {
+        "super_paqet_active_connections": {
+          "first": 3422.0,
+          "last": 2443.0,
+          "max": 3900.0
+        },
+        "super_paqet_goroutines": {
+          "first": 6855.0,
+          "last": 4944.0,
+          "max": 7836.0
+        },
+        "super_paqet_heap_bytes": {
+          "first": 38637304.0,
+          "last": 50687304.0,
+          "max": 103631336.0
+        },
+        "super_paqet_aborted_connections_total": {
+          "first": 129798.0,
+          "last": 703950.0,
+          "max": 703950.0
+        },
+        "super_paqet_kcp_RetransSegs": {
+          "first": 5610.0,
+          "last": 80164.0,
+          "max": 80164.0
+        },
+        "super_paqet_kcp_OutSegs": {
+          "first": 6400570.0,
+          "last": 48398828.0,
+          "max": 48398828.0
+        },
+        "super_paqet_kcp_FastRetransSegs": {
+          "first": 4861.0,
+          "last": 62511.0,
+          "max": 62511.0
+        },
+        "super_paqet_kcp_LostSegs": {
+          "first": 306.0,
+          "last": 13132.0,
+          "max": 13132.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"0\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"germany\",session=\"0\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"1\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"germany\",session=\"1\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"2\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"germany\",session=\"2\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"3\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"germany\",session=\"3\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"0\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"finland\",session=\"0\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"1\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"finland\",session=\"1\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"2\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"finland\",session=\"2\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"3\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"finland\",session=\"3\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"0\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"france\",session=\"0\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"1\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"france\",session=\"1\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"2\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"france\",session=\"2\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"3\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_peer_capture_drops{peer=\"france\",session=\"3\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "mbps": {
+          "mean": 87.10865300697819,
+          "p95": 117.09080290552737,
+          "max": 184.23716481353043
+        },
+        "cpu_cores": {
+          "mean": 1.4782967703328684,
+          "p95": 1.6336494098828562,
+          "max": 1.7001862957246332
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\n",
+        "pids_events": "max 0\n",
+        "last_pressure": {
+          "pressure/cpu": "some avg10=28.93 avg60=31.07 avg300=32.13 total=68965160877\nfull avg10=8.58 avg60=8.56 avg300=8.42 total=47845613680\n",
+          "pressure/memory": "some avg10=0.00 avg60=0.00 avg300=0.00 total=7560583\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=6360765\n"
+        },
+        "observed_gap_max_s": 10.103247
+      },
+      "log_counts": [
+        {
+          "level": "WARN",
+          "msg": "path.recovery_probe",
+          "count": 11
+        },
+        {
+          "level": "WARN",
+          "msg": "path.recovered",
+          "count": 4
+        },
+        {
+          "level": "WARN",
+          "msg": "path.recovery_probe_failed",
+          "count": 7
+        },
+        {
+          "level": "WARN",
+          "msg": "connection.failed",
+          "count": 5
+        }
+      ],
+      "recovery_events": [
+        {
+          "time": "2026-10-07T22:01:40.914518724Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe",
+          "peer": "france",
+          "session": 0,
+          "old_source_port": 46450,
+          "remote": "171.22.132.226:29999"
+        },
+        {
+          "time": "2026-10-07T22:01:41.864376467Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe",
+          "peer": "france",
+          "session": 3,
+          "old_source_port": 62425,
+          "remote": "171.22.132.226:29999"
+        },
+        {
+          "time": "2026-10-07T22:01:41.924056053Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe",
+          "peer": "france",
+          "session": 1,
+          "old_source_port": 43946,
+          "remote": "171.22.132.226:29999"
+        },
+        {
+          "time": "2026-10-07T22:01:41.985263237Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe",
+          "peer": "france",
+          "session": 2,
+          "old_source_port": 44306,
+          "remote": "171.22.132.226:29999"
+        },
+        {
+          "time": "2026-10-07T22:01:42.249037892Z",
+          "level": "WARN",
+          "msg": "path.recovered",
+          "peer": "france",
+          "session": 3,
+          "old_source_port": 62425,
+          "new_source_port": 43270,
+          "local": {
+            "IP": "89.45.68.118",
+            "Port": 43270,
+            "Zone": ""
+          },
+          "connections_preserved": true,
+          "reason": "fresh carrier tuple verified after transport stalled"
+        },
+        {
+          "time": "2026-10-07T22:01:46.130297858Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe_failed",
+          "peer": "france",
+          "session": 0,
+          "error": "io: read/write on closed pipe"
+        },
+        {
+          "time": "2026-10-07T22:01:47.127865299Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe_failed",
+          "peer": "france",
+          "session": 1,
+          "error": "timeout"
+        },
+        {
+          "time": "2026-10-07T22:01:47.327277539Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe_failed",
+          "peer": "france",
+          "session": 2,
+          "error": "timeout"
+        },
+        {
+          "time": "2026-10-07T22:01:56.933793554Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe",
+          "peer": "france",
+          "session": 0,
+          "old_source_port": 46450,
+          "remote": "171.22.132.226:29999"
+        },
+        {
+          "time": "2026-10-07T22:01:57.936819286Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe",
+          "peer": "france",
+          "session": 1,
+          "old_source_port": 43946,
+          "remote": "171.22.132.226:29999"
+        },
+        {
+          "time": "2026-10-07T22:01:58.080260154Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe",
+          "peer": "france",
+          "session": 2,
+          "old_source_port": 44306,
+          "remote": "171.22.132.226:29999"
+        },
+        {
+          "time": "2026-10-07T22:01:58.580314353Z",
+          "level": "WARN",
+          "msg": "path.recovered",
+          "peer": "france",
+          "session": 2,
+          "old_source_port": 44306,
+          "new_source_port": 34947,
+          "local": {
+            "IP": "89.45.68.118",
+            "Port": 34947,
+            "Zone": ""
+          },
+          "connections_preserved": true,
+          "reason": "fresh carrier tuple verified after transport stalled"
+        },
+        {
+          "time": "2026-10-07T22:02:02.10156475Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe_failed",
+          "peer": "france",
+          "session": 0,
+          "error": "timeout"
+        },
+        {
+          "time": "2026-10-07T22:02:03.194995001Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe_failed",
+          "peer": "france",
+          "session": 1,
+          "error": "timeout"
+        },
+        {
+          "time": "2026-10-07T22:02:11.864995178Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe",
+          "peer": "france",
+          "session": 0,
+          "old_source_port": 46450,
+          "remote": "171.22.132.226:29999"
+        },
+        {
+          "time": "2026-10-07T22:02:13.849489439Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe",
+          "peer": "france",
+          "session": 1,
+          "old_source_port": 43946,
+          "remote": "171.22.132.226:29999"
+        },
+        {
+          "time": "2026-10-07T22:02:17.135887325Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe_failed",
+          "peer": "france",
+          "session": 0,
+          "error": "timeout"
+        },
+        {
+          "time": "2026-10-07T22:02:19.09174996Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe_failed",
+          "peer": "france",
+          "session": 1,
+          "error": "timeout"
+        },
+        {
+          "time": "2026-10-07T22:02:27.958265008Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe",
+          "peer": "france",
+          "session": 0,
+          "old_source_port": 46450,
+          "remote": "171.22.132.226:29999"
+        },
+        {
+          "time": "2026-10-07T22:02:28.540860295Z",
+          "level": "WARN",
+          "msg": "path.recovered",
+          "peer": "france",
+          "session": 0,
+          "old_source_port": 46450,
+          "new_source_port": 41635,
+          "local": {
+            "IP": "89.45.68.118",
+            "Port": 41635,
+            "Zone": ""
+          },
+          "connections_preserved": false,
+          "reason": "fresh carrier tuple verified after transport stalled"
+        },
+        {
+          "time": "2026-10-07T22:02:29.982111695Z",
+          "level": "WARN",
+          "msg": "path.recovery_probe",
+          "peer": "france",
+          "session": 1,
+          "old_source_port": 43946,
+          "remote": "171.22.132.226:29999"
+        },
+        {
+          "time": "2026-10-07T22:02:32.902197612Z",
+          "level": "WARN",
+          "msg": "path.recovered",
+          "peer": "france",
+          "session": 1,
+          "old_source_port": 43946,
+          "new_source_port": 62924,
+          "local": {
+            "IP": "89.45.68.118",
+            "Port": 62924,
+            "Zone": ""
+          },
+          "connections_preserved": false,
+          "reason": "fresh carrier tuple verified after transport stalled"
+        }
+      ],
+      "collection_errors": {},
+      "final": {
+        "checked_utc": "2026-10-07T22:24:33.986089+00:00",
+        "unit": {
+          "MainPID": "1023401",
+          "Result": "success",
+          "NRestarts": "0",
+          "TasksCurrent": "18",
+          "CPUQuotaPerSecUSec": "infinity",
+          "ActiveState": "active"
+        },
+        "health": "ok",
+        "config_sha256": "5f788d4490d39b66753f64b4f50f65a132aeafeb81a7ff881fe823061ee23e9d",
+        "binary_sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+        "config_validation": {
+          "forwards": 3,
+          "listeners": 0,
+          "path": "/root/super-paqet/conf.yaml",
+          "peers": 3,
+          "valid": true
+        },
+        "profiling": "profiling: false",
+        "log_level": "  level: warn",
+        "observer_active": "active",
+        "latest_utc": "2026-10-07T22:24:30.261749+00:00",
+        "xray_processes": [],
+        "probe_absent": true
+      },
+      "authenticated_checks": {
+        "germany": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.538093 1.179668",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 0.489790 1.295714",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "finland": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.534988 0.613144",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 0.561883 1.629580",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "france": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.938668 2.370784",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 0.825740 4.608110",
+            "error": "",
+            "passed": true
+          }
+        ]
+      }
+    },
+    "116.202.177.233": {
+      "archive_sha256": "5b7c808a30b91e716c7137aefac11c6d539b5574d70e883998ee1302e62cc392",
+      "first_utc": "2026-10-07T19:14:18.397625+00:00",
+      "last_utc": "2026-10-07T22:16:08.240217+00:00",
+      "window_summary_at_download": {
+        "completed": false,
+        "until": "2026-10-08T19:14:08.869669+00:00",
+        "journal_recorder": {
+          "records": 1250,
+          "cursor_resume": true,
+          "last_realtime_usec": "1791402322115203"
+        },
+        "first_utc": "2026-10-07T19:14:18.397625+00:00",
+        "last_utc": "2026-10-07T22:16:08.240217+00:00",
+        "samples": 1087,
+        "peak_active": 2425.0,
+        "peak_rss_kib": 105516,
+        "peak_fds": 2425,
+        "runs": {
+          "889772": {
+            "first_utc": "2026-10-07T19:14:18.397625+00:00",
+            "last_counters": {
+              "errors_total": 2.0,
+              "rejected_total": 0.0,
+              "opening_transport_retries_total": 0.0,
+              "config_reload_rejected_total": 0.0,
+              "path_recovery_attempts_total": 0.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 0.0,
+              "log_dropped_total": 0.0
+            },
+            "last_utc": "2026-10-07T22:16:08.240217+00:00"
+          }
+        },
+        "observed_processes": 1,
+        "triggers": {},
+        "counter_deltas": {
+          "errors_total": 2.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        }
+      },
+      "statistics": {
+        "super_paqet_active_connections": {
+          "first": 1700.0,
+          "last": 1655.0,
+          "max": 2425.0
+        },
+        "super_paqet_goroutines": {
+          "first": 3471.0,
+          "last": 3380.0,
+          "max": 4902.0
+        },
+        "super_paqet_heap_bytes": {
+          "first": 35620664.0,
+          "last": 24761272.0,
+          "max": 54860008.0
+        },
+        "super_paqet_aborted_connections_total": {
+          "first": 5084.0,
+          "last": 23483.0,
+          "max": 23483.0
+        },
+        "super_paqet_kcp_RetransSegs": {
+          "first": 44952.0,
+          "last": 343405.0,
+          "max": 343405.0
+        },
+        "super_paqet_kcp_OutSegs": {
+          "first": 8884265.0,
+          "last": 61707340.0,
+          "max": 61707340.0
+        },
+        "super_paqet_kcp_FastRetransSegs": {
+          "first": 15250.0,
+          "last": 275673.0,
+          "max": 275673.0
+        },
+        "super_paqet_kcp_LostSegs": {
+          "first": 29666.0,
+          "last": 67282.0,
+          "max": 67282.0
+        },
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"0\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_listener_capture_drops{listener=\"0\",worker=\"0\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"1\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_listener_capture_drops{listener=\"0\",worker=\"1\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_listener_tx_queue_drops{listener=\"1\",worker=\"0\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_listener_capture_drops{listener=\"1\",worker=\"0\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_listener_tx_queue_drops{listener=\"1\",worker=\"1\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_listener_capture_drops{listener=\"1\",worker=\"1\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "mbps": {
+          "mean": 48.094509212447015,
+          "p95": 73.35228047987097,
+          "max": 124.63018196310783
+        },
+        "cpu_cores": {
+          "mean": 0.3159978803842913,
+          "p95": 0.36525265891539066,
+          "max": 0.41381440528678204
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\n",
+        "pids_events": "max 0\n",
+        "last_pressure": {
+          "pressure/cpu": "some avg10=29.04 avg60=28.69 avg300=30.29 total=170157677940\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+          "pressure/memory": "some avg10=0.00 avg60=0.00 avg300=0.00 total=6478361\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=5007973\n"
+        },
+        "observed_gap_max_s": 10.050045
+      },
+      "log_counts": [
+        {
+          "level": "WARN",
+          "msg": "connection.failed",
+          "count": 2
+        }
+      ],
+      "recovery_events": [],
+      "collection_errors": {},
+      "final": {
+        "checked_utc": "2026-10-07T22:24:41.307302+00:00",
+        "unit": {
+          "MainPID": "889772",
+          "Result": "success",
+          "NRestarts": "0",
+          "TasksCurrent": "13",
+          "CPUQuotaPerSecUSec": "infinity",
+          "ActiveState": "active"
+        },
+        "health": "ok",
+        "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+        "binary_sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+        "config_validation": {
+          "forwards": 0,
+          "listeners": 2,
+          "path": "/root/super-paqet/conf.yaml",
+          "peers": 0,
+          "valid": true
+        },
+        "profiling": "profiling: false",
+        "log_level": "  level: warn",
+        "observer_active": "active",
+        "latest_utc": "2026-10-07T22:24:40.696257+00:00",
+        "xray_processes": [
+          {
+            "pid": 765574,
+            "start_ticks": "125163143",
+            "executable": "/usr/local/bin/xray"
+          }
+        ],
+        "probe_absent": true
+      }
+    },
+    "171.22.132.226": {
+      "archive_sha256": "e55de30db96bbe59898856019e6e3470d9b13a84398c6d160a9c087f824ceee1",
+      "first_utc": "2026-10-07T19:14:17.019281+00:00",
+      "last_utc": "2026-10-07T22:17:46.203912+00:00",
+      "window_summary_at_download": {
+        "completed": false,
+        "until": "2026-10-08T19:14:08.869669+00:00",
+        "journal_recorder": {
+          "records": 794,
+          "cursor_resume": true,
+          "last_realtime_usec": "1791410549114222"
+        },
+        "first_utc": "2026-10-07T19:14:17.019281+00:00",
+        "last_utc": "2026-10-07T22:17:46.203912+00:00",
+        "samples": 1102,
+        "peak_active": 1045.0,
+        "peak_rss_kib": 68140,
+        "peak_fds": 1055,
+        "runs": {
+          "3092527": {
+            "first_utc": "2026-10-07T19:14:17.019281+00:00",
+            "last_counters": {
+              "errors_total": 2.0,
+              "rejected_total": 0.0,
+              "opening_transport_retries_total": 0.0,
+              "config_reload_rejected_total": 0.0,
+              "path_recovery_attempts_total": 0.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 0.0,
+              "log_dropped_total": 0.0
+            },
+            "last_utc": "2026-10-07T22:17:46.203912+00:00"
+          }
+        },
+        "observed_processes": 1,
+        "triggers": {},
+        "counter_deltas": {
+          "errors_total": 2.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        }
+      },
+      "statistics": {
+        "super_paqet_active_connections": {
+          "first": 733.0,
+          "last": 278.0,
+          "max": 1045.0
+        },
+        "super_paqet_goroutines": {
+          "first": 1532.0,
+          "last": 611.0,
+          "max": 2157.0
+        },
+        "super_paqet_heap_bytes": {
+          "first": 14709624.0,
+          "last": 16886104.0,
+          "max": 34085440.0
+        },
+        "super_paqet_aborted_connections_total": {
+          "first": 1755.0,
+          "last": 6109.0,
+          "max": 6109.0
+        },
+        "super_paqet_kcp_RetransSegs": {
+          "first": 45530.0,
+          "last": 326887.0,
+          "max": 326887.0
+        },
+        "super_paqet_kcp_OutSegs": {
+          "first": 3961071.0,
+          "last": 18450805.0,
+          "max": 18450805.0
+        },
+        "super_paqet_kcp_FastRetransSegs": {
+          "first": 37577.0,
+          "last": 286106.0,
+          "max": 286106.0
+        },
+        "super_paqet_kcp_LostSegs": {
+          "first": 7178.0,
+          "last": 37256.0,
+          "max": 37256.0
+        },
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"0\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_listener_capture_drops{listener=\"0\",worker=\"0\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"1\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_listener_capture_drops{listener=\"0\",worker=\"1\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "mbps": {
+          "mean": 12.288459806751051,
+          "p95": 20.59806434477639,
+          "max": 38.15431802656957
+        },
+        "cpu_cores": {
+          "mean": 0.1592521183122159,
+          "p95": 0.20313824987280124,
+          "max": 0.2583147585376561
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n",
+        "pids_events": "max 0\n",
+        "last_pressure": {
+          "pressure/cpu": "some avg10=7.90 avg60=10.48 avg300=13.12 total=302356137456\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+          "pressure/memory": "some avg10=0.00 avg60=0.36 avg300=0.25 total=40888226\nfull avg10=0.00 avg60=0.31 avg300=0.21 total=35784009\n"
+        },
+        "observed_gap_max_s": 10.031803
+      },
+      "log_counts": [
+        {
+          "level": "WARN",
+          "msg": "connection.failed",
+          "count": 2
+        }
+      ],
+      "recovery_events": [],
+      "collection_errors": {},
+      "final": {
+        "checked_utc": "2026-10-07T22:24:34.650215+00:00",
+        "unit": {
+          "ActiveState": "active",
+          "MainPID": "3092527",
+          "Result": "success",
+          "NRestarts": "0",
+          "TasksCurrent": "10",
+          "CPUQuotaPerSecUSec": "infinity"
+        },
+        "health": "ok",
+        "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+        "binary_sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+        "config_validation": {
+          "forwards": 0,
+          "listeners": 1,
+          "path": "/root/super-paqet/conf.yaml",
+          "peers": 0,
+          "valid": true
+        },
+        "profiling": "profiling: false",
+        "log_level": "  level: warn",
+        "observer_active": "active",
+        "latest_utc": "2026-10-07T22:24:26.208116+00:00",
+        "xray_processes": [
+          {
+            "pid": 2929362,
+            "start_ticks": "558964932",
+            "executable": "/usr/local/bin/xray"
+          }
+        ],
+        "probe_absent": true
+      }
+    },
+    "65.109.249.222": {
+      "archive_sha256": "3c277b622308e7de19d8ea19e58148577f2abdb60599e655c6c440b534904bad",
+      "first_utc": "2026-10-07T19:14:17.728437+00:00",
+      "last_utc": "2026-10-07T22:16:07.116429+00:00",
+      "window_summary_at_download": {
+        "completed": false,
+        "until": "2026-10-08T19:14:08.869669+00:00",
+        "journal_recorder": {
+          "records": 949,
+          "cursor_resume": true,
+          "last_realtime_usec": "1791397809407774"
+        },
+        "first_utc": "2026-10-07T19:14:17.728437+00:00",
+        "last_utc": "2026-10-07T22:15:57.068368+00:00",
+        "samples": 1086,
+        "peak_active": 1231.0,
+        "peak_rss_kib": 91960,
+        "peak_fds": 1239,
+        "runs": {
+          "189268": {
+            "first_utc": "2026-10-07T19:14:17.728437+00:00",
+            "last_counters": {
+              "errors_total": 0.0,
+              "rejected_total": 0.0,
+              "opening_transport_retries_total": 0.0,
+              "config_reload_rejected_total": 0.0,
+              "path_recovery_attempts_total": 0.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 0.0,
+              "log_dropped_total": 0.0
+            },
+            "last_utc": "2026-10-07T22:15:57.068368+00:00"
+          }
+        },
+        "observed_processes": 1,
+        "triggers": {
+          "packet_drops_increased": 2
+        },
+        "counter_deltas": {
+          "errors_total": 0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        },
+        "captures": 2
+      },
+      "statistics": {
+        "super_paqet_active_connections": {
+          "first": 1000.0,
+          "last": 482.0,
+          "max": 1231.0
+        },
+        "super_paqet_goroutines": {
+          "first": 2056.0,
+          "last": 1031.0,
+          "max": 2525.0
+        },
+        "super_paqet_heap_bytes": {
+          "first": 17574704.0,
+          "last": 12295088.0,
+          "max": 57089608.0
+        },
+        "super_paqet_aborted_connections_total": {
+          "first": 3014.0,
+          "last": 11852.0,
+          "max": 11852.0
+        },
+        "super_paqet_kcp_RetransSegs": {
+          "first": 26264.0,
+          "last": 204086.0,
+          "max": 204086.0
+        },
+        "super_paqet_kcp_OutSegs": {
+          "first": 6663273.0,
+          "last": 36722415.0,
+          "max": 36722415.0
+        },
+        "super_paqet_kcp_FastRetransSegs": {
+          "first": 15817.0,
+          "last": 179064.0,
+          "max": 179064.0
+        },
+        "super_paqet_kcp_LostSegs": {
+          "first": 10250.0,
+          "last": 23917.0,
+          "max": 23917.0
+        },
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"0\"}": {
+          "first": 619.0,
+          "last": 619.0,
+          "max": 619.0
+        },
+        "super_paqet_listener_capture_drops{listener=\"0\",worker=\"0\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"1\"}": {
+          "first": 1412.0,
+          "last": 1463.0,
+          "max": 1463.0
+        },
+        "super_paqet_listener_capture_drops{listener=\"0\",worker=\"1\"}": {
+          "first": 0.0,
+          "last": 0.0,
+          "max": 0.0
+        },
+        "mbps": {
+          "mean": 27.477502334921944,
+          "p95": 48.16714381914094,
+          "max": 138.76861798342009
+        },
+        "cpu_cores": {
+          "mean": 0.2716072334489029,
+          "p95": 0.31526829482881724,
+          "max": 0.3845674528283578
+        },
+        "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\n",
+        "pids_events": "max 0\n",
+        "last_pressure": {
+          "pressure/cpu": "some avg10=23.47 avg60=24.44 avg300=23.02 total=20464665252\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+          "pressure/memory": "some avg10=0.00 avg60=0.00 avg300=0.00 total=0\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n"
+        },
+        "observed_gap_max_s": 10.053695
+      },
+      "log_counts": [],
+      "recovery_events": [],
+      "collection_errors": {},
+      "final": {
+        "checked_utc": "2026-10-07T22:24:34.147403+00:00",
+        "unit": {
+          "MainPID": "189268",
+          "Result": "success",
+          "NRestarts": "0",
+          "TasksCurrent": "12",
+          "CPUQuotaPerSecUSec": "infinity",
+          "ActiveState": "active"
+        },
+        "health": "ok",
+        "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+        "binary_sha256": "633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f",
+        "config_validation": {
+          "forwards": 0,
+          "listeners": 1,
+          "path": "/root/super-paqet/conf.yaml",
+          "peers": 0,
+          "valid": true
+        },
+        "profiling": "profiling: false",
+        "log_level": "  level: warn",
+        "observer_active": "active",
+        "latest_utc": "2026-10-07T22:24:29.512446+00:00",
+        "xray_processes": [
+          {
+            "pid": 71633,
+            "start_ticks": "2098986",
+            "executable": "/usr/local/bin/xray"
+          }
+        ],
+        "probe_absent": true
+      }
+    }
+  },
+  "temporary_profile": {
+    "receipt": {
+      "start_utc": "2026-10-07T22:19:46.622631+00:00",
+      "end_checked_utc": "2026-10-07T22:20:54.471226+00:00",
+      "unchanged_pid": "1023401",
+      "restored_sha256": "5f788d4490d39b66753f64b4f50f65a132aeafeb81a7ff881fe823061ee23e9d",
+      "profiling_disabled": true,
+      "warning_logging_restored": true,
+      "restore_timer": "inactive",
+      "files": [
+        "cpu.pprof",
+        "goroutines.txt",
+        "debug.journal.jsonl"
+      ]
+    },
+    "cpu_profile_seconds": 10,
+    "cpu_samples_seconds": 10.31,
+    "flat_syscall_percent": 37.63,
+    "flat_futex_percent": 14.06,
+    "abort_error_classification": {
+      "sample_count": 779,
+      "read_errors": {
+        "shutdown: transport endpoint is not connected": 432,
+        "write: broken pipe": 347
+      },
+      "write_errors": {
+        "none": 779
+      }
+    },
+    "config_applied_changed_resources": [],
+    "config_applied_updated_resources": [],
+    "config_applied_interrupted_resources": [],
+    "original_connections_0_1_disappeared_before_verified_replacements": true,
+    "session_expiry_explanation": "inference from timing and keepalive code; warning logs do not record closure cause"
+  }
+}
