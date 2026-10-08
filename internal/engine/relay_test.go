@@ -269,3 +269,63 @@ func BenchmarkTCPToStream(b *testing.B) {
 		b.Fatalf("transferred %d bytes != expected %d", n, totalBytes)
 	}
 }
+
+// TestTCPToStreamVaryingBursts exercises scratch growth/shrink while preserving
+// exact bytes and EOF. TCP may coalesce writes; the relay must not depend on the
+// sender's chunk boundaries or a queued-byte ioctl to size its next read.
+func TestTCPToStreamVaryingBursts(t *testing.T) {
+	listener, err := net.ListenTCP("tcp", &net.TCPAddr{IP: net.IPv4(127, 0, 0, 1)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer listener.Close()
+	local, err := net.DialTCP("tcp", nil, listener.Addr().(*net.TCPAddr))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer local.Close()
+	source, err := listener.AcceptTCP()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer source.Close()
+	if err := local.SetDeadline(time.Now().Add(10 * time.Second)); err != nil {
+		t.Fatal(err)
+	}
+	if err := source.SetDeadline(time.Now().Add(10 * time.Second)); err != nil {
+		t.Fatal(err)
+	}
+	var want bytes.Buffer
+	for repeat := 0; repeat < 32; repeat++ {
+		for _, size := range []int{1, 4095, 4096, 8192, 16384, 65536, 5, 131072, 65} {
+			for offset := 0; offset < size; offset++ {
+				want.WriteByte(byte(repeat*31 + offset))
+			}
+		}
+	}
+	done := make(chan error, 1)
+	go func() {
+		payload := want.Bytes()
+		for len(payload) > 0 {
+			// An intentionally awkward write length crosses every scratch class.
+			n, writeErr := local.Write(payload[:min(len(payload), 17003)])
+			payload = payload[n:]
+			if writeErr != nil {
+				done <- writeErr
+				return
+			}
+		}
+		done <- local.CloseWrite()
+	}()
+	var got bytes.Buffer
+	n, err := tcpToStream(&got, source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := <-done; err != nil {
+		t.Fatal(err)
+	}
+	if n != int64(want.Len()) || !bytes.Equal(got.Bytes(), want.Bytes()) {
+		t.Fatalf("adaptive read lost or changed bytes: accepted=%d got=%d want=%d", n, got.Len(), want.Len())
+	}
+}

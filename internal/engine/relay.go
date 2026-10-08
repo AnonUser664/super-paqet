@@ -36,31 +36,37 @@ func getBuffer(size int) (*[]byte, int) {
 	return &b, class
 }
 
-// tcpToStream allocates scratch only AFTER netpoll reports data. Idle TCP
-// connections retain no copy buffer. Buffer size follows currently queued bytes.
+// tcpToStream returns scratch before waiting in netpoll. Idle TCP connections
+// retain no copy buffer. Successful reads adapt the next scratch size
+// without a second syscall to query queued bytes on every poll attempt.
 func tcpToStream(dst io.Writer, src *net.TCPConn) (int64, error) {
 	raw, err := src.SyscallConn()
 	if err != nil {
 		return 0, err
 	}
 	var total int64
+	readSize := 4096
 	for {
 		var b *[]byte
 		var class, n int
 		var readErr error
 		err = raw.Read(func(fd uintptr) bool {
-			// The nonblocking read itself detects EAGAIN and EOF; peeking
-			// first adds a syscall for every payload without protecting data.
-			available, e := unix.IoctlGetInt(int(fd), unix.TIOCINQ)
-			if e != nil || available <= 0 {
-				available = 32768
-			}
-			b, class = getBuffer(available)
+			// Read directly: ioctl plus read costs two syscalls even when the
+			// socket is empty. Scratch remains borrowed only for this attempt.
+			b, class = getBuffer(readSize)
 			n, readErr = unix.Read(int(fd), *b)
 			if errors.Is(readErr, unix.EAGAIN) || errors.Is(readErr, unix.EINTR) {
 				copyPools[class].Put(b)
 				b = nil
 				return false
+			}
+			if n == len(*b) && readSize < 4096<<(len(copyPools)-1) {
+				// Repeated full reads grow to the existing bounded bulk class.
+				readSize *= 2
+			} else if n > 0 && n <= readSize/4 && readSize > 4096 {
+				// Quarter-full reads shrink one class; hysteresis avoids
+				// bouncing between adjacent classes on ordinary partial reads.
+				readSize /= 2
 			}
 			return true
 		})
