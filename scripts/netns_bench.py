@@ -286,8 +286,9 @@ def main():
             for i in range(8): client += f'  - {{listen: "127.0.0.1:{28080+i}", peer: remote, target: "127.0.0.{i+1}:18080"}}\n'
             server = f'listeners:\n  - address: 198.18.0.2:29999\n    sessions: {a.sessions}\n    max_sessions: {a.max_sessions}\n    key: benchmark-only-key\n    network: {{interface: spq-s, ipv4: {{addr: "198.18.0.2:29999", router_mac: "02:00:00:00:00:01"}}}}\n'
             if a.source_ports is not None:
-                # Fix tuple hashes for repeated comparisons without restricting
-                # recovery, which may still reserve a fresh replacement source.
+                # Keep initial tuple values fixed for repeated comparisons;
+                # worker distribution must still be measured in each namespace.
+                # Recovery may reserve a fresh replacement source.
                 client=client.replace('    address:', '    source_ports: '+json.dumps(a.source_ports)+'\n    address:',1)
             if a.path_recovery:
                 recovery_fields='{enabled: true'+(', preserve_connections: true' if a.preserve_connections else '')+'}'

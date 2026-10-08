@@ -386,6 +386,7 @@ paqet defaults. Recovery configurations intentionally override many of them.
 | `streambuf` | 16777216 | Per-stream advertised receive-window ceiling, bytes. |
 | `smuxkalive` | 2 | Keepalive interval, **integer seconds**. |
 | `smuxktimeout` | 30 | Idle/no-inbound-traffic keepalive timeout, integer seconds. |
+| `smux_recovery_grace` | 0 | Extra negotiated carrier recovery budget, **integer seconds**, 0–120. Disabled by default; requirements and costs below. |
 | `small_write_flush` | 0 | Immediate-flush exception for logical KCP writes at or below this byte threshold, 0–65535. Keeps the selected preset's bulk batching and ACK policy. Zero disables it. May be reloaded in place. |
 | `write_batch_ms` | 20 | Paced data-frame batching-time ceiling, effective 1–1000 ms. |
 | `ack_delay_max_ms` | 20 | Adaptive ACK delay ceiling, effective 1–20 ms. |
@@ -407,6 +408,32 @@ The deployed Netherlands MTU 128 is an empirical recovery override, not a
 universal recommendation. Approximate payload capacity is segment count ×
 usable MSS. Reducing packet size without scaling windows reduces byte capacity;
 scaling packet windows also increases metadata and packet-processing cost.
+
+Positive `smux_recovery_grace` requires an outgoing peer with enabled
+`path_recovery.preserve_connections`, independent sources and FEC disabled,
+or an incoming listener with `shared_source: true` and FEC disabled. Set it
+on both participating endpoints to protect both mux lifetimes. Configuration
+alone does not activate grace: migration capability must also be negotiated.
+Older peers, empty carriers and permanent transport/protocol failures retain
+ordinary closure behavior. This candidate setting is **not enabled in the
+recorded production deployment**.
+
+When normal keepalive expiry would close a negotiated carrier with live streams,
+grace grants one fixed extra deadline. Failed probes do not extend it. Actual
+inbound activity clears grace; a subsequent outage can receive a new budget.
+Receive-buffer backpressure remains governed by existing flow control. The
+existing ping timer checks expiry, so scheduling/ping jitter adds to the configured
+deadline; this is not a strict outage SLA. Ordinary timeout sampling can already
+take roughly one to two `smuxktimeout` periods after last input. A value of 60
+therefore adds roughly another minute, rather than setting a total timeout
+of 60 seconds.
+
+The cost is retaining the existing carrier, bounded queues and backend TCP sockets
+for longer during a dead path. There is no new per-stream timer, replay buffer,
+wire command or packet format. Application deadlines/cancellation and explicit
+close remain authoritative. Changing this value on live reload replaces the
+affected peer/listener and interrupts its streams; it cannot retrofit an existing
+mux configuration. See the [qualification report](RECOVERY-GRACE-2026-10-08.md).
 
 ## Retransmission behavior and manual overrides
 

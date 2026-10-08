@@ -250,6 +250,27 @@ and mux objects were retained locally, while false means ordinary replacement.
 It retains peer/session and old/new source-port fields. A candidate round trip
 is proof of transport reachability at that time, not a permanent health guarantee.
 
+The recovery-grace candidate also adds warning-level `preservation_reason` and
+`old_close_reason` to `path.recovered`. Reasons distinguish `preserved`,
+`disabled`, `no_live_carrier`, `carrier_closed`, `capability_unavailable`,
+`capability_check_failed`, `carrier_changed_during_probe`,
+`carrier_closed_during_probe` and `adoption_failed`. Failed capability checks or
+adoption also include `preservation_error`. The old closure cause is captured
+before deliberate cleanup; an empty cause means no terminal evidence was recorded.
+
+`session.closed` reports the first terminal cause once per registered carrier:
+`keepalive_timeout`, `recovery_grace_expired`, `transport_read`,
+`transport_write` or `protocol_error`, with the original error when available.
+Engine shutdown, intentional local close and idle retirement stay quiet.
+This is carrier evidence, not per-customer logging or proof of filtering.
+
+`super_paqet_session_recovery_grace_active` and
+`super_paqet_session_recovery_grace_total` expose whether a live carrier is in
+grace and how often it entered grace. They follow existing carrier labels and
+disappear when the carrier is removed; the journal preserves closure evidence.
+Do not treat the sum of live-carrier counters as a durable process-wide total.
+These additions are qualified locally and are not in migration.4 production.
+
 At debug level, `path.migration_ready` records negotiated support;
 `path.migration_accepted` records backend routing adoption;
 `path.migration_confirmed` records its reply; and `path.migration_progress`

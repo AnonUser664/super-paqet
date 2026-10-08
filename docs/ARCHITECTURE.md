@@ -424,3 +424,23 @@ TCP option/sequence/ACK/timestamp code remain unchanged.
 One minute of post-move health observation emits at most one early-stall warning.
 Normal idle queues, brief gaps and remote zero-window backpressure do not qualify
 as transport stalls. This is correlation evidence, not proof of filtering.
+
+
+## Bounded carrier recovery grace (candidate)
+
+[third_party/smux/recovery.go](../third_party/smux/recovery.go) owns the optional
+watchdog extension and first terminal cause. The existing keepalive goroutine
+alone owns its deadline; atomic fields publish diagnostics. Capability issuance
+and receipt in the engine arm configured sessions. At ordinary keepalive expiry,
+only negotiated carriers with live users receive a finite extension. Repeated
+probes cannot refresh it. Real input clears it, receiver backpressure remains
+ordinary flow control, and permanent errors/explicit close retain precedence.
+No stream timer, extra goroutine or packet callback is introduced.
+
+[internal/engine/carrier_diagnostics.go](../internal/engine/carrier_diagnostics.go)
+reports terminal causes when the existing tuner removes closed carriers. First
+cause recording precedes cleanup, so intentional closure cannot overwrite an IO
+failure. Recovery warnings also explain preservation fallback. Metrics expose
+per-live-carrier grace state; closed-carrier evidence remains in warning logs.
+Default zero preserves existing expiry. Production migration.4 does not include
+this candidate; see [qualification](RECOVERY-GRACE-2026-10-08.md).

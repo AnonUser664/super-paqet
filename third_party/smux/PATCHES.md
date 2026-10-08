@@ -63,3 +63,13 @@ delivery, cancellation and deadlines.
   shared-carrier deadlines. `Abort` releases local ownership immediately with
   bounded best-effort FIN/RST admission; ordinary `Close` retains graceful/default
   semantics. Failed-opening reset queue overflow and skipped writes are observable.
+
+* Optional `RecoveryGrace` (default zero, maximum two minutes) extends ordinary
+  keepalive expiry only after explicit migration negotiation and only for live
+  streams. The existing keepalive goroutine owns a fixed deadline; failed probes
+  cannot renew it. Input/backpressure/cancellation/error precedence is retained.
+  Atomic per-carrier statistics expose extension use. No wire command changes.
+* First terminal cause recording (`EndCause`) distinguishes keepalive/grace
+  expiry, permanent read/write/protocol errors, idle retirement and deliberate
+  close before cleanup obscures evidence. Deterministic watchdog and race tests
+  cover negotiation, deadline boundaries, activity, flow control and first cause.

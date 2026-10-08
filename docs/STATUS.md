@@ -32,6 +32,22 @@ carrier incident; four migrations retained sessions and two used replacement
 after the originals disappeared. Production settings remain unchanged. The full
 day is still in progress; this is not an incident-free stability pass.
 
+## Recovery-grace candidate
+
+The next candidate is locally qualified and **not deployed**. It adds first-cause
+warning diagnostics and optional, bounded mux recovery grace after migration
+negotiation. Default zero retains ordinary keepalive expiry. Production configs
+and executables remain unchanged. See the
+[qualification and regression controls](RECOVERY-GRACE-2026-10-08.md) and
+[receipts](recovery-grace-qualification-2026-10-08.json).
+
+A read-only production check at **2026-10-08 00:55 UTC** found all five original
+processes active, zero restarts and identical running binary hashes. France had
+another nonpreserving recovery at 23:11 UTC after two failed probes. At 00:20 UTC,
+seven France probes were later discarded without source replacement; the live
+pending/suspect metrics were zero at the check. Warning-only logs do not expose
+the exact discard cause. This is not an incident-free stability result.
+
 ## Qualification and deployment before migration.4
 
 The earlier migration candidate `enterprise-2026.10.07-migration.3` is locally
