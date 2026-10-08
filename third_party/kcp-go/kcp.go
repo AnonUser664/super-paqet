@@ -465,6 +465,17 @@ func (kcp *KCP) Recv(buffer []byte) (n int) {
 
 	// merge fragment
 	for {
+		// Stream segments have no application message boundary. Drain every
+		// complete queued segment that fits, reducing session-lock/read cycles
+		// without waiting for more input. Keep the next segment intact when it
+		// does not fit: slicing a pooled tail would lose its original capacity
+		// and make recycling fail. Message mode retains its frg contract.
+		if kcp.stream != 0 {
+			seg, ok := kcp.rcv_queue.Peek()
+			if !ok || len(seg.data) > len(buffer) {
+				break
+			}
+		}
 		seg, ok := kcp.rcv_queue.Pop()
 		if !ok {
 			break
@@ -474,7 +485,7 @@ func (kcp *KCP) Recv(buffer []byte) (n int) {
 		buffer = buffer[len(seg.data):]
 		n += len(seg.data)
 		kcp.recycleSegment(&seg)
-		if seg.frg == 0 {
+		if kcp.stream == 0 && seg.frg == 0 {
 			kcp.debugLog(IKCP_LOG_RECV, "stream", kcp.stream, "conv", kcp.conv, "sn", seg.sn, "ts", seg.ts, "datalen", n)
 			break
 		}

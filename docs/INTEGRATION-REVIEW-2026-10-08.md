@@ -59,3 +59,28 @@ Full root race/vet checks passed. Focused KCP race checks passed in 156.000 s,
 including all four plaintext/CFB/Salsa20/AEAD 100 MiB echo tests with FEC,
 batch queue concurrency and shared endpoint routing. The full smux race suite
 is in progress; no performance or deployment acceptance is inferred yet.
+
+
+The full selected smux race suite passed in **545.290 s**, and its vet check
+passed. An isolated copy of exp2's original snapshot-elision code ran the new
+`TestNoDeadlineWriteOwnsPayloadDuringClose` and failed deterministically:
+`early return retained caller bytes: "recycled"` (0.002 s). This is a reproduced
+correctness failure, not merely a speculative objection. The selected runtime
+continues snapshotting queued payloads and passes the same test.
+
+The completed exp1 read implementation has no new segment field or ring
+`PushFront` method. Focused race checks passed in 28.688 s, including whole
+segments, small session reads, full-window reopening, preserved fragmented
+message boundaries, the original 36,000-operation receive oracle, deterministic
+virtual links and duplicated traffic. Its full KCP suite and end-to-end
+performance comparisons are still pending at this checkpoint.
+
+
+The completed KCP suite passed in **140.709 s**; combined root race/vet and
+fork vet checks passed. The receive-batch microbenchmark, which excludes the
+session mutex and network reads, was slower (median 2592 → 2821 ns per 32
+segments, +8.8%, identical allocations). It is retained as an adverse result:
+we must measure the intended session/read benefit end-to-end rather than claiming
+that fewer calls automatically improve every layer. Small combined UDP records
+use **0 B/op, 0 allocs/op** after pool warmup; the relay benchmark also reports
+zero allocations. Final runtime acceptance is still pending matched binaries.

@@ -68,6 +68,7 @@ def main():
     p.add_argument('--mtu',type=int,default=1500)
     p.add_argument('--ipv6',action='store_true')
     p.add_argument('--warmup',type=int,default=0,help='iperf3 omitted startup seconds')
+    p.add_argument('--duplex-http-gap-ms',type=int,default=0,help='per-worker HTTP pause beside bulk; zero retains saturation')
     p.add_argument('--duplex-http-steady',action='store_true',help='omit the same configured startup duration from mixed HTTP statistics; keep legacy timing by default')
     p.add_argument('--schedule',help='JSON list of link changes relative to each workload start')
     p.add_argument('--mode', choices=['http','http-churn','bulk','both'], default='both')
@@ -104,6 +105,7 @@ def main():
     if a.host_backlog<0 or a.host_backlog>1000000:p.error('host backlog must be 0..1000000')
     if a.duplex_http and (not a.enterprise or not a.iperf or 'bidirectional' not in a.iperf_directions):p.error('duplex HTTP requires enterprise bidirectional iperf')
     if a.duplex_http_steady and not a.duplex_http:p.error('duplex HTTP steady measurement requires duplex HTTP')
+    if a.duplex_http_gap_ms < 0 or (a.duplex_http_gap_ms and not a.duplex_http):p.error('duplex HTTP gap requires duplex HTTP and cannot be negative')
     kcp_overrides=json.loads(a.kcp_options)
     if not isinstance(kcp_overrides,dict) or 'key' in kcp_overrides:p.error('KCP overrides must be an object without key')
     if any(x<0 for x in a.fec) or sum(a.fec)>256 or (a.fec[0]==0)!=(a.fec[1]==0):p.error('FEC requires both positive shards, total <=256, or both zero')
@@ -531,7 +533,7 @@ def main():
                 http_churn=None
                 if name=='bidirectional' and a.duplex_http:
                     http_timing=['-duration',f'{a.duration}s','-warmup',f'{a.warmup}s'] if a.duplex_http_steady else ['-duration',f'{a.duration+a.warmup}s']
-                    http_churn=spawn(c,'duplex-http',str(ROOT/'build/spq-bench'),'-mode','http-churn','-addr','127.0.0.1:28080','-workers','4',*http_timing)
+                    http_churn=spawn(c,'duplex-http',str(ROOT/'build/spq-bench'),'-mode','http-churn','-addr','127.0.0.1:28080','-workers','4','-request-gap',f'{a.duplex_http_gap_ms}ms',*http_timing)
                 start_epochs(name)
                 profiles = []
                 if a.profile and a.enterprise and not direct:
@@ -602,7 +604,7 @@ def main():
             rules = ns(s,'iptables-save','-c').stdout
             (out/'firewall-during.txt').write_text(rules)
         if schedule_errors:raise RuntimeError('link schedule failed: '+str(schedule_errors))
-        report = {'parameters':vars(a),'results':reports,'processes':peaks,'kernel':os.uname().release,'binary_sha256':running_sha}
+        report = {'parameters':vars(a),'results':reports,'processes':peaks,'kernel':os.uname().release,'binary_sha256':running_sha,'benchmark_helper_sha256':hashlib.sha256((ROOT/'build/spq-bench').read_bytes()).hexdigest()}
         for n in namespaces:
             (out/(n.split('-')[1]+'-qdisc.json')).write_text(ns(n,'tc','-s','-j','qdisc','show').stdout)
         (out/'results.json').write_text(json.dumps(report,indent=2)+'\n')
