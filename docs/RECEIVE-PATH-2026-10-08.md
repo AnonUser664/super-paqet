@@ -56,7 +56,8 @@ is recorded in the incident, migration and recovery-grace reports linked below.
 | `232e108`; `affinity` (12 workloads) | Isolate role CPU placement on a hybrid laptop, retaining pinned lanes and identical protocol settings. Three alternating pairs per case. | Median clean upload 3.887 to 4.648 Gbit/s; download 3.315 to 3.381. At equal 1 Gbit/s each-way bulk, HTTP mean 857 to 820 microseconds and p99 12 to 6 ms. Accept the receive optimization for these controlled workloads. This does not prove CPU placement explains every earlier difference. |
 | `capacity` (2 workloads) | Hold 100,000 forwards for 120 seconds and reverify each before closing. | Both versions established, held, reverified and closed every connection with zero errors. Laptop swap was active; this establishes mostly idle connection capacity, not 100,000 simultaneous busy flows. |
 | `wan-repeat` (24 workloads) | Three alternating pairs for reorder, mobile, rate-step and AES-GCM with fixed role CPUs and adaptation on. | Reorder bulk medians 86.184 to 88.301 Mbit/s; HTTP p99 162 ms on both. Mobile bulk 1.535 to 1.543 Mbit/s, HTTP 27.449 to 27.399 requests/s, p99 516 to 550 ms. Rate-step bulk 16.209 to 16.079 Mbit/s. AES-GCM upload/download 3.958/3.103 to 3.909/3.074 Gbit/s. Earlier large throughput outliers did not recur in these medians; mobile tail remains noisy rather than universally improved. |
-| `6f02bf7`; `backpressure` (in progress) | Production metrics tied 576 retries to a full client mux receiver on one Finland carrier. Cache local receive blockage/remote zero-window capacity and prefer an unblocked equally healthy sibling for new openings. | Real mux reproduction fails with original admission and passes with the hint: sibling opens with zero retries while original payloads survive and resume after drain. The rejected live-population/bulk-tie policies remain absent. Whole-tunnel regression qualification is running. |
+| `6f02bf7`; `backpressure` (26 completed workloads, one failed fixture attempt) | Production metrics tied 576 retries to a full client mux receiver on one Finland carrier. Cache local receive blockage/remote zero-window capacity and prefer an unblocked equally healthy sibling for new openings. | Real mux reproduction passes, but the three-pair mixed-load gate fails: p99 7 to 11 ms, mean 796 to 872 microseconds, requests/s 5018 to 4585. Keep the intended capacity behavior for a leaner implementation; reject receive.5 performance acceptance. |
+| `d295dba`; `packed-pressure` (in progress) | Encode blockage in the existing cached pressure word, remove the separate slot field and restore original selection loads/loop. | Application race/vet and ten focused race repetitions pass. Healthy repeated performance and profiles are pending; source is on the exploration branch, not deployed or merged. |
 
 The two rejected admission experiments are absent from receive.4. Its runtime
 engine/mux files match `eb4127e`; the later pool edit changes a test only. The
@@ -107,6 +108,12 @@ corrected to use the retained carrier. The first failing negative control spent
 The fixture now closes its owned carrier before per-stream cleanup; the repeated
 negative control failed immediately for the intended selection assertion.
 Neither fixture problem was a runtime deadlock or performance result.
+
+The separate-field implementation then failed its three-pair mixed-load latency
+gate. The [coordinated exploration journal](EXPLORATION-2026-10-08.md) records
+the packed-word alternative, full negative measurements, a missing worktree
+dependency attempt, directionally corrected ACK-return tests, and shared test
+reservation. The two earlier live-population/bulk-tie experiments remain rejected.
 
 ## Measurement controls and adaptive scope
 
