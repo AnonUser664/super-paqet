@@ -41,3 +41,17 @@ flock -n /home/shayan/.cache/super-paqet-tests/test.lock go test -race ./...
 For privileged namespace matrices, place `flock` outside `sudo` so the reservation
 also covers authentication, the complete matrix and cleanup. Never put passwords
 in command arguments, environment variables, files or logs.
+
+This exploration branch supplies `scripts/with_test_lock.py`, which atomically
+acquires that reservation, checks known test/load processes and runs the command
+only when both checks pass. Prefer it to a bare lock:
+
+```sh
+python3 scripts/with_test_lock.py -- go test -race ./...
+python3 scripts/with_test_lock.py -- sudo python3 scripts/netns_bench.py ...
+```
+
+Exit 75 means busy; inspect or continue non-test work. Do not nest wrappers or
+locks inside a matrix already holding the same reservation. Unknown/manual load
+generators still require judgment in the process check; the wrapper is not a
+substitute for coordination.
