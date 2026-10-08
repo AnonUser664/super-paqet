@@ -44,6 +44,14 @@ CASES = {
     'burst': ['--mode', 'both', '--workers', '16', '--bridge', '--delay-ms', '20', '--burst-loss', '.5', '20', '80', '.1', '--rate-mbit', '100', '--queue-packets', '2048', '--seed', '807'],
     'mobile': ['--mode', 'both', '--workers', '4', '--bridge', '--delay-ms', '50', '--loss', '5', '--rate-mbit', '2', '--queue-packets', '512', '--seed', '810'],
     'rate-step': ['--mode', 'bulk', '--workers', '8', '--bridge', '--delay-ms', '10', '--rate-mbit', '50', '--queue-packets', '2048', '--seed', '808', '--schedule', '[{"at":4,"rate_mbit":5},{"at":10,"rate_mbit":50}]'],
+    # A narrow return path delays ACKs without reducing forward-path capacity.
+    # Preserve both directional rates so a future controller change can be
+    # judged against the same asymmetric feedback rather than a symmetric cap.
+    'ack-bottleneck': ['--mode', 'both', '--workers', '8', '--bridge', '--delay-ms', '20', '--rate-mbit', '100', '--down-rate-mbit', '1', '--queue-packets', '2048', '--seed', '812'],
+    # Change propagation delay while work is active; the original ceiling and
+    # controller remain in force. The runner requires >=12 seconds, and the
+    # qualifying invocation uses 30 seconds to observe both transitions.
+    'delay-step': ['--mode', 'both', '--workers', '8', '--bridge', '--delay-ms', '10', '--rate-mbit', '50', '--queue-packets', '2048', '--seed', '813', '--schedule', '[{"at":5,"delay_ms":80},{"at":15,"delay_ms":10}]'],
     'tiny-queue': ['--mode', 'both', '--workers', '8', '--bridge', '--delay-ms', '10', '--rate-mbit', '100', '--queue-packets', '32', '--seed', '809'],
     'encrypted': ['--mode', 'bulk', '--packet-workers', '1', '--block', 'aes-128-gcm', '--iperf', '--iperf-directions', 'upload', 'download'],
     'hold-10000': ['--hold', '10000', '--workers', '64'],
@@ -100,6 +108,7 @@ def main():
     parser.add_argument('--server-cpus', default='')
     parser.add_argument('--workload-cpus', default='')
     parser.add_argument('--profile', action='store_true', help='collect CPU profiles on the first repetition')
+    parser.add_argument('--debug', action='store_true', help='sample structured transport diagnostics each second on both versions')
     parser.add_argument('--pinned-lanes', action='store_true', help='pin equal iperf streams to each carrier, leaving non-iperf tests unchanged')
     args = parser.parse_args()
     if os.geteuid() != 0:
@@ -131,6 +140,8 @@ def main():
                            '--block', 'null', '--kcp-options', json.dumps(KCP), '--output', str(directory), *CASES[case]]
                 if args.profile and repetition == 0:
                     command.append('--profile')
+                if args.debug:
+                    command.append('--debug')
                 if args.warmup and '--iperf' in CASES[case]:
                     command.extend(['--warmup', str(args.warmup)])
                 if args.pinned_lanes and '--iperf' in CASES[case]:

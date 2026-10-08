@@ -28,7 +28,7 @@ func openingCarrier(t *testing.T, conv uint32) (*slot, *smux.Session) {
 
 // openingCarrierConn permits deterministic carrier-write stalls, independent of
 // peer replies or retransmission timers.
-func openingCarrierConn(t *testing.T, conv uint32, wrap func(net.Conn) net.Conn) (*slot, *smux.Session) {
+func openingCarrierConn(t *testing.T, conv uint32, wrap func(net.Conn) net.Conn, configs ...*smux.Config) (*slot, *smux.Session) {
 	t.Helper()
 	packet, err := net.ListenPacket("udp", "127.0.0.1:0")
 	if err != nil {
@@ -48,6 +48,9 @@ func openingCarrierConn(t *testing.T, conv uint32, wrap func(net.Conn) net.Conn)
 	left, right := net.Pipe()
 	cfg := smux.DefaultConfig()
 	cfg.Version = 2
+	if len(configs) > 0 {
+		cfg = configs[0]
+	}
 	var local net.Conn = left
 	if wrap != nil {
 		local = wrap(left)

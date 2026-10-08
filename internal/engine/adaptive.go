@@ -296,6 +296,30 @@ func (e *Engine) addPassive(conn *kcp.Conn) {
 	e.tuneMu.Unlock()
 }
 
+// cachePressure publishes advisory admission state at the existing sampling
+// cadence. Receive-buffer or remote-window backpressure can delay an opening's
+// reply while KCP still makes progress, so it is capacity pressure, not proof of
+// a failed tuple. The sampler never closes or migrates established streams.
+func (c *controller) cachePressure(conn *kcp.Conn, s kcplib.TransportStats, now time.Time) {
+	if c.slot == nil || c.slot.conn.Load() != conn {
+		return
+	}
+	traffic := s.AckedBytes - c.previous.AckedBytes + s.ReceivedBytes - c.previous.ReceivedBytes
+	wait := s.WriteWaitNanoseconds - c.previous.WriteWaitNanoseconds
+	streams := conn.Session.NumStreams()
+	_, _, receiveBlocked := conn.Session.ReceiveBufferStats()
+	blocked := receiveBlocked || s.RemoteWindow == 0
+	c.slot.openingBlocked.Store(blocked)
+	score := uint64(streams)
+	if traffic > 8192 || s.PendingBytes >= uint64(max(1, s.MSS)*2) || (traffic > 2048 && wait > uint64(100*time.Millisecond)) {
+		c.hotUntil = now.Add(max(2*time.Second, min(10*time.Second, time.Duration(s.SRTT)*4*time.Millisecond)))
+	}
+	if blocked || (streams > 0 && now.Before(c.hotUntil)) {
+		score += busyCarrier
+	}
+	c.slot.score.Store(score)
+}
+
 // tune samples every carrier on one shared ticker and applies bounded
 // pacing/window/ACK/reordering/timer adjustments.
 func (e *Engine) tune() {
@@ -317,19 +341,7 @@ func (e *Engine) tune() {
 				if !c.last.IsZero() && now.Sub(c.last) < c.sampleInterval(s) {
 					continue
 				}
-				if c.slot != nil && c.slot.conn.Load() == conn {
-					traffic := s.AckedBytes - c.previous.AckedBytes + s.ReceivedBytes - c.previous.ReceivedBytes
-					wait := s.WriteWaitNanoseconds - c.previous.WriteWaitNanoseconds
-					streams := conn.Session.NumStreams()
-					score := uint64(streams)
-					if traffic > 8192 || s.PendingBytes >= uint64(max(1, s.MSS)*2) || (traffic > 2048 && wait > uint64(100*time.Millisecond)) {
-						c.hotUntil = now.Add(max(2*time.Second, min(10*time.Second, time.Duration(s.SRTT)*4*time.Millisecond)))
-					}
-					if streams > 0 && now.Before(c.hotUntil) {
-						score += busyCarrier
-					}
-					c.slot.score.Store(score)
-				}
+				c.cachePressure(conn, s, now)
 				if c.passive {
 					// Static reliability still needs coherent pressure for pool
 					// balancing/growth; cumulative counters are never interval rates.
