@@ -7,6 +7,11 @@ Based on github.com/xtaci/kcp-go/v5 v5.6.72; MIT license retained.
   numbers rather than acknowledged send-ring tombstones. Selective/cumulative
   ACKs unlink in constant time; ring growth and sequence wrap retain numeric
   links. The linear algorithm is the deterministic differential-test oracle.
+* Ordered receive segments enter the reader FIFO directly when it has room.
+  Reorder draining inspects the heap root before removing it, so unresolved gaps
+  and full reader queues do not allocate a pop/reinsert pair. Payload ownership,
+  duplicate detection, window/sequence advancement, fragmentation and ACK output
+  match the original heap-only algorithm in deterministic differential traces.
 * Explicit shared-source mode demultiplexes by address and conversation, so
   independent lanes retain one raw source tuple. Outgoing groups reject unknown
   input. Default address/reset behavior and FEC are unchanged; shared mode rejects

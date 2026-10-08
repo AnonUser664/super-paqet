@@ -480,18 +480,7 @@ func (kcp *KCP) Recv(buffer []byte) (n int) {
 		}
 	}
 
-	// move available data from rcv_buf -> rcv_queue
-	for kcp.rcv_buf.Len() > 0 {
-		seg := heap.Pop(kcp.rcv_buf).(segment)
-		if seg.sn == kcp.rcv_nxt && kcp.rcv_queue.Len() < int(kcp.rcv_wnd) {
-			kcp.rcv_queue.Push(seg)
-			kcp.rcv_nxt++
-		} else {
-			// push back segment
-			heap.Push(kcp.rcv_buf, seg)
-			break
-		}
-	}
+	kcp.drainReceiveBuffer()
 
 	// fast recover
 	if kcp.rcv_queue.Len() < int(kcp.rcv_wnd) && fast_recover {
@@ -711,26 +700,39 @@ func (kcp *KCP) parse_data(newseg segment) bool {
 		copy(dataCopy, newseg.data)
 		newseg.data = dataCopy
 
-		// insert the new segment into rcv_buf
-		heap.Push(kcp.rcv_buf, newseg)
+		// Ordered arrivals need only FIFO storage. Keeping them out of the
+		// reorder heap avoids membership updates and interface allocations on
+		// the common path. A full receive queue still retains this segment in
+		// the heap: rcv_nxt must not advance past reader backpressure.
+		if sn == kcp.rcv_nxt && kcp.rcv_queue.Len() < int(kcp.rcv_wnd) {
+			kcp.rcv_queue.Push(newseg)
+			kcp.rcv_nxt++
+		} else {
+			heap.Push(kcp.rcv_buf, newseg)
+		}
 	} else {
 		repeat = true
 	}
 
-	// move available data from rcv_buf -> rcv_queue
-	for kcp.rcv_buf.Len() > 0 {
-		seg := heap.Pop(kcp.rcv_buf).(segment)
-		if seg.sn == kcp.rcv_nxt && kcp.rcv_queue.Len() < int(kcp.rcv_wnd) {
-			kcp.rcv_queue.Push(seg)
-			kcp.rcv_nxt++
-		} else {
-			// push back segment
-			heap.Push(kcp.rcv_buf, seg)
-			break
-		}
-	}
+	kcp.drainReceiveBuffer()
 
 	return repeat
+}
+
+// drainReceiveBuffer transfers only contiguous retained segments to the reader
+// FIFO. Inspecting the heap root first leaves gaps and full queues untouched,
+// avoiding a pop/reinsert and its allocations for every later arrival or read.
+// Duplicate membership, wrap-aware heap ordering and window limits stay owned
+// by the existing receive structures; this method changes no ACK decision.
+func (kcp *KCP) drainReceiveBuffer() {
+	for kcp.rcv_buf.Len() > 0 && kcp.rcv_queue.Len() < int(kcp.rcv_wnd) {
+		if kcp.rcv_buf.segments[0].sn != kcp.rcv_nxt {
+			break
+		}
+		seg := heap.Pop(kcp.rcv_buf).(segment)
+		kcp.rcv_queue.Push(seg)
+		kcp.rcv_nxt++
+	}
 }
 
 // Input a packet into kcp state machine.
