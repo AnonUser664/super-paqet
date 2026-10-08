@@ -15,6 +15,7 @@ that same host. Measured capacity limitations remain explicit in the status and
 | [PRODUCTION-OBSERVATION-2026-10-07.md](PRODUCTION-OBSERVATION-2026-10-07.md) | Current five-host metric/journal window, cleanup and tomorrow's review instructions. |
 | [Production review — 8 October](PRODUCTION-REVIEW-2026-10-08.md) | Three-hour customer-load review, France recovery incident, profiling and six-route acceptance. |
 | [Recovery grace — 8 October](RECOVERY-GRACE-2026-10-08.md) | Opt-in extended-outage preservation, bounded expiry, diagnostic causes and local regression measurements; not deployed. |
+| [Receive processing — 8 October](RECEIVE-PATH-2026-10-08.md) | Receive-only optimization, rejected admission experiments, measurement controls and remaining WAN checks; not deployed. |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Package layout, ownership, data paths, concurrency and lifecycle. |
 | [TRANSPORT.md](TRANSPORT.md) | Raw packet contract, inner protocols and reasons for their design. |
 | [CONFIGURATION.md](CONFIGURATION.md) | Every YAML field, defaults, constraints and adaptation boundaries. |

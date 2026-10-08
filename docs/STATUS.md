@@ -34,6 +34,13 @@ day is still in progress; this is not an incident-free stability pass.
 
 ## Recovery-grace candidate
 
+The newer [receive-processing investigation](RECEIVE-PATH-2026-10-08.md) retains
+that candidate's bounded recovery grace and adds a locally tested receive-only
+optimization. Both experimental admission policies were reverted. Three
+CPU-controlled pairs measured 3.887 to 4.648 Gbit/s median upload and 3.315 to
+3.381 Gbit/s download. Follow-up WAN comparisons remain in progress. Neither
+candidate is deployed; production continues running migration.4.
+
 The next candidate is locally qualified and **not deployed**. It adds first-cause
 warning diagnostics and optional, bounded mux recovery grace after migration
 negotiation. Default zero retains ordinary keepalive expiry. Production configs
