@@ -44,10 +44,11 @@ CASES = {
     'burst': ['--mode', 'both', '--workers', '16', '--bridge', '--delay-ms', '20', '--burst-loss', '.5', '20', '80', '.1', '--rate-mbit', '100', '--queue-packets', '2048', '--seed', '807'],
     'mobile': ['--mode', 'both', '--workers', '4', '--bridge', '--delay-ms', '50', '--loss', '5', '--rate-mbit', '2', '--queue-packets', '512', '--seed', '810'],
     'rate-step': ['--mode', 'bulk', '--workers', '8', '--bridge', '--delay-ms', '10', '--rate-mbit', '50', '--queue-packets', '2048', '--seed', '808', '--schedule', '[{"at":4,"rate_mbit":5},{"at":10,"rate_mbit":50}]'],
-    # A narrow return path delays ACKs without reducing forward-path capacity.
-    # Preserve both directional rates so a future controller change can be
-    # judged against the same asymmetric feedback rather than a symmetric cap.
+    # HTTP/GET bulk travels server-to-client, so this stresses the narrow
+    # downlink. Retain the historical case name for existing receipts; use
+    # upload-ack-bottleneck below to isolate constrained reverse feedback.
     'ack-bottleneck': ['--mode', 'both', '--workers', '8', '--bridge', '--delay-ms', '20', '--rate-mbit', '100', '--down-rate-mbit', '1', '--queue-packets', '2048', '--seed', '812'],
+    'upload-ack-bottleneck': ['--mode', 'bulk', '--iperf', '--iperf-directions', 'upload', '--workers', '8', '--bridge', '--delay-ms', '20', '--rate-mbit', '100', '--down-rate-mbit', '1', '--queue-packets', '2048', '--seed', '812'],
     # Change propagation delay while work is active; the original ceiling and
     # controller remain in force. The runner requires >=12 seconds, and the
     # qualifying invocation uses 30 seconds to observe both transitions.
@@ -98,7 +99,7 @@ def main():
     parser.add_argument('--baseline', required=True)
     parser.add_argument('--candidate', required=True)
     parser.add_argument('--output', default='build/receive-comparison')
-    parser.add_argument('--cases', choices=list(CASES), nargs='+', default=[x for x in CASES if x != 'hold-100000'])
+    parser.add_argument('--cases', choices=list(CASES), nargs='+', default=[x for x in CASES if x not in ('hold-100000', 'delay-step')])
     parser.add_argument('--repetitions', type=int, default=2)
     parser.add_argument('--duration', type=int, default=15)
     parser.add_argument('--warmup', type=int, default=0, help='omitted iperf startup seconds; HTTP/capacity cases are unchanged')
@@ -117,6 +118,8 @@ def main():
         parser.error('duration must be >=12 and repetitions/core budgets positive')
     if len(set(args.cases)) != len(args.cases):
         parser.error('cases must be unique so each receipt has one workload identity')
+    if 'delay-step' in args.cases and args.duration < 25:
+        parser.error('delay-step needs at least 25 seconds to observe both transitions and recovery')
     binaries = {name: (ROOT / path).resolve() for name, path in [('baseline', args.baseline), ('candidate', args.candidate)]}
     hashes = {name: hashlib.sha256(path.read_bytes()).hexdigest() for name, path in binaries.items()}
     out = ROOT / args.output

@@ -1,5 +1,16 @@
 # Diagnostics and reproducible tests
 
+`super_paqet_peer_carrier_opening_blocked{peer,session}` is a cached admission
+capacity hint in the receive.5 candidate. A value of one means the controller
+sampled local mux receive blockage or a zero remote KCP window; compare the
+existing session mux-buffer and remote-window metrics using the conversation ID.
+This is separate from `peer_carrier_suspect`: healthy transport may be unable to
+parse a new opening reply while an application reader is paused. The hint clears
+at a later sample and never requests source rotation or closes established
+streams. Production migration.4 does not export this newer metric. See the
+[production evidence](PRODUCTION-FOLLOWUP-2026-10-08.md) and
+[candidate experiments](RECEIVE-PATH-2026-10-08.md).
+
 The deployed enterprise release includes pcap ENOBUFS recovery and
 `packet.tx_queue` events. See [STATUS.md](STATUS.md) for the exact release and
 current path availability.
