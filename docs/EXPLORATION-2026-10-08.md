@@ -50,11 +50,38 @@ and established stream ownership are unchanged.
 
 This is a hypothesis-driven simplification, **not proof that the separate field
 caused the entire earlier regression**. Compiler layout, scheduler placement and
-hardware state can still affect measurements. The packed candidate is being
+hardware state can still affect measurements. The packed candidate was
 compared with receive.4 at identical settings, with three alternating pairs,
-fixed role CPUs, equal pinned lanes and first-pair CPU profiles. Acceptance remains
-pending that comparison. Full application race/vet and ten repetitions of the
+fixed role CPUs, equal pinned lanes and first-pair CPU profiles. It also missed
+the first mixed-load acceptance gate. Full application race/vet and ten repetitions of the
 focused real-backpressure/opening/pool race tests already pass.
+
+| Packed-pressure cohort, three-pair medians | Receive.4 | Receive.6 |
+|---|---:|---:|
+| Upload payload, Gbit/s | 4.449 | 4.418 |
+| Download payload, Gbit/s | 3.130 | 3.350 |
+| Equal-load HTTP requests/s | 4269 | 3583 |
+| Equal-load HTTP mean, microseconds | 936 | 1116 |
+| Equal-load HTTP p99 histogram bound, ms | 9 | 9 |
+| HTTP churn requests/s | 11,601 | 12,814 |
+| HTTP churn p99 histogram bound, ms | 13 | 12 |
+
+All workloads completed with zero errors and successful cleanup, but lower
+mixed request throughput/higher mean fail acceptance. Keep receive.6 experimental;
+do not promote it based on favorable bulk/churn rows. [Complete branch receipts](exploration-qualification-2026-10-08.json)
+retain 49 workload attempts: 48 successful workloads and the missing-dependency
+fixture failure, plus the receive.5 fault check and receive.6 code checks.
+
+Profiles attribute about 39–42% of client CPU and 47–51% of backend CPU to
+syscalls in the first mixed pair. The sampler/admission change is not a measured
+CPU hot path. Client transport wait also increased in the candidate sample.
+This identifies pipeline/scheduling symptoms, not a proven cause. The pinned
+fixture has four **one-slot peers**: it supplies no alternative slot for admission.
+A slower mixed result there cannot simply be explained as choosing the wrong
+sibling. Further work must separate adaptive window/startup history, packet
+scheduling, generator contention and machine-state variation before claiming a
+cure. No global CPU governor, queue or transport parameter was tuned.
+The completed runs released the shared lock and left no owned namespaces.
 
 Candidate `enterprise-2026.10.08-receive.6`, runtime source
 `d295dba` (full source identity embedded in the executable), SHA-256
