@@ -44,6 +44,9 @@ CASES = {
     'reorder': ['--mode', 'both', '--workers', '16', '--bridge', '--delay-ms', '40', '--jitter-ms', '20', '--reorder', '50', '--rate-mbit', '100', '--queue-packets', '4096', '--seed', '806'],
     'burst': ['--mode', 'both', '--workers', '16', '--bridge', '--delay-ms', '20', '--burst-loss', '.5', '20', '80', '.1', '--rate-mbit', '100', '--queue-packets', '2048', '--seed', '807'],
     'mobile': ['--mode', 'both', '--workers', '4', '--bridge', '--delay-ms', '50', '--loss', '5', '--rate-mbit', '2', '--queue-packets', '512', '--seed', '810'],
+    # Long small-request measurement excludes the benchmark client's 30-second
+    # bulk body deadline on a shared 2 Mbit/s link. Keep failed bulk receipts.
+    'mobile-http': ['--mode', 'http', '--workers', '4', '--bridge', '--delay-ms', '50', '--loss', '5', '--rate-mbit', '2', '--queue-packets', '512', '--seed', '810'],
     'rate-step': ['--mode', 'bulk', '--workers', '8', '--bridge', '--delay-ms', '10', '--rate-mbit', '50', '--queue-packets', '2048', '--seed', '808', '--schedule', '[{"at":4,"rate_mbit":5},{"at":10,"rate_mbit":50}]'],
     # HTTP/GET bulk travels server-to-client, so this stresses the narrow
     # downlink. Retain the historical case name for existing receipts; use

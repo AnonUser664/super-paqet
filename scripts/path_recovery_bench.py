@@ -17,7 +17,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--binary', required=True)
     parser.add_argument('--case', choices=['tuple', 'whole-peer', 'one-lane', 'all-tuples', 'reverse-tuple', 'established', 'reverse-established', 'short-loss', 'repeat-tuple', 'repeat-established', 'early-stall', 'all-established', 'delayed-probes'], default='tuple')
-    parser.add_argument('--server-binary', help='optional older backend executable for wire compatibility qualification')
+    parser.add_argument('--server-binary', help='optional alternate backend executable for wire compatibility qualification')
+    parser.add_argument('--expect-backend-preservation', action='store_true', help='alternate backend supports migration; require continuity rather than legacy fallback')
     parser.add_argument('--shared-source', action='store_true', help='qualify legacy pool recovery instead of independent carrier recovery')
     parser.add_argument('--preserve-connections', action='store_true', help='require continuity of established streams during source migration')
     parser.add_argument('--sequenced-payloads', action='store_true', help='prefix every held exchange with its unique sequence number')
@@ -37,6 +38,9 @@ def main():
         parser.error('expected session loss requires delayed-probes longer than ordinary timeout plus grace')
     if args.recovery_grace_seconds and not args.preserve_connections:
         parser.error('recovery grace requires preserving connections')
+    if args.expect_backend_preservation and (not args.server_binary or not args.preserve_connections):
+        parser.error('backend preservation expectation requires server-binary and preserve-connections')
+    expect_preservation = args.preserve_connections and (not args.server_binary or args.expect_backend_preservation)
     if args.stall_seconds <= 0:
         parser.error('--stall-seconds must be positive')
     if os.geteuid() != 0:
@@ -253,7 +257,7 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
         capture.send_signal(signal.SIGINT);capture.wait(timeout=5)
         wire=check_wire(out/'wire.pcap')
         recovered=[r for r in logs if r.get('msg')=='path.recovered'];failed=[r for r in logs if r.get('msg')=='path.recovery_probe_failed']
-        result={'case':args.case,'recovery_grace_seconds':args.recovery_grace_seconds,'expect_session_loss':args.expect_session_loss,'probe_outage_seconds':args.probe_outage_seconds,'shared_source':args.shared_source,'preserve_connections':args.preserve_connections,'packet_workers':args.packet_workers,'held_payload_bytes':args.held_payload_bytes,'sequenced_payloads':args.sequenced_payloads,'sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'client_pid':client_process.pid,'events':events,'recovered':recovered,'failed_probes':failed,'healthy_successes':sum(r['ok'] for r in rows if r['peer']=='healthy'),'healthy_errors':[r for r in rows if r['peer']=='healthy' and not r['ok']],'broken_successes_after_45s':sum(r['ok'] for r in rows if r['peer']=='broken' and r['at']>(75 if args.case=='whole-peer' else 45)),'broken_errors':sum(not r['ok'] for r in rows if r['peer']=='broken'),'first_success_after_fault':next((r for r in rows if r['peer']=='broken' and r['ok'] and r['at']>6),None),'snapshots':snapshots,'wire':wire}
+        result={'case':args.case,'recovery_grace_seconds':args.recovery_grace_seconds,'expect_session_loss':args.expect_session_loss,'probe_outage_seconds':args.probe_outage_seconds,'shared_source':args.shared_source,'preserve_connections':args.preserve_connections,'packet_workers':args.packet_workers,'held_payload_bytes':args.held_payload_bytes,'sequenced_payloads':args.sequenced_payloads,'sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'server_sha256':hashlib.sha256(pathlib.Path(args.server_binary).resolve().read_bytes()).hexdigest() if args.server_binary else hashlib.sha256(binary.read_bytes()).hexdigest(),'expect_backend_preservation':args.expect_backend_preservation,'client_pid':client_process.pid,'events':events,'recovered':recovered,'failed_probes':failed,'healthy_successes':sum(r['ok'] for r in rows if r['peer']=='healthy'),'healthy_errors':[r for r in rows if r['peer']=='healthy' and not r['ok']],'broken_successes_after_45s':sum(r['ok'] for r in rows if r['peer']=='broken' and r['at']>(75 if args.case=='whole-peer' else 45)),'broken_errors':sum(not r['ok'] for r in rows if r['peer']=='broken'),'first_success_after_fault':next((r for r in rows if r['peer']=='broken' and r['ok'] and r['at']>6),None),'snapshots':snapshots,'wire':wire}
         (out/'result.json').write_text(json.dumps(result,indent=2)+'\n')
         result['stall_seconds'] = args.stall_seconds
         assert not result['healthy_errors'],'healthy peer disrupted'
@@ -268,7 +272,7 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
         if args.case=='whole-peer':assert failed,'failed probe not exercised'
         if args.case in ('established','reverse-established','repeat-established','early-stall','all-established','delayed-probes'):
             held_errors=[r for r in rows if r['peer']=='broken' and not r['ok']]
-            assert len(held_errors)==(4 if args.expect_session_loss else 0 if args.preserve_connections and not args.server_binary else (4 if args.case in ('all-established','delayed-probes') else 1)),'established stream continuity failed'
+            assert len(held_errors)==(4 if args.expect_session_loss else 0 if expect_preservation else (4 if args.case in ('all-established','delayed-probes') else 1)),'established stream continuity failed'
             assert not any(r.get('msg') in ('opening.transport_timeout','opening.syn_timeout') for r in logs),'established test used new-opening failure evidence'
             result['established_streams_preserved']=4-len(held_errors)
         if args.case=='early-stall':
@@ -295,7 +299,7 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
                 after_conv=dict(re.findall(r'super_paqet_peer_conversation_id\{peer="broken",session="(\d+)"\} (\d+)',after))
                 assert all(before_conv[i]==after_conv.get(i) for i,port in before_map.items() if int(port)!=29997),'healthy sibling carrier replaced'
                 result['healthy_sibling_carriers_preserved']=True
-                if args.preserve_connections and not args.server_binary and args.case in ('established','reverse-established','repeat-established','early-stall','all-established','delayed-probes'):
+                if expect_preservation and args.case in ('established','reverse-established','repeat-established','early-stall','all-established','delayed-probes'):
                     assert before_conv==after_conv, 'migration replaced the logical KCP carrier'
                     assert all(r.get('connections_preserved') for r in recovered), 'migration fell back unexpectedly'
                     result['logical_carriers_preserved']=True

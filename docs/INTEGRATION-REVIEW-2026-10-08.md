@@ -167,3 +167,86 @@ low-clock candidate outlier; it remains visible and is not a pass claim.
 [Primary qualification receipts](integration-qualification-2026-10-08.json)
 retain this pending checkpoint. Confirmations and WAN/functional tests are
 still running; no master merge or deployment acceptance has occurred.
+
+
+The 24 short WAN runs all passed byte verification and cleanup. Two-pair
+mobile p99 bounds were 529.5 → 676.5 ms while HTTP rate changed
+27.732 → 26.865 requests/s and bulk 1.530 → 1.486 Mbit/s. The short
+four-worker test supplies only a few hundred HTTP samples per run; preserve the
+adverse tail result and extend the unchanged profile to two alternating pairs
+of 60-second HTTP/bulk workloads before deciding. This is extra measurement,
+not a changed loss/queue/transport configuration. High-delay and asymmetric
+p99 changes were about +4% and +2%, respectively; reorder bulk improved in this
+cohort. No claim of universal link superiority follows from these samples.
+
+One-pair multiworker rates were 5.110 → 5.241 Gbit/s upload and
+3.965 → 4.373 download. AES-GCM rates were 3.366 → 3.601 upload and
+2.981 → 2.974 download. These single-pair figures are supplementary capacity
+checks, not repeated throughput guarantees. Both 10,000-flow holds reported
+zero errors; tunnel peak RSS was about 206.6/201.6 MiB client/server for the control
+and 204.2/196.9 MiB for the candidate (the receipts retain KiB units). No swap
+occurred. Held flows are predominantly idle, not 10,000 busy customers.
+
+
+The first longer mobile attempt failed on **receive.4 control**, after its
+60-second HTTP phase completed 1653 requests, zero errors, p99 585 ms. The
+subsequent 60-second four-worker 1 MiB-body phase hit three `body_timeout`
+errors at the benchmark client's fixed 30-second per-request deadline. Cleanup
+passed. This is retained as a failed workload and not erased by a later pass.
+It does not establish a candidate regression (the candidate had not run).
+A dedicated `mobile-http` case extends only the small-request measurement,
+retaining the same delay/loss/rate/queue/seed; short bulk throughput results and
+the longer bulk deadline limitation remain documented separately.
+
+The alternate-backend fixture failed an incorrect expectation: it treated every
+`--server-binary` as lacking preservation, despite all four streams surviving and
+`connections_preserved=true`. Cleanup passed. Add explicit
+`--expect-backend-preservation` for known capable alternate executables while
+keeping the historical legacy-fallback default. The corrected run must also
+assert unchanged logical conversation IDs and retained stream bytes. The original
+failed assertion remains in the ledger; this change affects only the test runner.
+
+
+## Final selection and qualification
+
+Merge the selected exp2 subset and packed cached pressure representation.
+Retain owned write snapshots and the original initial adaptive receive window;
+exclude the completed exp1 batching experiment. Outer packet encoding, S/PA
+flags, source-port migration and application byte ordering are preserved.
+There is no new deployment YAML field or transport parameter retuning.
+
+The full longer mobile HTTP comparison measured two-pair medians
+28.000 → 28.308 requests/s, mean 142.716 → 141.069 ms and p99
+583.5 → 525.5 ms. The original shorter adverse tail and failed bulk control
+remain retained. Four-pair paced medians, including the original low-clock
+outlier, favor the candidate slightly; one confirmation control has no complete
+clock record, and the fully clock-recorded confirmation pair matches within 5%
+and improves p99 11 → 7 ms. These bounds are histogram buckets.
+
+Final KCP suite passed in **145.113 s**. Fresh application race and all owning
+module vet checks passed; the selected smux full race suite previously passed
+in 545.290 s and its runtime did not change afterward. Endpoint-key benchmarks
+report zero allocations. Four recovery/compatibility scenarios preserve all
+four sequenced 64 KiB streams, retain healthy siblings and clean up exactly;
+one uses the older receive.4 backend with explicitly required preservation.
+The 70-second delayed-probe scenario exercised negotiated recovery grace.
+Live reload passed with 32 active streams per original peer, four carriers and
+three edit cycles; its wire and unrelated-rule cleanup checks pass.
+
+[Final receipts](integration-qualification-2026-10-08.json) retain 54 successful
+workload comparisons, four successful fault/compatibility scenarios, live reload,
+all executable identities and failed/interrupted attempts. Exp1's separate
+16-workload rejection is in the experiment ledger. Component improvements and
+healthy throughput gains support this selective source merge; they do not
+establish superiority on every link or busy-customer capacity. Production
+continues running migration.4; these native local artifacts are not a Debian
+fleet rollout. Review the preserved failures before any further deployment.
+
+
+The private test units and observer are now inactive, the machine reservation
+is released, and no owned namespace remains. Failed-unit state was cleared;
+the successful HTTP unit had already been garbage-collected by systemd. The
+clean temporary exp2-control worktree was removed; its commit, exact executable,
+all result/profile files and the original exp1/exp2 worktrees remain preserved.
+Final production-runtime Go sources match tested commit `c1aee36` exactly;
+subsequent edits are test-runner expectation fixes and qualification documents.

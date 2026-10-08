@@ -32,6 +32,19 @@ carrier incident; four migrations retained sessions and two used replacement
 after the originals disappeared. Production settings remain unchanged. The full
 day is still in progress; this is not an incident-free stability pass.
 
+## Reviewed integration candidate
+
+The [selective integration review](INTEGRATION-REVIEW-2026-10-08.md) qualifies
+packet checksum/dispatch/output batching, pooled small UDP records, fewer TCP
+relay syscalls and bounded credit metadata. The cached backpressure hint uses
+one existing pressure word. It preserves payload snapshots and excludes exp1
+read batching after completing and rejecting that experiment. Native local
+candidate source `c1aee36`, SHA-256
+`2962659362143ade1aec169f06991000b2f49e06f791d5adeb2a70db50831ee2`.
+Production remains migration.4; this is a source integration, not a rollout.
+See [all integration receipts](integration-qualification-2026-10-08.json),
+including adverse results, fixture corrections and finite acceptance limits.
+
 ## Recovery-grace candidate
 
 The newer [receive-processing investigation](RECEIVE-PATH-2026-10-08.md) retains
