@@ -13077,5 +13077,21 @@
       "Native artifact depends on this Linux/libpcap environment; deployment needs its own executable identity and backend checks."
     ]
   },
-  "subsequent_go_changes": "Comment only: getBuffer sizes requested bytes, which may be an adaptive read hint or datagram length; runtime bodies match 8f1ca0f."
+  "subsequent_go_changes": "Comment only: getBuffer sizes requested bytes, which may be an adaptive read hint or datagram length; runtime bodies match 8f1ca0f.",
+  "cleanup": {
+    "removed_owned_worktrees": [
+      "/home/shayan/Codes/super-paqet-latency-tx-20261008",
+      "/home/shayan/Codes/super-paqet-latency-relay-20261008",
+      "/home/shayan/Codes/super-paqet-latency-read-20261008"
+    ],
+    "source_checkpoints": {
+      "archive/latency-tx-ablation-20261008": "db4e100",
+      "archive/latency-relay-ablation-20261008": "2481b9d",
+      "exploration/latency-read-ablation-20261008": "8f1ca0f"
+    },
+    "other_agent_worktrees_changed": false,
+    "completed_receipts_and_binaries_preserved": true,
+    "test_units_inactive": true,
+    "owned_namespaces_remaining": false
+  }
 }
