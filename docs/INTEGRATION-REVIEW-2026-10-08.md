@@ -117,3 +117,53 @@ its uncommitted edits remain untouched. No `PushFront` or partial pooled slice
 is imported. [Experiment receipts](integration-experiments-2026-10-08.json)
 include adverse microbenchmarks, the reproduced snapshot failure and full suite
 results. The selected exp2 subset still needs its final baseline comparison.
+
+
+## Final selected-candidate gates
+
+The independent final comparison uses receive.4 as control (the qualified
+receive-only source) and selected exp2 with packed cached pressure as candidate.
+Both use identical adaptive transport settings, four independent sources,
+S outbound / PA return, fixed role CPUs and the same steady HTTP helper.
+The helper hash is retained in each new receipt. Correctness/cleanup must pass
+for every workload. Clean bulk and churn must show no material repeated loss;
+mixed tests must retain offered bulk and demonstrate acceptable latency at both
+saturation and a fixed per-worker pause. Clock variation remains visible.
+
+The completed exp1 candidate is already excluded rather than retested until a
+favorable result appears. Final WAN, migration, live-reload and held-flow checks
+will test the selected executable after healthy-link gates. Root/fork suite
+results do not replace those end-to-end checks. No customer deployment, CPU power
+policy, host-wide queue tuning or Xray modification is included in this review.
+
+
+One selected-candidate paced result had p99 28 ms versus control 14 ms;
+last-20-s role clocks were 2.30/2.28 GHz versus 2.78/2.81 GHz. The next pair
+measured mean 1381 versus 1411 us and p99 8 versus 7 ms. Preserve both. Two
+additional unchanged paced pairs are defined before launch: inspect whether
+role clocks match within 5%, require zero errors and offered bulk retention,
+and assess mean/rate within 5% and p99 within a 2 ms histogram allowance for
+matched-clock pairs. All unmatched receipts remain visible; no retrospective
+configuration tuning or claim that clock variation proves code equivalence.
+
+The second primary pair was interrupted during one bulk attempt. Its first
+8 receipts survived; empty owned namespaces `spq-c-32941`/`spq-s-32941` were
+recovered and deleted under the reservation, then the missing 8 comparisons
+completed in `selected-resumed`. The partial original directory is excluded.
+The interruption-cleanup script's unrelated-rule heuristic was insufficient;
+that field is not used as independent preservation evidence. Completed normal
+fixtures check the exact unrelated UDP/31111 rule. Further tests use a private
+local transient systemd job plus the same nonblocking reservation, so terminal
+interruption cannot invalidate a workload. No production service is touched.
+
+
+The completed primary selected-candidate two-pair medians are upload
+4.330 → 4.431 Gbit/s, download 3.189 → 3.341 Gbit/s, churn
+12,649 → 12,649 requests/s, and saturated mixed rate 3671 → 3784 requests/s.
+Mixed p99 bounds are 12 → 7 ms with about 1 Gbit/s offered in each bulk
+direction. All 16 completed primary workloads report zero errors and exact-rule
+cleanup success. The paced primary aggregate is worse because it includes the
+low-clock candidate outlier; it remains visible and is not a pass claim.
+[Primary qualification receipts](integration-qualification-2026-10-08.json)
+retain this pending checkpoint. Confirmations and WAN/functional tests are
+still running; no master merge or deployment acceptance has occurred.
