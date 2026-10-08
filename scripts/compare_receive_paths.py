@@ -36,10 +36,12 @@ CASES = {
     'multiworker-bulk': ['--mode', 'bulk', '--iperf', '--iperf-directions', 'upload', 'download'],
     'churn': ['--mode', 'http-churn', '--workers', '64'],
     'duplex-latency': ['--mode', 'bulk', '--iperf', '--iperf-directions', 'bidirectional', '--duplex-http'],
+    'bounded-duplex': ['--mode', 'bulk', '--iperf', '--iperf-directions', 'bidirectional', '--duplex-http', '--iperf-rate-mbit', '1000', '--warmup', '3'],
     'asymmetric': ['--mode', 'both', '--workers', '16', '--bridge', '--delay-ms', '40', '--loss', '.5', '--reorder', '5', '--rate-mbit', '50', '--down-rate-mbit', '10', '--queue-packets', '2048', '--seed', '804'],
     'high-delay': ['--mode', 'http-churn', '--workers', '16', '--bridge', '--delay-ms', '120', '--rate-mbit', '20', '--queue-packets', '2048', '--seed', '805'],
     'reorder': ['--mode', 'both', '--workers', '16', '--bridge', '--delay-ms', '40', '--jitter-ms', '20', '--reorder', '50', '--rate-mbit', '100', '--queue-packets', '4096', '--seed', '806'],
     'burst': ['--mode', 'both', '--workers', '16', '--bridge', '--delay-ms', '20', '--burst-loss', '.5', '20', '80', '.1', '--rate-mbit', '100', '--queue-packets', '2048', '--seed', '807'],
+    'mobile': ['--mode', 'both', '--workers', '4', '--bridge', '--delay-ms', '50', '--loss', '5', '--rate-mbit', '2', '--queue-packets', '512', '--seed', '810'],
     'rate-step': ['--mode', 'bulk', '--workers', '8', '--bridge', '--delay-ms', '10', '--rate-mbit', '50', '--queue-packets', '2048', '--seed', '808', '--schedule', '[{"at":4,"rate_mbit":5},{"at":10,"rate_mbit":50}]'],
     'tiny-queue': ['--mode', 'both', '--workers', '8', '--bridge', '--delay-ms', '10', '--rate-mbit', '100', '--queue-packets', '32', '--seed', '809'],
     'encrypted': ['--mode', 'bulk', '--packet-workers', '1', '--block', 'aes-128-gcm', '--iperf', '--iperf-directions', 'upload', 'download'],
@@ -91,6 +93,8 @@ def main():
         parser.error('run as root; only owned namespaces are changed')
     if args.duration < 12 or min(args.repetitions, args.client_procs, args.server_procs) < 1:
         parser.error('duration must be >=12 and repetitions/core budgets positive')
+    if len(set(args.cases)) != len(args.cases):
+        parser.error('cases must be unique so each receipt has one workload identity')
     binaries = {name: (ROOT / path).resolve() for name, path in [('baseline', args.baseline), ('candidate', args.candidate)]}
     hashes = {name: hashlib.sha256(path.read_bytes()).hexdigest() for name, path in binaries.items()}
     out = ROOT / args.output
@@ -121,13 +125,18 @@ def main():
                 row = {'label': label, 'case': case, 'version': name, 'repetition': repetition,
                        'command': command, 'exit_code': result.returncode, 'elapsed_seconds': time.monotonic() - started}
                 if result.returncode == 0:
-                    row.update(compact_result(directory))
-                    if row['sha256'] != hashes[name]:
-                        raise RuntimeError('executable changed during comparison')
+                    try:
+                        row.update(compact_result(directory))
+                        if row['sha256'] != hashes[name]:
+                            raise RuntimeError('executable changed during comparison')
+                    except Exception as error:
+                        # A successful child exit cannot hide invalid receipts;
+                        # preserve this failed gate before stopping the matrix.
+                        row['validation_error'] = str(error)
                 evidence['runs'].append(row)
                 receipt.write_text(json.dumps(evidence, indent=2) + '\n')
                 print('END', label, 'rc', result.returncode, 'seconds', round(row['elapsed_seconds'], 1), flush=True)
-                if result.returncode:
+                if result.returncode or row.get('validation_error'):
                     raise SystemExit('fixture failed; inspect ' + str(directory / 'runner.log'))
     print('Comparison complete:', receipt, flush=True)
 

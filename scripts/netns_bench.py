@@ -75,6 +75,7 @@ def main():
     p.add_argument('--block', default='aes-128-gcm')
     p.add_argument('--fec',type=int,nargs=2,default=[0,0],metavar=('DATA','PARITY'))
     p.add_argument('--iperf', action='store_true')
+    p.add_argument('--iperf-rate-mbit', type=int, default=0, help='aggregate TCP offered rate per direction; divided across parallel streams, zero is unlimited')
     p.add_argument('--iperf-directions', nargs='+', choices=['upload','download','bidirectional'], default=['upload','download','bidirectional'])
     p.add_argument('--direct-iperf', action='store_true', help='also measure the same virtual link without the tunnel')
     p.add_argument('--tcp-buffer-mib', type=int, default=0, help='namespace-only TCP autotuning ceiling')
@@ -122,6 +123,7 @@ def main():
     if (a.jitter_ms or a.reorder) and not a.delay_ms: p.error('jitter and reordering require delay')
     if a.burst_loss and a.loss: p.error('choose random or burst loss')
     if a.direct_iperf and not a.iperf: p.error('--direct-iperf requires --iperf')
+    if not 0 <= a.iperf_rate_mbit <= 200000 or (a.iperf_rate_mbit and not a.iperf): p.error('iperf-rate-mbit requires iperf and must be 0..200000')
     if (a.restart or a.functional or a.mixed) and not a.enterprise: p.error('these workloads require --enterprise')
     if os.geteuid() != 0:
         p.error('run as root; host backlog changes require the explicit --host-backlog option')
@@ -477,7 +479,12 @@ def main():
                 sample()
                 cpu_before = {name:v.get('cpu_seconds',0) for name,v in peaks.items()}
                 cpu_started=time.monotonic()
-                iperf_clients=[spawn(c,'iperf-'+label,iperf,'-c',('fd42:198:18::2' if a.ipv6 else '198.18.0.2') if direct else '127.0.0.1','-p',str(target_port if direct else listen_port),'-P',str(a.workers),'-t',str(a.duration),'-O',str(a.warmup),'-J',*test_flags) for label,listen_port,target_port,test_flags in specs]
+                # TCP bitrate is per parallel stream in iperf3. Equal offered
+                # load complements the unlimited capacity tests: a faster
+                # implementation must not be judged at a different demand level
+                # when comparing latency beside bulk traffic.
+                offered_rate = ['-b', str(max(1, a.iperf_rate_mbit*1000000//a.workers))] if a.iperf_rate_mbit else []
+                iperf_clients=[spawn(c,'iperf-'+label,iperf,'-c',('fd42:198:18::2' if a.ipv6 else '198.18.0.2') if direct else '127.0.0.1','-p',str(target_port if direct else listen_port),'-P',str(a.workers),'-t',str(a.duration),'-O',str(a.warmup),'-J',*offered_rate,*test_flags) for label,listen_port,target_port,test_flags in specs]
                 http_churn=None
                 if name=='bidirectional' and a.duplex_http:
                     http_churn=spawn(c,'duplex-http',str(ROOT/'build/spq-bench'),'-mode','http-churn','-addr','127.0.0.1:28080','-workers','4','-duration',f'{a.duration+a.warmup}s')
