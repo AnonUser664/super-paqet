@@ -55,6 +55,14 @@ seven France probes were later discarded without source replacement; the live
 pending/suspect metrics were zero at the check. Warning-only logs do not expose
 the exact discard cause. This is not an incident-free stability result.
 
+The [10:22–10:29 UTC production follow-up](PRODUCTION-FOLLOWUP-2026-10-08.md)
+extends archive coverage to about fifteen hours. All original process identities
+and config/binary hashes remain unchanged; all twelve authenticated downloads
+passed. No later path recovery or error growth occurred, but a full client-side
+Finland mux receiver caused 576 opening retries. A narrowly scoped admission
+hint for that backpressure is now under local qualification. Production is
+unchanged; the one-day observer still ends at 19:14 UTC.
+
 ## Qualification and deployment before migration.4
 
 The earlier migration candidate `enterprise-2026.10.07-migration.3` is locally

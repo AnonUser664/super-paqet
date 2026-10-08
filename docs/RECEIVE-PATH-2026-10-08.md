@@ -2,9 +2,10 @@
 
 This investigation selects a receive-only optimization and rejects two admission
 policies. The candidate is **not deployed**. Production still runs migration.4;
-the controller, configuration, packet flags and customer services are unchanged
-by this investigation. The WAN follow-up is in progress; final acceptance across
-the tested link profiles is not yet claimed.
+configuration, packet flags and customer services are unchanged by this
+investigation. The repeated WAN follow-up is complete; a further candidate adds
+a narrow admission hint for backpressure discovered in production and is under
+qualification. The original controller's reliability adaptation is retained.
 
 ## Selected change and its reason
 
@@ -51,10 +52,12 @@ is recorded in the incident, migration and recovery-grace reports linked below.
 | Canonical receive.4; `selected` (26 workloads) | Run 13 clean, impaired, encrypted and capacity cases against the rebuilt control. | All integrity and cleanup gates passed. Individual reorder, mobile, rate-step and encrypted runs had performance outliers; one pair per case is insufficient to dismiss them. Repeat those cases with fixed CPU placement before accepting them. |
 | `232e108`; `affinity` (12 workloads) | Isolate role CPU placement on a hybrid laptop, retaining pinned lanes and identical protocol settings. Three alternating pairs per case. | Median clean upload 3.887 to 4.648 Gbit/s; download 3.315 to 3.381. At equal 1 Gbit/s each-way bulk, HTTP mean 857 to 820 microseconds and p99 12 to 6 ms. Accept the receive optimization for these controlled workloads. This does not prove CPU placement explains every earlier difference. |
 | `capacity` (2 workloads) | Hold 100,000 forwards for 120 seconds and reverify each before closing. | Both versions established, held, reverified and closed every connection with zero errors. Laptop swap was active; this establishes mostly idle connection capacity, not 100,000 simultaneous busy flows. |
-| `wan-repeat` (in progress) | Three alternating pairs for reorder, mobile, rate-step and AES-GCM with fixed role CPUs and adaptation on. | Pending completion. Retain each result immediately, including failures. |
+| `wan-repeat` (24 workloads) | Three alternating pairs for reorder, mobile, rate-step and AES-GCM with fixed role CPUs and adaptation on. | Reorder bulk medians 86.184 to 88.301 Mbit/s; HTTP p99 162 ms on both. Mobile bulk 1.535 to 1.543 Mbit/s, HTTP 27.449 to 27.399 requests/s, p99 516 to 550 ms. Rate-step bulk 16.209 to 16.079 Mbit/s. AES-GCM upload/download 3.958/3.103 to 3.909/3.074 Gbit/s. Earlier large throughput outliers did not recur in these medians; mobile tail remains noisy rather than universally improved. |
+| `6f02bf7`; `backpressure` (in progress) | Production metrics tied 576 retries to a full client mux receiver on one Finland carrier. Cache local receive blockage/remote zero-window capacity and prefer an unblocked equally healthy sibling for new openings. | Real mux reproduction fails with original admission and passes with the hint: sibling opens with zero retries while original payloads survive and resume after drain. The rejected live-population/bulk-tie policies remain absent. Whole-tunnel regression qualification is running. |
 
-The admission experiments are absent from the selected implementation. Runtime
-engine/mux files match `eb4127e`. The later buffer-pool edit changes a test only.
+The two rejected admission experiments are absent from receive.4. Its runtime
+engine/mux files match `eb4127e`; the later pool edit changes a test only. The
+new receive.5 candidate adds the independent backpressure hint described below.
 
 Current admission prefers healthy over suspect carriers, then compares cached
 pressure. Its busy bit strongly favors a carrier without recent bulk pressure;
@@ -63,6 +66,44 @@ equal scores. Pressure normally refreshes every 250 ms; adaptive startup may
 sample sooner. Busy hysteresis lasts a bounded 2–10 seconds. Pool growth retains
 the configured maximum. This selects a carrier for a new stream and does not
 migrate established streams for load balancing. Failure migration is separate.
+
+### Production-driven backpressure candidate
+
+The [fifteen-hour production review](PRODUCTION-FOLLOWUP-2026-10-08.md) found a
+full client-side mux receiver while KCP continued progressing. A new stream's
+receipt shares that ordered receive lane, so admission to it can time out even
+though source migration would be inappropriate. Receive.5 samples
+`ReceiveBufferStats().blocked` or a zero remote KCP window at the existing
+controller cadence and caches one advisory bit per slot. Selection retains
+transport health precedence, then prefers an unblocked lane, then retains the
+original cached bulk/stream score and rotating tie order. All-blocked pools keep
+an ordinary fallback. A blocked slot also counts as busy for already bounded pool
+growth. No live-population gauge or periodic redistribution is introduced.
+
+Hints clear when a later sample sees available capacity, or when the carrier is
+retired/recreated. Detection/clearing therefore has sampling delay, normally
+about 250 ms. Existing streams, queues, source ports, flags and conversation IDs
+are retained. There is no new per-packet work, stream scan, timer, worker or
+configuration knob. Sampling reads existing mux atomics. Admission adds cached
+atomic reads; its throughput/latency costs are measured by the whole-tunnel
+follow-up, not assumed to be zero. Both adaptive and static controllers sample
+capacity pressure.
+
+New metric `super_paqet_peer_carrier_opening_blocked{peer,session}` exposes the
+cached hint independently of transport suspicion. It does not prove a broken
+path. A real paired-mux test fills the shared receive budget, checks that a new
+opening succeeds on a busy unblocked sibling without retries, then drains and
+verifies original payloads and restored ordinary selection. A negative control
+with original selection failed that assertion. All-blocked fallback, exclusions,
+health precedence and remote-window pause controls pass. The focused admission,
+opening and pool suite passed ten times under race detection.
+
+An initial test compile referenced a nonexistent stream session accessor; it was
+corrected to use the retained carrier. The first failing negative control spent
+30 seconds in ordinary stream cleanup behind the deliberately paused receiver.
+The fixture now closes its owned carrier before per-stream cleanup; the repeated
+negative control failed immediately for the intended selection assertion.
+Neither fixture problem was a runtime deadlock or performance result.
 
 ## Measurement controls and adaptive scope
 
