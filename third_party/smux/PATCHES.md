@@ -73,3 +73,14 @@ delivery, cancellation and deadlines.
   expiry, permanent read/write/protocol errors, idle retirement and deliberate
   close before cleanup obscures evidence. Deterministic watchdog and race tests
   cover negotiation, deadline boundaries, activity, flow control and first cause.
+
+
+* Pending credit entries embed their eight-byte dispatched update payload,
+  avoiding a separate byte-slice allocation. Unlink clears neighboring entry
+  references so an in-flight frame cannot retain the remaining credit FIFO.
+  A later update for that stream owns a different entry/payload.
+* Payload snapshots remain mandatory even for writes without a deadline:
+  session close can wake the caller before the carrier finishes consuming its
+  input. A deterministic delayed-close regression protects that ownership.
+  The explored no-deadline copy-elision shortcut was rejected after reproducing
+  transmitted-byte corruption. Initial adaptive receive-window policy is unchanged.

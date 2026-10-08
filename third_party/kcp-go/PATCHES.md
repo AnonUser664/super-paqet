@@ -51,3 +51,20 @@ The outer Ethernet/IP/TCP byte contract and encryption derivation are preserved.
 The ACK/WINS extensions change encrypted inner control payloads, not application
 ordering or FEC coding. Scheduling/ACK cadence intentionally change and require
 impairment regression tests. The full upstream suites remain required.
+
+
+* Selective exploration integration batches bounded output FIFO pops and reuses
+  packet buffer-vector descriptors instead of allocating one per output packet.
+  Consumed request/vector references are cleared before idle wait. Packet order,
+  FEC/crypto stages, queue ceilings and shutdown draining remain intact.
+* Valid UDP-shaped endpoint metadata uses a copied binary address/port key,
+  including IPv6 zones and conversation ownership. Generic/invalid metadata
+  retains a string fallback. This changes dispatch allocation cost, not the raw
+  TCP wire endpoint or source-port/flag lifecycle.
+* A completed stream-read batching experiment is archived separately after
+  failing to demonstrate an overall end-to-end benefit. The selected runtime
+  retains the previous receive/read contract and introduces no pooled tails.
+
+These integrated candidates and their end-to-end qualification decisions are
+tracked in `docs/INTEGRATION-REVIEW-2026-10-08.md` in the parent application.
+They are not a production deployment.

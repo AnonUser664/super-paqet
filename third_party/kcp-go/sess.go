@@ -375,12 +375,10 @@ RESET_TIMER:
 			// if 'b' is large enough to accommodate the data, read directly
 			// from kcp.recv() to 'b', like 'DMA'.
 			if len(b) >= size {
-				// A stream read may consume several whole queued segments.
-				// Returning the first peeked size would hide already-read bytes.
-				n = s.kcp.Recv(b)
+				s.kcp.Recv(b)
 				s.mu.Unlock()
-				atomic.AddUint64(&DefaultSnmp.BytesReceived, uint64(n))
-				return n, nil
+				atomic.AddUint64(&DefaultSnmp.BytesReceived, uint64(size))
+				return size, nil
 			}
 
 			// otherwise, read to recvbuf first, then copy to 'b'.

@@ -265,7 +265,14 @@ socket/stream/goroutine bookkeeping; “no idle scratch buffer” does not mean
 zero per-connection memory.
 
 KCP queues/retransmits datagrams and shares a timed scheduler. Its postprocessing
-FIFO handles optional FEC/crypto and bounded packet output. Smux provides
+FIFO handles optional FEC/crypto and bounded packet output. The integrated
+candidate drains FIFO requests in bounded batches and reuses packet-vector
+metadata; it clears recycled references before waiting. Valid endpoint keys
+copy address/port bytes rather than retaining mutable address slices. Stream
+reads retain the original segment/message boundary and pool-ownership behavior.
+The attempted read batching is archived after missing the benefit gate.
+These candidates are qualified separately in
+[the integration review](INTEGRATION-REVIEW-2026-10-08.md). Smux provides
 per-stream credits, an aggregate receive budget and bounded-priority controls.
 Its receive rings grow on demand. Fixed-size control headers are parsed even
 when the aggregate data budget is full; PSH payload admission still waits for
@@ -273,7 +280,10 @@ tokens. An admitted data frame can overshoot the budget by one frame, as before.
 Outgoing streams enter the receive map before SYN submission so a full-duplex
 peer's immediate reply cannot be discarded; failed submissions reclaim that
 registration and any early data without another blocking control write.
-Async coalesced credits keep readers from
+Queued mux writes retain owned payload snapshots even without a deadline:
+session shutdown can return a write before the carrier finishes reading its
+buffer. Credit updates embed an independently owned eight-byte payload; unlinked
+entries drop FIFO-neighbor references. Async coalesced credits keep readers from
 waiting directly on opposite-direction writes; optional WINS hints expedite
 feedback while reliable UPD remains authoritative.
 

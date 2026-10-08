@@ -84,3 +84,36 @@ we must measure the intended session/read benefit end-to-end rather than claimin
 that fewer calls automatically improve every layer. Small combined UDP records
 use **0 B/op, 0 allocs/op** after pool warmup; the relay benchmark also reports
 zero allocations. Final runtime acceptance is still pending matched binaries.
+
+
+## Completed exp1 decision: exclude from selected runtime
+
+Sixteen isolated workloads compared selected exp2 (`c1aee36`, SHA-256
+`2962659362143ade1aec169f06991000b2f49e06f791d5adeb2a70db50831ee2`)
+with the finished exp1 addition (`820ca5f`, SHA-256
+`0b0de506f3bdd3e1583c346c2b846c4a39a1969e74e204a833d88c368f0d087a`).
+Two alternating pairs used 20 measured seconds, 60 seconds of iperf/HTTP warmup,
+fixed role CPUs, four pinned carriers, identical adaptive settings and debug
+logging. All payloads verified, all workloads had zero errors and all cleanup
+passed. The interruption did not stop this matrix; its complete receipt survives.
+
+| Median result | Selected exp2 | Exp2 + finished exp1 |
+|---|---:|---:|
+| Clean upload, Gbit/s | 4.546 | 4.399 |
+| Clean download, Gbit/s | 3.291 | 3.346 |
+| HTTP churn, requests/s | 13,057 | 13,008 |
+| Saturated mixed HTTP, requests/s | 3,888 | 3,910 |
+| Saturated mixed HTTP p99 bound, ms | 9.5 | 10.5 |
+| Paced mixed HTTP mean, us | 1,140 | 1,309 |
+| Paced mixed HTTP p99 bound, ms | 8.5 | 8.5 |
+
+Both mixed cases held about 1 Gbit/s in each bulk direction. Clock observations
+are retained and still show some role variation; these small finite cohorts do
+not prove a universal regression. However, they do not demonstrate the required
+overall benefit. Conservatively exclude stream-read batching from the selected
+runtime. The completed implementation/tests remain in
+`archive/completed-exp1-stream-batching-20261008`; the original exp1 worktree and
+its uncommitted edits remain untouched. No `PushFront` or partial pooled slice
+is imported. [Experiment receipts](integration-experiments-2026-10-08.json)
+include adverse microbenchmarks, the reproduced snapshot failure and full suite
+results. The selected exp2 subset still needs its final baseline comparison.
