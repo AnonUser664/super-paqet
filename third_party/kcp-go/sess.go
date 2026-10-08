@@ -771,32 +771,12 @@ func (s *UDPSession) Control(f func(conn net.PacketConn) error) error {
 // Pipeline: KCP output -> chPostProcessing -> [FEC] -> [Encrypt] -> TxQueue -> Network
 func (s *UDPSession) postProcess() {
 	txqueue := make([]ipv4.Message, 0, maxBatchSize)
-	var txBuffers [maxBatchSize][1][]byte
-	var reqBuf [maxBatchSize]sendRequest
 
 	ctx := context.Background()
 	bytesToSend := 0
 	for {
-		space := maxBatchSize - len(txqueue)
-		if space <= 0 {
-			space = maxBatchSize
-		}
-		popped := s.postQueue.popBatch(reqBuf[:space])
-		if popped == 0 {
-			if len(txqueue) > 0 {
-				if limiter, ok := s.rateLimiter.Load().(*rate.Limiter); ok {
-					_ = limiter.WaitN(ctx, bytesToSend)
-				}
-				s.tx(txqueue)
-				s.kcp.debugLog(IKCP_LOG_OUTPUT, "conv", s.kcp.conv, "datalen", bytesToSend)
-				for k := range txqueue {
-					defaultBufferPool.Put(txqueue[k].Buffers[0])
-					txqueue[k].Buffers = nil
-				}
-				clear(txBuffers[:]) // packet slices are now recycled; drop borrowed references
-				txqueue = txqueue[:0]
-				bytesToSend = 0
-			}
+		req, ok := s.postQueue.pop()
+		if !ok {
 			select {
 			case <-s.postQueue.ready:
 				continue
@@ -804,12 +784,7 @@ func (s *UDPSession) postProcess() {
 				return
 			}
 		}
-
-		for itemIdx := 0; itemIdx < popped; itemIdx++ {
-			req := reqBuf[itemIdx]
-			// Consumption transfers ownership to the local request. Do not
-			// retain recycled payloads in the batch while the worker is idle.
-			reqBuf[itemIdx] = sendRequest{}
+		{
 			buf := req.buffer
 			oob := req.oob
 
@@ -822,6 +797,7 @@ func (s *UDPSession) postProcess() {
 				} else {
 					s.fecEncoder.encodeOOB(buf)
 				}
+
 			}
 
 			// --- Stage 2: Encryption ---
@@ -863,47 +839,34 @@ func (s *UDPSession) postProcess() {
 			}
 
 			// --- Stage 3: TX batching ---
-			slot := len(txqueue)
-			if slot < maxBatchSize {
-				txBuffers[slot][0] = buf
-				msg := ipv4.Message{
-					Addr:    s.RemoteAddr(),
-					Buffers: txBuffers[slot][:],
-				}
-				bytesToSend += len(buf)
-				txqueue = append(txqueue, msg)
-			} else {
-				var msg ipv4.Message
-				msg.Addr = s.RemoteAddr()
-				msg.Buffers = [][]byte{buf}
-				bytesToSend += len(buf)
-				txqueue = append(txqueue, msg)
-			}
+			var msg ipv4.Message
+			msg.Addr = s.RemoteAddr()
+
+			// original copy, move buf to txqueue directly
+			msg.Buffers = [][]byte{buf}
+			bytesToSend += len(buf)
+			txqueue = append(txqueue, msg)
 
 			// dup copies for testing if set
 			for i := 0; i < s.dup; i++ {
 				bts := defaultBufferPool.Get()[:len(buf)]
 				copy(bts, buf)
-				var dmsg ipv4.Message
-				dmsg.Addr = s.RemoteAddr()
-				dmsg.Buffers = [][]byte{bts}
+				msg.Buffers = [][]byte{bts}
 				bytesToSend += len(bts)
-				txqueue = append(txqueue, dmsg)
+				txqueue = append(txqueue, msg)
 			}
 
 			// parity
 			for k := range ecc {
 				bts := defaultBufferPool.Get()[:len(ecc[k])]
 				copy(bts, ecc[k])
-				var emsg ipv4.Message
-				emsg.Addr = s.RemoteAddr()
-				emsg.Buffers = [][]byte{bts}
+				msg.Buffers = [][]byte{bts}
 				bytesToSend += len(bts)
-				txqueue = append(txqueue, emsg)
+				txqueue = append(txqueue, msg)
 			}
 
-			// transmit when queue is drained or we've reached max batch size
-			if len(txqueue) >= maxBatchSize || (itemIdx == popped-1 && s.postQueue.empty()) {
+			// transmit when chPostProcessing is empty or we've reached max batch size
+			if s.postQueue.len() == 0 || len(txqueue) >= maxBatchSize {
 				if limiter, ok := s.rateLimiter.Load().(*rate.Limiter); ok {
 					// WaitN only returns error if the limiter is misconfigured
 					// or context is cancelled. In either case, we continue sending.
@@ -916,10 +879,10 @@ func (s *UDPSession) postProcess() {
 					defaultBufferPool.Put(txqueue[k].Buffers[0])
 					txqueue[k].Buffers = nil
 				}
-				clear(txBuffers[:]) // packet slices are now recycled; drop borrowed references
 				txqueue = txqueue[:0]
 				bytesToSend = 0
 			}
+
 		}
 	}
 }
