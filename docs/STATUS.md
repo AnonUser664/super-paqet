@@ -45,6 +45,14 @@ Production remains migration.4; this is a source integration, not a rollout.
 See [all integration receipts](integration-qualification-2026-10-08.json),
 including adverse results, fixture corrections and finite acceptance limits.
 
+The [two-worker coverage audit](MULTIWORKER-2026-10-08.md) confirms actual traffic
+on both workers in 36 earlier comparisons and adds eight mixed-load comparisons,
+native live reload and race-instrumented live reload. Correctness and cleanup
+pass, but paced mixed HTTP p99 rises **6 → 10 ms** across the new two-pair medians;
+the first paced pair has matched role clocks and misses the latency allowance.
+This remains an unresolved performance gate before rollout of the integration
+candidate. Production binaries/configs remain unchanged.
+
 ## Recovery-grace candidate
 
 The newer [receive-processing investigation](RECEIVE-PATH-2026-10-08.md) retains

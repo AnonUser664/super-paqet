@@ -11,6 +11,7 @@ import copy
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import signal
 import socket
@@ -220,6 +221,7 @@ def main():
     parser.add_argument('--output', default='build/live-reload-netns')
     parser.add_argument('--streams', type=int, default=32, help='active streams per original peer')
     parser.add_argument('--carriers', type=int, default=1, help='deterministic source-port carriers per original peer, 1..8')
+    parser.add_argument('--packet-workers', type=int, default=1, help='capture workers per backend listener, 1..64; outgoing carriers retain one reader')
     parser.add_argument('--shared-source', action='store_true', help='keep one fixed source port for all original peer carriers')
     parser.add_argument('--small-write-flush', type=int, default=0, help='exercise fast-mode bulk batching with this interactive-write threshold')
     parser.add_argument('--delay-ms', type=int, default=0, help='one-way virtual link delay')
@@ -232,13 +234,13 @@ def main():
     args = parser.parse_args()
     if os.geteuid() != 0:
         parser.error('run as root; only owned network namespaces are modified')
-    if not 0 <= args.small_write_flush <= 65535 or not 1 <= args.carriers <= 8 or args.streams < 1 or args.cycles < 1 or min(args.delay_ms, args.reverse_delay_ms or 0, args.rate_mbit, args.reverse_rate_mbit) < 0 or not 0 <= args.loss <= 100 or not 0 <= args.reorder <= 100:
+    if not 0 <= args.small_write_flush <= 65535 or not 1 <= args.carriers <= 8 or args.streams < 1 or args.cycles < 1 or not 1 <= args.packet_workers <= 64 or min(args.delay_ms, args.reverse_delay_ms or 0, args.rate_mbit, args.reverse_rate_mbit) < 0 or not 0 <= args.loss <= 100 or not 0 <= args.reorder <= 100:
         parser.error('invalid workload bounds')
     binary = (ROOT/args.binary).resolve()
     out = (ROOT/args.output).resolve()
     out.mkdir(parents=True, exist_ok=True)
     report = dict(binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(), steps=[],
-                  streams_per_original_peer=args.streams, one_way_delay_ms=args.delay_ms, reverse_delay_ms=args.reverse_delay_ms, loss_percent=args.loss, rate_mbit=args.rate_mbit, reverse_rate_mbit=args.reverse_rate_mbit, reorder_percent=args.reorder)
+                  listener_packet_workers=args.packet_workers, streams_per_original_peer=args.streams, one_way_delay_ms=args.delay_ms, reverse_delay_ms=args.reverse_delay_ms, loss_percent=args.loss, rate_mbit=args.rate_mbit, reverse_rate_mbit=args.reverse_rate_mbit, reorder_percent=args.reorder)
     ident = str(os.getpid())
     client_ns, server_ns = 'spq-reload-c-'+ident, 'spq-reload-s-'+ident
     namespaces, processes, files = [], [], []
@@ -333,9 +335,9 @@ def main():
         report['steps'].append(dict(name=label, groups=after, continuity_wait_ms=round((time.monotonic()-start)*1000, 3)))
         print(label, flush=True)
 
-    def endpoint(address, iface, source, mac):
+    def endpoint(address, iface, source, mac, listener=False):
         """Keep transport setup explicit so route discovery does not affect tests."""
-        return dict(address=address, enc='null', sessions=1, max_sessions=1, packet_workers=1,
+        return dict(address=address, enc='null', sessions=1, max_sessions=1, packet_workers=args.packet_workers if listener else 1,
                     adaptive=False, network=dict(interface=iface, backend='packet', ipv4=dict(addr=source, router_mac=mac)),
                     kcp=dict(mode='fast' if args.small_write_flush else 'fast3', small_write_flush=args.small_write_flush,
                              sndwnd=1024, rcvwnd=1024, smuxkalive=1, smuxktimeout=4))
@@ -376,8 +378,8 @@ def main():
                 netem += ['seed', '7411']
                 ns(namespace, *netem)
         reload = dict(interval='50ms', debounce='100ms')
-        server = dict(listeners=[endpoint('198.19.1.2:29999', 's0', '198.19.1.2:29999', '02:00:00:19:01:01'),
-                                 endpoint('198.19.1.2:29996', 's0', '198.19.1.2:29996', '02:00:00:19:01:01')],
+        server = dict(listeners=[endpoint('198.19.1.2:29999', 's0', '198.19.1.2:29999', '02:00:00:19:01:01', listener=True),
+                                 endpoint('198.19.1.2:29996', 's0', '198.19.1.2:29996', '02:00:00:19:01:01', listener=True)],
                       metrics='127.0.0.1:29090', log=dict(level='debug', interval='100ms', flow_sample=1000), reload=reload)
         client = dict(peers={'a': endpoint('198.19.1.2:29999', 'c0', '198.19.1.1:29998', '02:00:00:19:01:02'),
                              'b': endpoint('198.19.1.2:29996', 'c0', '198.19.1.1:29997', '02:00:00:19:01:02')},
@@ -411,12 +413,25 @@ def main():
         request('udp', port=28082, tag='A')
         request('udp', port=28083, tag='B')
         continuity('initial TCP and UDP')
+        # Prove that fanout workers actually handled the active fixture, rather
+        # than accepting a configured worker count as concurrency evidence.
+        captured = metrics(server_ns)
+        (out/'server-initial-capture-metrics.txt').write_text(captured)
+        counts = re.findall(r'super_paqet_listener_capture_packets\{listener="(\d+)",worker="(\d+)"\} (\d+)', captured)
+        report['initial_capture_worker_packets_by_listener'] = [(int(l), int(w), int(n)) for l, w, n in counts]
+        active_by_listener = {}
+        for listener, capture_worker, packets in report['initial_capture_worker_packets_by_listener']:
+            if packets > 0:
+                active_by_listener.setdefault(listener, set()).add(capture_worker)
+        report['all_workers_exercised_on_a_listener'] = any(workers == set(range(args.packet_workers)) for workers in active_by_listener.values())
+        if not report['all_workers_exercised_on_a_listener']:
+            raise RuntimeError('no listener exercised every capture worker; fanout coverage incomplete')
         report['validation_while_running'] = json.loads(ns(client_ns, str(binary), 'config', 'validate', '-c', str(out/'client.yaml'), '--json').stdout)
         (out/'client.yaml').write_text('unknown: true\nkey: SECRET-DO-NOT-LOG\n')
         wait_until(lambda: counter(client_ns, 'config_reload_rejected_total') >= 1, 'invalid YAML rejection')
         continuity('invalid config retains active paths')
         write('client', client)
-        server['listeners'].append(endpoint('198.19.1.2:29994', 's0', '198.19.1.2:29994', '02:00:00:19:01:01'))
+        server['listeners'].append(endpoint('198.19.1.2:29994', 's0', '198.19.1.2:29994', '02:00:00:19:01:01', listener=True))
         apply('server', server)
         client['peers']['c'] = endpoint('198.19.1.2:29994', 'c0', '198.19.1.1:29995', '02:00:00:19:01:02')
         client['forwards'] += [dict(listen='127.0.0.1:28084', peer='c', target='127.0.0.1:18084', protocol='tcp'),
@@ -508,9 +523,19 @@ def main():
             ep['enc'] = 'null'
             ep.pop('key')
             ep['network']['backend'] = 'pcap'
+            # PCAP has one capture handle; transitioning from packet fanout
+            # must explicitly retire its extra workers on the affected endpoint.
+            ep['packet_workers'] = 1
             apply('server' if config is server else 'client', config)
         wait_until(lambda: bool(request('probe', port=28080, tag='A', size=1 << 20)), 'driver replacement recovery')
         continuity('null cipher and pcap driver replacement', ('b',))
+        if args.packet_workers > 1:
+            for config, ep in ((server, server['listeners'][0]), (client, client['peers']['a'])):
+                ep['network']['backend'] = 'packet'
+                ep['packet_workers'] = args.packet_workers if config is server else 1
+                apply('server' if config is server else 'client', config)
+            wait_until(lambda: bool(request('probe', port=28080, tag='A', size=1 << 20)), 'fanout restoration recovery')
+            continuity('packet driver fanout restoration preserves unrelated peer', ('b',))
         base_rules = rule_count(client_ns)
         base_fds = len(list(Path('/proc/%d/fd' % client_proc.pid).iterdir()))
         for cycle in range(args.cycles):

@@ -250,3 +250,16 @@ clean temporary exp2-control worktree was removed; its commit, exact executable,
 all result/profile files and the original exp1/exp2 worktrees remain preserved.
 Final production-runtime Go sources match tested commit `c1aee36` exactly;
 subsequent edits are test-runner expectation fixes and qualification documents.
+
+## Subsequent two-worker coverage audit
+
+The [capture-worker audit](MULTIWORKER-2026-10-08.md) proves both workers handled
+traffic in 36 of the original 54 comparisons. It adds native and race-instrumented
+two-worker live reload plus eight repeated mixed-load comparisons. Correctness,
+Go race detection and cleanup pass; saturated mixed results favor the candidate.
+However, paced mixed p99 rises **6 → 10 ms** across the new two-pair medians,
+including a matched-clock first pair that fails the earlier latency allowance.
+This new evidence leaves a performance gate unresolved before deployment.
+Runtime sources and production remain unchanged. The
+[supplemental receipts](multiworker-qualification-2026-10-08.json) preserve both
+adverse comparisons and failed fixture/launcher attempts.

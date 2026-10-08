@@ -19,6 +19,7 @@ that same host. Measured capacity limitations remain explicit in the status and
 | [Receive processing — 8 October](RECEIVE-PATH-2026-10-08.md) | Receive-only optimization, rejected admission experiments, measurement controls and remaining WAN checks; not deployed. |
 | [Coordinated exploration — 8 October](EXPLORATION-2026-10-08.md) | Branch checkpoint, failed backpressure latency gate, packed-pressure alternative and cross-agent test coordination. |
 | [Selective integration — 8 October](INTEGRATION-REVIEW-2026-10-08.md) | Exp1 completion, exp2 ownership corrections, rejected shortcuts and combined qualification. |
+| [Capture-worker coverage — 8 October](MULTIWORKER-2026-10-08.md) | Actual two-worker traffic evidence, native/race reload checks and unresolved paced mixed-load latency gate. |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Package layout, ownership, data paths, concurrency and lifecycle. |
 | [TRANSPORT.md](TRANSPORT.md) | Raw packet contract, inner protocols and reasons for their design. |
 | [CONFIGURATION.md](CONFIGURATION.md) | Every YAML field, defaults, constraints and adaptation boundaries. |

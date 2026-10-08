@@ -38,6 +38,7 @@ CASES = {
     'duplex-latency': ['--mode', 'bulk', '--iperf', '--iperf-directions', 'bidirectional', '--duplex-http'],
     'bounded-duplex': ['--mode', 'bulk', '--iperf', '--iperf-directions', 'bidirectional', '--duplex-http', '--iperf-rate-mbit', '1000', '--warmup', '3'],
     'bounded-duplex-one-worker': ['--mode', 'bulk', '--packet-workers', '1', '--iperf', '--iperf-directions', 'bidirectional', '--duplex-http', '--iperf-rate-mbit', '1000', '--warmup', '3'],
+    'paced-duplex': ['--mode', 'bulk', '--iperf', '--iperf-directions', 'bidirectional', '--duplex-http', '--duplex-http-gap-ms', '1', '--iperf-rate-mbit', '1000', '--warmup', '3'],
     'paced-duplex-one-worker': ['--mode', 'bulk', '--packet-workers', '1', '--iperf', '--iperf-directions', 'bidirectional', '--duplex-http', '--duplex-http-gap-ms', '1', '--iperf-rate-mbit', '1000', '--warmup', '3'],
     'asymmetric': ['--mode', 'both', '--workers', '16', '--bridge', '--delay-ms', '40', '--loss', '.5', '--reorder', '5', '--rate-mbit', '50', '--down-rate-mbit', '10', '--queue-packets', '2048', '--seed', '804'],
     'high-delay': ['--mode', 'http-churn', '--workers', '16', '--bridge', '--delay-ms', '120', '--rate-mbit', '20', '--queue-packets', '2048', '--seed', '805'],
