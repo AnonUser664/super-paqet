@@ -505,6 +505,15 @@ that override; the final four-session deployment enables endpoint adaptation.
 A fixed `sessions: 4` / `max_sessions: 4` keeps carrier count bounded while send
 windows, pacing, ACK scheduling, reorder allowance and RTO floors adapt.
 Receive-buffer adaptation remains independently configurable.
+
+The receive.5 candidate separately samples admission capacity even when
+`adaptive: false`: a full local mux receiver or zero remote KCP window makes an
+equally healthy unblocked sibling preferable for new openings. It keeps the
+existing bulk/count score for ordinary selection and an all-blocked fallback.
+This hint does not change retransmission settings, close established streams or
+trigger source migration, and has no extra configuration knob. It is not yet
+deployed; qualification and production evidence are in the
+[receive investigation](RECEIVE-PATH-2026-10-08.md).
 No current policy is established as optimal for every bottleneck, loss pattern,
 reordering level or delay. These are final-review decisions, not completed claims.
 

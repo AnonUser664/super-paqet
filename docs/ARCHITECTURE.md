@@ -1,9 +1,10 @@
 # Application architecture and source map
 
-This describes the committed enterprise source and the final deployed release.
-It includes scoped live reconciliation, shared fixed-source KCP lanes and an
-indexed outstanding-ACK path. Unqualified outer-sequence experiments are
-archived separately. [STATUS.md](STATUS.md) and the
+This describes the committed enterprise source. Production and locally qualified
+candidates are identified separately in [STATUS.md](STATUS.md). The source
+includes scoped live reconciliation, independent source-port carriers,
+optional shared-source lanes and an indexed outstanding-ACK path. Unqualified
+outer-sequence experiments are archived separately. The
 [final deployment report](FINAL-DEPLOYMENT-REPORT.md) identify measurements and
 remaining qualification limits.
 
@@ -353,12 +354,24 @@ do not cause repeated pop/reinsert allocations. Payload storage remains owned
 and copied; there is no borrowed-buffer lifetime or new scheduling policy.
 `receive_path_test.go` retains the original parser/reader as an independent
 oracle for ordering, window advancement, fragmentation, scratch reuse and
-byte-identical feedback. Admission experiments are excluded from this runtime.
+byte-identical feedback. The rejected live-population and bulk-tie admission
+experiments are excluded from this runtime.
 
 `small_write_flush` is a lock-protected scheduling exception for bounded logical
 writes under bulk batching. It preserves FIFO byte order and the ACK policy;
 zero preserves preset behavior. Reliability reload updates it in place. Static
 endpoints still sample slot pressure for configured pool selection/growth.
+
+The receive.5 candidate also caches local mux receive blockage or a remote
+zero-window pause for admission. Among equally healthy carriers, an unblocked
+lane takes precedence over ordinary cached bulk/count pressure; all-blocked
+pools retain the ordinary fallback. The same controller sampler supplies this
+hint with adaptation enabled or disabled. Selection uses only cached atomics,
+retains rotating equal-score choices and preserves established streams. It adds
+no stream redistribution, per-packet callback or new timer. This addresses the
+[observed Finland receiver blockage](PRODUCTION-FOLLOWUP-2026-10-08.md), rather
+than treating application backpressure as a request for physical source migration.
+See the [experiment history](RECEIVE-PATH-2026-10-08.md) for qualification status.
 
 ## Verified source-tuple recovery
 
