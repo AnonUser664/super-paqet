@@ -428,16 +428,21 @@ const busyCarrier = uint64(1) << 63
 // A 250 ms old stream count can send an entire opening burst to a formerly idle
 // lane. This uses only atomic reads: no KCP/receive-map locks, per-stream scans,
 // allocations or extra controller ticks are needed on the admission path.
+// Bulk pressure breaks population ties rather than excluding a lane for the
+// entire burst. Otherwise recently hot/control-only lanes can strand a capture
+// worker while their siblings take every bulk opening. Pool growth separately
+// retains the cached busy bit and its configured carrier ceiling.
 func (s *slot) admissionScore() uint64 {
 	score := s.score.Load()
+	population := score &^ busyCarrier
 	if conn := s.conn.Load(); conn != nil {
-		score = score&busyCarrier | uint64(conn.Session.NumStreamsSnapshot())
+		population = uint64(conn.Session.NumStreamsSnapshot())
 	}
-	return score
+	return min(population, uint64(^uint32(0)))*2 + score>>63
 }
 
-// Admission retains health precedence and cached bulk hysteresis while using
-// live stream population to break ties between equally busy carriers.
+// Admission retains health precedence, balances live population and uses cached
+// bulk hysteresis to break equally populated ties.
 func (p *peer) bestSlotLocked(excluded map[*slot]bool) *slot {
 	start := int((p.next.Add(1) - 1) % uint64(len(p.slots)))
 	var best *slot

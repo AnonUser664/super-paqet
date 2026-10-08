@@ -65,7 +65,7 @@ func TestAdmissionBurstUsesLivePopulation(t *testing.T) {
 }
 
 // TestAdmissionLiveCountRetainsHealthAndBulkOrdering prevents the faster gauge
-// from overriding suspect-path avoidance, bulk hysteresis or retry exclusions.
+// from overriding suspect-path avoidance, tied bulk pressure or retry exclusions.
 func TestAdmissionLiveCountRetainsHealthAndBulkOrdering(t *testing.T) {
 	idle, hot := admissionSlot(t), admissionSlot(t)
 	hot.score.Store(busyCarrier)
@@ -82,5 +82,30 @@ func TestAdmissionLiveCountRetainsHealthAndBulkOrdering(t *testing.T) {
 	}
 	if p.bestSlotLocked(map[*slot]bool{hot: true, idle: true}) != nil {
 		t.Fatal("all-excluded selection resurrected a lane")
+	}
+}
+
+// TestAdmissionBulkHysteresisCannotStrandLanes reproduces a warm verification
+// and control-only lane before a burst. Busy bits remain set for the whole test;
+// no controller tick can rescue a worker excluded by an absolute hot penalty.
+func TestAdmissionBulkHysteresisCannotStrandLanes(t *testing.T) {
+	p := &peer{}
+	for i := 0; i < 4; i++ {
+		s := admissionSlot(t)
+		if i < 2 {
+			s.score.Store(busyCarrier)
+		}
+		p.slots = append(p.slots, s)
+	}
+	for i := 0; i < 64; i++ {
+		s := p.bestSlotLocked(nil)
+		if _, err := s.conn.Load().Session.OpenStream(); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, s := range p.slots {
+		if s.conn.Load().Session.NumStreams() != 16 {
+			t.Fatal("cached bulk hysteresis concentrated the burst", s.conn.Load().Session.NumStreams())
+		}
 	}
 }

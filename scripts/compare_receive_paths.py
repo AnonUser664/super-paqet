@@ -69,11 +69,18 @@ def compact_result(directory):
         else:
             rows.append(result)
     captures = {}
+    populations = {}
     for path in sorted(directory.glob('server-*-metrics.txt')):
         captures[path.name] = [int(x) for x in re.findall(r'super_paqet_listener_capture_packets\{[^}]+\} (\d+)', path.read_text())]
+    for path in sorted(directory.glob('client-*-metrics.txt')):
+        # Retain the placement evidence needed to interpret shared-carrier
+        # latency; cached pressure can leave a lane idle in one run and busy
+        # in another. Capture distribution alone does not reveal this.
+        populations[path.name] = [line for line in path.read_text().splitlines()
+                                  if re.match(r'super_paqet_peer_(streams|pending|send_window|rtt_ms|conversation_id|local_source_port)\{', line)]
     return {'sha256': report['binary_sha256'], 'parameters': report['parameters'],
             'results': rows, 'processes': report['processes'], 'cleanup': cleanup,
-            'worker_capture_packets': captures}
+            'worker_capture_packets': captures, 'carrier_population_samples': populations}
 
 
 def main():
