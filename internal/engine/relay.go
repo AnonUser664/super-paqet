@@ -49,17 +49,11 @@ func tcpToStream(dst io.Writer, src *net.TCPConn) (int64, error) {
 		var class, n int
 		var readErr error
 		err = raw.Read(func(fd uintptr) bool {
-			var peek [1]byte
-			n, _, readErr = unix.Recvfrom(int(fd), peek[:], unix.MSG_PEEK|unix.MSG_DONTWAIT)
-			if errors.Is(readErr, unix.EAGAIN) || errors.Is(readErr, unix.EINTR) {
-				return false
-			}
-			if readErr != nil || n == 0 {
-				return true
-			}
+			// The nonblocking read itself detects EAGAIN and EOF; peeking
+			// first adds a syscall for every payload without protecting data.
 			available, e := unix.IoctlGetInt(int(fd), unix.TIOCINQ)
-			if e != nil {
-				available = 4096
+			if e != nil || available <= 0 {
+				available = 32768
 			}
 			b, class = getBuffer(available)
 			n, readErr = unix.Read(int(fd), *b)

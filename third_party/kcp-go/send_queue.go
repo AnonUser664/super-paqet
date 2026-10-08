@@ -52,6 +52,29 @@ func (q *sendQueue) pop() (sendRequest, bool) {
 	return q.ring.Pop()
 }
 
+// popBatch removes up to len(dst) pending requests under a single lock acquisition.
+func (q *sendQueue) popBatch(dst []sendRequest) int {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	n := 0
+	for n < len(dst) {
+		req, ok := q.ring.Pop()
+		if !ok {
+			break
+		}
+		dst[n] = req
+		n++
+	}
+	return n
+}
+
+// empty reports whether the queue has no pending output under the lock.
+func (q *sendQueue) empty() bool {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	return q.ring.Len() == 0
+}
+
 // len reads pending output count under the queue's synchronization contract.
 func (q *sendQueue) len() int {
 	q.mu.Lock()

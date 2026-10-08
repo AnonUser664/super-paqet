@@ -218,3 +218,54 @@ func TestHalfClosedRelayEndsOnGenerationCancellation(t *testing.T) {
 	}
 
 }
+
+// BenchmarkTCPToStream measures throughput and allocations of the relay tcpToStream loop.
+func BenchmarkTCPToStream(b *testing.B) {
+	listener, err := net.ListenTCP("tcp", &net.TCPAddr{IP: net.IPv4(127, 0, 0, 1)})
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer listener.Close()
+
+	payload := make([]byte, 32768)
+	totalBytes := int64(b.N) * int64(len(payload))
+	b.SetBytes(int64(len(payload)))
+
+	client, err := net.DialTCP("tcp", nil, listener.Addr().(*net.TCPAddr))
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer client.Close()
+
+	server, err := listener.AcceptTCP()
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer server.Close()
+
+	b.ResetTimer()
+	b.ReportAllocs()
+
+	errCh := make(chan error, 1)
+	go func() {
+		for i := 0; i < b.N; i++ {
+			if _, err := client.Write(payload); err != nil {
+				errCh <- err
+				return
+			}
+		}
+		_ = client.CloseWrite()
+		errCh <- nil
+	}()
+
+	n, err := tcpToStream(io.Discard, server)
+	if err != nil {
+		b.Fatal(err)
+	}
+	if writeErr := <-errCh; writeErr != nil {
+		b.Fatal(writeErr)
+	}
+	if n != totalBytes {
+		b.Fatalf("transferred %d bytes != expected %d", n, totalBytes)
+	}
+}

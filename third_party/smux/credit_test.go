@@ -14,6 +14,32 @@ import (
 	"time"
 )
 
+// TestPoppedCreditOwnsBytesAndDropsNeighbors keeps output paused while newer
+// updates arrive; dispatched bytes cannot alias new entries or retain the FIFO.
+func TestPoppedCreditOwnsBytesAndDropsNeighbors(t *testing.T) {
+	cfg := DefaultConfig()
+	cfg.Version, cfg.AsyncWindowUpdates = 2, true
+	s := &Session{config: cfg, die: make(chan struct{}), chSocketWriteError: make(chan struct{}), chShaperPending: make(chan struct{}, 1), credits: make(map[uint32]*creditUpdate)}
+	stream := newStream(3, cfg.MaxFrameSize, s)
+	other := newStream(5, cfg.MaxFrameSize, s)
+	s.queueCredit(stream, 11, 4096)
+	s.queueCredit(other, 22, 8192)
+	entry := s.creditHead
+	req, ok := s.popCredit()
+	if !ok || entry.previous != nil || entry.next != nil {
+		t.Fatal("dispatched entry retained FIFO neighbors")
+	}
+	s.queueCredit(stream, 33, 16384)
+	s.removeCredit(other.id)
+	if binary.LittleEndian.Uint32(req.frame.data) != 11 || binary.LittleEndian.Uint32(req.frame.data[4:]) != 4096 {
+		t.Fatal("dispatched credit overwritten")
+	}
+	newReq, ok := s.popCredit()
+	if !ok || binary.LittleEndian.Uint32(newReq.frame.data) != 33 || s.PendingCredits() != 0 {
+		t.Fatal("new credit was lost")
+	}
+}
+
 // Deliberately leave the session writer unscheduled: inbound draining must
 // progress independently of opposite-direction transport credit.
 func TestAsyncCreditReadDoesNotWaitForCarrier(t *testing.T) {

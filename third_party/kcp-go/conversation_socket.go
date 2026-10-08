@@ -12,8 +12,10 @@ import (
 // conversationKey keeps the existing endpoint identity and adds the inner KCP
 // conversation only for explicitly enabled shared endpoints.
 type conversationKey struct {
-	remote string
-	conv   uint32
+	addr [16]byte
+	port uint16
+	str  string
+	conv uint32
 }
 
 // outgoingHint bypasses address-string allocation and the map lock for the
@@ -46,7 +48,22 @@ func (l *Listener) conversationKey(remote net.Addr, conv uint32) conversationKey
 	if !l.multiConversation {
 		conv = 0
 	}
-	return conversationKey{remote.String(), conv}
+	if udp, ok := remote.(*net.UDPAddr); ok && udp != nil && udp.IP.To16() != nil && udp.Port >= 0 && udp.Port <= 65535 {
+		var k conversationKey
+		if ip16 := udp.IP.To16(); ip16 != nil {
+			copy(k.addr[:], ip16)
+		}
+		k.port = uint16(udp.Port)
+		k.conv = conv
+		if udp.Zone != "" {
+			k.str = udp.Zone
+		}
+		return k
+	}
+	if remote != nil {
+		return conversationKey{str: remote.String(), conv: conv}
+	}
+	return conversationKey{conv: conv}
 }
 
 // ServeConversationConn routes by endpoint and conversation. The caller owns

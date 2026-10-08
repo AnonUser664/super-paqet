@@ -61,6 +61,78 @@ func heldWriterSession(t *testing.T) (*Session, *heldVectorConn) {
 	return s, c
 }
 
+// delayedCloseConn exposes the interval after session cancellation wakes a
+// caller but before carrier Close/Write has finished using its input buffers.
+type delayedCloseConn struct {
+	*heldVectorConn
+	closeEntered chan struct{}
+	closeRelease chan struct{}
+	closing      sync.Once
+}
+
+func (c *delayedCloseConn) Close() error {
+	c.closing.Do(func() { close(c.closeEntered) })
+	<-c.closeRelease
+	return c.heldVectorConn.Close()
+}
+
+// TestNoDeadlineWriteOwnsPayloadDuringClose guards the otherwise tempting
+// no-deadline copy elision: session shutdown is itself an early-return path.
+func TestNoDeadlineWriteOwnsPayloadDuringClose(t *testing.T) {
+	a, b := net.Pipe()
+	h := &heldVectorConn{Conn: a, entered: make(chan struct{}), release: make(chan struct{}), closed: make(chan struct{}), frames: make(chan []byte, 8)}
+	c := &delayedCloseConn{heldVectorConn: h, closeEntered: make(chan struct{}), closeRelease: make(chan struct{})}
+	cfg := DefaultConfig()
+	cfg.KeepAliveDisabled = true
+	s, err := Client(c, cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var releaseClose sync.Once
+	t.Cleanup(func() { releaseClose.Do(func() { close(c.closeRelease) }); s.Close(); b.Close() })
+	payload := []byte("original")
+	f := newFrame(1, cmdPSH, 2)
+	f.data = payload
+	written := make(chan error, 1)
+	go func() { _, err := s.writeFrameInternal(f, nil, CLSDATA); written <- err }()
+	select {
+	case <-h.entered:
+	case <-time.After(time.Second):
+		t.Fatal("writer not held")
+	}
+	closed := make(chan struct{})
+	go func() { s.Close(); close(closed) }()
+	select {
+	case <-c.closeEntered:
+	case <-time.After(time.Second):
+		t.Fatal("close did not start")
+	}
+	select {
+	case err := <-written:
+		if err != io.ErrClosedPipe {
+			t.Fatal(err)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("write did not observe close")
+	}
+	copy(payload, "recycled")
+	close(h.release)
+	select {
+	case frame := <-h.frames:
+		if !bytes.Equal(frame[headerSize:], []byte("original")) {
+			t.Fatalf("early return retained caller bytes: %q", frame[headerSize:])
+		}
+	case <-time.After(time.Second):
+		t.Fatal("held carrier did not finish")
+	}
+	releaseClose.Do(func() { close(c.closeRelease) })
+	select {
+	case <-closed:
+	case <-time.After(time.Second):
+		t.Fatal("close did not finish")
+	}
+}
+
 // TestTimedOutVectorWriteOwnsPayload proves that buffer recycling after timeout
 // cannot alter bytes still retained by a blocked carrier write.
 func TestTimedOutVectorWriteOwnsPayload(t *testing.T) {

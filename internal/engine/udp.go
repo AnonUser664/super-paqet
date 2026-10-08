@@ -52,15 +52,28 @@ func writeDatagram(w io.Writer, b []byte) error {
 	if len(b) > 65507 {
 		return errors.New("UDP datagram too large")
 	}
+	if len(b) <= 2048 {
+		// One small record avoids two mux writes. A pooled buffer also avoids
+		// a 2 KiB heap escape on every interface Write; no flow retains it.
+		buffer, class := getBuffer(2 + len(b))
+		defer copyPools[class].Put(buffer)
+		buf := (*buffer)[:2+len(b)]
+		binary.BigEndian.PutUint16(buf[:2], uint16(len(b)))
+		copy(buf[2:], b)
+		n, err := w.Write(buf)
+		if err != nil {
+			return err
+		} else if n != 2+len(b) {
+			return io.ErrShortWrite
+		}
+		return nil
+	}
 	var hdr [2]byte
 	binary.BigEndian.PutUint16(hdr[:], uint16(len(b)))
 	if n, err := w.Write(hdr[:]); err != nil {
 		return err
 	} else if n != 2 {
 		return io.ErrShortWrite
-	}
-	if len(b) == 0 {
-		return nil
 	}
 	if n, err := w.Write(b); err != nil {
 		return err

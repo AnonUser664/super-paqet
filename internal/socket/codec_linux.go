@@ -12,21 +12,37 @@ import (
 	"net/netip"
 )
 
-// sum16 adds network-order words for the Internet checksum, including an odd trailing byte.
+// sum16 adds network-order words for the Internet checksum, including an odd
+// trailing byte. A 32-bit word is equivalent to its two 16-bit halves modulo
+// 65535; the wide accumulator avoids overflow before end-around carry folding.
+// Protocol-sized payloads cannot overflow this 64-bit accumulator.
 func sum16(b []byte) uint32 {
-	var sum uint32
-	for len(b) >= 8 {
-		sum += uint32(binary.BigEndian.Uint16(b)) + uint32(binary.BigEndian.Uint16(b[2:])) + uint32(binary.BigEndian.Uint16(b[4:])) + uint32(binary.BigEndian.Uint16(b[6:]))
-		b = b[8:]
+	var sum uint64
+	for len(b) >= 32 {
+		sum += uint64(binary.BigEndian.Uint32(b)) +
+			uint64(binary.BigEndian.Uint32(b[4:])) +
+			uint64(binary.BigEndian.Uint32(b[8:])) +
+			uint64(binary.BigEndian.Uint32(b[12:])) +
+			uint64(binary.BigEndian.Uint32(b[16:])) +
+			uint64(binary.BigEndian.Uint32(b[20:])) +
+			uint64(binary.BigEndian.Uint32(b[24:])) +
+			uint64(binary.BigEndian.Uint32(b[28:]))
+		b = b[32:]
 	}
-	for len(b) >= 2 {
-		sum += uint32(binary.BigEndian.Uint16(b))
+	for len(b) >= 4 {
+		sum += uint64(binary.BigEndian.Uint32(b))
+		b = b[4:]
+	}
+	if len(b) >= 2 {
+		sum += uint64(binary.BigEndian.Uint16(b))
 		b = b[2:]
 	}
 	if len(b) == 1 {
-		sum += uint32(b[0]) << 8
+		sum += uint64(b[0]) << 8
 	}
-	return sum
+	sum = (sum >> 32) + (sum & 0xffffffff)
+	sum = (sum >> 32) + (sum & 0xffffffff)
+	return uint32((sum >> 16) + (sum & 0xffff))
 }
 
 // checksum folds carries and complements the checksum accumulator used by manually encoded
@@ -104,11 +120,32 @@ func (h *SendHandle) encodeHeader(dst []byte, payload []byte, addr *net.UDPAddr,
 	if e.tcp.NS {
 		tcp[12] |= 1
 	}
-	for i, on := range []bool{e.tcp.FIN, e.tcp.SYN, e.tcp.RST, e.tcp.PSH, e.tcp.ACK, e.tcp.URG, e.tcp.ECE, e.tcp.CWR} {
-		if on {
-			tcp[13] |= 1 << i
-		}
+	var flags byte
+	if e.tcp.FIN {
+		flags |= 1 << 0
 	}
+	if e.tcp.SYN {
+		flags |= 1 << 1
+	}
+	if e.tcp.RST {
+		flags |= 1 << 2
+	}
+	if e.tcp.PSH {
+		flags |= 1 << 3
+	}
+	if e.tcp.ACK {
+		flags |= 1 << 4
+	}
+	if e.tcp.URG {
+		flags |= 1 << 5
+	}
+	if e.tcp.ECE {
+		flags |= 1 << 6
+	}
+	if e.tcp.CWR {
+		flags |= 1 << 7
+	}
+	tcp[13] |= flags
 	binary.BigEndian.PutUint16(tcp[14:16], 65535)
 	if e.tcp.SYN {
 		copy(tcp[20:], []byte{2, 4, 5, 180, 4, 2, 8, 10})

@@ -36,3 +36,26 @@ Every accepted runtime change still requires deterministic correctness tests,
 race checks and matched-binary workload comparisons. This document will retain
 rejected experiments and the final decision rather than replacing them with only
 favorable results.
+
+
+## Ownership corrections retained during integration
+
+The raw exp1 patch is preserved privately with SHA-256
+`77db922f286907dfa96b4370b70c1f794febe5e64906e2743a36a418146ad7f3`.
+Its proposed partial-segment slicing loses the original pooled slice capacity;
+`bufferPool.Put` explicitly rejects such a tail. Whole-segment batching avoids
+adding offsets/storage fields to every KCP segment and preserves `Recv`'s -2
+short-buffer error. Small `UDPSession.Read` calls retain the existing receive
+scratch path. Session reads must return the actual drained byte count.
+
+The selected exp2 subset additionally clears local batch/vector references when
+packets are consumed/recycled, clears an unlinked credit entry's neighbors, and
+uses pooled scratch for combined small UDP records. Passing an array through
+`io.Writer` is not a guarantee of stack allocation. Wider checksum checks cover
+all lengths 0..256, large carry-heavy/odd payloads through 65536 bytes, eight
+alignments and three patterns against an independent byte-pair oracle.
+
+Full root race/vet checks passed. Focused KCP race checks passed in 156.000 s,
+including all four plaintext/CFB/Salsa20/AEAD 100 MiB echo tests with FEC,
+batch queue concurrency and shared endpoint routing. The full smux race suite
+is in progress; no performance or deployment acceptance is inferred yet.

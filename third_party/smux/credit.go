@@ -15,6 +15,8 @@ type creditUpdate struct {
 	// Logical stream ID, cumulative consumed byte count and advertised byte capacity; modular
 	// validation applies.
 	sid, consumed, window uint32
+	// Embedded buffer avoids heap allocation during frame creation.
+	buf [8]byte
 	// Intrusive links preserve credit FIFO order with one entry per stream.
 	previous, next *creditUpdate
 }
@@ -97,6 +99,9 @@ func (s *Session) unlinkCredit(entry *creditUpdate) {
 		s.creditTail = entry.previous
 	}
 	delete(s.credits, entry.sid)
+	// A popped entry may keep its embedded wire bytes alive until output
+	// finishes. It must not retain neighbors and their pending stream credits.
+	entry.previous, entry.next = nil, nil
 }
 
 // removeCredit drops an abandoned stream's pending update so churn cannot grow a blocked
@@ -131,8 +136,8 @@ func (s *Session) popCredit() (writeRequest, bool) {
 	}
 	s.unlinkCredit(entry)
 	frame := newFrame(byte(s.config.Version), cmdUPD, entry.sid)
-	frame.data = make([]byte, 8)
-	binary.LittleEndian.PutUint32(frame.data, entry.consumed)
-	binary.LittleEndian.PutUint32(frame.data[4:], entry.window)
+	binary.LittleEndian.PutUint32(entry.buf[:4], entry.consumed)
+	binary.LittleEndian.PutUint32(entry.buf[4:8], entry.window)
+	frame.data = entry.buf[:8]
 	return writeRequest{class: CLSCTRL, frame: frame}, true
 }
