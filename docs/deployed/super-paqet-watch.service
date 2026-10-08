@@ -4,7 +4,7 @@ After=super-paqet.service
 
 [Service]
 Type=exec
-ExecStart=/usr/bin/python3 /var/lib/super-paqet-watch/production_watch.py --directory /var/log/super-paqet-watch/migration4-20261007T191408Z --duration 86400 --until 2026-10-08T19:14:08.869669+00:00 --interval 10 --sample-file-mib 32 --sample-backups 15 --journal-since '2026-10-07 18:28:00 UTC'
+ExecStart=/usr/bin/python3 /var/lib/super-paqet-watch/production_watch.py --directory /var/log/super-paqet-watch/latency1-20261008T220541Z --duration 86400 --until 2026-10-09T22:05:41.745259+00:00 --interval 10 --sample-file-mib 32 --sample-backups 15 --journal-since '2026-10-08 21:49:00 UTC'
 Restart=on-failure
 RestartSec=10
 RuntimeMaxSec=86500

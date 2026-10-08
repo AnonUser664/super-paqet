@@ -1,0 +1,1448 @@
+{
+  "release": {
+    "version": "enterprise-2026.10.09-latency.1",
+    "runtime_source": "276c43a70873670a7e1665283620aba38594b1ab",
+    "build_time": "2026-10-08T21:35:12Z",
+    "binary": "/home/shayan/Codes/super-paqet/build/latency-deploy-20261009/super-paqet",
+    "sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+    "build_command": [
+      "runuser",
+      "-u",
+      "shayan",
+      "--",
+      "env",
+      "CGO_LDFLAGS=-L/home/shayan/Codes/super-paqet/build/deploy-libs",
+      "/usr/bin/go",
+      "build",
+      "-trimpath",
+      "-ldflags",
+      "-X paqet/cmd/version.Version=enterprise-2026.10.09-latency.1 -X paqet/cmd/version.GitCommit=276c43a70873670a7e1665283620aba38594b1ab -X paqet/cmd/version.BuildTime=2026-10-08T21:35:12Z",
+      "-o",
+      "/home/shayan/Codes/super-paqet/build/latency-deploy-20261009/super-paqet",
+      "./cmd"
+    ],
+    "native_qualified_source": "8f1ca0f29585b43fdc6d896f433a5e1ed151b430",
+    "runtime_difference": "getBuffer comment only; all runtime bodies match locally qualified direct-read source",
+    "needed": "\nDynamic section at offset 0xc2fdd0 contains 26 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libresolv.so.2]\n 0x0000000000000001 (NEEDED)             Shared library: [libpcap.so.0.8]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x000000000000000c (INIT)               0x403000\n 0x000000000000000d (FINI)               0xa30248\n 0x0000000000000019 (INIT_ARRAY)         0x1030dc0\n 0x000000000000001b (INIT_ARRAYSZ)       8 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x1030dc8\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x400468\n 0x0000000000000005 (STRTAB)             0x400ea0\n 0x0000000000000006 (SYMTAB)             0x400498\n 0x000000000000000a (STRSZ)              1735 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000015 (DEBUG)              0x0\n 0x0000000000000003 (PLTGOT)             0x1030fe8\n 0x0000000000000002 (PLTRELSZ)           2352 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x401718\n 0x0000000000000007 (RELA)               0x4016a0\n 0x0000000000000008 (RELASZ)             120 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0x401640\n 0x000000006fffffff (VERNEEDNUM)         1\n 0x000000006ffffff0 (VERSYM)             0x401568\n 0x0000000000000000 (NULL)               0x0\n",
+    "version_output": "Version:    enterprise-2026.10.09-latency.1\nGit Tag:    unknown\nGit Commit: 276c43a70873670a7e1665283620aba38594b1ab\nBuild Time: 2026-10-08T21:35:12Z\nGo Version: go1.27.0-X:nodwarf5\nPlatform:   linux/amd64\n"
+  },
+  "local_exact_executable_smoke": {
+    "parameters": {
+      "binary": "/home/shayan/Codes/super-paqet/build/latency-deploy-20261009/super-paqet",
+      "duration": 12,
+      "cold_read_bytes": null,
+      "workers": 8,
+      "loss": 0,
+      "delay_ms": 0,
+      "jitter_ms": 0,
+      "reorder": 0,
+      "burst_loss": null,
+      "seed": null,
+      "rate_mbit": 0,
+      "down_rate_mbit": null,
+      "sessions": 4,
+      "max_sessions": 4,
+      "path_recovery": true,
+      "preserve_connections": true,
+      "shared_source": false,
+      "client_memory_mib": 0,
+      "server_memory_mib": 0,
+      "client_procs": 0,
+      "server_procs": 0,
+      "client_cpus": "",
+      "server_cpus": "",
+      "workload_cpus": "",
+      "packet_workers": 2,
+      "conversation_listener": true,
+      "client_flag": "S",
+      "server_flag": "PA",
+      "source_ports": null,
+      "hold": 0,
+      "enterprise": true,
+      "profile": false,
+      "debug": false,
+      "flow_sample": 1000,
+      "backend": "packet",
+      "duplex_http": false,
+      "mtu": 1500,
+      "ipv6": false,
+      "warmup": 0,
+      "duplex_http_gap_ms": 0,
+      "duplex_http_steady": false,
+      "schedule": null,
+      "mode": "both",
+      "ramp_timeout": 600,
+      "queue_packets": 0,
+      "adaptive": "on",
+      "kcp_options": "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 60}",
+      "functional": true,
+      "block": "null",
+      "fec": [
+        0,
+        0
+      ],
+      "iperf": false,
+      "iperf_rate_mbit": 0,
+      "pinned_lanes": false,
+      "iperf_directions": [
+        "upload",
+        "download",
+        "bidirectional"
+      ],
+      "direct_iperf": false,
+      "tcp_buffer_mib": 0,
+      "capture": false,
+      "restart": false,
+      "mixed": false,
+      "socket_buffer_mib": 0,
+      "host_backlog": 0,
+      "bridge": false,
+      "output": "/home/shayan/Codes/super-paqet/build/latency-deploy-20261009/exact-binary-functional"
+    },
+    "results": [
+      {
+        "verified_bytes": 16777216,
+        "cold_transfer_seconds": 0.47054231199945207
+      },
+      {
+        "verified_bytes": 16777216
+      },
+      {
+        "verified_bytes": 16777216
+      },
+      {
+        "udp_datagrams_verified": 7,
+        "udp_max_bytes": 65507
+      },
+      {
+        "half_close_verified_bytes": 262144
+      },
+      {
+        "ping": "pong 175.284582ms"
+      },
+      {
+        "bytes": 11046222,
+        "canceled_requests": 4,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 0.007364062141172153,
+        "mean_latency_us": 190.5234205866947,
+        "mode": "http",
+        "p50_us_upper": 1000,
+        "p99_us_upper": 3000,
+        "request_gap_seconds": 0,
+        "requests": 502101,
+        "requests_per_second": 41841.262165750864,
+        "seconds": 12.00013991,
+        "successful_workers": 8,
+        "total_seconds": 12.000139875,
+        "warmup_bytes": 0,
+        "warmup_errors": 0,
+        "warmup_requests": 0,
+        "warmup_seconds": 0,
+        "workers": 8,
+        "tunnel_cpu_cores": {
+          "client": 1.984,
+          "server": 1.971
+        }
+      },
+      {
+        "bytes": 5103660563,
+        "canceled_requests": 8,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 3.401779344689371,
+        "mean_latency_us": 19612.694552929086,
+        "mode": "bulk",
+        "p50_us_upper": 13000,
+        "p99_us_upper": 152000,
+        "request_gap_seconds": 0,
+        "requests": 4865,
+        "requests_per_second": 405.3379017771531,
+        "seconds": 12.002331829,
+        "successful_workers": 8,
+        "total_seconds": 12.002331132,
+        "warmup_bytes": 0,
+        "warmup_errors": 0,
+        "warmup_requests": 0,
+        "warmup_seconds": 0,
+        "workers": 8,
+        "tunnel_cpu_cores": {
+          "client": 2.23,
+          "server": 1.965
+        }
+      }
+    ],
+    "processes": {
+      "target": {
+        "peak_rss_kib": 18920,
+        "peak_fds": 14,
+        "peak_swap_kib": 0,
+        "peak_rss_plus_swap_kib": 18920,
+        "rss_high_water_kib": 18920,
+        "cpu_seconds": 18.15
+      },
+      "server": {
+        "peak_rss_kib": 88104,
+        "peak_fds": 23,
+        "peak_swap_kib": 0,
+        "peak_rss_plus_swap_kib": 88104,
+        "rss_high_water_kib": 88104,
+        "cpu_seconds": 47.58
+      },
+      "client": {
+        "peak_rss_kib": 47344,
+        "peak_fds": 38,
+        "peak_swap_kib": 0,
+        "peak_rss_plus_swap_kib": 47344,
+        "rss_high_water_kib": 47344,
+        "cpu_seconds": 50.86
+      }
+    },
+    "kernel": "7.2.4-arch1-2",
+    "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+    "benchmark_helper_sha256": "58abc360b04dd4082dd7b8be73ad8533aa625abb6856b72c405e3a83f7bc89de"
+  },
+  "local_cleanup": {
+    "process_exit_codes": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "firewall_clean": true,
+    "unrelated_rule_preserved": true
+  },
+  "baseline_and_post_reality_downloads": {
+    "baseline": {
+      "89.45.68.14": {
+        "germany": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.520926 0.625903",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "finland": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.555888 0.707229",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "france": [
+          {
+            "exit": 0,
+            "response": "200 1048576 1.247802 2.698452",
+            "error": "",
+            "passed": true
+          }
+        ]
+      },
+      "89.45.68.118": {
+        "germany": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.535048 0.903375",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "finland": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.566264 0.820275",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "france": [
+          {
+            "exit": 0,
+            "response": "200 1048576 1.315733 2.250243",
+            "error": "",
+            "passed": true
+          }
+        ]
+      }
+    },
+    "post": {
+      "89.45.68.14": {
+        "germany": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.745910 2.070478",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 0.746869 1.972376",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "finland": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.747361 1.935050",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 0.706823 1.914482",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "france": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.822106 2.055592",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 0.883366 2.348289",
+            "error": "",
+            "passed": true
+          }
+        ]
+      },
+      "89.45.68.118": {
+        "germany": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.433438 0.546657",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 0.411327 0.541223",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "finland": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.536646 0.654807",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 0.480054 0.552558",
+            "error": "",
+            "passed": true
+          }
+        ],
+        "france": [
+          {
+            "exit": 0,
+            "response": "200 1048576 0.801292 1.044694",
+            "error": "",
+            "passed": true
+          },
+          {
+            "exit": 0,
+            "response": "200 1048576 1.196437 2.799691",
+            "error": "",
+            "passed": true
+          }
+        ]
+      }
+    }
+  },
+  "hosts": {
+    "116.202.177.233": {
+      "accepted": {
+        "unit": {
+          "MainPID": "960629",
+          "Result": "success",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Thu 2026-10-08 21:49:14 UTC",
+          "MemoryCurrent": "97366016",
+          "TasksCurrent": "12",
+          "CPUQuotaPerSecUSec": "infinity",
+          "TasksMax": "65536",
+          "LimitNOFILE": "524288",
+          "ActiveState": "active",
+          "SubState": "running",
+          "UnitFileState": "enabled"
+        },
+        "sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+        "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+        "rollback": "/root/super-paqet/rollback/20261008T214503Z-latency1"
+      },
+      "final_audit_utc_epoch": 1791497047.1163752,
+      "final_unit": {
+        "MainPID": "960629",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Thu 2026-10-08 21:49:14 UTC",
+        "MemoryCurrent": "97366016",
+        "TasksCurrent": "12",
+        "CPUQuotaPerSecUSec": "infinity",
+        "TasksMax": "65536",
+        "LimitNOFILE": "524288",
+        "ActiveState": "active",
+        "SubState": "running",
+        "UnitFileState": "enabled"
+      },
+      "config_bytes_unchanged": true,
+      "tunnel_unit_and_dropins_unchanged": true,
+      "tunnel_unit_text_sha256": "48e6e2ef9bb07ade221816f5f0a8869e49c4cac1d1d1aa2803cdb898080d9607",
+      "health": "ok",
+      "xray_processes_unchanged": [
+        {
+          "pid": 765574,
+          "start_ticks": "125163143",
+          "executable": "/usr/local/bin/xray"
+        }
+      ],
+      "panic_or_fatal_in_checked_journal": false,
+      "lane_and_capture_metrics": [
+        "super_paqet_listener_capture_packets{listener=\"0\",worker=\"0\"} 1",
+        "super_paqet_listener_capture_packets{listener=\"0\",worker=\"1\"} 0",
+        "super_paqet_listener_capture_packets{listener=\"1\",worker=\"0\"} 306752",
+        "super_paqet_listener_capture_packets{listener=\"1\",worker=\"1\"} 597603"
+      ],
+      "staged_config_validation": {
+        "forwards": 0,
+        "listeners": 2,
+        "path": "/root/super-paqet/conf.yaml",
+        "peers": 0,
+        "valid": true
+      },
+      "observer": {
+        "window": {
+          "start_utc": "2026-10-08T22:05:41.745259+00:00",
+          "until_utc": "2026-10-09T22:05:41.745259+00:00",
+          "directory": "/var/log/super-paqet-watch/latency1-20261008T220541Z",
+          "observer_sha256": "19fdc526bfc9665f2a99fe94743130ae6ea2daadc3e2a4b812cdcff4a99644dc",
+          "sample_interval_seconds": 10,
+          "sample_max_bytes": 536870912,
+          "journal_max_bytes": 67108864,
+          "profiling": false,
+          "log_level": "warn",
+          "journal_since": "2026-10-08 21:49:00 UTC",
+          "runtime_source": "276c43a70873670a7e1665283620aba38594b1ab",
+          "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958"
+        },
+        "before": {
+          "xray_processes": [
+            {
+              "pid": 765574,
+              "start_ticks": "125163143",
+              "executable": "/usr/local/bin/xray"
+            }
+          ],
+          "tunnel": {
+            "MainPID": "960629",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "Thu 2026-10-08 21:49:14 UTC",
+            "ActiveState": "active"
+          },
+          "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+          "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+          "xray": {
+            "MainPID": "0",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "n/a",
+            "ActiveState": "inactive"
+          },
+          "xray_stat": "125163143"
+        },
+        "after": {
+          "xray_processes": [
+            {
+              "pid": 765574,
+              "start_ticks": "125163143",
+              "executable": "/usr/local/bin/xray"
+            }
+          ],
+          "tunnel": {
+            "MainPID": "960629",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "Thu 2026-10-08 21:49:14 UTC",
+            "ActiveState": "active"
+          },
+          "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+          "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+          "xray": {
+            "MainPID": "0",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "n/a",
+            "ActiveState": "inactive"
+          },
+          "xray_stat": "125163143"
+        },
+        "summary": {
+          "completed": false,
+          "until": "2026-10-09T22:05:41.745259+00:00",
+          "journal_recorder": {
+            "records": 17,
+            "cursor_resume": false,
+            "last_realtime_usec": "1791496827185824"
+          },
+          "first_utc": "2026-10-08T22:12:08.241456+00:00",
+          "last_utc": "2026-10-08T22:12:28.338396+00:00",
+          "samples": 3,
+          "triggers": {},
+          "peak_active": 1824.0,
+          "peak_rss_kib": 98112,
+          "peak_fds": 1836,
+          "runs": {
+            "960629": {
+              "first_utc": "2026-10-08T22:12:08.241456+00:00",
+              "last_counters": {
+                "errors_total": 7.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0,
+                "path_recovery_attempts_total": 0.0,
+                "path_recovery_succeeded_total": 0.0,
+                "path_recovery_rejected_total": 0.0,
+                "log_dropped_total": 0.0
+              },
+              "last_utc": "2026-10-08T22:12:28.338396+00:00"
+            }
+          },
+          "observed_processes": 1,
+          "counter_deltas": {
+            "errors_total": 0,
+            "rejected_total": 0,
+            "opening_transport_retries_total": 0,
+            "config_reload_rejected_total": 0,
+            "path_recovery_attempts_total": 0,
+            "path_recovery_succeeded_total": 0,
+            "path_recovery_rejected_total": 0,
+            "log_dropped_total": 0
+          }
+        },
+        "files": {
+          "latest.json": {
+            "bytes": 20637,
+            "mode": "0o600"
+          },
+          "tunnel.journal.jsonl": {
+            "bytes": 7524,
+            "mode": "0o600"
+          },
+          "window.json": {
+            "bytes": 1427,
+            "mode": "0o600"
+          },
+          "summary.json": {
+            "bytes": 1044,
+            "mode": "0o600"
+          },
+          "journal-state.json": {
+            "bytes": 193,
+            "mode": "0o600"
+          },
+          "samples.jsonl": {
+            "bytes": 61763,
+            "mode": "0o600"
+          }
+        },
+        "observer": {
+          "MainPID": "961859",
+          "Result": "success",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Thu 2026-10-08 22:12:08 UTC",
+          "ActiveState": "active"
+        },
+        "obsolete_restore_state": {
+          "super-paqet-watch-restore.timer": "inactive",
+          "super-paqet-watch-restore.service": "inactive"
+        },
+        "archive": "/var/lib/super-paqet-watch/archive/20261008T220541Z",
+        "free_bytes": 29200789504
+      }
+    },
+    "171.22.132.226": {
+      "accepted": {
+        "unit": {
+          "ActiveState": "active",
+          "SubState": "running",
+          "UnitFileState": "enabled",
+          "MainPID": "3151995",
+          "Result": "success",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Thu 2026-10-08 21:58:28 UTC",
+          "MemoryCurrent": "39436288",
+          "TasksCurrent": "10",
+          "CPUQuotaPerSecUSec": "infinity",
+          "TasksMax": "65536",
+          "LimitNOFILE": "524288"
+        },
+        "sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+        "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+        "rollback": "/root/super-paqet/rollback/20261008T214503Z-latency1"
+      },
+      "final_audit_utc_epoch": 1791497048.2294075,
+      "final_unit": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "UnitFileState": "enabled",
+        "MainPID": "3151995",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Thu 2026-10-08 21:58:28 UTC",
+        "MemoryCurrent": "39436288",
+        "TasksCurrent": "10",
+        "CPUQuotaPerSecUSec": "infinity",
+        "TasksMax": "65536",
+        "LimitNOFILE": "524288"
+      },
+      "config_bytes_unchanged": true,
+      "tunnel_unit_and_dropins_unchanged": true,
+      "tunnel_unit_text_sha256": "48e6e2ef9bb07ade221816f5f0a8869e49c4cac1d1d1aa2803cdb898080d9607",
+      "health": "ok",
+      "xray_processes_unchanged": [
+        {
+          "pid": 2929362,
+          "start_ticks": "558964932",
+          "executable": "/usr/local/bin/xray"
+        }
+      ],
+      "panic_or_fatal_in_checked_journal": false,
+      "lane_and_capture_metrics": [
+        "super_paqet_listener_capture_packets{listener=\"0\",worker=\"0\"} 10331",
+        "super_paqet_listener_capture_packets{listener=\"0\",worker=\"1\"} 64178"
+      ],
+      "staged_config_validation": {
+        "forwards": 0,
+        "listeners": 1,
+        "path": "/root/super-paqet/conf.yaml",
+        "peers": 0,
+        "valid": true
+      },
+      "observer": {
+        "window": {
+          "start_utc": "2026-10-08T22:05:41.745259+00:00",
+          "until_utc": "2026-10-09T22:05:41.745259+00:00",
+          "directory": "/var/log/super-paqet-watch/latency1-20261008T220541Z",
+          "observer_sha256": "19fdc526bfc9665f2a99fe94743130ae6ea2daadc3e2a4b812cdcff4a99644dc",
+          "sample_interval_seconds": 10,
+          "sample_max_bytes": 536870912,
+          "journal_max_bytes": 67108864,
+          "profiling": false,
+          "log_level": "warn",
+          "journal_since": "2026-10-08 21:49:00 UTC",
+          "runtime_source": "276c43a70873670a7e1665283620aba38594b1ab",
+          "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958"
+        },
+        "before": {
+          "xray_processes": [
+            {
+              "pid": 2929362,
+              "start_ticks": "558964932",
+              "executable": "/usr/local/bin/xray"
+            }
+          ],
+          "tunnel": {
+            "ActiveState": "active",
+            "MainPID": "3151995",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "Thu 2026-10-08 21:58:28 UTC"
+          },
+          "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+          "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+          "xray": {
+            "ActiveState": "inactive",
+            "MainPID": "0",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": ""
+          },
+          "xray_stat": "558964932"
+        },
+        "after": {
+          "xray_processes": [
+            {
+              "pid": 2929362,
+              "start_ticks": "558964932",
+              "executable": "/usr/local/bin/xray"
+            }
+          ],
+          "tunnel": {
+            "ActiveState": "active",
+            "MainPID": "3151995",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "Thu 2026-10-08 21:58:28 UTC"
+          },
+          "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+          "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+          "xray": {
+            "ActiveState": "inactive",
+            "MainPID": "0",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": ""
+          },
+          "xray_stat": "558964932"
+        },
+        "summary": {
+          "completed": false,
+          "until": "2026-10-09T22:05:41.745259+00:00",
+          "journal_recorder": {
+            "records": 11,
+            "cursor_resume": false,
+            "last_realtime_usec": "1791496839258809"
+          },
+          "first_utc": "2026-10-08T22:12:06.441811+00:00",
+          "last_utc": "2026-10-08T22:12:26.441988+00:00",
+          "samples": 3,
+          "triggers": {},
+          "peak_active": 347.0,
+          "peak_rss_kib": 51076,
+          "peak_fds": 357,
+          "runs": {
+            "3151995": {
+              "first_utc": "2026-10-08T22:12:06.441811+00:00",
+              "last_counters": {
+                "errors_total": 0.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0,
+                "path_recovery_attempts_total": 0.0,
+                "path_recovery_succeeded_total": 0.0,
+                "path_recovery_rejected_total": 0.0,
+                "log_dropped_total": 0.0
+              },
+              "last_utc": "2026-10-08T22:12:26.441988+00:00"
+            }
+          },
+          "observed_processes": 1,
+          "counter_deltas": {
+            "errors_total": 0,
+            "rejected_total": 0,
+            "opening_transport_retries_total": 0,
+            "config_reload_rejected_total": 0,
+            "path_recovery_attempts_total": 0,
+            "path_recovery_succeeded_total": 0,
+            "path_recovery_rejected_total": 0,
+            "log_dropped_total": 0
+          }
+        },
+        "files": {
+          "journal-state.json": {
+            "bytes": 193,
+            "mode": "0o600"
+          },
+          "latest.json": {
+            "bytes": 18481,
+            "mode": "0o600"
+          },
+          "window.json": {
+            "bytes": 1426,
+            "mode": "0o600"
+          },
+          "summary.json": {
+            "bytes": 1043,
+            "mode": "0o600"
+          },
+          "samples.jsonl": {
+            "bytes": 55275,
+            "mode": "0o600"
+          },
+          "tunnel.journal.jsonl": {
+            "bytes": 4862,
+            "mode": "0o600"
+          }
+        },
+        "observer": {
+          "ActiveState": "active",
+          "MainPID": "3152782",
+          "Result": "success",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Thu 2026-10-08 22:12:06 UTC"
+        },
+        "obsolete_restore_state": {
+          "super-paqet-watch-restore.timer": "inactive",
+          "super-paqet-watch-restore.service": "inactive"
+        },
+        "archive": "/var/lib/super-paqet-watch/archive/20261008T220541Z",
+        "free_bytes": 49726521344
+      }
+    },
+    "65.109.249.222": {
+      "accepted": {
+        "unit": {
+          "MainPID": "250828",
+          "Result": "success",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Thu 2026-10-08 21:59:20 UTC",
+          "MemoryCurrent": "37404672",
+          "TasksCurrent": "10",
+          "CPUQuotaPerSecUSec": "infinity",
+          "TasksMax": "65536",
+          "LimitNOFILE": "524288",
+          "ActiveState": "active",
+          "SubState": "running",
+          "UnitFileState": "enabled"
+        },
+        "sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+        "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+        "rollback": "/root/super-paqet/rollback/20261008T214503Z-latency1"
+      },
+      "final_audit_utc_epoch": 1791497049.3813758,
+      "final_unit": {
+        "MainPID": "250828",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Thu 2026-10-08 21:59:20 UTC",
+        "MemoryCurrent": "37404672",
+        "TasksCurrent": "10",
+        "CPUQuotaPerSecUSec": "infinity",
+        "TasksMax": "65536",
+        "LimitNOFILE": "524288",
+        "ActiveState": "active",
+        "SubState": "running",
+        "UnitFileState": "enabled"
+      },
+      "config_bytes_unchanged": true,
+      "tunnel_unit_and_dropins_unchanged": true,
+      "tunnel_unit_text_sha256": "8724014b3b755252a73f7b61ed2a11ac3a554af9d4e328e591938d65f2a1740b",
+      "health": "ok",
+      "xray_processes_unchanged": [
+        {
+          "pid": 71633,
+          "start_ticks": "2098986",
+          "executable": "/usr/local/bin/xray"
+        }
+      ],
+      "panic_or_fatal_in_checked_journal": false,
+      "lane_and_capture_metrics": [
+        "super_paqet_listener_capture_packets{listener=\"0\",worker=\"0\"} 31104",
+        "super_paqet_listener_capture_packets{listener=\"0\",worker=\"1\"} 65255"
+      ],
+      "staged_config_validation": {
+        "forwards": 0,
+        "listeners": 1,
+        "path": "/root/super-paqet/conf.yaml",
+        "peers": 0,
+        "valid": true
+      },
+      "observer": {
+        "window": {
+          "start_utc": "2026-10-08T22:05:41.745259+00:00",
+          "until_utc": "2026-10-09T22:05:41.745259+00:00",
+          "directory": "/var/log/super-paqet-watch/latency1-20261008T220541Z",
+          "observer_sha256": "19fdc526bfc9665f2a99fe94743130ae6ea2daadc3e2a4b812cdcff4a99644dc",
+          "sample_interval_seconds": 10,
+          "sample_max_bytes": 536870912,
+          "journal_max_bytes": 67108864,
+          "profiling": false,
+          "log_level": "warn",
+          "journal_since": "2026-10-08 21:49:00 UTC",
+          "runtime_source": "276c43a70873670a7e1665283620aba38594b1ab",
+          "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958"
+        },
+        "before": {
+          "xray_processes": [
+            {
+              "pid": 71633,
+              "start_ticks": "2098986",
+              "executable": "/usr/local/bin/xray"
+            }
+          ],
+          "tunnel": {
+            "MainPID": "250828",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "Thu 2026-10-08 21:59:20 UTC",
+            "ActiveState": "active"
+          },
+          "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+          "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+          "xray": {
+            "MainPID": "0",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "n/a",
+            "ActiveState": "inactive"
+          },
+          "xray_stat": "2098986"
+        },
+        "after": {
+          "xray_processes": [
+            {
+              "pid": 71633,
+              "start_ticks": "2098986",
+              "executable": "/usr/local/bin/xray"
+            }
+          ],
+          "tunnel": {
+            "MainPID": "250828",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "Thu 2026-10-08 21:59:20 UTC",
+            "ActiveState": "active"
+          },
+          "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+          "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+          "xray": {
+            "MainPID": "0",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "n/a",
+            "ActiveState": "inactive"
+          },
+          "xray_stat": "2098986"
+        },
+        "summary": {
+          "completed": false,
+          "until": "2026-10-09T22:05:41.745259+00:00",
+          "journal_recorder": {
+            "records": 10,
+            "cursor_resume": false,
+            "last_realtime_usec": "1791496831318060"
+          },
+          "first_utc": "2026-10-08T22:12:06.265943+00:00",
+          "last_utc": "2026-10-08T22:12:26.360269+00:00",
+          "samples": 3,
+          "triggers": {},
+          "peak_active": 558.0,
+          "peak_rss_kib": 49296,
+          "peak_fds": 567,
+          "runs": {
+            "250828": {
+              "first_utc": "2026-10-08T22:12:06.265943+00:00",
+              "last_counters": {
+                "errors_total": 0.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0,
+                "path_recovery_attempts_total": 0.0,
+                "path_recovery_succeeded_total": 0.0,
+                "path_recovery_rejected_total": 0.0,
+                "log_dropped_total": 0.0
+              },
+              "last_utc": "2026-10-08T22:12:26.360269+00:00"
+            }
+          },
+          "observed_processes": 1,
+          "counter_deltas": {
+            "errors_total": 0,
+            "rejected_total": 0,
+            "opening_transport_retries_total": 0,
+            "config_reload_rejected_total": 0,
+            "path_recovery_attempts_total": 0,
+            "path_recovery_succeeded_total": 0,
+            "path_recovery_rejected_total": 0,
+            "log_dropped_total": 0
+          }
+        },
+        "files": {
+          "tunnel.journal.jsonl": {
+            "bytes": 4049,
+            "mode": "0o600"
+          },
+          "summary.json": {
+            "bytes": 1042,
+            "mode": "0o600"
+          },
+          "samples.jsonl": {
+            "bytes": 64501,
+            "mode": "0o600"
+          },
+          "window.json": {
+            "bytes": 1422,
+            "mode": "0o600"
+          },
+          "latest.json": {
+            "bytes": 21552,
+            "mode": "0o600"
+          },
+          "journal-state.json": {
+            "bytes": 191,
+            "mode": "0o600"
+          }
+        },
+        "observer": {
+          "MainPID": "251417",
+          "Result": "success",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Thu 2026-10-08 22:12:06 UTC",
+          "ActiveState": "active"
+        },
+        "obsolete_restore_state": {
+          "super-paqet-watch-restore.timer": "inactive",
+          "super-paqet-watch-restore.service": "inactive"
+        },
+        "archive": "/var/lib/super-paqet-watch/archive/20261008T220541Z",
+        "free_bytes": 30466580480
+      }
+    },
+    "89.45.68.14": {
+      "accepted": {
+        "unit": {
+          "MainPID": "376268",
+          "Result": "success",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Thu 2026-10-08 21:59:32 UTC",
+          "MemoryCurrent": "18878464",
+          "TasksCurrent": "9",
+          "CPUQuotaPerSecUSec": "infinity",
+          "TasksMax": "65536",
+          "LimitNOFILE": "524288",
+          "ActiveState": "active",
+          "SubState": "running",
+          "UnitFileState": "enabled"
+        },
+        "sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+        "config_sha256": "61b976bbe69887aa95aea8779e188826bb8136f4ffd0a5647dfd49fdaa2eacef",
+        "rollback": "/root/super-paqet/rollback/20261008T214503Z-latency1"
+      },
+      "final_audit_utc_epoch": 1791497050.6865275,
+      "final_unit": {
+        "MainPID": "376268",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Thu 2026-10-08 21:59:32 UTC",
+        "MemoryCurrent": "18878464",
+        "TasksCurrent": "9",
+        "CPUQuotaPerSecUSec": "infinity",
+        "TasksMax": "65536",
+        "LimitNOFILE": "524288",
+        "ActiveState": "active",
+        "SubState": "running",
+        "UnitFileState": "enabled"
+      },
+      "config_bytes_unchanged": true,
+      "tunnel_unit_and_dropins_unchanged": true,
+      "tunnel_unit_text_sha256": "48e6e2ef9bb07ade221816f5f0a8869e49c4cac1d1d1aa2803cdb898080d9607",
+      "health": "ok",
+      "xray_processes_unchanged": [],
+      "panic_or_fatal_in_checked_journal": false,
+      "lane_and_capture_metrics": [
+        "super_paqet_peer_source_port{peer=\"finland\",session=\"0\"} 34775",
+        "super_paqet_peer_source_port{peer=\"finland\",session=\"1\"} 34201",
+        "super_paqet_peer_source_port{peer=\"france\",session=\"0\"} 46740",
+        "super_paqet_peer_source_port{peer=\"france\",session=\"1\"} 49386",
+        "super_paqet_peer_source_port{peer=\"germany\",session=\"0\"} 32978",
+        "super_paqet_peer_source_port{peer=\"germany\",session=\"1\"} 60754"
+      ],
+      "staged_config_validation": {
+        "forwards": 3,
+        "listeners": 0,
+        "path": "/root/super-paqet/conf.yaml",
+        "peers": 3,
+        "valid": true
+      },
+      "observer": {
+        "window": {
+          "start_utc": "2026-10-08T22:05:41.745259+00:00",
+          "until_utc": "2026-10-09T22:05:41.745259+00:00",
+          "directory": "/var/log/super-paqet-watch/latency1-20261008T220541Z",
+          "observer_sha256": "19fdc526bfc9665f2a99fe94743130ae6ea2daadc3e2a4b812cdcff4a99644dc",
+          "sample_interval_seconds": 10,
+          "sample_max_bytes": 536870912,
+          "journal_max_bytes": 67108864,
+          "profiling": false,
+          "log_level": "warn",
+          "journal_since": "2026-10-08 21:49:00 UTC",
+          "runtime_source": "276c43a70873670a7e1665283620aba38594b1ab",
+          "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958"
+        },
+        "before": {
+          "xray_processes": [],
+          "tunnel": {
+            "MainPID": "376268",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "Thu 2026-10-08 21:59:32 UTC",
+            "ActiveState": "active"
+          },
+          "config_sha256": "61b976bbe69887aa95aea8779e188826bb8136f4ffd0a5647dfd49fdaa2eacef",
+          "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+          "xray": {
+            "MainPID": "0",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "n/a",
+            "ActiveState": "inactive"
+          },
+          "xray_stat": null
+        },
+        "after": {
+          "xray_processes": [],
+          "tunnel": {
+            "MainPID": "376268",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "Thu 2026-10-08 21:59:32 UTC",
+            "ActiveState": "active"
+          },
+          "config_sha256": "61b976bbe69887aa95aea8779e188826bb8136f4ffd0a5647dfd49fdaa2eacef",
+          "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+          "xray": {
+            "MainPID": "0",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "n/a",
+            "ActiveState": "inactive"
+          },
+          "xray_stat": null
+        },
+        "summary": {
+          "completed": false,
+          "until": "2026-10-09T22:05:41.745259+00:00",
+          "journal_recorder": {
+            "records": 13,
+            "cursor_resume": false,
+            "last_realtime_usec": "1791496772542879"
+          },
+          "first_utc": "2026-10-08T22:12:05.742692+00:00",
+          "last_utc": "2026-10-08T22:12:25.799564+00:00",
+          "samples": 3,
+          "triggers": {},
+          "peak_active": 0,
+          "peak_rss_kib": 30048,
+          "peak_fds": 31,
+          "runs": {
+            "376268": {
+              "first_utc": "2026-10-08T22:12:05.742692+00:00",
+              "last_counters": {
+                "errors_total": 0.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0,
+                "path_recovery_attempts_total": 0.0,
+                "path_recovery_succeeded_total": 0.0,
+                "path_recovery_rejected_total": 0.0,
+                "log_dropped_total": 0.0
+              },
+              "last_utc": "2026-10-08T22:12:25.799564+00:00"
+            }
+          },
+          "observed_processes": 1,
+          "counter_deltas": {
+            "errors_total": 0,
+            "rejected_total": 0,
+            "opening_transport_retries_total": 0,
+            "config_reload_rejected_total": 0,
+            "path_recovery_attempts_total": 0,
+            "path_recovery_succeeded_total": 0,
+            "path_recovery_rejected_total": 0,
+            "log_dropped_total": 0
+          }
+        },
+        "files": {
+          "samples.jsonl": {
+            "bytes": 104360,
+            "mode": "0o600"
+          },
+          "journal-state.json": {
+            "bytes": 191,
+            "mode": "0o600"
+          },
+          "tunnel.journal.jsonl": {
+            "bytes": 6300,
+            "mode": "0o600"
+          },
+          "summary.json": {
+            "bytes": 1037,
+            "mode": "0o600"
+          },
+          "window.json": {
+            "bytes": 1296,
+            "mode": "0o600"
+          },
+          "latest.json": {
+            "bytes": 34836,
+            "mode": "0o600"
+          }
+        },
+        "observer": {
+          "MainPID": "377072",
+          "Result": "success",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Thu 2026-10-08 22:12:05 UTC",
+          "ActiveState": "active"
+        },
+        "obsolete_restore_state": {
+          "super-paqet-watch-restore.timer": "inactive",
+          "super-paqet-watch-restore.service": "inactive"
+        },
+        "archive": "/var/lib/super-paqet-watch/archive/20261008T220541Z",
+        "free_bytes": 34059259904
+      }
+    },
+    "89.45.68.118": {
+      "accepted": {
+        "unit": {
+          "MainPID": "1058941",
+          "Result": "success",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Thu 2026-10-08 21:59:41 UTC",
+          "MemoryCurrent": "111697920",
+          "TasksCurrent": "17",
+          "CPUQuotaPerSecUSec": "infinity",
+          "TasksMax": "65536",
+          "LimitNOFILE": "524288",
+          "ActiveState": "active",
+          "SubState": "running",
+          "UnitFileState": "enabled"
+        },
+        "sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+        "config_sha256": "5f788d4490d39b66753f64b4f50f65a132aeafeb81a7ff881fe823061ee23e9d",
+        "rollback": "/root/super-paqet/rollback/20261008T214503Z-latency1"
+      },
+      "final_audit_utc_epoch": 1791497052.5659633,
+      "final_unit": {
+        "MainPID": "1058941",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Thu 2026-10-08 21:59:41 UTC",
+        "MemoryCurrent": "111697920",
+        "TasksCurrent": "17",
+        "CPUQuotaPerSecUSec": "infinity",
+        "TasksMax": "65536",
+        "LimitNOFILE": "524288",
+        "ActiveState": "active",
+        "SubState": "running",
+        "UnitFileState": "enabled"
+      },
+      "config_bytes_unchanged": true,
+      "tunnel_unit_and_dropins_unchanged": true,
+      "tunnel_unit_text_sha256": "48e6e2ef9bb07ade221816f5f0a8869e49c4cac1d1d1aa2803cdb898080d9607",
+      "health": "ok",
+      "xray_processes_unchanged": [],
+      "panic_or_fatal_in_checked_journal": false,
+      "lane_and_capture_metrics": [
+        "super_paqet_peer_source_port{peer=\"france\",session=\"0\"} 49950",
+        "super_paqet_peer_source_port{peer=\"france\",session=\"1\"} 55261",
+        "super_paqet_peer_source_port{peer=\"france\",session=\"2\"} 32949",
+        "super_paqet_peer_source_port{peer=\"france\",session=\"3\"} 36186",
+        "super_paqet_peer_source_port{peer=\"germany\",session=\"0\"} 47878",
+        "super_paqet_peer_source_port{peer=\"germany\",session=\"1\"} 38324",
+        "super_paqet_peer_source_port{peer=\"germany\",session=\"2\"} 58027",
+        "super_paqet_peer_source_port{peer=\"germany\",session=\"3\"} 56402",
+        "super_paqet_peer_source_port{peer=\"finland\",session=\"0\"} 36962",
+        "super_paqet_peer_source_port{peer=\"finland\",session=\"1\"} 53007",
+        "super_paqet_peer_source_port{peer=\"finland\",session=\"2\"} 61846",
+        "super_paqet_peer_source_port{peer=\"finland\",session=\"3\"} 38176"
+      ],
+      "staged_config_validation": {
+        "forwards": 3,
+        "listeners": 0,
+        "path": "/root/super-paqet/conf.yaml",
+        "peers": 3,
+        "valid": true
+      },
+      "observer": {
+        "window": {
+          "start_utc": "2026-10-08T22:05:41.745259+00:00",
+          "until_utc": "2026-10-09T22:05:41.745259+00:00",
+          "directory": "/var/log/super-paqet-watch/latency1-20261008T220541Z",
+          "observer_sha256": "19fdc526bfc9665f2a99fe94743130ae6ea2daadc3e2a4b812cdcff4a99644dc",
+          "sample_interval_seconds": 10,
+          "sample_max_bytes": 536870912,
+          "journal_max_bytes": 67108864,
+          "profiling": false,
+          "log_level": "warn",
+          "journal_since": "2026-10-08 21:49:00 UTC",
+          "runtime_source": "276c43a70873670a7e1665283620aba38594b1ab",
+          "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958"
+        },
+        "before": {
+          "xray_processes": [],
+          "tunnel": {
+            "MainPID": "1058941",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "Thu 2026-10-08 21:59:41 UTC",
+            "ActiveState": "active"
+          },
+          "config_sha256": "5f788d4490d39b66753f64b4f50f65a132aeafeb81a7ff881fe823061ee23e9d",
+          "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+          "xray": {
+            "MainPID": "0",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "n/a",
+            "ActiveState": "inactive"
+          },
+          "xray_stat": null
+        },
+        "after": {
+          "xray_processes": [],
+          "tunnel": {
+            "MainPID": "1058941",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "Thu 2026-10-08 21:59:41 UTC",
+            "ActiveState": "active"
+          },
+          "config_sha256": "5f788d4490d39b66753f64b4f50f65a132aeafeb81a7ff881fe823061ee23e9d",
+          "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+          "xray": {
+            "MainPID": "0",
+            "Result": "success",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "n/a",
+            "ActiveState": "inactive"
+          },
+          "xray_stat": null
+        },
+        "summary": {
+          "completed": false,
+          "until": "2026-10-09T22:05:41.745259+00:00",
+          "journal_recorder": {
+            "records": 33,
+            "cursor_resume": false,
+            "last_realtime_usec": "1791496781789170"
+          },
+          "first_utc": "2026-10-08T22:12:07.229555+00:00",
+          "last_utc": "2026-10-08T22:12:27.325787+00:00",
+          "samples": 3,
+          "triggers": {},
+          "peak_active": 2665.0,
+          "peak_rss_kib": 122352,
+          "peak_fds": 2698,
+          "runs": {
+            "1058941": {
+              "first_utc": "2026-10-08T22:12:07.229555+00:00",
+              "last_counters": {
+                "errors_total": 0.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0,
+                "path_recovery_attempts_total": 0.0,
+                "path_recovery_succeeded_total": 0.0,
+                "path_recovery_rejected_total": 0.0,
+                "log_dropped_total": 0.0
+              },
+              "last_utc": "2026-10-08T22:12:27.325787+00:00"
+            }
+          },
+          "observed_processes": 1,
+          "counter_deltas": {
+            "errors_total": 0,
+            "rejected_total": 0,
+            "opening_transport_retries_total": 0,
+            "config_reload_rejected_total": 0,
+            "path_recovery_attempts_total": 0,
+            "path_recovery_succeeded_total": 0,
+            "path_recovery_rejected_total": 0,
+            "log_dropped_total": 0
+          }
+        },
+        "files": {
+          "samples.jsonl": {
+            "bytes": 123790,
+            "mode": "0o600"
+          },
+          "journal-state.json": {
+            "bytes": 193,
+            "mode": "0o600"
+          },
+          "tunnel.journal.jsonl": {
+            "bytes": 17557,
+            "mode": "0o600"
+          },
+          "summary.json": {
+            "bytes": 1046,
+            "mode": "0o600"
+          },
+          "window.json": {
+            "bytes": 1297,
+            "mode": "0o600"
+          },
+          "latest.json": {
+            "bytes": 41305,
+            "mode": "0o600"
+          }
+        },
+        "observer": {
+          "MainPID": "1059480",
+          "Result": "success",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Thu 2026-10-08 22:12:06 UTC",
+          "ActiveState": "active"
+        },
+        "obsolete_restore_state": {
+          "super-paqet-watch-restore.timer": "inactive",
+          "super-paqet-watch-restore.service": "inactive"
+        },
+        "archive": "/var/lib/super-paqet-watch/archive/20261008T220541Z",
+        "free_bytes": 30048620544
+      }
+    }
+  },
+  "observer_window": {
+    "start_utc": "2026-10-08T22:05:41.745259+00:00",
+    "until_utc": "2026-10-09T22:05:41.745259+00:00",
+    "directory": "/var/log/super-paqet-watch/latency1-20261008T220541Z",
+    "observer_sha256": "19fdc526bfc9665f2a99fe94743130ae6ea2daadc3e2a4b812cdcff4a99644dc",
+    "sample_interval_seconds": 10,
+    "sample_max_bytes": 536870912,
+    "journal_max_bytes": 67108864,
+    "profiling": false,
+    "log_level": "warn",
+    "journal_since": "2026-10-08 21:49:00 UTC",
+    "runtime_source": "276c43a70873670a7e1665283620aba38594b1ab",
+    "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958"
+  },
+  "cleanup": {
+    "rollback_timers_disarmed": true,
+    "staged_files_removed": true,
+    "owned_reality_probes_removed": true,
+    "rollback_archives_retained": {
+      "116.202.177.233": "/root/super-paqet/rollback/20261008T214503Z-latency1",
+      "171.22.132.226": "/root/super-paqet/rollback/20261008T214503Z-latency1",
+      "65.109.249.222": "/root/super-paqet/rollback/20261008T214503Z-latency1",
+      "89.45.68.14": "/root/super-paqet/rollback/20261008T214503Z-latency1",
+      "89.45.68.118": "/root/super-paqet/rollback/20261008T214503Z-latency1"
+    }
+  },
+  "git_cleanup": {
+    "merged_refs_removed": [
+      "exploration/production-tuning-20261008",
+      "exploration/latency-read-ablation-20261008",
+      "integration/exp2-control-20261008",
+      "archive/completed-exp1-stream-batching-20261008"
+    ],
+    "unmerged_archives_retained": true,
+    "old_exploration_directory_retained_after_root_owned_file_removal_failure": true
+  },
+  "controller_failures": [
+    {
+      "attempt": 1,
+      "cause": "Owned standalone probe executable rejected by /run noexec",
+      "tunnel_modified": false,
+      "resolution": "Run probe executable from owned /root/super-paqet path; keep its private config in /run."
+    },
+    {
+      "attempt": 2,
+      "cause": "SSH exec acknowledgement stalled after Germany activation committed",
+      "resolution": "Bound entire SSH operation and reconcile fresh remote executable/config/health identities; did not repeat Germany restart."
+    }
+  ],
+  "acceptance_limits": [
+    "Finite correctness acceptance, not sustained full-capacity production benchmark or completed 24-hour stability qualification.",
+    "Local exact-release smoke has fixture settings recorded below; it is not a paired comparison or a clone of the full production YAML.",
+    "Logical KCP carriers activate lazily within four independent source slots per country.",
+    "Full native paired performance qualification is recorded separately in latency-qualification-2026-10-08.json."
+  ]
+}

@@ -1,36 +1,41 @@
 # Current deployment status
 
-All five hosts run **enterprise-2026.10.07-migration.4** under enabled
-`super-paqet.service`. Runtime source `90e98b1186646c3c56660616309e5fe5573e4208`,
-SHA-256 `633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f`.
-Both clients use four independently reserved automatic source ports per country,
-negotiated connection preservation, **10s stall / 15s retry / 5s probe** budgets.
-Each backend listener uses **two capture workers**. All retain S outbound / PA
-return, quoted null encryption, adaptation enabled, warn logging and profiling off.
+All five hosts run **enterprise-2026.10.09-latency.1** under enabled
+`super-paqet.service`. Runtime source `276c43a70873670a7e1665283620aba38594b1ab`,
+SHA-256 `256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958`.
+The release includes the selectively reviewed integration and direct-read latency
+fix. Existing config and tunnel unit/drop-in bytes remain unchanged: four
+independent automatic source slots per country, negotiated connection preservation,
+**10s stall / 15s retry / 5s probe**, two backend capture workers, S outbound / PA
+return, quoted null encryption, adaptation enabled, warning logs and profiling off.
+Logical carriers activate lazily inside the four-slot pool.
 
 All six routes passed two authenticated 1 MiB Reality downloads after rollout.
-Actual-host config validation, exact running-image hashes, twelve distinct ports
-per client, stable Xray process identities and zero automatic restarts were
-verified. Temporary rollback timers were disarmed and staged/probe files removed;
-complete rollback archives remain. See the
-[rollout report](MIGRATION-DEPLOYMENT-2026-10-07.md),
-[receipts](migration-deployment-evidence-2026-10-07.json) and
-[accepted snapshots](deployed/README.md).
-This finite live check does not establish sustained busy-customer capacity or
-one-day stability. Earlier observations below describe their identified versions.
+Actual-host config validation, exact running/disk hashes, unchanged backend Xray
+process identities, active/enabled services and zero automatic restarts were
+verified. Temporary rollback timers were disarmed and owned staged/probe files
+removed; complete rollback archives remain. See the
+[9 October rollout](LATENCY-DEPLOYMENT-2026-10-09.md),
+[receipts](latency-deployment-evidence-2026-10-09.json) and
+[accepted configuration snapshots](deployed/README.md).
+This finite check does not establish sustained full-capacity customer traffic or
+one-day stability.
 
-All five hosts now have independent, enabled ten-second observers and private
-rotating metric/journal archives through **2026-10-08 19:14:08 UTC**. Production
-stays at warning logs with profiling off. Installing and cleaning the observers
-left all tunnel configs/PIDs and Xray process identities unchanged. See the
-[current observation window and tomorrow's review](PRODUCTION-OBSERVATION-2026-10-07.md).
+All five independent ten-second observers now retain private metric/journal
+archives beneath `/var/log/super-paqet-watch/latency1-20261008T220541Z/` until
+**2026-10-09 22:05:41 UTC**. Initial samples and journals were verified;
+installation left all tunnel/config/binary/Xray identities unchanged. No completed
+24-hour result is claimed. The earlier window ended 8 October 19:14 UTC; earlier
+observations below describe their identified versions.
+
+## Earlier investigation and local qualification
 
 The [8 October production review](PRODUCTION-REVIEW-2026-10-08.md) covers the
-first three hours of this window: all twelve authenticated transfer checks passed,
+first three hours of the earlier window: all twelve authenticated transfer checks passed,
 with no process restarts or OOM events. France suffered a roughly minute-long
 carrier incident; four migrations retained sessions and two used replacement
-after the originals disappeared. Production settings remain unchanged. The full
-day is still in progress; this is not an incident-free stability pass.
+after the originals disappeared. Production settings remained unchanged at that checkpoint. That report did not
+complete the full day and was not an incident-free stability pass.
 
 ## Reviewed integration candidate
 
@@ -41,7 +46,8 @@ one existing pressure word. It preserves payload snapshots and excludes exp1
 read batching after completing and rejecting that experiment. Native local
 candidate source `c1aee36`, SHA-256
 `2962659362143ade1aec169f06991000b2f49e06f791d5adeb2a70db50831ee2`.
-Production remains migration.4; this is a source integration, not a rollout.
+This was local source qualification; its selected changes are now included in
+the latency.1 deployment above.
 See [all integration receipts](integration-qualification-2026-10-08.json),
 including adverse results, fixture corrections and finite acceptance limits.
 
@@ -59,7 +65,7 @@ Two-worker uncapped bulk medians stay within 0.3%, while churn, representative
 WAN, 10,000 held flows and native/race live reload pass correctness. The short
 adverse reordering result remains visible beside its longer favorable repeat.
 See [all 40 follow-up workloads](latency-qualification-2026-10-08.json).
-Production binaries/configs remain unchanged; fleet qualification is separate.
+This local qualification preceded the accepted latency.1 fleet deployment above.
 
 ## Recovery-grace candidate
 
@@ -67,10 +73,12 @@ The newer [receive-processing investigation](RECEIVE-PATH-2026-10-08.md) retains
 that candidate's bounded recovery grace and adds a locally tested receive-only
 optimization. Both experimental admission policies were reverted. Three
 CPU-controlled pairs measured 3.887 to 4.648 Gbit/s median upload and 3.315 to
-3.381 Gbit/s download. Follow-up WAN comparisons remain in progress. Neither
-candidate is deployed; production continues running migration.4.
+3.381 Gbit/s download. WAN comparisons were still in progress at that checkpoint.
+Selected receive/recovery changes were subsequently reviewed and integrated;
+see the integration and latency rollout above.
 
-The next candidate is locally qualified and **not deployed**. It adds first-cause
+At that checkpoint the candidate was locally qualified and **not deployed**.
+It adds first-cause
 warning diagnostics and optional, bounded mux recovery grace after migration
 negotiation. Default zero retains ordinary keepalive expiry. Production configs
 and executables remain unchanged. See the

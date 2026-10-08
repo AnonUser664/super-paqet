@@ -1,9 +1,9 @@
 # Documentation
 
-Start with [current status](STATUS.md). Migration.4 is deployed on five hosts
+Start with [current status](STATUS.md). Latency.1 is deployed on five hosts
 with four independent client source ports per country, two backend capture
 workers and ten-second stall detection. The finite rollout passed;
-the earlier one-day observation has no completed stability result here,
+a renewed 24-hour metric/journal window is running,
 all six paths pass authenticated checks, and country peers use S outbound / PA
 return. 171.22.132.226 is France; the historical Netherlands diagnosis describes
 that same host. Measured capacity limitations remain explicit in the status and
@@ -12,11 +12,12 @@ that same host. Measured capacity limitations remain explicit in the status and
 | Document | Purpose |
 |---|---|
 | [STATUS.md](STATUS.md) | Running version, current paths and outstanding work. |
-| [PRODUCTION-OBSERVATION-2026-10-07.md](PRODUCTION-OBSERVATION-2026-10-07.md) | Current five-host metric/journal window, cleanup and tomorrow's review instructions. |
+| [Latest rollout — 9 October](LATENCY-DEPLOYMENT-2026-10-09.md) | Accepted five-host latency.1 deployment, unchanged configs, cleanup, rollback and renewed observer window. |
+| [PRODUCTION-OBSERVATION-2026-10-07.md](PRODUCTION-OBSERVATION-2026-10-07.md) | Earlier five-host observer window, retention and review procedures. |
 | [Production review — 8 October](PRODUCTION-REVIEW-2026-10-08.md) | Three-hour customer-load review, France recovery incident, profiling and six-route acceptance. |
 | [Production follow-up — 8 October](PRODUCTION-FOLLOWUP-2026-10-08.md) | Fifteen-hour review, six-route checks, Finland receiver backpressure and measured transmit-queue pressure. |
-| [Recovery grace — 8 October](RECOVERY-GRACE-2026-10-08.md) | Opt-in extended-outage preservation, bounded expiry, diagnostic causes and local regression measurements; not deployed. |
-| [Receive processing — 8 October](RECEIVE-PATH-2026-10-08.md) | Receive-only optimization, rejected admission experiments, measurement controls and remaining WAN checks; not deployed. |
+| [Recovery grace — 8 October](RECOVERY-GRACE-2026-10-08.md) | Opt-in extended-outage preservation, bounded expiry, diagnostic causes and local regression measurements before selective integration. |
+| [Receive processing — 8 October](RECEIVE-PATH-2026-10-08.md) | Receive-only optimization, rejected admission experiments, measurement controls and remaining WAN checks at that checkpoint. |
 | [Coordinated exploration — 8 October](EXPLORATION-2026-10-08.md) | Branch checkpoint, failed backpressure latency gate, packed-pressure alternative and cross-agent test coordination. |
 | [Selective integration — 8 October](INTEGRATION-REVIEW-2026-10-08.md) | Exp1 completion, exp2 ownership corrections, rejected shortcuts and combined qualification. |
 | [Capture-worker coverage — 8 October](MULTIWORKER-2026-10-08.md) | Actual two-worker traffic evidence, native/race reload checks and unresolved paced mixed-load latency gate. |
@@ -39,7 +40,7 @@ that same host. Measured capacity limitations remain explicit in the status and
 
 The [customer incident report](PRODUCTION-INCIDENT-2026-10-06.md) records observed
 failures, fixes, attribution limits and the monitoring window. Latest same-binary
-local qualification and rollout: [migration deployment receipts](migration-deployment-evidence-2026-10-07.json).
+local smoke and rollout: [latency deployment receipts](latency-deployment-evidence-2026-10-09.json).
 
 Earlier compact evidence: [release](final-deployment-evidence.json),
 [clean bulk](clean-null-current-evidence.json),

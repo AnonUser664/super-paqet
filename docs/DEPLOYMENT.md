@@ -1,7 +1,7 @@
 # Deployment
 
 Five hosts run the current enterprise release under enabled systemd services.
-The current migration.4 [rollout report](MIGRATION-DEPLOYMENT-2026-10-07.md)
+The current latency.1 [rollout report](LATENCY-DEPLOYMENT-2026-10-09.md)
 records actual-host validation, accepted application checks and rollback archives.
 The excluded 65.109.192.172 backend is not contacted. France and the new
 Finland address are working with the qualified directional SYN profile;
@@ -70,12 +70,12 @@ Validate a staged config before atomic replacement. Automatic polling or
 `systemctl reload super-paqet` reconciles it; check `config.applied` and revision
 metrics. See [LIVE-RELOAD.md](LIVE-RELOAD.md) for affected-stream behavior.
 
-The migration.4 rollback archive, including a restore script, remains beneath
-`/root/super-paqet/rollback/20261007T182238Z-migration4/` on every host.
+The latest pre-latency-upgrade rollback archive, including a restore script, remains beneath
+`/root/super-paqet/rollback/20261008T214503Z-latency1/` on every host.
 Earlier accepted archives and incident evidence are also retained. A full binary rollback requires
 stopping the service, restoring binary/config/unit, daemon-reloading, restarting
 and verifying authenticated application traffic. Detailed procedures are in
-[OPERATIONS.md](OPERATIONS.md). Migration deployment cleanup removed its owned
+[OPERATIONS.md](OPERATIONS.md). Latest deployment cleanup removed its owned
 staged files and temporary probes; it retained rollback and incident archives.
 
 Finland also installs the owned `20-finland-address.conf` service drop-in to

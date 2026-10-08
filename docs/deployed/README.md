@@ -1,17 +1,19 @@
 # Recorded production configuration
 
-All five hosts run `enterprise-2026.10.07-migration.4`, runtime source
-`90e98b1186646c3c56660616309e5fe5573e4208`, SHA-256:
-`633750998daa210ca8499ad5081bcb51a775b5c6e713758d709313606f37bd0f`.
-These YAML files were read back from accepted hosts and their exact hashes are in
-[deployment receipts](../migration-deployment-evidence-2026-10-07.json).
+All five hosts run `enterprise-2026.10.09-latency.1`, runtime source
+`276c43a70873670a7e1665283620aba38594b1ab`, SHA-256:
+`256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958`.
+These YAML files remain byte-for-byte identical to the accepted live configs;
+their migration.4 comments describe configuration provenance. Exact config hashes
+and unchanged tunnel unit/drop-in checks are recorded in the
+[latest deployment receipts](../latency-deployment-evidence-2026-10-09.json).
 
 Both clients have country peers `germany`, `finland`, `france`, with four slots
 per country, separate automatically reserved source ports, negotiated live-session
 preservation and **10s stall / 15s retry / 5s probe** budgets. Logical KCP/mux
-carriers open lazily as traffic uses their slots; twelve distinct active source
-ports per client were verified during acceptance. Recovery/restart can rotate
-ports. Identical reload retains effective reservations.
+carriers open lazily as traffic uses their slots. All twelve active ports were
+exercised on busy client .118; quiet .14 had two logical carriers active per country
+during the latest acceptance. Recovery/restart can rotate ports. Identical reload retains effective reservations.
 
 Backend listeners use two capture workers, matching their two-vCPU hosts.
 Germany retains both 116.202.177.233 and 91.107.251.85 listeners; clients use the
@@ -31,17 +33,18 @@ changed during rollout; recorded process identities stayed unchanged.
 `/etc/systemd/system/super-paqet.service.d/20-finland-address.conf` to restore its
 assigned secondary IPv4 before binding. No reboot test was performed.
 
-Each host retains a full pre-migration binary/config/unit archive and restore
-script at `/root/super-paqet/rollback/20261007T182238Z-migration4/`.
+Each host retains a full pre-latency-upgrade binary/config/unit archive and restore
+script at `/root/super-paqet/rollback/20261008T214503Z-latency1/`.
 The rollout's temporary automatic-rollback timers are inactive. Staged files and
 owned standalone client probe binaries were removed; prior incident archives and
 observer spools remain available. See the
-[deployment report](../MIGRATION-DEPLOYMENT-2026-10-07.md) for accepted live checks,
+[deployment report](../LATENCY-DEPLOYMENT-2026-10-09.md) for accepted live checks,
 cleanup and qualification limits.
 
-`super-paqet-watch.service` is the independent enabled observer unit installed on
-all five hosts. It retains private metrics and journal copies until 8 October
-19:14:08 UTC without changing the tunnel configuration. See the
-[observation report](../PRODUCTION-OBSERVATION-2026-10-07.md) for retention, paths,
-cleanup and review instructions. This unit's fixed deadline is specific to this
+`super-paqet-watch.service` is the independent enabled observer unit renewed on
+all five hosts. It retains private metrics and journal copies until **9 October
+22:05:41 UTC** under `/var/log/super-paqet-watch/latency1-20261008T220541Z/` without
+changing the tunnel configuration or process identity. See the
+[latest rollout report](../LATENCY-DEPLOYMENT-2026-10-09.md) for retention, paths,
+cleanup and acceptance limits. This unit's fixed deadline is specific to this
 window; renew it explicitly for another observation period.
