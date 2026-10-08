@@ -90,11 +90,8 @@ func TestBusyOpeningRetriesHealthyCarrier(t *testing.T) {
 	stalled, first := openingCarrier(t, 1101)
 	healthy, second := openingCarrier(t, 1102)
 	oldLocal, oldRemote := holdOpeningCarrier(t, stalled, first)
-	// Keep the healthy sibling busier so this test still forces an actual
-	// retry instead of letting improved live-population balancing avoid it.
-	holdOpeningCarrier(t, healthy, second)
-	holdOpeningCarrier(t, healthy, second)
-	healthy.score.Store(busyCarrier)
+	// Force the stalled lane to be the first choice independently of scheduling.
+	healthy.score.Store(1)
 	p := &peer{engine: e, endpoint: Endpoint{MaxSessions: 2}, slots: []*slot{stalled, healthy}}
 	failures := make(chan error, 2)
 	go func() {
@@ -164,10 +161,8 @@ func TestTransportReceiptRetainsTargetDialBudget(t *testing.T) {
 	e := reloadFixture(t)
 	s, server := openingCarrier(t, 1201)
 	holdOpeningCarrier(t, s, server)
-	spare, spareServer := openingCarrier(t, 1202)
-	holdOpeningCarrier(t, spare, spareServer)
-	holdOpeningCarrier(t, spare, spareServer)
-	spare.score.Store(busyCarrier)
+	spare, _ := openingCarrier(t, 1202)
+	spare.score.Store(1)
 	p := &peer{engine: e, endpoint: Endpoint{MaxSessions: 2}, slots: []*slot{s, spare}}
 	done := make(chan error, 1)
 	go func() {
@@ -234,9 +229,7 @@ func TestSYNSubmissionRetriesWithoutClosingBusyCarrier(t *testing.T) {
 	oldLocal, oldRemote := holdOpeningCarrier(t, stalled, first)
 	t.Cleanup(func() { gate.Close() })
 	healthy, second := openingCarrier(t, 1302)
-	holdOpeningCarrier(t, healthy, second)
-	holdOpeningCarrier(t, healthy, second)
-	healthy.score.Store(busyCarrier)
+	healthy.score.Store(1)
 	gate.blocked.Store(true)
 	p := &peer{engine: e, endpoint: Endpoint{MaxSessions: 2}, slots: []*slot{stalled, healthy}}
 	ack := make(chan error, 1)

@@ -76,6 +76,7 @@ def main():
     p.add_argument('--fec',type=int,nargs=2,default=[0,0],metavar=('DATA','PARITY'))
     p.add_argument('--iperf', action='store_true')
     p.add_argument('--iperf-rate-mbit', type=int, default=0, help='aggregate TCP offered rate per direction; divided across parallel streams, zero is unlimited')
+    p.add_argument('--pinned-lanes', action='store_true', help='use one peer per carrier and pin equal iperf streams to each; excludes pool-placement variance')
     p.add_argument('--iperf-directions', nargs='+', choices=['upload','download','bidirectional'], default=['upload','download','bidirectional'])
     p.add_argument('--direct-iperf', action='store_true', help='also measure the same virtual link without the tunnel')
     p.add_argument('--tcp-buffer-mib', type=int, default=0, help='namespace-only TCP autotuning ceiling')
@@ -123,6 +124,8 @@ def main():
     if (a.jitter_ms or a.reorder) and not a.delay_ms: p.error('jitter and reordering require delay')
     if a.burst_loss and a.loss: p.error('choose random or burst loss')
     if a.direct_iperf and not a.iperf: p.error('--direct-iperf requires --iperf')
+    if a.pinned_lanes and (not a.enterprise or not a.iperf or a.shared_source or a.functional or a.hold or a.direct_iperf or a.workers % a.sessions):
+        p.error('pinned-lanes requires enterprise independent-source iperf, divisible workers and no functional/hold/direct fixture')
     if not 0 <= a.iperf_rate_mbit <= 200000 or (a.iperf_rate_mbit and not a.iperf): p.error('iperf-rate-mbit requires iperf and must be 0..200000')
     if (a.restart or a.functional or a.mixed) and not a.enterprise: p.error('these workloads require --enterprise')
     if os.geteuid() != 0:
@@ -287,14 +290,24 @@ def main():
             client = f'peers:\n  remote:\n    address: 198.18.0.2:29999\n    key: benchmark-only-key\n    sessions: {a.sessions}\n    max_sessions: {a.max_sessions}\n    network: {{interface: spq-c, ipv4: {{addr: "198.18.0.1:0", router_mac: "02:00:00:00:00:02"}}}}\nforwards:\n'
             for i in range(8): client += f'  - {{listen: "127.0.0.1:{28080+i}", peer: remote, target: "127.0.0.{i+1}:18080"}}\n'
             server = f'listeners:\n  - address: 198.18.0.2:29999\n    sessions: {a.sessions}\n    max_sessions: {a.max_sessions}\n    key: benchmark-only-key\n    network: {{interface: spq-s, ipv4: {{addr: "198.18.0.2:29999", router_mac: "02:00:00:00:00:01"}}}}\n'
-            if a.source_ports is not None:
+            if a.pinned_lanes:
+                # Four carriers retain the same raw envelope and receiver,
+                # while one-slot peers make workload placement deterministic.
+                # Ordinary pool tests remain available to test admission itself.
+                peers = ''
+                for i in range(a.sessions):
+                    name = 'remote' if i == 0 else f'remote_lane_{i}'
+                    source = f'    source_ports: [{a.source_ports[i]}]\n' if a.source_ports is not None else ''
+                    peers += f'  {name}:\n    address: 198.18.0.2:29999\n{source}    key: benchmark-only-key\n    sessions: 1\n    max_sessions: 1\n    network: {{interface: spq-c, ipv4: {{addr: "198.18.0.1:0", router_mac: "02:00:00:00:00:02"}}}}\n'
+                client = 'peers:\n' + peers + 'forwards:' + client.split('forwards:', 1)[1]
+            if a.source_ports is not None and not a.pinned_lanes:
                 # Keep initial tuple values fixed for repeated comparisons;
                 # worker distribution must still be measured in each namespace.
                 # Recovery may reserve a fresh replacement source.
                 client=client.replace('    address:', '    source_ports: '+json.dumps(a.source_ports)+'\n    address:',1)
             if a.path_recovery:
                 recovery_fields='{enabled: true'+(', preserve_connections: true' if a.preserve_connections else '')+'}'
-                client=client.replace('    address:', '    path_recovery: '+recovery_fields+'\n    address:',1)
+                client=client.replace('    address:', '    path_recovery: '+recovery_fields+'\n    address:',-1 if a.pinned_lanes else 1)
             client += 'metrics: 127.0.0.1:29090\n'
             server += 'metrics: 127.0.0.1:29090\n'
             kcp_options=json.dumps({'block':a.block,'dshard':a.fec[0],'pshard':a.fec[1],**kcp_overrides})
@@ -323,7 +336,12 @@ def main():
                 client = client.replace('forwards:', peer2+'forwards:')
                 client = client.replace('metrics:', '  - {listen: "127.0.0.1:28088", peer: other, target: "127.0.0.1:18080"}\n  - {listen: "127.0.0.1:28090", peer: remote, target: "127.0.0.1:18081", protocol: udp}\n  - {listen: "127.0.0.1:28091", peer: remote, target: "127.0.0.1:18082"}\nmetrics:')
             if a.iperf:
-                client = client.replace('metrics:', '  - {listen: "127.0.0.1:28092", peer: remote, target: "127.0.0.1:18083"}\n  - {listen: "127.0.0.1:28093", peer: remote, target: "127.0.0.1:18084"}\nmetrics:')
+                forwards = ''
+                for i in range(a.sessions if a.pinned_lanes else 1):
+                    name = 'remote' if i == 0 else f'remote_lane_{i}'
+                    for offset in (0, 1):
+                        forwards += f'  - {{listen: "127.0.0.1:{28092+2*i+offset}", peer: {name}, target: "127.0.0.1:{18083+2*i+offset}"}}\n'
+                client = client.replace('metrics:', forwards + 'metrics:')
             if a.backend=='pcap':
                 client=client.replace('network: {interface:', 'network: {backend: pcap, interface:')
                 server=server.replace('network: {interface:', 'network: {backend: pcap, interface:')
@@ -337,7 +355,7 @@ def main():
             if a.server_memory_mib:server+=f'limits: {{memory_mib: {a.server_memory_mib}}}\n'
             if a.conversation_listener and not a.shared_source:server=server.replace('  - address:', '  - shared_source: true\n    address:')
             if a.packet_workers is not None:server=server.replace('    address:', f'    packet_workers: {a.packet_workers}\n    address:',1)
-            client=client.replace('network: {', f'network: {{tcp: {{local_flag: [{a.client_flag}], remote_flag: [{a.server_flag}]}}, ',1)
+            client=client.replace('network: {', f'network: {{tcp: {{local_flag: [{a.client_flag}], remote_flag: [{a.server_flag}]}}, ',-1 if a.pinned_lanes else 1)
             server=server.replace('network: {', f'network: {{tcp: {{local_flag: [{a.server_flag}], remote_flag: [{a.client_flag}]}}, ',1)
         (out/'client.yaml').write_text(client); (out/'server.yaml').write_text(server)
         if a.socket_buffer_mib:
@@ -474,6 +492,9 @@ def main():
                 specs = [(name,28092,18083,flags)]
                 if name=='bidirectional':
                     specs=[(name+'-upload',28092,18083,[]),(name+'-download',28093,18084,['-R'])]
+                if a.pinned_lanes:
+                    specs = [(label+f'-lane-{i}', listen_port+2*i, target_port+2*i, flags)
+                             for i in range(a.sessions) for label, listen_port, target_port, flags in specs]
                 iperf_servers=[spawn(s,'iperf-server-'+label,iperf,'-s','-1','-p',str(target_port)) for label,_,target_port,_ in specs]
                 time.sleep(.3)
                 sample()
@@ -484,7 +505,8 @@ def main():
                 # implementation must not be judged at a different demand level
                 # when comparing latency beside bulk traffic.
                 offered_rate = ['-b', str(max(1, a.iperf_rate_mbit*1000000//a.workers))] if a.iperf_rate_mbit else []
-                iperf_clients=[spawn(c,'iperf-'+label,iperf,'-c',('fd42:198:18::2' if a.ipv6 else '198.18.0.2') if direct else '127.0.0.1','-p',str(target_port if direct else listen_port),'-P',str(a.workers),'-t',str(a.duration),'-O',str(a.warmup),'-J',*offered_rate,*test_flags) for label,listen_port,target_port,test_flags in specs]
+                streams_per_lane = a.workers//a.sessions if a.pinned_lanes else a.workers
+                iperf_clients=[spawn(c,'iperf-'+label,iperf,'-c',('fd42:198:18::2' if a.ipv6 else '198.18.0.2') if direct else '127.0.0.1','-p',str(target_port if direct else listen_port),'-P',str(streams_per_lane),'-t',str(a.duration),'-O',str(a.warmup),'-J',*offered_rate,*test_flags) for label,listen_port,target_port,test_flags in specs]
                 http_churn=None
                 if name=='bidirectional' and a.duplex_http:
                     http_churn=spawn(c,'duplex-http',str(ROOT/'build/spq-bench'),'-mode','http-churn','-addr','127.0.0.1:28080','-workers','4','-duration',f'{a.duration+a.warmup}s')
@@ -525,10 +547,29 @@ def main():
                 cpu = {side:round((peaks[side]['cpu_seconds']-cpu_before.get(side,0))/observed_seconds,3) for side in ('client','server') if side in peaks}
                 report=iperf_reports[0]
                 end=report['end']
-                if name=='bidirectional':
+                if a.pinned_lanes:
+                    def aggregate(direction):
+                        # Every lane has its own unambiguous sender/receiver
+                        # pair. Sum received payload rates, retaining original
+                        # reports so omissions/startup boundaries stay visible.
+                        selected = [r['end'] for r, spec in zip(iperf_reports, specs)
+                                    if name != 'bidirectional' or ('-R' in spec[3]) == direction]
+                        combined = dict(selected[0])
+                        for field in ('sum_sent', 'sum_received'):
+                            combined[field] = dict(selected[0][field])
+                            for key in ('bytes', 'bits_per_second'):
+                                combined[field][key] = sum(e[field][key] for e in selected)
+                        combined['streams'] = [stream for e in selected for stream in e['streams']]
+                        return combined
+                    end = aggregate(False)
+                    if name == 'bidirectional':
+                        reverse = aggregate(True)
+                        end.update({'sum_sent_bidir_reverse': reverse['sum_sent'], 'sum_received_bidir_reverse': reverse['sum_received']})
+                elif name=='bidirectional':
                     end={**end,'sum_sent_bidir_reverse':iperf_reports[1]['end']['sum_sent'],'sum_received_bidir_reverse':iperf_reports[1]['end']['sum_received']}
                 row={'iperf':name,'end':end,'tunnel_cpu_cores':cpu,'idle_wait_seconds':round(idle_wait,3)}
                 if name=='bidirectional':row.update({'method':'concurrent_unidirectional','direction_reports':iperf_reports})
+                if a.pinned_lanes:row.update({'pinned_lanes':a.sessions,'lane_reports':iperf_reports})
                 reports.append(row)
         if a.capture:
             decoded = ns(s,'tcpdump','-n','-vv','-r',str(out/'wire.pcap')).stdout

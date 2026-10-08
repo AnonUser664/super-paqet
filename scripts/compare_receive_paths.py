@@ -92,13 +92,15 @@ def main():
     parser.add_argument('--cases', choices=list(CASES), nargs='+', default=[x for x in CASES if x != 'hold-100000'])
     parser.add_argument('--repetitions', type=int, default=2)
     parser.add_argument('--duration', type=int, default=15)
+    parser.add_argument('--warmup', type=int, default=0, help='omitted iperf startup seconds; HTTP/capacity cases are unchanged')
     parser.add_argument('--client-procs', type=int, default=4)
     parser.add_argument('--server-procs', type=int, default=2)
     parser.add_argument('--profile', action='store_true', help='collect CPU profiles on the first repetition')
+    parser.add_argument('--pinned-lanes', action='store_true', help='pin equal iperf streams to each carrier, leaving non-iperf tests unchanged')
     args = parser.parse_args()
     if os.geteuid() != 0:
         parser.error('run as root; only owned namespaces are changed')
-    if args.duration < 12 or min(args.repetitions, args.client_procs, args.server_procs) < 1:
+    if args.duration < 12 or args.warmup < 0 or min(args.repetitions, args.client_procs, args.server_procs) < 1:
         parser.error('duration must be >=12 and repetitions/core budgets positive')
     if len(set(args.cases)) != len(args.cases):
         parser.error('cases must be unique so each receipt has one workload identity')
@@ -125,6 +127,10 @@ def main():
                            '--block', 'null', '--kcp-options', json.dumps(KCP), '--output', str(directory), *CASES[case]]
                 if args.profile and repetition == 0:
                     command.append('--profile')
+                if args.warmup and '--iperf' in CASES[case]:
+                    command.extend(['--warmup', str(args.warmup)])
+                if args.pinned_lanes and '--iperf' in CASES[case]:
+                    command.append('--pinned-lanes')
                 print('START', label, flush=True)
                 started = time.monotonic()
                 with (directory / 'runner.log').open('w') as log:

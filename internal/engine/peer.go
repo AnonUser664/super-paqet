@@ -76,8 +76,7 @@ type peer struct {
 // slot retains a source reservation and an atomically published carrier generation, plus
 // pressure score/backoff.
 type slot struct {
-	// Cached bulk/traffic pressure. Live stream populations are sampled through
-	// the mux's atomic gauge rather than waiting for the next controller tick.
+	// Cached stream/traffic pressure; selection need not scan every stream or packet counter.
 	score atomic.Uint64
 	// Kernel port reservation owned by this slot until pool teardown.
 	guard io.Closer
@@ -424,42 +423,22 @@ func (p *peer) close() {
 // sustained bulk work.
 const busyCarrier = uint64(1) << 63
 
-// admissionScore combines cached bulk pressure with the current mux population.
-// A 250 ms old stream count can send an entire opening burst to a formerly idle
-// lane. This uses only atomic reads: no KCP/receive-map locks, per-stream scans,
-// allocations or extra controller ticks are needed on the admission path.
-// Bulk pressure breaks population ties rather than excluding a lane for the
-// entire burst. Otherwise recently hot/control-only lanes can strand a capture
-// worker while their siblings take every bulk opening. Pool growth separately
-// retains the cached busy bit and its configured carrier ceiling.
-func (s *slot) admissionScore() uint64 {
-	score := s.score.Load()
-	population := score &^ busyCarrier
-	if conn := s.conn.Load(); conn != nil {
-		population = uint64(conn.Session.NumStreamsSnapshot())
-	}
-	return min(population, uint64(^uint32(0)))*2 + score>>63
-}
-
-// Admission retains health precedence, balances live population and uses cached
-// bulk hysteresis to break equally populated ties.
+// Admission reads cached pressure, avoiding KCP locks and snapshot allocations
+// on the path that establishes hundreds of thousands of forwards.
 func (p *peer) bestSlotLocked(excluded map[*slot]bool) *slot {
 	start := int((p.next.Add(1) - 1) % uint64(len(p.slots)))
 	var best *slot
-	var bestScore uint64
 	for i := 0; i < len(p.slots); i++ {
 		candidate := p.slots[(start+i)%len(p.slots)]
 		if excluded[candidate] {
 			continue
 		}
-		score := candidate.admissionScore()
 		// Prefer a progressing tuple over one with repeated transport failures;
 		// retain a fallback when every tuple is suspect so restored paths can
 		// still prove progress before a replacement is ready.
 		if best == nil || (best.suspect.Load() && !candidate.suspect.Load()) ||
-			(best.suspect.Load() == candidate.suspect.Load() && score < bestScore) {
+			(best.suspect.Load() == candidate.suspect.Load() && candidate.score.Load() < best.score.Load()) {
 			best = candidate
-			bestScore = score
 		}
 	}
 	return best

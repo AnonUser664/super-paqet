@@ -207,10 +207,6 @@ type Session struct {
 	recoveryUntil    atomic.Int64
 	recoveryStarts   atomic.Uint64
 	recoveryDeadline time.Time
-	// Published under streamLock on membership changes. Admission can sample
-	// current openings without taking the receive map lock or waiting for a
-	// controller tick; existing hot fields retain their offsets.
-	streamCount atomic.Uint32
 }
 
 // newSession initializes mux queues/credits/lifecycle and launches shared session tasks around
@@ -312,7 +308,6 @@ func (s *Session) openStream(ctx context.Context) (*Stream, error) {
 		err = io.ErrClosedPipe
 	default:
 		s.streams[sid] = stream
-		s.streamCount.Store(uint32(len(s.streams)))
 	}
 	s.streamLock.Unlock()
 	if err != nil {
@@ -472,18 +467,6 @@ func (s *Session) NumStreams() int {
 	return len(s.streams)
 }
 
-// NumStreamsSnapshot returns the most recently published stream population
-// without locking the receive map. Adds/removes publish under streamLock, so
-// pending SYNs count before their write completes and failed opens disappear
-// during abort. Concurrent changes may occur after any snapshot; callers must
-// not use this advisory gauge to decide whether closing a session is safe.
-func (s *Session) NumStreamsSnapshot() int {
-	if s.IsClosed() {
-		return 0
-	}
-	return int(s.streamCount.Load())
-}
-
 // SetDeadline sets a deadline used by Accept* calls.
 // A zero time value disables the deadline.
 func (s *Session) SetDeadline(t time.Time) error {
@@ -528,7 +511,6 @@ func (s *Session) streamClosed(sid uint32) {
 		}
 	}
 	delete(s.streams, sid)
-	s.streamCount.Store(uint32(len(s.streams)))
 	s.removeCredit(sid)
 }
 
@@ -580,7 +562,6 @@ func (s *Session) recvLoop() {
 			if _, ok := s.streams[sid]; !ok {
 				stream := newStream(sid, s.config.MaxFrameSize, s)
 				s.streams[sid] = stream
-				s.streamCount.Store(uint32(len(s.streams)))
 				accepted = stream
 			}
 			s.streamLock.Unlock()
