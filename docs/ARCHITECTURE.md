@@ -345,6 +345,16 @@ There are no per-ACK allocations; retained entries add eight bytes. The linear
 algorithm is the differential-test oracle. Retransmission evidence and wire
 encoding remain unchanged.
 
+The receive side of `third_party/kcp-go/kcp.go` sends unique, in-order segments
+straight into the read FIFO when the receive window has room. Reordered input
+retains the original heap and duplicate index. `drainReceiveBuffer` inspects the
+heap root before popping a contiguous segment, so gaps and full reader queues
+do not cause repeated pop/reinsert allocations. Payload storage remains owned
+and copied; there is no borrowed-buffer lifetime or new scheduling policy.
+`receive_path_test.go` retains the original parser/reader as an independent
+oracle for ordering, window advancement, fragmentation, scratch reuse and
+byte-identical feedback. Admission experiments are excluded from this runtime.
+
 `small_write_flush` is a lock-protected scheduling exception for bounded logical
 writes under bulk batching. It preserves FIFO byte order and the ACK policy;
 zero preserves preset behavior. Reliability reload updates it in place. Static

@@ -25,28 +25,27 @@ func TestBufferPoolGetSize(t *testing.T) {
 	}
 }
 
-// TestBufferPoolPutAndReuse checks Buffer Pool Put And Reuse so a change cannot silently
-// weaken the recorded regression contract.
-func TestBufferPoolPutAndReuse(t *testing.T) {
+// TestBufferPoolPutRestoresSize checks shortened-slice return and retrieval.
+// sync.Pool may discard entries at any time (including deliberate drops under
+// the race detector), so identity reuse is an optimization, not its contract.
+func TestBufferPoolPutRestoresSize(t *testing.T) {
 	bp := newBufferPool(mtuLimit)
 
 	buf := bp.Get()
 	// Modify buffer to track it
 	buf[0] = 99
 
-	// Put back to pool
-	bp.Put(buf)
-
-	// Get again; it should reuse the same buffer
-	buf2 := bp.Get()
-
-	// Check if it is reused by comparing pointer address
-	if &buf2[0] != &buf[0] {
-		t.Fatalf("expected buffer reuse, but got a new one")
-		return
+	// Return a shortened payload slice; a cached entry must regain full size.
+	if err := bp.Put(buf[:17]); err != nil {
+		t.Fatal(err)
 	}
 
-	if buf2[0] != 99 {
+	// A reused entry and a fresh allocation must both be ready for a full MTU.
+	buf2 := bp.Get()
+	if len(buf2) != mtuLimit || cap(buf2) != mtuLimit {
+		t.Fatalf("returned buffer size: len=%d cap=%d", len(buf2), cap(buf2))
+	}
+	if &buf2[0] == &buf[0] && buf2[0] != 99 {
 		t.Fatalf("expected reused buffer to keep previous data")
 		return
 	}

@@ -37,6 +37,7 @@ CASES = {
     'churn': ['--mode', 'http-churn', '--workers', '64'],
     'duplex-latency': ['--mode', 'bulk', '--iperf', '--iperf-directions', 'bidirectional', '--duplex-http'],
     'bounded-duplex': ['--mode', 'bulk', '--iperf', '--iperf-directions', 'bidirectional', '--duplex-http', '--iperf-rate-mbit', '1000', '--warmup', '3'],
+    'bounded-duplex-one-worker': ['--mode', 'bulk', '--packet-workers', '1', '--iperf', '--iperf-directions', 'bidirectional', '--duplex-http', '--iperf-rate-mbit', '1000', '--warmup', '3'],
     'asymmetric': ['--mode', 'both', '--workers', '16', '--bridge', '--delay-ms', '40', '--loss', '.5', '--reorder', '5', '--rate-mbit', '50', '--down-rate-mbit', '10', '--queue-packets', '2048', '--seed', '804'],
     'high-delay': ['--mode', 'http-churn', '--workers', '16', '--bridge', '--delay-ms', '120', '--rate-mbit', '20', '--queue-packets', '2048', '--seed', '805'],
     'reorder': ['--mode', 'both', '--workers', '16', '--bridge', '--delay-ms', '40', '--jitter-ms', '20', '--reorder', '50', '--rate-mbit', '100', '--queue-packets', '4096', '--seed', '806'],
@@ -95,6 +96,9 @@ def main():
     parser.add_argument('--warmup', type=int, default=0, help='omitted iperf startup seconds; HTTP/capacity cases are unchanged')
     parser.add_argument('--client-procs', type=int, default=4)
     parser.add_argument('--server-procs', type=int, default=2)
+    parser.add_argument('--client-cpus', default='')
+    parser.add_argument('--server-cpus', default='')
+    parser.add_argument('--workload-cpus', default='')
     parser.add_argument('--profile', action='store_true', help='collect CPU profiles on the first repetition')
     parser.add_argument('--pinned-lanes', action='store_true', help='pin equal iperf streams to each carrier, leaving non-iperf tests unchanged')
     args = parser.parse_args()
@@ -131,6 +135,9 @@ def main():
                     command.extend(['--warmup', str(args.warmup)])
                 if args.pinned_lanes and '--iperf' in CASES[case]:
                     command.append('--pinned-lanes')
+                for option in ('client-cpus', 'server-cpus', 'workload-cpus'):
+                    cpus = getattr(args, option.replace('-', '_'))
+                    if cpus:command.extend(['--'+option, cpus])
                 print('START', label, flush=True)
                 started = time.monotonic()
                 with (directory / 'runner.log').open('w') as log:

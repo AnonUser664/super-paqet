@@ -47,6 +47,9 @@ def main():
     p.add_argument('--server-memory-mib',type=int,default=0,help='optional backend soft Go memory budget')
     p.add_argument('--client-procs',type=int,default=0,help='optional client GOMAXPROCS for target-hardware qualification')
     p.add_argument('--server-procs',type=int,default=0,help='optional backend GOMAXPROCS for target-hardware qualification')
+    p.add_argument('--client-cpus', default='', help='optional comma-separated CPU affinity for client tunnels')
+    p.add_argument('--server-cpus', default='', help='optional comma-separated CPU affinity for backend tunnels')
+    p.add_argument('--workload-cpus', default='', help='optional comma-separated CPU affinity for generators/targets/profilers')
     p.add_argument('--packet-workers',type=int,help='explicit backend capture worker count for matched deployment tests')
     p.add_argument('--conversation-listener', action='store_true', help='retain the deployed conversation-aware listener with separate client source ports')
     p.add_argument('--client-flag', default='PA', help='client outer packet flags (use S for the deployed profile)')
@@ -112,6 +115,14 @@ def main():
     if a.path_recovery and not a.enterprise:p.error('path-recovery requires enterprise')
     if min(a.client_memory_mib,a.server_memory_mib)<0:p.error('memory budgets cannot be negative')
     if min(a.client_procs,a.server_procs)<0:p.error('process core budgets cannot be negative')
+    for cpu_list in (a.client_cpus, a.server_cpus, a.workload_cpus):
+        if cpu_list:
+            try:
+                cpus = [int(x) for x in cpu_list.split(',')]
+            except ValueError:
+                p.error('CPU affinity requires comma-separated integer CPU IDs')
+            if len(set(cpus)) != len(cpus) or not set(cpus) <= os.sched_getaffinity(0):
+                p.error('CPU affinity must contain distinct currently available CPU IDs')
     if a.packet_workers is not None and not 1<=a.packet_workers<=64:p.error('packet workers must be 1..64')
     if a.duration < 1 or a.workers < 1 or a.sessions < 1: p.error('duration, workers and sessions must be positive')
     if a.max_sessions is None: a.max_sessions = a.sessions
@@ -155,6 +166,8 @@ def main():
         f = open(out / (name+'.log'), 'w'); files.append(f)
         cores = a.client_procs if name in ('client','second-client') else a.server_procs if name in ('server','restarted-server') else 0
         if cores:args=('env',f'GOMAXPROCS={cores}',*args)
+        affinity = a.client_cpus if name in ('client','second-client') else a.server_cpus if name in ('server','restarted-server') else a.workload_cpus
+        if affinity: args=('taskset', '-c', affinity, *args)
         proc = subprocess.Popen(['ip', 'netns', 'exec', n, *args], stdout=f, stderr=subprocess.STDOUT)
         procs.append(proc)
         if name in ('target','server','client'): tracked[name]=proc

@@ -94,6 +94,17 @@ statistics, logs and cleanup. `--profile` records CPU profiles. `--warmup` separ
 iperf startup from its reported measurement interval. Scheduled epochs are
 recorded with their actual application times.
 
+`scripts/compare_receive_paths.py` alternates a control and candidate executable
+with the same transport settings. `--pinned-lanes` assigns equal iperf streams
+to each carrier through one-slot peers, removing pool-placement variation from
+that comparison. The ordinary fixture still tests the real admission policy.
+`--iperf-rate-mbit` in `netns_bench.py` controls aggregate offered TCP rate per
+direction; it is divided across parallel streams. Unlimited capacity tests and
+equal-rate latency tests answer different questions and should both be retained.
+Optional `--client-cpus`, `--server-cpus` and `--workload-cpus` pin only owned
+fixture processes. These are benchmark options, not application YAML settings.
+Record actual capture-worker distribution even with fixed source ports.
+
 ```sh
 make build bench-build
 sudo python3 scripts/stress_links.py --duration 20 --profile
