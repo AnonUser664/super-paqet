@@ -76,7 +76,8 @@ type peer struct {
 // slot retains a source reservation and an atomically published carrier generation, plus
 // pressure score/backoff.
 type slot struct {
-	// Cached stream/traffic pressure; selection need not scan every stream or packet counter.
+	// Cached bulk/traffic pressure. Live stream populations are sampled through
+	// the mux's atomic gauge rather than waiting for the next controller tick.
 	score atomic.Uint64
 	// Kernel port reservation owned by this slot until pool teardown.
 	guard io.Closer
@@ -423,22 +424,37 @@ func (p *peer) close() {
 // sustained bulk work.
 const busyCarrier = uint64(1) << 63
 
-// Admission reads cached pressure, avoiding KCP locks and snapshot allocations
-// on the path that establishes hundreds of thousands of forwards.
+// admissionScore combines cached bulk pressure with the current mux population.
+// A 250 ms old stream count can send an entire opening burst to a formerly idle
+// lane. This uses only atomic reads: no KCP/receive-map locks, per-stream scans,
+// allocations or extra controller ticks are needed on the admission path.
+func (s *slot) admissionScore() uint64 {
+	score := s.score.Load()
+	if conn := s.conn.Load(); conn != nil {
+		score = score&busyCarrier | uint64(conn.Session.NumStreamsSnapshot())
+	}
+	return score
+}
+
+// Admission retains health precedence and cached bulk hysteresis while using
+// live stream population to break ties between equally busy carriers.
 func (p *peer) bestSlotLocked(excluded map[*slot]bool) *slot {
 	start := int((p.next.Add(1) - 1) % uint64(len(p.slots)))
 	var best *slot
+	var bestScore uint64
 	for i := 0; i < len(p.slots); i++ {
 		candidate := p.slots[(start+i)%len(p.slots)]
 		if excluded[candidate] {
 			continue
 		}
+		score := candidate.admissionScore()
 		// Prefer a progressing tuple over one with repeated transport failures;
 		// retain a fallback when every tuple is suspect so restored paths can
 		// still prove progress before a replacement is ready.
 		if best == nil || (best.suspect.Load() && !candidate.suspect.Load()) ||
-			(best.suspect.Load() == candidate.suspect.Load() && candidate.score.Load() < best.score.Load()) {
+			(best.suspect.Load() == candidate.suspect.Load() && score < bestScore) {
 			best = candidate
+			bestScore = score
 		}
 	}
 	return best

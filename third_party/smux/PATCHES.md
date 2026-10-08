@@ -73,3 +73,7 @@ delivery, cancellation and deadlines.
   expiry, permanent read/write/protocol errors, idle retirement and deliberate
   close before cleanup obscures evidence. Deterministic watchdog and race tests
   cover negotiation, deadline boundaries, activity, flow control and first cause.
+* An atomic stream-population snapshot is published on local/remote registration
+  and removal for lock-free carrier admission. Pending SYNs count immediately;
+  failed opens and aborts remove their ownership. The ordinary locked NumStreams
+  API and safety-critical empty-session retirement retain their semantics.
