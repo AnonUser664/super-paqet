@@ -91,6 +91,12 @@ def main():
     p.add_argument('--bridge', action='store_true', help='shape a middle bridge instead of endpoint socket queues')
     p.add_argument('--output', default='build/bench')
     a = p.parse_args()
+    # Worktrees do not inherit ignored build dependencies. Reject a missing
+    # workload binary before creating namespaces or measuring an empty run.
+    if a.iperf:
+        iperf_path = ROOT/'build/iperf-local/bin/iperf3'
+        if not iperf_path.is_file() or not os.access(iperf_path, os.X_OK):
+            p.error('iperf requires executable build/iperf-local/bin/iperf3 in this worktree')
     if a.cold_read_bytes is not None and not 1 <= a.cold_read_bytes <= 16777216:
         p.error('cold read size must be 1..16777216 bytes')
     if a.flow_sample<1:p.error('flow sample must be positive')
@@ -541,6 +547,9 @@ def main():
                         sampled = True
                     if time.monotonic()>deadline: raise TimeoutError('iperf3 timed out')
                     time.sleep(.25)
+                for proc, (label, _, _, _) in zip(iperf_clients, specs):
+                    if proc.returncode:
+                        raise RuntimeError(f'iperf3 client {label} exited {proc.returncode}; inspect iperf-{label}.log')
                 iperf_reports=[json.loads((out/('iperf-'+label+'.log')).read_text()) for label,_,_,_ in specs]
                 for profiler in profiles:
                     if profiler.wait(timeout=30): raise RuntimeError('CPU profile collection failed')
