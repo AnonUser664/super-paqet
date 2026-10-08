@@ -109,7 +109,7 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 			}
 			fmt.Fprintf(w, "super_paqet_peer_carrier_suspect{%s} %d\nsuper_paqet_peer_carrier_recovery_pending{%s} %d\nsuper_paqet_peer_carrier_transport_failures_total{%s} %d\n", labels, suspect, labels, probing, labels, s.recoveryFailures.Load())
 			blocked := 0
-			if s.openingBlocked.Load() {
+			if s.score.Load()&blockedCarrier != 0 {
 				blocked = 1
 			}
 			fmt.Fprintf(w, "super_paqet_peer_carrier_opening_blocked{%s} %d\n", labels, blocked)

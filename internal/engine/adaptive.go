@@ -309,13 +309,15 @@ func (c *controller) cachePressure(conn *kcp.Conn, s kcplib.TransportStats, now 
 	streams := conn.Session.NumStreams()
 	_, _, receiveBlocked := conn.Session.ReceiveBufferStats()
 	blocked := receiveBlocked || s.RemoteWindow == 0
-	c.slot.openingBlocked.Store(blocked)
 	score := uint64(streams)
 	if traffic > 8192 || s.PendingBytes >= uint64(max(1, s.MSS)*2) || (traffic > 2048 && wait > uint64(100*time.Millisecond)) {
 		c.hotUntil = now.Add(max(2*time.Second, min(10*time.Second, time.Duration(s.SRTT)*4*time.Millisecond)))
 	}
 	if blocked || (streams > 0 && now.Before(c.hotUntil)) {
 		score += busyCarrier
+	}
+	if blocked {
+		score |= blockedCarrier
 	}
 	c.slot.score.Store(score)
 }

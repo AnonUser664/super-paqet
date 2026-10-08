@@ -107,10 +107,6 @@ type slot struct {
 	recoveryHealth carrierHealth
 	// One bounded post-move warning is sampled with ordinary carrier health.
 	migrationWatch migrationObservation
-	// Cached receive/remote-window backpressure. New openings need a reply on
-	// this ordered lane; favor an unblocked sibling without moving live streams.
-	// Appending preserves the offsets of existing hot admission/recovery fields.
-	openingBlocked atomic.Bool
 }
 
 // connection lazily creates or reuses a slot carrier, sends its flag setup and preserves
@@ -143,7 +139,6 @@ func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
 		c.Close()
 		s.conn.Store(nil)
 		s.score.Store(0)
-		s.openingBlocked.Store(false)
 	}
 	if time.Now().Before(s.retry) {
 		return nil, fmt.Errorf("peer reconnect backoff")
@@ -202,7 +197,6 @@ func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
 	}
 	// Publish only after control setup succeeded; other opens may now reuse this complete carrier generation.
 	s.conn.Store(c)
-	s.openingBlocked.Store(false)
 	if endpoint.PathRecovery.PreserveConnections {
 		p.engine.launch(func() { p.engine.negotiateMigration(p, c) })
 	}
@@ -375,7 +369,6 @@ func (p *peer) invalidate(s *slot, c *kcp.Conn) {
 		c.Close()
 		s.conn.Store(nil)
 		s.score.Store(0)
-		s.openingBlocked.Store(false)
 	}
 }
 
@@ -388,7 +381,6 @@ func (p *peer) invalidateIdle(s *slot, c *kcp.Conn) {
 		c.Close()
 		s.conn.Store(nil)
 		s.score.Store(0)
-		s.openingBlocked.Store(false)
 	}
 }
 
@@ -431,6 +423,12 @@ func (p *peer) close() {
 // sustained bulk work.
 const busyCarrier = uint64(1) << 63
 
+// blockedCarrier adds receive-capacity pressure inside the existing score word.
+// A blocked lane also sets busyCarrier, ranking above an ordinary busy lane.
+// Lower bits retain the stream count; configured connection limits are far
+// below bit 62. This preserves slot layout and the original admission loads.
+const blockedCarrier = uint64(1) << 62
+
 // Admission reads cached pressure, avoiding KCP locks and snapshot allocations
 // on the path that establishes hundreds of thousands of forwards. Capacity
 // backpressure ranks below transport health but before ordinary bulk pressure:
@@ -438,22 +436,17 @@ const busyCarrier = uint64(1) << 63
 func (p *peer) bestSlotLocked(excluded map[*slot]bool) *slot {
 	start := int((p.next.Add(1) - 1) % uint64(len(p.slots)))
 	var best *slot
-	var bestSuspect, bestBlocked bool
-	var bestScore uint64
 	for i := 0; i < len(p.slots); i++ {
 		candidate := p.slots[(start+i)%len(p.slots)]
 		if excluded[candidate] {
 			continue
 		}
-		suspect, blocked, score := candidate.suspect.Load(), candidate.openingBlocked.Load(), candidate.score.Load()
 		// Prefer a progressing tuple over one with repeated transport failures;
 		// retain a fallback when every tuple is suspect so restored paths can
 		// still prove progress before a replacement is ready.
-		if best == nil || (bestSuspect && !suspect) ||
-			(bestSuspect == suspect && ((bestBlocked && !blocked) ||
-				(bestBlocked == blocked && score < bestScore))) {
+		if best == nil || (best.suspect.Load() && !candidate.suspect.Load()) ||
+			(best.suspect.Load() == candidate.suspect.Load() && candidate.score.Load() < best.score.Load()) {
 			best = candidate
-			bestSuspect, bestBlocked, bestScore = suspect, blocked, score
 		}
 	}
 	return best

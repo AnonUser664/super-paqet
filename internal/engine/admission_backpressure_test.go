@@ -50,7 +50,7 @@ func TestAdmissionAvoidsFullReceiveLane(t *testing.T) {
 	c := &controller{slot: blocked}
 	s := kcplib.TransportStats{RemoteWindow: 4096, MSS: 1326}
 	c.cachePressure(blocked.conn.Load(), s, time.Now())
-	if !blocked.openingBlocked.Load() {
+	if blocked.score.Load()&blockedCarrier == 0 {
 		t.Fatal("sample did not publish real receive backpressure")
 	}
 	healthy, healthyServer := openingCarrier(t, 2103)
@@ -116,7 +116,7 @@ func TestAdmissionAvoidsFullReceiveLane(t *testing.T) {
 		time.Sleep(time.Millisecond)
 	}
 	c.cachePressure(blocked.conn.Load(), s, time.Now())
-	if blocked.openingBlocked.Load() || p.bestSlotLocked(nil) != blocked {
+	if blocked.score.Load()&blockedCarrier != 0 || p.bestSlotLocked(nil) != blocked {
 		t.Fatal("cleared lane did not return to ordinary pressure scoring")
 	}
 	if blocked.conn.Load().Session.IsClosed() {
@@ -131,12 +131,11 @@ func TestAdmissionBackpressureFallback(t *testing.T) {
 	paused, _ := openingCarrier(t, 2102)
 	c := &controller{slot: paused}
 	c.cachePressure(paused.conn.Load(), kcplib.TransportStats{MSS: 1326}, time.Now())
-	if !paused.openingBlocked.Load() || paused.score.Load() < busyCarrier {
+	if paused.score.Load()&blockedCarrier == 0 || paused.score.Load() < busyCarrier {
 		t.Fatal("remote receive-window pause was not published as capacity pressure")
 	}
 	other := &slot{}
-	other.openingBlocked.Store(true)
-	other.score.Store(busyCarrier + 10)
+	other.score.Store(busyCarrier | blockedCarrier | 10)
 	p := &peer{slots: []*slot{paused, other}}
 	if p.bestSlotLocked(nil) != paused {
 		t.Fatal("all-blocked fallback lost original pressure ordering")
@@ -144,7 +143,7 @@ func TestAdmissionBackpressureFallback(t *testing.T) {
 	if p.bestSlotLocked(map[*slot]bool{paused: true}) != other {
 		t.Fatal("opening exclusions were ignored")
 	}
-	other.openingBlocked.Store(false)
+	other.score.Store(busyCarrier + 10)
 	other.suspect.Store(true)
 	if p.bestSlotLocked(nil) != paused {
 		t.Fatal("capacity hint overrode transport health precedence")
