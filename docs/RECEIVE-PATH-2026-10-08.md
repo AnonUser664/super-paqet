@@ -38,7 +38,10 @@ matrix and fast-ACK differential controls also passed under the race detector.
 
 Private receipts, profiles and captures are retained under
 `build/receive-tuning-20261008/`; commands and compact measurements will be
-published with the completed follow-up. Do not reuse an output directory: the
+published with the completed follow-up. A partial
+[qualification snapshot](receive-path-qualification-2026-10-08.json) records
+203 completed workloads at the branch-split checkpoint; receive.5 qualification
+remains unfinished in that snapshot. Do not reuse an output directory: the
 runner refuses to overwrite an experiment. Earlier controller and recovery work
 is recorded in the incident, migration and recovery-grace reports linked below.
 
