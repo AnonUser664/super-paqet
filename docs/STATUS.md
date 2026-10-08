@@ -50,8 +50,16 @@ on both workers in 36 earlier comparisons and adds eight mixed-load comparisons,
 native live reload and race-instrumented live reload. Correctness and cleanup
 pass, but paced mixed HTTP p99 rises **6 → 10 ms** across the new two-pair medians;
 the first paced pair has matched role clocks and misses the latency allowance.
-This remains an unresolved performance gate before rollout of the integration
-candidate. Production binaries/configs remain unchanged.
+The [direct-read follow-up](LATENCY-2026-10-08.md) clears this local latency gate:
+two-pair integration comparisons measure mean **1020 → 940 µs** and p99
+**7.5 → 6 ms**; independent receive.4 comparisons pass the original allowance.
+Runtime source `8f1ca0f`, native SHA-256
+`8b538459fa7252afbd38a32161bf69dd2f7270ffc537ea519b0718c244f1209e`.
+Two-worker uncapped bulk medians stay within 0.3%, while churn, representative
+WAN, 10,000 held flows and native/race live reload pass correctness. The short
+adverse reordering result remains visible beside its longer favorable repeat.
+See [all 40 follow-up workloads](latency-qualification-2026-10-08.json).
+Production binaries/configs remain unchanged; fleet qualification is separate.
 
 ## Recovery-grace candidate
 

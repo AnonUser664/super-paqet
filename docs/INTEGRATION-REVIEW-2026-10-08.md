@@ -263,3 +263,11 @@ This new evidence leaves a performance gate unresolved before deployment.
 Runtime sources and production remain unchanged. The
 [supplemental receipts](multiworker-qualification-2026-10-08.json) preserve both
 adverse comparisons and failed fixture/launcher attempts.
+
+The [direct-read follow-up](LATENCY-2026-10-08.md) selects source `8f1ca0f` and
+clears that local latency allowance. It removes the queued-byte ioctl rather
+than reverting output batching, adapting pooled scratch between the existing
+4–64 KiB classes. Forty follow-up workloads include paired clean bulk,
+representative WAN, churn and held-flow checks; native/race two-worker live
+reload and application race/vet pass. All adverse samples remain visible.
+Production remains migration.4; source integration is not backend acceptance.

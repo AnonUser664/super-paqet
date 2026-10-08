@@ -138,3 +138,8 @@ The receipt records the exact race build and reload commands. Build and run it
 under the same reservation, as a separate workload from performance measurements.
 This audit exercises two backend workers; it does not qualify every worker count,
 every link type or thousands of simultaneously busy production customers.
+
+The subsequent [direct-read investigation](LATENCY-2026-10-08.md) clears the
+local paced-latency allowance with source `8f1ca0f`. It retains this audit's
+adverse results, adds paired bulk/WAN/churn/memory/lifecycle evidence and leaves
+production unchanged. This document describes the earlier audit's state.

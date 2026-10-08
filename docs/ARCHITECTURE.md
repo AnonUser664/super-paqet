@@ -192,9 +192,15 @@ connection deadline. Failed new streams release local ownership immediately and
 queue a best-effort reset without waiting for ordinary close. Successful carrier
 setup retains normal PTCPF close semantics. Established stream close is unchanged.
 
-After opening, a relay copies in both directions. The TCP-to-stream side waits
-for netpoll readiness, peeks queued bytes, then acquires a size-class buffer and
-returns it after the write. The ownership release snapshots asynchronously
+After opening, a relay copies in both directions. The selected TCP-to-stream
+reader attempts a nonblocking read with pooled scratch, returns it before waiting
+in netpoll on EAGAIN, and returns it after its destination write. A per-relay size
+hint starts at 4 KiB, doubles on a full read up to the existing 64 KiB maximum,
+and shrinks one class on quarter-full reads. It needs no queued-byte ioctl,
+peek, new timer or held idle buffer. This local scratch adaptation is separate
+from configured KCP/mux receive-window adaptation. See the
+[latency investigation](LATENCY-2026-10-08.md); production remains on the prior
+reader until rollout. The ownership release snapshots asynchronously
 queued payloads into pooled size classes, so an opening/write timeout cannot
 return scratch storage that the carrier still references. Caller and sender
 each release a reference before queued storage is recycled. Expired frames

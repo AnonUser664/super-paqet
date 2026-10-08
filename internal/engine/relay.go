@@ -22,7 +22,7 @@ import (
 // out buffer.
 var copyPools [5]sync.Pool
 
-// getBuffer reuses a power-of-two scratch class sized to queued bytes rather than allocating
+// getBuffer reuses a power-of-two scratch class sized to requested bytes rather than allocating
 // per idle flow.
 func getBuffer(size int) (*[]byte, int) {
 	class := 0
