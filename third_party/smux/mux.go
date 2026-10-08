@@ -66,9 +66,6 @@ type Config struct {
 	// KeepAliveTimeout is how long the session
 	// will be closed if no data has arrived
 	KeepAliveTimeout time.Duration
-	// RecoveryGrace adds a finite extension only after EnableRecoveryGrace and
-	// only while streams remain live. Zero preserves ordinary keepalive expiry.
-	RecoveryGrace time.Duration
 
 	// MaxFrameSize is used to control the maximum
 	// frame size to sent to the remote
@@ -81,6 +78,10 @@ type Config struct {
 	// MaxStreamBuffer is used to control the maximum
 	// number of data per stream
 	MaxStreamBuffer int
+
+	// RecoveryGrace adds a finite extension only after EnableRecoveryGrace and
+	// only while streams remain live. Zero preserves ordinary keepalive expiry.
+	RecoveryGrace time.Duration
 }
 
 // DefaultConfig is used to return a default configuration

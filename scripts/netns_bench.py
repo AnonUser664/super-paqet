@@ -51,6 +51,7 @@ def main():
     p.add_argument('--conversation-listener', action='store_true', help='retain the deployed conversation-aware listener with separate client source ports')
     p.add_argument('--client-flag', default='PA', help='client outer packet flags (use S for the deployed profile)')
     p.add_argument('--server-flag', default='PA', help='backend outer packet flags')
+    p.add_argument('--source-ports', type=int, nargs='+', help='fixed distinct initial client source ports for matched capture fanout')
     p.add_argument('--hold', type=int, default=0)
     fixture = p.add_mutually_exclusive_group()
     fixture.add_argument('--enterprise', dest='enterprise', action='store_true', help='enterprise configuration fixture (default)')
@@ -113,6 +114,9 @@ def main():
     if a.duration < 1 or a.workers < 1 or a.sessions < 1: p.error('duration, workers and sessions must be positive')
     if a.max_sessions is None: a.max_sessions = a.sessions
     if not a.sessions <= a.max_sessions <= 256: p.error('max-sessions must be sessions..256')
+    if a.source_ports is not None:
+        if not a.enterprise or a.shared_source or len(a.source_ports)<a.max_sessions or len(a.source_ports)>256 or len(set(a.source_ports))!=len(a.source_ports) or any(not 1<=x<=65535 for x in a.source_ports):
+            p.error('source-ports requires enterprise independent sources, distinct valid ports and enough entries for max-sessions')
     if min(a.delay_ms,a.jitter_ms,a.rate_mbit,a.down_rate_mbit or 0,a.tcp_buffer_mib,a.queue_packets) < 0: p.error('delays and resource budgets cannot be negative')
     if any(not 0<=x<=100 for x in [a.loss,a.reorder,*(a.burst_loss or [])]): p.error('percentages must be within 0..100')
     if (a.jitter_ms or a.reorder) and not a.delay_ms: p.error('jitter and reordering require delay')
@@ -281,6 +285,10 @@ def main():
             client = f'peers:\n  remote:\n    address: 198.18.0.2:29999\n    key: benchmark-only-key\n    sessions: {a.sessions}\n    max_sessions: {a.max_sessions}\n    network: {{interface: spq-c, ipv4: {{addr: "198.18.0.1:0", router_mac: "02:00:00:00:00:02"}}}}\nforwards:\n'
             for i in range(8): client += f'  - {{listen: "127.0.0.1:{28080+i}", peer: remote, target: "127.0.0.{i+1}:18080"}}\n'
             server = f'listeners:\n  - address: 198.18.0.2:29999\n    sessions: {a.sessions}\n    max_sessions: {a.max_sessions}\n    key: benchmark-only-key\n    network: {{interface: spq-s, ipv4: {{addr: "198.18.0.2:29999", router_mac: "02:00:00:00:00:01"}}}}\n'
+            if a.source_ports is not None:
+                # Fix tuple hashes for repeated comparisons without restricting
+                # recovery, which may still reserve a fresh replacement source.
+                client=client.replace('    address:', '    source_ports: '+json.dumps(a.source_ports)+'\n    address:',1)
             if a.path_recovery:
                 recovery_fields='{enabled: true'+(', preserve_connections: true' if a.preserve_connections else '')+'}'
                 client=client.replace('    address:', '    path_recovery: '+recovery_fields+'\n    address:',1)

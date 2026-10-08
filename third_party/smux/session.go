@@ -150,13 +150,6 @@ type Session struct {
 	die chan struct{} // flag session has died
 	// Closes lifecycle signals once so failure/explicit close can race safely.
 	dieOnce sync.Once
-	// First terminal cause survives cleanup, which otherwise looks like Close.
-	endCause atomic.Pointer[SessionEnd]
-	// Negotiation gates grace; the existing keepalive goroutine owns its clock.
-	recoveryArmed    atomic.Bool
-	recoveryUntil    atomic.Int64
-	recoveryStarts   atomic.Uint64
-	recoveryDeadline time.Time
 
 	// socket error handling
 	socketReadError atomic.Value
@@ -204,6 +197,16 @@ type Session struct {
 	creditTail *creditUpdate
 	// Optional expedited feedback adapter; absence retains ordinary reliable controls.
 	creditTransport creditHintTransport
+
+	// Append rare recovery state so existing sender/receiver field offsets stay
+	// intact; telemetry must not rearrange hot-path cache sharing.
+	// First terminal cause survives cleanup, which otherwise looks like Close.
+	endCause atomic.Pointer[SessionEnd]
+	// Negotiation gates grace; the existing keepalive goroutine owns its clock.
+	recoveryArmed    atomic.Bool
+	recoveryUntil    atomic.Int64
+	recoveryStarts   atomic.Uint64
+	recoveryDeadline time.Time
 }
 
 // newSession initializes mux queues/credits/lifecycle and launches shared session tasks around

@@ -25,13 +25,16 @@ def main():
     parser.add_argument('--packet-workers', type=int, default=2, help='backend fanout workers, including cross-worker migration')
     parser.add_argument('--stall-seconds', type=int, default=15, help='qualifying delivery stall threshold; retry interval stays 15 seconds')
     parser.add_argument('--recovery-grace-seconds', type=int, default=0, help='extra negotiated mux recovery budget on both endpoints')
-    parser.add_argument('--expect-session-loss', action='store_true', help='negative control for delayed probes with grace disabled')
+    parser.add_argument('--expect-session-loss', action='store_true', help='require held-stream expiry instead of preservation in a prolonged outage')
+    parser.add_argument('--probe-outage-seconds', type=int, default=70, help='delayed-probes restore time, 70..180 seconds after workload starts')
     parser.add_argument('--output', required=True)
     args = parser.parse_args()
     if not 0 <= args.recovery_grace_seconds <= 120:
         parser.error('recovery grace must be 0..120 seconds')
-    if args.expect_session_loss and (args.case != 'delayed-probes' or args.recovery_grace_seconds):
-        parser.error('expected session loss requires delayed-probes with grace disabled')
+    if not 70 <= args.probe_outage_seconds <= 180:
+        parser.error('probe outage must be 70..180 seconds')
+    if args.expect_session_loss and (args.case != 'delayed-probes' or args.probe_outage_seconds <= 60 + args.recovery_grace_seconds):
+        parser.error('expected session loss requires delayed-probes longer than ordinary timeout plus grace')
     if args.recovery_grace_seconds and not args.preserve_connections:
         parser.error('recovery grace requires preserving connections')
     if args.stall_seconds <= 0:
@@ -58,9 +61,9 @@ def main():
         process = subprocess.Popen(['ip', 'netns', 'exec', name, *command], env=env, stdout=log, stderr=subprocess.STDOUT)
         processes.append(process); return process
 
-    def metrics():
+    def metrics(namespace=client):
         """Read loopback telemetry from the isolated client, never production."""
-        return ns(client, sys.executable, '-c', 'import urllib.request; print(urllib.request.urlopen("http://127.0.0.1:29090/metrics",timeout=2).read().decode())').stdout
+        return ns(namespace, sys.executable, '-c', 'import urllib.request; print(urllib.request.urlopen("http://127.0.0.1:29090/metrics",timeout=2).read().decode())').stdout
 
     # Requests validate echoed bytes; failed new connections during injection are
     # expected. A separate healthy peer is continuously checked for collateral loss.
@@ -120,9 +123,9 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
  futures=[pool.submit(held,index) for index in range(4)]+[pool.submit(healthy)]
  for future in futures:future.result()
 '''
-    duration = 105 if args.case == 'delayed-probes' else 90 if args.case == 'whole-peer' else 55
+    duration = args.probe_outage_seconds + 35 if args.case == 'delayed-probes' else 90 if args.case == 'whole-peer' else 55
     if args.case == 'delayed-probes':
-        requester = requester.replace('end=start+55', 'end=start+105').replace('s.settimeout(25)', 's.settimeout(95)')
+        requester = requester.replace('end=start+55', f'end=start+{duration}').replace('s.settimeout(25)', f's.settimeout({args.probe_outage_seconds+25})')
     if args.case == 'whole-peer':
         requester = requester.replace('+55;', '+90;')
     if args.held_payload_bytes:
@@ -228,16 +231,18 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
                 events.append({'event':'repeated_tuple_drop','port':int(port),'at':elapsed});repeated=True
             if args.case=='short-loss' and elapsed>10 and not restored:
                 ns(router,'tc','filter','del','dev','rc','ingress','protocol','ip','pref','20');events.append({'event':'restored','at':elapsed});restored=True
-            if args.case=='delayed-probes' and elapsed>70 and not restored:
+            if args.case=='delayed-probes' and elapsed>args.probe_outage_seconds and not restored:
                 ns(router,'tc','filter','del','dev','rc','ingress','protocol','ip','pref','30');events.append({'event':'probes_restored','at':elapsed});restored=True
             if args.case=='whole-peer' and elapsed>70 and not restored:
                 ns(router,'tc','filter','del','dev','rc','ingress','protocol','ip','pref','20');events.append({'event':'restored','at':elapsed});restored=True
-            if elapsed>(92 if args.case=='delayed-probes' else 82 if args.case=='whole-peer' else 47) and not reloaded:
+            if elapsed>(args.probe_outage_seconds+22 if args.case=='delayed-probes' else 82 if args.case=='whole-peer' else 47) and not reloaded:
                 # An identical endpoint plus a log edit must retain the effective
                 # recovered tuple. Atomic replacement exercises the live reader.
                 cfg['log']['interval']='2s';temp=config.with_suffix('.next');temp.write_text(json.dumps(cfg));os.replace(temp,config)
                 events.append({'event':'config_reload','at':elapsed});reloaded=True
-            snapshots.append({'at':elapsed,'metrics':metrics()})
+            snapshot={'at':elapsed,'metrics':metrics()}
+            if args.case=='delayed-probes':snapshot['server_metrics']=metrics(server)
+            snapshots.append(snapshot)
             if elapsed>duration+13:raise RuntimeError('workload exceeded deadline')
             time.sleep(.5)
         workload.wait(timeout=1)
@@ -248,7 +253,7 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
         capture.send_signal(signal.SIGINT);capture.wait(timeout=5)
         wire=check_wire(out/'wire.pcap')
         recovered=[r for r in logs if r.get('msg')=='path.recovered'];failed=[r for r in logs if r.get('msg')=='path.recovery_probe_failed']
-        result={'case':args.case,'recovery_grace_seconds':args.recovery_grace_seconds,'expect_session_loss':args.expect_session_loss,'shared_source':args.shared_source,'preserve_connections':args.preserve_connections,'packet_workers':args.packet_workers,'held_payload_bytes':args.held_payload_bytes,'sequenced_payloads':args.sequenced_payloads,'sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'client_pid':client_process.pid,'events':events,'recovered':recovered,'failed_probes':failed,'healthy_successes':sum(r['ok'] for r in rows if r['peer']=='healthy'),'healthy_errors':[r for r in rows if r['peer']=='healthy' and not r['ok']],'broken_successes_after_45s':sum(r['ok'] for r in rows if r['peer']=='broken' and r['at']>(75 if args.case=='whole-peer' else 45)),'broken_errors':sum(not r['ok'] for r in rows if r['peer']=='broken'),'first_success_after_fault':next((r for r in rows if r['peer']=='broken' and r['ok'] and r['at']>6),None),'snapshots':snapshots,'wire':wire}
+        result={'case':args.case,'recovery_grace_seconds':args.recovery_grace_seconds,'expect_session_loss':args.expect_session_loss,'probe_outage_seconds':args.probe_outage_seconds,'shared_source':args.shared_source,'preserve_connections':args.preserve_connections,'packet_workers':args.packet_workers,'held_payload_bytes':args.held_payload_bytes,'sequenced_payloads':args.sequenced_payloads,'sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'client_pid':client_process.pid,'events':events,'recovered':recovered,'failed_probes':failed,'healthy_successes':sum(r['ok'] for r in rows if r['peer']=='healthy'),'healthy_errors':[r for r in rows if r['peer']=='healthy' and not r['ok']],'broken_successes_after_45s':sum(r['ok'] for r in rows if r['peer']=='broken' and r['at']>(75 if args.case=='whole-peer' else 45)),'broken_errors':sum(not r['ok'] for r in rows if r['peer']=='broken'),'first_success_after_fault':next((r for r in rows if r['peer']=='broken' and r['ok'] and r['at']>6),None),'snapshots':snapshots,'wire':wire}
         (out/'result.json').write_text(json.dumps(result,indent=2)+'\n')
         result['stall_seconds'] = args.stall_seconds
         assert not result['healthy_errors'],'healthy peer disrupted'
@@ -278,9 +283,9 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
             assert len(re.findall(r'super_paqet_peer_conversation_id\{peer="broken",',snapshot['metrics']))<=4,'carrier pool exceeded fixed four'
         initial_ports={29997} if args.shared_source else {29997,29995,29993,29991}
         changed=[x for x in snapshots if any(int(p) not in initial_ports for p in re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',x['metrics']))]
-        if not args.expect_session_loss and args.case in ('tuple','reverse-tuple','established','reverse-established','all-tuples','repeat-tuple','repeat-established','early-stall','all-established','delayed-probes') or (args.case=='one-lane' and recovered):
+        if (not args.expect_session_loss and args.case in ('tuple','reverse-tuple','established','reverse-established','all-tuples','repeat-tuple','repeat-established','early-stall','all-established','delayed-probes')) or (args.case=='one-lane' and recovered):
             assert changed,'effective source did not change'
-            port_before_reload=re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',next(x['metrics'] for x in snapshots if x['at']>(92 if args.case=='delayed-probes' else 45)))
+            port_before_reload=re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',next(x['metrics'] for x in snapshots if x['at']>(args.probe_outage_seconds+22 if args.case=='delayed-probes' else 45)))
             if args.case not in ('repeat-tuple','repeat-established','early-stall'):assert set(port_before_reload)==set(re.findall(r'super_paqet_peer_source_port\{peer="broken",session="\d+"\} (\d+)',after)),'reload reset recovered source'
             result['source_change_at_seconds']=changed[0]['at']
             result['recovery_after_injection_seconds']=changed[0]['at']-next(e['at'] for e in events if e['event']=='injected')
@@ -296,7 +301,13 @@ Server(('127.0.0.1',18080),Echo).serve_forever()
                     result['logical_carriers_preserved']=True
         if args.case == 'delayed-probes':
             assert failed or args.expect_session_loss, 'failed probes not exercised'
-            result['grace_signals'] = [r for r in logs if r.get('msg') == 'session.closed']
+            backend_logs=[json.loads(line) for line in (out/'server.log').read_text().splitlines() if line.startswith('{')]
+            result['grace_signals'] = [r for r in logs+backend_logs if r.get('msg') == 'session.closed']
+            result['backend_grace_observed']=any(re.search(r'super_paqet_session_recovery_grace_active\{[^}]+\} 1',x.get('server_metrics','')) for x in snapshots)
+            if args.recovery_grace_seconds:
+                assert result['backend_grace_observed'],'backend never entered negotiated grace'
+                if args.expect_session_loss:
+                    assert any(r.get('reason')=='recovery_grace_expired' for r in result['grace_signals']),'permanent outage did not expire grace'
         # A slot switch must remove the old tuple's rules while retaining all
         # current sibling/probe-adopted ports. This checks ownership while the
         # client is still running, not just after process-wide teardown.
