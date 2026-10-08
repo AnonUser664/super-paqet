@@ -49,9 +49,13 @@ only when both checks pass. Prefer it to a bare lock:
 ```sh
 python3 scripts/with_test_lock.py -- go test -race ./...
 python3 scripts/with_test_lock.py -- sudo python3 scripts/netns_bench.py ...
+python3 scripts/with_test_lock.py --wait -- sudo python3 scripts/netns_bench.py ...
 ```
 
 Exit 75 means busy; inspect or continue non-test work. Do not nest wrappers or
 locks inside a matrix already holding the same reservation. Unknown/manual load
 generators still require judgment in the process check; the wrapper is not a
 substitute for coordination.
+`--wait` queues for the reservation without starting a workload. It still checks
+for unlocked tests and leftover namespaces after acquisition; those checks can
+return 75. Do not send authentication input until the actual sudo prompt appears.

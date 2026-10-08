@@ -110,6 +110,7 @@ def main():
     parser.add_argument('--workload-cpus', default='')
     parser.add_argument('--profile', action='store_true', help='collect CPU profiles on the first repetition')
     parser.add_argument('--debug', action='store_true', help='sample structured transport diagnostics each second on both versions')
+    parser.add_argument('--duplex-http-steady', action='store_true', help='measure mixed HTTP after the configured warmup, retaining legacy cases otherwise')
     parser.add_argument('--pinned-lanes', action='store_true', help='pin equal iperf streams to each carrier, leaving non-iperf tests unchanged')
     args = parser.parse_args()
     if os.geteuid() != 0:
@@ -145,6 +146,8 @@ def main():
                     command.append('--profile')
                 if args.debug:
                     command.append('--debug')
+                if args.duplex_http_steady and '--duplex-http' in CASES[case]:
+                    command.append('--duplex-http-steady')
                 if args.warmup and '--iperf' in CASES[case]:
                     command.extend(['--warmup', str(args.warmup)])
                 if args.pinned_lanes and '--iperf' in CASES[case]:

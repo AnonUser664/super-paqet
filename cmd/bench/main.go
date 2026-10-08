@@ -32,6 +32,7 @@ func main() {
 	addr := flag.String("addr", "127.0.0.1:18080", "address; comma separated addresses for hold")
 	workers := flag.Int("workers", 32, "concurrent requests/connection ramp workers")
 	duration := flag.Duration("duration", 10*time.Second, "measurement duration")
+	warmup := flag.Duration("warmup", 0, "HTTP load before measurement; startup errors are still reported")
 	count := flag.Int("connections", 1000, "hold connection count")
 	verifySize := flag.Int("verify-size", 16777216, "integrity-check payload bytes")
 	proxy := flag.String("proxy", "", "optional HTTP proxy for authenticated application-path load")
@@ -39,7 +40,7 @@ func main() {
 	expectedBytes := flag.Int64("response-bytes", 0, "required response length for a custom load URL")
 	requestGap := flag.Duration("request-gap", 0, "optional pause between requests per worker; zero saturates the path")
 	flag.Parse()
-	if *workers < 1 || *duration <= 0 || *count < 1 || *requestGap < 0 {
+	if *workers < 1 || *duration <= 0 || *count < 1 || *requestGap < 0 || *warmup < 0 {
 		panic("workers, duration and connections must be positive")
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
@@ -175,7 +176,7 @@ func main() {
 	case "hold":
 		hold(ctx, strings.Split(*addr, ","), *workers, *count, *duration)
 	case "http", "http-churn", "bulk":
-		load(ctx, *mode, *addr, *workers, *duration, *proxy, *requestURL, *expectedBytes, *requestGap)
+		load(ctx, *mode, *addr, *workers, *duration, *proxy, *requestURL, *expectedBytes, *requestGap, *warmup)
 	case "verify":
 		tr := &http.Transport{DisableKeepAlives: true}
 		defer tr.CloseIdleConnections()
@@ -291,15 +292,20 @@ func emit(v any) {
 	}
 }
 
-// load runs bounded concurrent HTTP/bulk work and separates deadline cancellation from
-// unexpected request failure.
+// load runs bounded concurrent HTTP/bulk work and separates deadline cancellation
+// from failures. Optional durations are per-worker pause and measurement warmup;
+// existing callers retain zero warmup. Statistics classify a response by request
+// start time, so an in-flight warmup response never enters steady-state latency.
 func load(parent context.Context, mode, addr string, workers int, duration time.Duration, proxy, requestURL string, expectedBytes int64, requestGaps ...time.Duration) {
-	ctx, cancel := context.WithTimeout(parent, duration)
-	defer cancel()
-	var gap time.Duration
+	var gap, warmup time.Duration
 	if len(requestGaps) > 0 {
 		gap = requestGaps[0]
 	}
+	if len(requestGaps) > 1 {
+		warmup = requestGaps[1]
+	}
+	ctx, cancel := context.WithTimeout(parent, duration+warmup)
+	defer cancel()
 	tr := &http.Transport{MaxIdleConns: workers, MaxIdleConnsPerHost: workers, MaxConnsPerHost: workers, DisableCompression: true}
 	// One HTTP/1 connection per worker makes concurrency meaningful; HTTP/2 could
 	// otherwise hide thousands of requests inside a few application connections.
@@ -333,6 +339,7 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 		}
 	}
 	var requests, failed, canceled, bytes atomic.Int64
+	var warmupRequests, warmupBytes, warmupFailed atomic.Int64
 	var failureMu sync.Mutex
 	failureKinds := make(map[string]int64)
 	// Retain bounded cause counts, never URLs, credentials or response bodies.
@@ -350,6 +357,7 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 	var latencySum atomic.Int64
 	var wg sync.WaitGroup
 	start := time.Now()
+	measureFrom := start.Add(warmup)
 	for i := 0; i < workers; i++ {
 		wg.Add(1)
 		go func() {
@@ -373,11 +381,15 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 				}
 				attempted = true
 				t0 := time.Now()
+				measured := !t0.Before(measureFrom)
 				r, _ := http.NewRequestWithContext(ctx, "GET", requestURL, nil)
 				resp, err := c.Do(r)
 				if err != nil {
 					if ctx.Err() == nil {
 						recordFailure("request_" + loadErrorKind(err))
+						if !measured {
+							warmupFailed.Add(1)
+						}
 					} else {
 						canceled.Add(1)
 					}
@@ -385,9 +397,16 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 				}
 				n, err := io.Copy(io.Discard, resp.Body)
 				resp.Body.Close()
-				bytes.Add(n)
+				if measured {
+					bytes.Add(n)
+				} else {
+					warmupBytes.Add(n)
+				}
 				if err != nil || resp.StatusCode != 200 || n != expectedBytes {
 					if ctx.Err() == nil {
+						if !measured {
+							warmupFailed.Add(1)
+						}
 						switch {
 						case err != nil:
 							recordFailure("body_" + loadErrorKind(err))
@@ -399,6 +418,10 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 					} else {
 						canceled.Add(1)
 					}
+					continue
+				}
+				if !measured {
+					warmupRequests.Add(1)
 					continue
 				}
 				requests.Add(1)
@@ -416,7 +439,9 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 		}()
 	}
 	wg.Wait()
-	elapsed := time.Since(start).Seconds()
+	totalElapsed := time.Since(start).Seconds()
+	elapsed := max(0, time.Since(measureFrom).Seconds())
+	rateSeconds := max(1e-9, elapsed)
 	percentile := func(p float64) int64 {
 		threshold := int64(float64(requests.Load()) * p)
 		var n int64
@@ -435,7 +460,7 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 		}
 		return 0
 	}
-	emit(map[string]any{"mode": mode, "workers": workers, "successful_workers": successfulWorkers.Load(), "request_gap_seconds": gap.Seconds(), "seconds": elapsed, "requests": requests.Load(), "errors": failed.Load(), "error_kinds": failureKinds, "canceled_requests": canceled.Load(), "bytes": bytes.Load(), "goodput_gbps": float64(bytes.Load()) * 8 / elapsed / 1e9, "requests_per_second": float64(requests.Load()) / elapsed, "mean_latency_us": float64(latencySum.Load()) / float64(max(1, requests.Load())), "p50_us_upper": percentile(.50), "p99_us_upper": percentile(.99)})
+	emit(map[string]any{"mode": mode, "workers": workers, "successful_workers": successfulWorkers.Load(), "request_gap_seconds": gap.Seconds(), "seconds": elapsed, "total_seconds": totalElapsed, "warmup_seconds": warmup.Seconds(), "warmup_requests": warmupRequests.Load(), "warmup_bytes": warmupBytes.Load(), "warmup_errors": warmupFailed.Load(), "requests": requests.Load(), "errors": failed.Load(), "error_kinds": failureKinds, "canceled_requests": canceled.Load(), "bytes": bytes.Load(), "goodput_gbps": float64(bytes.Load()) * 8 / rateSeconds / 1e9, "requests_per_second": float64(requests.Load()) / rateSeconds, "mean_latency_us": float64(latencySum.Load()) / float64(max(1, requests.Load())), "p50_us_upper": percentile(.50), "p99_us_upper": percentile(.99)})
 }
 
 // loadErrorKind distinguishes stalled requests from truncation/reset without

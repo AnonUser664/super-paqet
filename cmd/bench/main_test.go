@@ -70,6 +70,12 @@ func TestLoadPauseHonorsCancellation(t *testing.T) {
 // captureLoad collects the public JSON result of a bounded real HTTP exercise.
 // These tests run serially because stdout belongs to the CLI process.
 func captureLoad(t *testing.T, proxy, target string) map[string]float64 {
+	return captureTimedLoad(t, context.Background(), proxy, target, 100*time.Millisecond, 0)
+}
+
+// captureTimedLoad retains the real HTTP/JSON boundary while selecting startup
+// and measurement durations; stdout ownership keeps these tests serial.
+func captureTimedLoad(t *testing.T, ctx context.Context, proxy, target string, duration, warmup time.Duration) map[string]float64 {
 	t.Helper()
 	r, w, err := os.Pipe()
 	if err != nil {
@@ -79,7 +85,7 @@ func captureLoad(t *testing.T, proxy, target string) map[string]float64 {
 	original := os.Stdout
 	os.Stdout = w
 	defer func() { os.Stdout = original; w.Close() }()
-	load(context.Background(), "http", "", 2, 100*time.Millisecond, proxy, target, 22)
+	load(ctx, "http", "", 2, duration, proxy, target, 22, 0, warmup)
 	w.Close()
 	var result map[string]float64
 	// The mode field is a string; decode numeric fields without assuming all
@@ -95,6 +101,45 @@ func captureLoad(t *testing.T, proxy, target string) map[string]float64 {
 		}
 	}
 	return result
+}
+
+// TestLoadWarmupKeepsStartupFailures exercises a real truncated first reply:
+// warmup must not hide it, while measured counts exclude valid startup traffic.
+func TestLoadWarmupKeepsStartupFailures(t *testing.T) {
+	var served atomic.Int64
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if served.Add(1) == 1 {
+			io.WriteString(w, "short")
+			return
+		}
+		io.WriteString(w, "super-paqet benchmark\n")
+	}))
+	defer server.Close()
+	result := captureTimedLoad(t, context.Background(), "", server.URL, 100*time.Millisecond, 150*time.Millisecond)
+	if result["errors"] != 1 || result["warmup_errors"] != 1 || result["warmup_requests"] == 0 || result["requests"] == 0 {
+		t.Fatal("startup failure hidden or warmup/measurement traffic missing:", result)
+	}
+	if result["total_seconds"]-result["seconds"] < .149 || result["seconds"] < .09 || result["seconds"] > .2 {
+		t.Fatal("measurement denominator includes the warmup:", result)
+	}
+	if result["warmup_bytes"] == 0 || result["successful_workers"] != 2 {
+		t.Fatal("startup traffic or measured worker verification lost:", result)
+	}
+}
+
+// TestLoadCanceledDuringWarmup prevents early cancellation from becoming a
+// successful steady-state throughput sample with a negative denominator.
+func TestLoadCanceledDuringWarmup(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		io.WriteString(w, "super-paqet benchmark\n")
+	}))
+	defer server.Close()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Millisecond)
+	defer cancel()
+	result := captureTimedLoad(t, ctx, "", server.URL, 100*time.Millisecond, 150*time.Millisecond)
+	if result["seconds"] != 0 || result["requests"] != 0 || result["requests_per_second"] != 0 || result["successful_workers"] != 0 {
+		t.Fatal("canceled startup became a completed measurement:", result)
+	}
 }
 
 // TestHoldTargetHonorsIntegritySize checks the real idle-target HTTP path so a

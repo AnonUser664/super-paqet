@@ -3,6 +3,8 @@
 
 Use outside sudo: python3 scripts/with_test_lock.py -- sudo <test command>.
 Busy reservations exit 75; they never terminate another agent's workload.
+Use --wait before -- to queue behind an existing reservation; the process and
+namespace checks still run after acquiring it.
 """
 import fcntl
 import os
@@ -63,6 +65,9 @@ def workloads():
 def main():
     """Reserve the machine before authentication, children and cleanup begin."""
     command = sys.argv[1:]
+    wait = command[:1] == ['--wait']
+    if wait:
+        command = command[1:]
     if command[:1] == ['--']:
         command = command[1:]
     if not command:
@@ -74,8 +79,11 @@ def main():
         try:
             fcntl.flock(reservation, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
-            print('Test reservation busy; no command started.', file=sys.stderr)
-            return 75
+            if not wait:
+                print('Test reservation busy; no command started.', file=sys.stderr)
+                return 75
+            print('Waiting for the shared test reservation; no command started.', flush=True)
+            fcntl.flock(reservation, fcntl.LOCK_EX)
         active = workloads()
         if active:
             print('Existing test/load processes (PID, name): ' + repr(active) + '; no command started.', file=sys.stderr)

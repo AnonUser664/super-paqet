@@ -1,0 +1,691 @@
+{
+  "production_changed": false,
+  "aa": {
+    "summary": [
+      {
+        "label": "bounded-duplex-one-worker-baseline-0",
+        "rps": 6094.044696711549,
+        "mean_us": 655.5813510817055,
+        "p99_us": 6000,
+        "controller_samples": 23,
+        "trace_medians": {
+          "send_window": 666,
+          "kcp_wait_ms": 9.444771,
+          "rtt_ms": 0,
+          "min_rtt_ms": 1,
+          "pending": 3,
+          "output_pps": 79734.02192685603
+        },
+        "cpu_khz_mean_median": 3324610.5,
+        "package_temp_millidegrees_median": 75000.0,
+        "role_clock_khz_medians": {
+          "client": 3819895.625,
+          "server": 4091729.0,
+          "workload": 2898305.125
+        }
+      },
+      {
+        "label": "bounded-duplex-one-worker-candidate-0",
+        "rps": 4116.974910166823,
+        "mean_us": 970.7037162982755,
+        "p99_us": 6000,
+        "controller_samples": 24,
+        "trace_medians": {
+          "send_window": 770.0,
+          "kcp_wait_ms": 26.2650215,
+          "rtt_ms": 0.0,
+          "min_rtt_ms": 1.0,
+          "pending": 4.0,
+          "output_pps": 52781.49651266005
+        },
+        "cpu_khz_mean_median": 2451986.416666667,
+        "package_temp_millidegrees_median": 66000.0,
+        "role_clock_khz_medians": {
+          "client": 2649981.75,
+          "server": 2681624.25,
+          "workload": 2099984.125
+        }
+      },
+      {
+        "label": "bounded-duplex-one-worker-candidate-1",
+        "rps": 3782.6975519596476,
+        "mean_us": 1056.4898062769648,
+        "p99_us": 7000,
+        "controller_samples": 24,
+        "trace_medians": {
+          "send_window": 745.5,
+          "kcp_wait_ms": 24.674672,
+          "rtt_ms": 0.0,
+          "min_rtt_ms": 1.0,
+          "pending": 4.0,
+          "output_pps": 48901.98633765767
+        },
+        "cpu_khz_mean_median": 2463644.3333333335,
+        "package_temp_millidegrees_median": 65000,
+        "role_clock_khz_medians": {
+          "client": 2649948,
+          "server": 2700000,
+          "workload": 2099735.5
+        }
+      },
+      {
+        "label": "bounded-duplex-one-worker-baseline-1",
+        "rps": 3536.180662749664,
+        "mean_us": 1130.2583564278038,
+        "p99_us": 11000,
+        "controller_samples": 24,
+        "trace_medians": {
+          "send_window": 751.0,
+          "kcp_wait_ms": 40.341015999999996,
+          "rtt_ms": 0.0,
+          "min_rtt_ms": 1.0,
+          "pending": 6.0,
+          "output_pps": 47053.500094197065
+        },
+        "cpu_khz_mean_median": 2483202.8333333335,
+        "package_temp_millidegrees_median": 65000,
+        "role_clock_khz_medians": {
+          "client": 2650001,
+          "server": 2700000,
+          "workload": 2099943.5
+        }
+      },
+      {
+        "label": "bounded-duplex-one-worker-baseline-2",
+        "rps": 3828.8217022142376,
+        "mean_us": 1043.7985081643526,
+        "p99_us": 6000,
+        "controller_samples": 24,
+        "trace_medians": {
+          "send_window": 721.5,
+          "kcp_wait_ms": 6.8290065,
+          "rtt_ms": 0.0,
+          "min_rtt_ms": 1.0,
+          "pending": 5.0,
+          "output_pps": 50206.52091631875
+        },
+        "cpu_khz_mean_median": 2414572.791666667,
+        "package_temp_millidegrees_median": 65000.0,
+        "role_clock_khz_medians": {
+          "client": 2638231.125,
+          "server": 2666535.75,
+          "workload": 2099928.0
+        }
+      },
+      {
+        "label": "bounded-duplex-one-worker-candidate-2",
+        "rps": 3927.1875845891705,
+        "mean_us": 1017.644927683846,
+        "p99_us": 13000,
+        "controller_samples": 24,
+        "trace_medians": {
+          "send_window": 702.5,
+          "kcp_wait_ms": 15.8021685,
+          "rtt_ms": 1.0,
+          "min_rtt_ms": 1.0,
+          "pending": 7.0,
+          "output_pps": 49618.01785889186
+        },
+        "cpu_khz_mean_median": 2479580.4166666665,
+        "package_temp_millidegrees_median": 66000,
+        "role_clock_khz_medians": {
+          "client": 2650000,
+          "server": 2700000,
+          "workload": 2099980.25
+        }
+      }
+    ],
+    "run": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "scripts/compare_receive_paths.py",
+        "--baseline",
+        "build/receive-tuning-20261008/candidate-4",
+        "--candidate",
+        "build/receive-tuning-20261008/candidate-4",
+        "--output",
+        "/home/shayan/Codes/super-paqet-exploration-20261008/build/mixed-investigation-20261008/aa-control",
+        "--cases",
+        "bounded-duplex-one-worker",
+        "--repetitions",
+        "3",
+        "--duration",
+        "20",
+        "--warmup",
+        "5",
+        "--pinned-lanes",
+        "--debug",
+        "--client-cpus",
+        "0,1,2,3",
+        "--server-cpus",
+        "4,6",
+        "--workload-cpus",
+        "8,9,10,11"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 175.54861695400905,
+      "observer_cpu_seconds": 3.4048799999999995,
+      "observer_cpu_cores": 0.019395652663512716
+    },
+    "executable_sha256": "64cb857db6acaaf9fb38342fa89b5c6186c514e665343f1f931e573335fd1371"
+  },
+  "read_only_power_settings": {
+    "/sys/devices/system/cpu/intel_pstate/no_turbo": "0",
+    "/sys/devices/system/cpu/intel_pstate/max_perf_pct": "100",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq": "4600000",
+    "/sys/devices/system/cpu/cpu8/cpufreq/scaling_max_freq": "3400000",
+    "/sys/class/power_supply/ADP0/type": "Mains",
+    "/sys/class/power_supply/ADP0/online": "1",
+    "/sys/class/power_supply/ucsi-source-psy-USBC000:001/type": "USB",
+    "/sys/class/power_supply/ucsi-source-psy-USBC000:001/online": "0",
+    "/sys/class/power_supply/ucsi-source-psy-USBC000:001/status": "Not charging",
+    "/sys/class/power_supply/BAT0/type": "Battery",
+    "/sys/class/power_supply/BAT0/status": "Not charging",
+    "/sys/class/powercap/intel-rapl:0:0/constraint_0_time_window_us": "976",
+    "/sys/class/powercap/intel-rapl:0:0/constraint_0_power_limit_uw": "0",
+    "/sys/class/powercap/intel-rapl:0:0/constraint_0_name": "long_term",
+    "/sys/class/powercap/intel-rapl:0/constraint_1_max_power_uw": "0",
+    "/sys/class/powercap/intel-rapl:0/constraint_2_power_limit_uw": "102000000",
+    "/sys/class/powercap/intel-rapl:0/constraint_1_time_window_us": "2440",
+    "/sys/class/powercap/intel-rapl:0/constraint_2_max_power_uw": "0",
+    "/sys/class/powercap/intel-rapl:0/constraint_2_name": "peak_power",
+    "/sys/class/powercap/intel-rapl:0/constraint_1_power_limit_uw": "80000000",
+    "/sys/class/powercap/intel-rapl:0/constraint_0_time_window_us": "55967744",
+    "/sys/class/powercap/intel-rapl:0/constraint_1_name": "short_term",
+    "/sys/class/powercap/intel-rapl:0/constraint_0_power_limit_uw": "30000000",
+    "/sys/class/powercap/intel-rapl:0/constraint_0_name": "long_term",
+    "/sys/class/powercap/intel-rapl:0/constraint_0_max_power_uw": "45000000",
+    "/sys/class/powercap/intel-rapl:0:1/constraint_0_time_window_us": "976",
+    "/sys/class/powercap/intel-rapl:0:1/constraint_0_power_limit_uw": "0",
+    "/sys/class/powercap/intel-rapl:0:1/constraint_0_name": "long_term",
+    "/sys/class/powercap/intel-rapl-mmio:0/constraint_1_max_power_uw": "0",
+    "/sys/class/powercap/intel-rapl-mmio:0/constraint_2_power_limit_uw": "102000000",
+    "/sys/class/powercap/intel-rapl-mmio:0/constraint_1_time_window_us": "2440",
+    "/sys/class/powercap/intel-rapl-mmio:0/constraint_2_max_power_uw": "0",
+    "/sys/class/powercap/intel-rapl-mmio:0/constraint_2_name": "peak_power",
+    "/sys/class/powercap/intel-rapl-mmio:0/constraint_1_power_limit_uw": "80000000",
+    "/sys/class/powercap/intel-rapl-mmio:0/constraint_0_time_window_us": "55967744",
+    "/sys/class/powercap/intel-rapl-mmio:0/constraint_1_name": "short_term",
+    "/sys/class/powercap/intel-rapl-mmio:0/constraint_0_power_limit_uw": "18000000",
+    "/sys/class/powercap/intel-rapl-mmio:0/constraint_0_name": "long_term",
+    "/sys/class/powercap/intel-rapl-mmio:0/constraint_0_max_power_uw": "45000000"
+  },
+  "steady": {
+    "run_metadata": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "scripts/compare_receive_paths.py",
+        "--baseline",
+        "build/receive-tuning-20261008/candidate-4",
+        "--candidate",
+        "build/receive-tuning-20261008/candidate-6",
+        "--output",
+        "/home/shayan/Codes/super-paqet-exploration-20261008/build/mixed-investigation-20261008/steady-packed",
+        "--cases",
+        "bounded-duplex-one-worker",
+        "--repetitions",
+        "3",
+        "--duration",
+        "20",
+        "--warmup",
+        "60",
+        "--duplex-http-steady",
+        "--pinned-lanes",
+        "--debug",
+        "--client-cpus",
+        "0,1,2,3",
+        "--server-cpus",
+        "4,6",
+        "--workload-cpus",
+        "8,9,10,11"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 505.32581222299996,
+      "observer_cpu_seconds": 9.525168,
+      "observer_cpu_cores": 0.01884955759156144
+    },
+    "medians": {
+      "baseline": {
+        "requests_per_second": 2901.0936137927097,
+        "mean_latency_us": 1377.018595433003,
+        "p99_us_upper": 10000,
+        "receiver_gbps": 1.0003848374654702,
+        "reverse_receiver_gbps": 1.0005533481471558
+      },
+      "candidate": {
+        "requests_per_second": 3132.236364546347,
+        "mean_latency_us": 1274.6875458927943,
+        "p99_us_upper": 13000,
+        "receiver_gbps": 1.0007194591841178,
+        "reverse_receiver_gbps": 1.000494616009226
+      }
+    },
+    "runs": [
+      {
+        "label": "bounded-duplex-one-worker-baseline-0",
+        "version": "baseline",
+        "http": {
+          "mixed_workload": "http-churn",
+          "bytes": 1219548,
+          "canceled_requests": 4,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 0.00048780922786229757,
+          "mean_latency_us": 1442.1263845293502,
+          "mode": "http-churn",
+          "p50_us_upper": 1000,
+          "p99_us_upper": 13000,
+          "request_gap_seconds": 0,
+          "requests": 55434,
+          "requests_per_second": 2771.643340126691,
+          "seconds": 20.000408854,
+          "successful_workers": 4,
+          "total_seconds": 80.000408763,
+          "warmup_bytes": 3638448,
+          "warmup_errors": 0,
+          "warmup_requests": 165384,
+          "warmup_seconds": 60,
+          "workers": 4
+        },
+        "bulk": {
+          "iperf": "bidirectional",
+          "method": "concurrent_unidirectional",
+          "tunnel_cpu_cores": {
+            "client": 1.437,
+            "server": 0.935
+          },
+          "idle_wait_seconds": 0.111,
+          "receiver_gbps": 1.000373137312049,
+          "reverse_receiver_gbps": 1.0003478417418787
+        },
+        "last_20_workload_samples_role_median_khz": {
+          "client": 2549992.25,
+          "server": 2563111.0,
+          "workload": 1999939.625
+        },
+        "sha256": "64cb857db6acaaf9fb38342fa89b5c6186c514e665343f1f931e573335fd1371",
+        "cleanup": {
+          "process_exit_codes": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "firewall_clean": true,
+          "unrelated_rule_preserved": true
+        }
+      },
+      {
+        "label": "bounded-duplex-one-worker-candidate-0",
+        "version": "candidate",
+        "http": {
+          "mixed_workload": "http-churn",
+          "bytes": 1334520,
+          "canceled_requests": 3,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 0.000533801766823459,
+          "mean_latency_us": 1317.6148697659085,
+          "mode": "http-churn",
+          "p50_us_upper": 1000,
+          "p99_us_upper": 13000,
+          "request_gap_seconds": 0,
+          "requests": 60660,
+          "requests_per_second": 3032.9645842241985,
+          "seconds": 20.000233539,
+          "successful_workers": 4,
+          "total_seconds": 80.000233479,
+          "warmup_bytes": 3935536,
+          "warmup_errors": 0,
+          "warmup_requests": 178888,
+          "warmup_seconds": 60,
+          "workers": 4
+        },
+        "bulk": {
+          "iperf": "bidirectional",
+          "method": "concurrent_unidirectional",
+          "tunnel_cpu_cores": {
+            "client": 1.488,
+            "server": 0.995
+          },
+          "idle_wait_seconds": 0.091,
+          "receiver_gbps": 1.0011960601237917,
+          "reverse_receiver_gbps": 1.000764624688248
+        },
+        "last_20_workload_samples_role_median_khz": {
+          "client": 2549987.5,
+          "server": 2549993.25,
+          "workload": 1999901.75
+        },
+        "sha256": "f1374e06115aed45e7350afe5f46e73a8b706dac558feaf412daa0c5deae913e",
+        "cleanup": {
+          "process_exit_codes": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "firewall_clean": true,
+          "unrelated_rule_preserved": true
+        }
+      },
+      {
+        "label": "bounded-duplex-one-worker-candidate-1",
+        "version": "candidate",
+        "http": {
+          "mixed_workload": "http-churn",
+          "bytes": 1417834,
+          "canceled_requests": 4,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 0.0005671026317445511,
+          "mean_latency_us": 1239.5334305708566,
+          "mode": "http-churn",
+          "p50_us_upper": 1000,
+          "p99_us_upper": 11000,
+          "request_gap_seconds": 0,
+          "requests": 64447,
+          "requests_per_second": 3222.1740440031313,
+          "seconds": 20.001092157,
+          "successful_workers": 4,
+          "total_seconds": 80.001092077,
+          "warmup_bytes": 4037814,
+          "warmup_errors": 0,
+          "warmup_requests": 183537,
+          "warmup_seconds": 60,
+          "workers": 4
+        },
+        "bulk": {
+          "iperf": "bidirectional",
+          "method": "concurrent_unidirectional",
+          "tunnel_cpu_cores": {
+            "client": 1.477,
+            "server": 0.983
+          },
+          "idle_wait_seconds": 0.087,
+          "receiver_gbps": 1.0007194591841178,
+          "reverse_receiver_gbps": 1.0003373904182737
+        },
+        "last_20_workload_samples_role_median_khz": {
+          "client": 2550011.25,
+          "server": 2599566.75,
+          "workload": 1999979.875
+        },
+        "sha256": "f1374e06115aed45e7350afe5f46e73a8b706dac558feaf412daa0c5deae913e",
+        "cleanup": {
+          "process_exit_codes": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "firewall_clean": true,
+          "unrelated_rule_preserved": true
+        }
+      },
+      {
+        "label": "bounded-duplex-one-worker-baseline-1",
+        "version": "baseline",
+        "http": {
+          "mixed_workload": "http-churn",
+          "bytes": 1276550,
+          "canceled_requests": 4,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 0.0005105924760275169,
+          "mean_latency_us": 1377.018595433003,
+          "mode": "http-churn",
+          "p50_us_upper": 1000,
+          "p99_us_upper": 10000,
+          "request_gap_seconds": 0,
+          "requests": 58025,
+          "requests_per_second": 2901.0936137927097,
+          "seconds": 20.001078119,
+          "successful_workers": 4,
+          "total_seconds": 80.001078049,
+          "warmup_bytes": 3826900,
+          "warmup_errors": 0,
+          "warmup_requests": 173950,
+          "warmup_seconds": 60,
+          "workers": 4
+        },
+        "bulk": {
+          "iperf": "bidirectional",
+          "method": "concurrent_unidirectional",
+          "tunnel_cpu_cores": {
+            "client": 1.415,
+            "server": 0.97
+          },
+          "idle_wait_seconds": 0.09,
+          "receiver_gbps": 1.0003848374654702,
+          "reverse_receiver_gbps": 1.0005533481471558
+        },
+        "last_20_workload_samples_role_median_khz": {
+          "client": 2549999.25,
+          "server": 2600006.5,
+          "workload": 1999992.25
+        },
+        "sha256": "64cb857db6acaaf9fb38342fa89b5c6186c514e665343f1f931e573335fd1371",
+        "cleanup": {
+          "process_exit_codes": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "firewall_clean": true,
+          "unrelated_rule_preserved": true
+        }
+      },
+      {
+        "label": "bounded-duplex-one-worker-baseline-2",
+        "version": "baseline",
+        "http": {
+          "mixed_workload": "http-churn",
+          "bytes": 1364902,
+          "canceled_requests": 3,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 0.0005459499165157117,
+          "mean_latency_us": 1288.4330362179849,
+          "mode": "http-churn",
+          "p50_us_upper": 1000,
+          "p99_us_upper": 10000,
+          "request_gap_seconds": 0,
+          "requests": 62041,
+          "requests_per_second": 3101.9881620210895,
+          "seconds": 20.000398699,
+          "successful_workers": 4,
+          "total_seconds": 80.000398634,
+          "warmup_bytes": 3982616,
+          "warmup_errors": 0,
+          "warmup_requests": 181028,
+          "warmup_seconds": 60,
+          "workers": 4
+        },
+        "bulk": {
+          "iperf": "bidirectional",
+          "method": "concurrent_unidirectional",
+          "tunnel_cpu_cores": {
+            "client": 1.498,
+            "server": 0.994
+          },
+          "idle_wait_seconds": 0.084,
+          "receiver_gbps": 1.0006855177993896,
+          "reverse_receiver_gbps": 1.000710007015896
+        },
+        "last_20_workload_samples_role_median_khz": {
+          "client": 2513229.625,
+          "server": 2554053.25,
+          "workload": 2000013.125
+        },
+        "sha256": "64cb857db6acaaf9fb38342fa89b5c6186c514e665343f1f931e573335fd1371",
+        "cleanup": {
+          "process_exit_codes": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "firewall_clean": true,
+          "unrelated_rule_preserved": true
+        }
+      },
+      {
+        "label": "bounded-duplex-one-worker-candidate-2",
+        "version": "candidate",
+        "http": {
+          "mixed_workload": "http-churn",
+          "bytes": 1378212,
+          "canceled_requests": 4,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 0.000551273600160157,
+          "mean_latency_us": 1274.6875458927943,
+          "mode": "http-churn",
+          "p50_us_upper": 1000,
+          "p99_us_upper": 14000,
+          "request_gap_seconds": 0,
+          "requests": 62646,
+          "requests_per_second": 3132.236364546347,
+          "seconds": 20.000406326,
+          "successful_workers": 4,
+          "total_seconds": 80.00040624,
+          "warmup_bytes": 4156042,
+          "warmup_errors": 0,
+          "warmup_requests": 188911,
+          "warmup_seconds": 60,
+          "workers": 4
+        },
+        "bulk": {
+          "iperf": "bidirectional",
+          "method": "concurrent_unidirectional",
+          "tunnel_cpu_cores": {
+            "client": 1.512,
+            "server": 1.008
+          },
+          "idle_wait_seconds": 0.094,
+          "receiver_gbps": 1.00034195925122,
+          "reverse_receiver_gbps": 1.000494616009226
+        },
+        "last_20_workload_samples_role_median_khz": {
+          "client": 2528117.0,
+          "server": 2550226.5,
+          "workload": 1999970.0
+        },
+        "sha256": "f1374e06115aed45e7350afe5f46e73a8b706dac558feaf412daa0c5deae913e",
+        "cleanup": {
+          "process_exit_codes": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "firewall_clean": true,
+          "unrelated_rule_preserved": true
+        }
+      }
+    ],
+    "production_changed": false
+  },
+  "decision": "Measured throughput/mean gate passes after correcting clocks/startup comparison, but mixed p99 still misses the tail gate. Packed pressure alone is not promoted. Independently qualify the combined integration against receive.4."
+}

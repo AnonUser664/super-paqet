@@ -118,3 +118,54 @@ preceding 24-workload cohort remains in the original worktree's ignored build
 directory and is referenced by the copied ledger. Master and the customer
 deployment remain unchanged during branch exploration. Combined-agent merging
 and final qualification are subsequent stages.
+
+
+## Mixed-load measurement audit (follow-up)
+
+The first failed gates above remain valid observations, but an A/A control
+showed that they do not establish a code-caused slowdown. Six alternating runs
+used the **same receive.4 executable** (SHA-256
+`64cb857db6acaaf9fb38342fa89b5c6186c514e665343f1f931e573335fd1371`)
+with the same pinned lanes, affinity, transport settings and workload. HTTP
+rates in execution order were 6094, 4117, 3783, 3536, 3829 and 3927 requests/s.
+All six verified bytes, reported zero errors and cleaned up successfully.
+
+Read-only one-second clock observations correlated the first fast run with
+median client/server clocks of 3.820/4.092 GHz. Later runs were near
+2.65/2.70 GHz. The machine exposes a roughly 56-second long-term package power
+window, including 30 W and MMIO 18 W limits. This suggests a hardware-state
+confounder; it does not prove which power limit was binding. The observer used
+0.0194 CPU cores. No power limit, governor or system transport setting was changed.
+
+The audit also found a timing mismatch: iperf omitted configured startup seconds,
+while mixed HTTP included them in request rate and latency. Existing receipts
+retain that historical behavior. New opt-in `--duplex-http-steady` aligns HTTP
+measurement with its own configured warmup. The benchmark CLI's `-warmup` default
+is zero, classifies requests by start time, reports startup bytes/requests/errors
+separately, and still counts every startup error in total `errors`. Cancellation
+during warmup cannot produce a successful steady measurement. Real HTTP tests
+cover a truncated startup response and cancellation; `go test -race ./cmd/bench`
+passed. The steady helper is SHA-256
+`58abc360b04dd4082dd7b8be73ad8533aa625abb6856b72c405e3a83f7bc89de`.
+
+A follow-up uses 60 seconds of workload warmup, 20 measured seconds, three
+alternating pairs and the same receive.4/receive.6 binaries. Clock observations
+and exact commands are retained under `build/mixed-investigation-20261008/`.
+This corrects the comparison method; it changes no tunnel runtime policy.
+
+
+The steady comparison completed all six workloads with zero errors and clean
+firewall/namespace teardown. Median role clocks were now about 2.55/2.56 GHz
+(client/backend) and 2.00 GHz (generator), without the initial turbo outlier.
+Median HTTP rate was 2901 → 3132 requests/s (+8.0%), mean 1377 → 1275 us
+(-7.4%), and bidirectional bulk remained 1.000/1.001 Gbit/s. However, p99 bounds
+were 10 → 13 ms (baseline runs 13/10/10, candidate runs 13/11/14 ms).
+The tail gate remains unresolved; receive.6 **alone is not promoted**. This
+finishes the measurement audit and preserves the conservative failed-tail
+decision. The combined integration must be compared independently with
+receive.4 before selecting runtime code for master.
+
+[Audit receipts](mixed-load-audit-2026-10-08.json) retain A/A identity, all six
+steady HTTP/bulk results, startup error counts, cleanup and role clock samples.
+Raw one-second logs and scripts remain in the private build directory. The
+workload lock was released and no owned namespace remained.
