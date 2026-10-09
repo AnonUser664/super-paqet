@@ -269,7 +269,7 @@ use and pressure/bulk/latency outcomes must be qualified before promotion.
 The kernel-yield candidate (`b08160d`, executable `7eee1040…`) passes race/vet but
 its controlled mixed throughput gate still fails: combined bulk medians about
 256.15 → 231.60 Mbit/s (−9.6%). Mean latency improves, while the p99 upper bound
-stays at the histogram's 4.194 s ceiling. The idle wait measurement is not proof
+stays at the coarse logarithmic 4.194 s upper bound. The idle wait measurement is not proof
 that every Go timer under concurrent I/O takes a millisecond. Full receipts remain
 in `fq-fixed-queue6/`; no production update occurred.
 
@@ -280,3 +280,13 @@ counter does not justify a throughput regression. Both smaller-prefix and kernel
 yield experiments remain in Git history for later investigation; neither is being
 promoted on the strength of incomplete/failed gates. Recovery grace and opening
 correctness remain separate qualification decisions.
+
+The opening-only first pressure pair restores combined throughput to within about
+2% of its control, but short runs suggest higher mean request latency. These
+30-second runs contain few successful requests; longer measurement is required.
+The earlier description of 4.194 s as a histogram ceiling was incorrect: it is a
+logarithmic upper bound after the old 2-second fine range. The fixture now extends
+its millisecond buckets through the HTTP client's 30-second timeout. Traffic and
+request deadlines stay unchanged; this adds about 224 KiB to the load generator,
+not to the tunnel. Old helper hashes/receipts remain, and both comparison versions
+will use the same newly built helper.

@@ -351,9 +351,11 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 	}
 	var successfulWorkers atomic.Int64
 	var buckets [32]atomic.Int64
-	// Millisecond buckets resolve WAN latency changes that disappear inside
-	// logarithmic bounds; the logarithmic histogram still covers long stalls.
-	var millisecondBuckets [2001]atomic.Int64
+	// Millisecond buckets cover the HTTP client's complete 30-second timeout.
+	// A two-second fine range made multi-second queue stalls share a coarse
+	// logarithmic upper bound, obscuring differences without capping latency.
+	// The logarithmic histogram remains a fallback beyond the fine range.
+	var millisecondBuckets [30001]atomic.Int64
 	var latencySum atomic.Int64
 	var wg sync.WaitGroup
 	start := time.Now()
