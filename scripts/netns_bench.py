@@ -28,6 +28,8 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument('--binary', default='build/super-paqet')
     p.add_argument('--duration', type=int, default=10)
+    p.add_argument('--open-timeout', help='optional enterprise opening budget, e.g. 15s; application validation enforces duration bounds')
+    p.add_argument('--dial-timeout', help='optional enterprise target dial budget, e.g. 5s; must be shorter than opening budget')
     p.add_argument('--cold-read-bytes', type=int, help='size of the first integrity-checked transfer before warm-up')
     p.add_argument('--workers', type=int, default=32)
     p.add_argument('--loss', type=float, default=0)
@@ -385,8 +387,16 @@ def main():
             client = client.replace('    address:', '    shared_source: true\n    address:')
             server = server.replace('  - address:', '  - shared_source: true\n    address:')
         if a.enterprise:
-            if a.client_memory_mib:client+=f'limits: {{memory_mib: {a.client_memory_mib}}}\n'
-            if a.server_memory_mib:server+=f'limits: {{memory_mib: {a.server_memory_mib}}}\n'
+            # Match deployed deadline/retention budgets without changing historical
+            # fixture defaults. JSON quoting prevents duration text injecting YAML.
+            for role, memory in (('client', a.client_memory_mib), ('server', a.server_memory_mib)):
+                limits = {}
+                if a.open_timeout is not None: limits['open_timeout'] = a.open_timeout
+                if a.dial_timeout is not None: limits['dial_timeout'] = a.dial_timeout
+                if memory: limits['memory_mib'] = memory
+                if limits:
+                    if role == 'client': client += 'limits: '+json.dumps(limits)+'\n'
+                    else: server += 'limits: '+json.dumps(limits)+'\n'
             if a.conversation_listener and not a.shared_source:server=server.replace('  - address:', '  - shared_source: true\n    address:')
             if a.packet_workers is not None:server=server.replace('    address:', f'    packet_workers: {a.packet_workers}\n    address:',1)
             client=client.replace('network: {', f'network: {{tcp: {{local_flag: [{a.client_flag}], remote_flag: [{a.server_flag}]}}, ',-1 if a.pinned_lanes else 1)

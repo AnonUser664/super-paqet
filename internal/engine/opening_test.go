@@ -62,7 +62,12 @@ func (s *openingCommitCapture) Write(p []byte) (int, error) {
 }
 
 // WritePriority exercises the same priority interface as the live stream.
-func (s *openingCommitCapture) WritePriority(p []byte) (int, error) { return s.Write(p) }
+func (s *openingCommitCapture) WritePriority(p []byte) (int, error) {
+	if len(p) > 512 {
+		return 0, io.ErrShortBuffer
+	}
+	return s.Write(p)
+}
 
 // TestOpeningCommitPreface verifies bounded consumption, the nonblocking
 // server-first path, EOF, short-write accounting and rejection after TCP close.
@@ -103,7 +108,7 @@ func TestOpeningCommitPreface(t *testing.T) {
 				}
 				return
 			}
-			n := min(tc.size, 4095)
+			n := min(tc.size, 511)
 			want := append([]byte{0}, payload[:n]...)
 			if tc.limit >= 0 {
 				want = want[:min(len(want), tc.limit)]
@@ -128,6 +133,36 @@ func TestOpeningCommitPreface(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+// TestOpeningCommitLargePrefaceUsesRealPriorityLimit guards TLS-sized first
+// requests against the actual mux priority cap, rather than an unlimited mock.
+func TestOpeningCommitLargePrefaceUsesRealPriorityLimit(t *testing.T) {
+	client, tcp := openingTCPPair(t)
+	payload := bytes.Repeat([]byte{0x74}, 8192)
+	if _, err := client.Write(payload); err != nil {
+		t.Fatal(err)
+	}
+	s, server := openingCarrier(t, 3120)
+	local, remote := holdOpeningCarrier(t, s, server)
+	local.SetDeadline(time.Now().Add(time.Second))
+	remote.SetDeadline(time.Now().Add(time.Second))
+	var count atomic.Int64
+	if err := writeOpeningCommit(&kcp.Strm{Stream: local}, tcp, &count); err != nil {
+		t.Fatal("large first request rejected", err)
+	}
+	wire := make([]byte, 512)
+	if _, err := io.ReadFull(remote, wire); err != nil || wire[0] != 0 || !bytes.Equal(wire[1:], payload[:511]) {
+		t.Fatal("commit/preface wire changed", err)
+	}
+	if count.Load() != 511 {
+		t.Fatal("preface byte counter", count.Load())
+	}
+	tcp.SetReadDeadline(time.Now().Add(time.Second))
+	tail := make([]byte, len(payload)-511)
+	if _, err := io.ReadFull(tcp, tail); err != nil || !bytes.Equal(tail, payload[511:]) {
+		t.Fatal("large first request tail consumed", err)
 	}
 }
 

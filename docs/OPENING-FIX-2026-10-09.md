@@ -138,3 +138,18 @@ bytes, a retained target banner, exact hello/reply payloads and one target dial.
 Separate real TCP tests cover empty sockets, directional EOF, closed sockets,
 bounded prefix consumption, untouched unread tails and short-write accounting.
 Performance qualification for this new candidate remains pending.
+
+The first coalescing prototype has two retained failures. It could exceed smux's
+512-byte priority cap on large first requests; no production rollout occurred.
+The next edit caps the combined prefix at 512 (511 application bytes), and adds
+a real-mux 8 KiB first-request test plus a priority-limited mock. Its remaining
+TCP tail stays unread for normal relay. The initial coalescing benchmark is also
+unaccepted: mixed mean medians 1,103 → 1,160 microseconds (+5.2%), p99 upper
+bounds 8 → 11.5 ms. Churn control repetitions were 17,722 and 12,776 requests/s,
+candidate 12,685 and 12,861; no consistent churn speedup is claimed. All original
+receipts remain. Neither the large-prefix fix nor coalescing is deployed.
+
+The namespace fixture now accepts optional `--open-timeout` / `--dial-timeout`
+so later retention/capacity checks can match production's 15s / 5s. Omitted
+options preserve its historical 10s / 5s defaults. Application config validation
+checks the resulting durations. Existing comparison deadlines remain unchanged.

@@ -355,7 +355,9 @@ func writeOpeningCommit(stream tnet.Strm, tcp *net.TCPConn, sent *atomic.Int64) 
 	var n int
 	var readErr error
 	err = raw.Read(func(fd uintptr) bool {
-		n, readErr = unix.Read(int(fd), (*b)[1:])
+		// smux priority writes admit at most 512 bytes, including the commit.
+		// Leave larger first requests queued for ordinary ordered TCP relay.
+		n, readErr = unix.Read(int(fd), (*b)[1:512])
 		if errors.Is(readErr, unix.EAGAIN) || errors.Is(readErr, unix.EINTR) {
 			n, readErr = 0, nil
 		}
