@@ -45,7 +45,9 @@ interpreting incomplete traces.
 | `path.recovery_discarded` | Debug-level candidate discarded after old-path progress or a config change. |
 | `session.invalidated`, `session.idle_invalidated` | Carrier replacement |
 | `opening.syn_timeout` | SYN submission exceeded this carrier's receipt budget; identity, attempts and remaining opening time |
-| `opening.transport_timeout` | New-stream receipt timeout; carrier identity, attempt, remaining deadline and surviving streams |
+| `opening.transport_timeout` | Deployed latency.1 receipt timeout; carrier identity, attempt, remaining deadline and surviving streams |
+| `opening.transport_retry` | Local opening candidate: sibling retry, receipt stage and local receive-blocked state, including carrier identity and remaining deadline |
+| `opening.identity_rejected` | Local opening candidate: conflicting, committed/expired or capacity-rejected identity; no identity secret is logged |
 | `flow.open`, `flow.control`, `flow.relay`, `flow.closed` | Sampled lifecycle, correlated by flow ID within the process |
 | `packet.tx_queue` | New transmit queue drops on a shared listener socket, with cumulative and interval counts |
 | `transport.sample` | Delivery estimate, RTT/variance, pacing, windows, queues and wait time |
@@ -64,6 +66,17 @@ Debug `packet.tx_queue` events report shared listener drops only when the count
 changes. The `transport.sample.tx_queue_drops` field reports the owning client
 socket; accepted server carriers share listener sockets and report null there.
 Permanent injection/device errors still abort the affected transport.
+
+The local [opening/queue candidate](OPENING-FIX-2026-10-09.md) retries rejected
+AF_PACKET prefixes at half their previous size; healthy batches and the existing
+three waits are unchanged. A persistent rejection drops/counts only that last
+prefix, retaining the remaining payload batch at KCP's existing cursor.
+Its additional metrics are `super_paqet_opening_receipts` (including temporary
+replay tombstones), `super_paqet_opening_pending_targets`,
+`super_paqet_opening_capacity_retries_total`, and
+`super_paqet_opening_reused_targets_total`. A capacity retry is not physical path
+failure evidence and does not increment tuple suspicion. These candidate metrics
+are not available on production latency.1. No metric proves censorship.
 
 For `transport.sample`, compare `kcp_wait_ms` with `mux_wait_ms`: the first
 measures waiting for carrier send credit, the second waiting for stream credit.

@@ -150,6 +150,16 @@ See [LIVE-RELOAD.md](LIVE-RELOAD.md) for field-level impact and retry semantics.
 
 ## TCP opening and data path
 
+The following diagram describes the deployed latency.1 release. The isolated
+[opening-recovery candidate](OPENING-FIX-2026-10-09.md) uses PTCP3/PUDP3 instead:
+a random 16-byte request identity lets sibling streams share one unfinished
+target dial; after status 0 the client sends a one-byte commit before target
+reads begin. `internal/engine/opening.go` owns the bounded listener-generation
+registry, expiry heap and one-time target transfer. Only unfinished openings
+poll their receipt deadline (250 ms checkpoints); established relays do not.
+A receiver filling after status 2 can then be escaped without consuming a target
+banner or duplicating its dial. This candidate is not yet deployed or accepted.
+
 ```mermaid
 sequenceDiagram
     participant App as Client application

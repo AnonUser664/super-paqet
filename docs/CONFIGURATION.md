@@ -529,6 +529,17 @@ reordering level or delay. These are final-review decisions, not completed claim
 | `udp_idle` | `60s` | UDP flow inactivity/read deadlines; positive duration. |
 
 Duration fields accept Go duration strings such as `250ms`, `10s`, `2m`.
+The local [opening candidate](OPENING-FIX-2026-10-09.md) adds no configuration
+fields: receipt/tombstone storage is capped at `2 × connections`, and identities
+expire after the original server `open_timeout`. Pending target sockets expire
+with those receipts and are released immediately on listener retirement or
+shutdown. Committed relays do not retain registry ownership. Rapid connection
+churn therefore has transient registry memory in addition to active-flow memory;
+the admission ceiling is not a measured memory budget. If every sibling is
+blocked, the original opening deadline remains in force. Unblocked slow target
+dials retain `dial_timeout`; target rejection does not trigger tuple rotation.
+Deployment/benchmark qualification is still pending for this candidate.
+
 The engine requests roughly `2 × connections + 4096` file descriptors within
 its current hard limit; the deployed service's limit is 524288. Failure to reach
 that capacity is logged. A Go soft limit is not an RSS/cgroup/OOM boundary.

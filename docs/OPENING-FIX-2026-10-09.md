@@ -83,3 +83,33 @@ concurrent claims (one winner among 32), reload retirement, a healthy 600 ms
 target dial with no retry, and a target banner surviving late receive blockage.
 Three repetitions of the expanded opening race cases and the socket race suite
 pass. Whole-suite and namespace performance qualification remain pending.
+
+## Costs and explicit limits
+
+Opening identity/commit adds 17 inner control bytes and bounded transient cache
+storage. Server-first protocols must wait for the commit before their banner is
+read; banner arrival can therefore gain approximately one carrier RTT. Client-first
+request bytes follow the commit on the same ordered stream. This is a correctness
+tradeoff, not a claim that every protocol's startup latency is unchanged. Failed
+commits are terminal; established application exchanges are never replayed.
+
+The replay guarantee lasts through the original server opening budget. A request
+arriving after its tombstone was retired can create an uncommitted dial, but a
+well-behaved client's already-expired opening cannot commit it. This is not durable
+exactly-once execution, authentication, or an unbounded replay cache.
+
+A read-only fleet refresh at 16:35 UTC confirmed the same five runtime hashes,
+PIDs, unchanged Xray identities, healthy endpoints and zero restarts. Opening
+errors remained ten; .118 transport retries rose from 3,387 to 3,391. Finland
+transmit drops rose from 45,876 to 46,021. Original private refresh receipts remain
+in this worktree's build directory. No customer host was changed.
+
+The first unpinned short clean pair was adverse (upload 7.239 → 5.445 Gbit/s,
+download 2.979 → 2.704); it is retained, not acceptance. First churn was 10,102 →
+10,008 requests/s with backend peak RSS 39.6 → 113.2 MiB, consistent with temporary
+receipt/tombstone storage under rapid churn. Mixed screening stopped because the
+initial copied benchmark helper lacked the new `-warmup` argument. This was a
+fixture failure, not a successful latency result. The current helper was rebuilt
+from cmd/bench. The first 60-second-warmed, pinned-carrier/CPU-role bulk pair
+measured 5.338 → 5.403 Gbit/s upload and 4.162 → 4.204 download, both workers
+active. Reverse-order, latency and WAN qualification remain pending.

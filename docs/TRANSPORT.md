@@ -29,6 +29,19 @@ Preserve these properties while optimizing:
   unrelated rules. SIGKILL/power loss cannot execute cleanup; document recovery.
 
 The user confirmed that compatibility with unmodified paqet is not required.
+The isolated [9 October opening candidate](OPENING-FIX-2026-10-09.md) adds
+PTCP3/PUDP3 (`0x0c/0x0d`) to the same v1 header, prepending a nonzero 16-byte
+request identity to the existing target body. Retries retain that identity.
+Receipt 2 precedes the single target dial; receipt 0 precedes a one-byte client
+commit (zero), then the existing TCP/UDP payload framing. Target reads start
+only after the commit. Older PTCP2/PUDP2 requests remain supported by the new
+backend; new clients require upgraded backends first. A failed commit is never
+retried, and completed application traffic is never replayed. Tombstones prevent
+another claim within the original server opening budget; this is not an
+indefinite replay cache or cross-process resume. The outer encoder, TCP flags,
+KCP ordering and mux frame layout are unchanged. This extension is a local
+candidate, not the currently deployed protocol.
+
 The v1 control header gains enterprise TCP/UDP message types (0x06/0x07).
 TCP opening receives an explicit success/failure response. UDP uses a two-byte
 big-endian datagram length, including zero-length datagrams. smux v2 keeps its
