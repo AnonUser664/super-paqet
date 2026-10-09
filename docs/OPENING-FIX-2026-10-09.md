@@ -153,3 +153,14 @@ The namespace fixture now accepts optional `--open-timeout` / `--dial-timeout`
 so later retention/capacity checks can match production's 15s / 5s. Omitted
 options preserve its historical 10s / 5s defaults. Application config validation
 checks the resulting durations. Existing comparison deadlines remain unchanged.
+
+The next local candidate removes a channel allocation from healthy opening
+tombstones: only a replay joining an unfinished dial allocates a shared wakeup.
+Waiters copy the channel under the registry lock; publication/expiry close it
+and release the ticket's reference. Fresh synchronous dials need no extra wait
+lock. Expiry now processes at most 128 receipts per critical section and yields
+between groups, retaining complete cleanup while allowing live claims/dials to
+interleave. Shutdown retains full bounded-map cleanup without unnecessary yields.
+Five repetitions of the expanded opening race cases pass, including publication
+racing 32 waiters, one concurrent claim winner, a 1,024-entry expiry burst and
+large-preface handling against the actual mux. Performance evidence is pending.

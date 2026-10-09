@@ -228,9 +228,10 @@ func TestOpeningReceiptBoundsAndExpiry(t *testing.T) {
 	if _, _, err := r.reserve(context.Background(), nil, other, 1, deadline); err == nil {
 		t.Fatal("receipt storage exceeded bound")
 	}
+	ready := r.waitReady(first)
 	r.retire(deadline.Add(time.Second), false)
 	select {
-	case <-first.ready:
+	case <-ready:
 	default:
 		t.Fatal("expired dial did not wake waiter")
 	}
@@ -473,6 +474,77 @@ func TestOpeningReceiptConcurrentClaim(t *testing.T) {
 	wg.Wait()
 	if winners.Load() != 1 {
 		t.Fatalf("committed %d times", winners.Load())
+	}
+}
+
+// TestOpeningReceiptWaitersRacePublication verifies both joining unfinished
+// dials and arriving after publication, without retaining wakeups in tombstones.
+func TestOpeningReceiptWaitersRacePublication(t *testing.T) {
+	var r openingRegistry
+	defer r.close()
+	p := protocol.Proto{Type: protocol.PTCP3, RequestID: [16]byte{8}, Addr: &tnet.Addr{Host: "127.0.0.1", Port: 2096}}
+	ticket, _, err := r.reserve(context.Background(), nil, p, 100, time.Now().Add(3*time.Second))
+	if err != nil {
+		t.Fatal(err)
+	}
+	ready := r.waitReady(ticket)
+	var wg sync.WaitGroup
+	for i := 0; i < 32; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if c := r.waitReady(ticket); c != nil {
+				select {
+				case <-c:
+				case <-time.After(time.Second):
+					t.Error("joined waiter lost publication")
+				}
+			}
+			if err := r.result(ticket); err != nil {
+				t.Error(err)
+			}
+		}()
+	}
+	left, right := net.Pipe()
+	defer right.Close()
+	r.finish(ticket, left, nil)
+	select {
+	case <-ready:
+	case <-time.After(time.Second):
+		t.Fatal("initial waiter lost publication")
+	}
+	wg.Wait()
+	if r.waitReady(ticket) != nil {
+		t.Fatal("finished dial retained a wakeup")
+	}
+}
+
+// TestOpeningReceiptExpiryBurst fully retires a churn burst over multiple lock
+// batches, without losing wakeups or leaving pending ownership/accounting.
+func TestOpeningReceiptExpiryBurst(t *testing.T) {
+	var r openingRegistry
+	defer r.close()
+	deadline := time.Now().Add(time.Second)
+	var waiters []<-chan struct{}
+	for i := 0; i < 1024; i++ {
+		p := protocol.Proto{Type: protocol.PTCP3, Addr: &tnet.Addr{Host: "127.0.0.1", Port: 2096}}
+		p.RequestID[0], p.RequestID[1], p.RequestID[15] = byte(i), byte(i>>8), 1
+		ticket, _, err := r.reserve(context.Background(), nil, p, 2048, deadline)
+		if err != nil {
+			t.Fatal(err)
+		}
+		waiters = append(waiters, r.waitReady(ticket))
+	}
+	r.retire(deadline.Add(time.Second), false)
+	for _, c := range waiters {
+		select {
+		case <-c:
+		default:
+			t.Fatal("expiry waiter not released")
+		}
+	}
+	if count, pending := r.counts(); count != 0 || pending != 0 {
+		t.Fatalf("retained %d/%d", count, pending)
 	}
 }
 

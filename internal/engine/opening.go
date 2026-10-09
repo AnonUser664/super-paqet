@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"runtime"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -31,7 +32,7 @@ type openingKey struct {
 }
 
 // openingTicket retains pending ownership or a small replay tombstone until expiry.
-// Fields other than immutable key/target/deadline/ready are protected by registry.mu.
+// Fields other than immutable key/target/deadline are protected by registry.mu.
 type openingTicket struct {
 	key             openingKey
 	target          string
@@ -110,7 +111,7 @@ func (r *openingRegistry) reserve(ctx context.Context, listener tnet.Listener, p
 	if int64(len(r.entries)) >= limit {
 		return nil, false, errors.New("opening receipt capacity exhausted")
 	}
-	t := &openingTicket{key: key, target: p.Addr.String(), kind: p.Type, deadline: deadline, ready: make(chan struct{}), pending: true}
+	t := &openingTicket{key: key, target: p.Addr.String(), kind: p.Type, deadline: deadline, pending: true}
 	r.entries[key] = t
 	r.pending++
 	heap.Push(&r.expiry, t)
@@ -128,12 +129,31 @@ func (r *openingRegistry) finish(t *openingTicket, conn net.Conn, err error) {
 			t.pending = false
 			r.pending--
 		}
-		close(t.ready)
+		if t.ready != nil {
+			close(t.ready)
+			t.ready = nil
+		}
 	}
 	r.mu.Unlock()
 	if !valid && conn != nil {
 		conn.Close()
 	}
+}
+
+// waitReady allocates a shared wakeup only when a replay actually joins an
+// unfinished dial. Ordinary successful openings retain no channel allocation in
+// their tombstone. Waiters copy the channel under the mutex; finish/retirement
+// may clear the ticket's reference without racing or losing their wakeup.
+func (r *openingRegistry) waitReady(t *openingTicket) <-chan struct{} {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.entries[t.key] != t || t.finished {
+		return nil
+	}
+	if t.ready == nil {
+		t.ready = make(chan struct{})
+	}
+	return t.ready
 }
 
 // result verifies pending ownership without exposing the socket to a handler
@@ -170,35 +190,49 @@ func (r *openingRegistry) claim(t *openingTicket) (net.Conn, error) {
 // closeAll is used at engine shutdown; the sweeper otherwise touches only the
 // earliest deadline, avoiding a scan of all receipts on each controller tick.
 func (r *openingRegistry) retire(now time.Time, closeAll bool) {
-	var sockets []net.Conn
-	r.mu.Lock()
-	if closeAll {
-		r.closed = true
-	}
-	for len(r.expiry) > 0 && (closeAll || !now.Before(r.expiry[0].deadline)) {
-		t := heap.Pop(&r.expiry).(*openingTicket)
-		delete(r.entries, t.key)
-		if t.pending {
-			t.pending = false
-			r.pending--
+	for {
+		var sockets []net.Conn
+		r.mu.Lock()
+		if closeAll {
+			r.closed = true
 		}
-		if t.conn != nil {
-			sockets = append(sockets, t.conn)
-			t.conn = nil
+		// Limit each critical section during a churn burst. The whole expiry
+		// pass still finishes, but new dials/claims can interleave between groups.
+		for n := 0; n < 128 && len(r.expiry) > 0 && (closeAll || !now.Before(r.expiry[0].deadline)); n++ {
+			t := heap.Pop(&r.expiry).(*openingTicket)
+			delete(r.entries, t.key)
+			if t.pending {
+				t.pending = false
+				r.pending--
+			}
+			if t.conn != nil {
+				sockets = append(sockets, t.conn)
+				t.conn = nil
+			}
+			if !t.finished {
+				t.finished = true
+				t.err = context.DeadlineExceeded
+				if t.ready != nil {
+					close(t.ready)
+					t.ready = nil
+				}
+			}
 		}
-		if !t.finished {
-			t.finished = true
-			t.err = context.DeadlineExceeded
-			close(t.ready)
+		more := len(r.expiry) > 0 && (closeAll || !now.Before(r.expiry[0].deadline))
+		if len(r.entries) == 0 {
+			r.entries = nil
+			r.expiry = nil
 		}
-	}
-	if len(r.entries) == 0 {
-		r.entries = nil
-		r.expiry = nil
-	}
-	r.mu.Unlock()
-	for _, c := range sockets {
-		c.Close()
+		r.mu.Unlock()
+		for _, c := range sockets {
+			c.Close()
+		}
+		if !more {
+			return
+		}
+		if !closeAll {
+			runtime.Gosched() // Expiry bursts must share CPU with live opening work.
+		}
 	}
 }
 
@@ -229,7 +263,10 @@ func (r *openingRegistry) retireListener(listener tnet.Listener) {
 		}
 		if !t.finished {
 			t.finished, t.err = true, context.Canceled
-			close(t.ready)
+			if t.ready != nil {
+				close(t.ready)
+				t.ready = nil
+			}
 		}
 	}
 	clear(r.expiry[len(kept):])
@@ -293,10 +330,14 @@ func (e *Engine) handleOpening(ctx context.Context, listener tnet.Listener, strm
 		cancel()
 		e.openings.finish(t, c, err)
 	}
-	select {
-	case <-t.ready:
-	case <-ctx.Done():
-		return
+	if !fresh {
+		if ready := e.openings.waitReady(t); ready != nil {
+			select {
+			case <-ready:
+			case <-ctx.Done():
+				return
+			}
+		}
 	}
 	if err := e.openings.result(t); err != nil {
 		writeOpeningAck(strm, 1)
