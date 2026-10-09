@@ -28,6 +28,17 @@ installation left all tunnel/config/binary/Xray identities unchanged. No complet
 24-hour result is claimed. The earlier window ended 8 October 19:14 UTC; earlier
 observations below describe their identified versions.
 
+The [9 October production log review](PRODUCTION-REVIEW-2026-10-09.md) covers about
+17.6 hours. Original PIDs, executable/config hashes and Xray identities remain;
+there are no automatic restarts, sampled OOM/task-limit events or capture drops.
+The record is not incident-free: France had three preserving carrier recoveries
+and three rejected probes across the clients; .118 accumulated 3,387 opening
+retries and ten errors in Finland warning bursts. A full mux receive buffer
+coincided with those errors. Finland had 45,876 driver transmit queue drops.
+All live suspect/recovery-pending/opening-blocked gauges were zero. No production
+change or new end-to-end probe was made; slow-consumer opening behavior and queue
+pressure remain concrete follow-up work.
+
 ## Earlier investigation and local qualification
 
 The [8 October production review](PRODUCTION-REVIEW-2026-10-08.md) covers the

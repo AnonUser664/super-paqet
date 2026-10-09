@@ -1,0 +1,2926 @@
+{
+  "review": "Read-only log and metric review; no deployment, traffic probes or tuning.",
+  "runtime_release": "enterprise-2026.10.09-latency.1",
+  "runtime_source": "276c43a70873670a7e1665283620aba38594b1ab",
+  "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+  "private_receipts": "/home/shayan/Codes/super-paqet/build/production-review-20261009T1545Z",
+  "hosts": {
+    "116.202.177.233": {
+      "identity": {
+        "collected_utc": "2026-10-09T15:47:00.583915+00:00",
+        "unit": {
+          "MainPID": "960629",
+          "Result": "success",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Thu 2026-10-08 21:49:14 UTC",
+          "MemoryCurrent": "110305280",
+          "TasksCurrent": "18",
+          "ActiveState": "active",
+          "UnitFileState": "enabled"
+        },
+        "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+        "disk_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+        "running_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+        "xray_processes": [
+          {
+            "pid": 765574,
+            "start_ticks": "125163143",
+            "executable": "/usr/local/bin/xray"
+          }
+        ],
+        "health": "ok"
+      },
+      "observer": {
+        "unit": {
+          "rc": 0,
+          "out": "MainPID=961859\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 22:12:08 UTC\nMemoryCurrent=88436736\nTasksCurrent=2\nActiveState=active\nUnitFileState=enabled\n",
+          "err": ""
+        },
+        "summary": {
+          "completed": false,
+          "until": "2026-10-09T22:05:41.745259+00:00",
+          "journal_recorder": {
+            "records": 17,
+            "cursor_resume": false,
+            "last_realtime_usec": "1791496827185824"
+          },
+          "first_utc": "2026-10-08T22:12:08.241456+00:00",
+          "last_utc": "2026-10-09T15:47:00.314247+00:00",
+          "samples": 6300,
+          "triggers": {},
+          "peak_active": 2792.0,
+          "peak_rss_kib": 135268,
+          "peak_fds": 2747,
+          "runs": {
+            "960629": {
+              "first_utc": "2026-10-08T22:12:08.241456+00:00",
+              "last_counters": {
+                "errors_total": 7.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0,
+                "path_recovery_attempts_total": 0.0,
+                "path_recovery_succeeded_total": 0.0,
+                "path_recovery_rejected_total": 0.0,
+                "log_dropped_total": 0.0
+              },
+              "last_utc": "2026-10-09T15:47:00.314247+00:00"
+            }
+          },
+          "observed_processes": 1,
+          "counter_deltas": {
+            "errors_total": 0,
+            "rejected_total": 0,
+            "opening_transport_retries_total": 0,
+            "config_reload_rejected_total": 0,
+            "path_recovery_attempts_total": 0,
+            "path_recovery_succeeded_total": 0,
+            "path_recovery_rejected_total": 0,
+            "log_dropped_total": 0
+          }
+        },
+        "files": {
+          "installation.json": 5099,
+          "latest.json": 23293,
+          "tunnel.journal.jsonl": 7524,
+          "window.json": 1427,
+          "samples.jsonl.2": 33535702,
+          "summary.json": 1048,
+          "journal-state.json": 193,
+          "samples.jsonl": 7386809,
+          "samples.jsonl.3": 33538834,
+          "samples.jsonl.4": 33539010,
+          "samples.jsonl.1": 33537373
+        }
+      },
+      "archive_aggregate": {
+        "rows": 6310,
+        "first": "2026-10-08T22:12:08.241456+00:00",
+        "last": "2026-10-09T15:48:40.794279+00:00",
+        "max_gap_seconds": 10.054709068033844,
+        "metric_errors": 0,
+        "process_ids": [
+          "960629"
+        ],
+        "peak_active": 2792.0,
+        "peak_rss_kib": 135268,
+        "peak_swap_kib": 0,
+        "mean_cpu_cores": 0.23929479979110713,
+        "peak_cpu_cores": 0.4881505186616113,
+        "mean_relay_mbps": 38.714984866465045,
+        "peak_relay_mbps": 314.5464579062048,
+        "cgroup_event_peak": {
+          "memory.low": 0,
+          "memory.high": 0,
+          "memory.max": 0,
+          "memory.oom": 0,
+          "memory.oom_kill": 0,
+          "pids.max": 0
+        },
+        "label_counter_growth": {
+          "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"0\"}": 0,
+          "super_paqet_listener_capture_drops{listener=\"0\",worker=\"0\"}": 0,
+          "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"1\"}": 0,
+          "super_paqet_listener_capture_drops{listener=\"0\",worker=\"1\"}": 0,
+          "super_paqet_listener_tx_queue_drops{listener=\"1\",worker=\"0\"}": 0,
+          "super_paqet_listener_capture_drops{listener=\"1\",worker=\"0\"}": 0,
+          "super_paqet_listener_tx_queue_drops{listener=\"1\",worker=\"1\"}": 0,
+          "super_paqet_listener_capture_drops{listener=\"1\",worker=\"1\"}": 0
+        },
+        "state_peak": {},
+        "first_unlabelled_counters": {
+          "super_paqet_path_recovery_attempts_total": 0.0,
+          "super_paqet_path_recovery_succeeded_total": 0.0,
+          "super_paqet_path_recovery_rejected_total": 0.0,
+          "super_paqet_log_dropped_total": 0.0,
+          "super_paqet_active_connections": 1690.0,
+          "super_paqet_accepted_total": 73577.0,
+          "super_paqet_rejected_total": 0.0,
+          "super_paqet_errors_total": 7.0,
+          "super_paqet_opening_transport_retries_total": 0.0,
+          "super_paqet_sent_bytes_total": 10062991505.0,
+          "super_paqet_received_bytes_total": 620587993.0,
+          "super_paqet_aborted_connections_total": 4867.0,
+          "super_paqet_server_sessions": 7.0,
+          "super_paqet_goroutines": 3443.0,
+          "super_paqet_config_revision": 1.0,
+          "super_paqet_config_reload_applied_total": 0.0,
+          "super_paqet_config_reload_rejected_total": 0.0,
+          "super_paqet_config_degraded": 0.0,
+          "super_paqet_heap_bytes": 29744800.0,
+          "super_paqet_heap_sys_bytes": 81723392.0,
+          "super_paqet_gc_total": 66.0,
+          "super_paqet_kcp_BytesSent": 10087869967.0,
+          "super_paqet_kcp_BytesReceived": 631395865.0,
+          "super_paqet_kcp_MaxConn": 10.0,
+          "super_paqet_kcp_ActiveOpens": 0.0,
+          "super_paqet_kcp_PassiveOpens": 13.0,
+          "super_paqet_kcp_CurrEstab": 7.0,
+          "super_paqet_kcp_InErrs": 0.0,
+          "super_paqet_kcp_InCsumErrors": 0.0,
+          "super_paqet_kcp_KCPInErrors": 0.0,
+          "super_paqet_kcp_InPkts": 1321223.0,
+          "super_paqet_kcp_OutPkts": 8456379.0,
+          "super_paqet_kcp_InSegs": 1513500.0,
+          "super_paqet_kcp_OutSegs": 8642094.0,
+          "super_paqet_kcp_InBytes": 667783320.0,
+          "super_paqet_kcp_OutBytes": 10333544264.0,
+          "super_paqet_kcp_RetransSegs": 45634.0,
+          "super_paqet_kcp_FastRetransSegs": 3405.0,
+          "super_paqet_kcp_EarlyRetransSegs": 11.0,
+          "super_paqet_kcp_LostSegs": 42218.0,
+          "super_paqet_kcp_RepeatSegs": 79.0,
+          "super_paqet_kcp_FECFullShards": 0.0,
+          "super_paqet_kcp_FECParityShards": 0.0,
+          "super_paqet_kcp_FECErrs": 0.0,
+          "super_paqet_kcp_FECRecovered": 0.0,
+          "super_paqet_kcp_FECShardSet": 0.0,
+          "super_paqet_kcp_FECShardMin": 0.0,
+          "super_paqet_kcp_RingBufferSndQueue": 0.0,
+          "super_paqet_kcp_RingBufferRcvQueue": 0.0,
+          "super_paqet_kcp_RingBufferSndBuffer": 1.0,
+          "super_paqet_kcp_OOBPackets": 0.0
+        },
+        "last_unlabelled_counters": {
+          "super_paqet_path_recovery_attempts_total": 0.0,
+          "super_paqet_path_recovery_succeeded_total": 0.0,
+          "super_paqet_path_recovery_rejected_total": 0.0,
+          "super_paqet_log_dropped_total": 0.0,
+          "super_paqet_active_connections": 1600.0,
+          "super_paqet_accepted_total": 1988315.0,
+          "super_paqet_rejected_total": 0.0,
+          "super_paqet_errors_total": 7.0,
+          "super_paqet_opening_transport_retries_total": 0.0,
+          "super_paqet_sent_bytes_total": 286388124068.0,
+          "super_paqet_received_bytes_total": 31075671273.0,
+          "super_paqet_aborted_connections_total": 80969.0,
+          "super_paqet_server_sessions": 8.0,
+          "super_paqet_goroutines": 3271.0,
+          "super_paqet_config_revision": 1.0,
+          "super_paqet_config_reload_applied_total": 0.0,
+          "super_paqet_config_reload_rejected_total": 0.0,
+          "super_paqet_config_degraded": 0.0,
+          "super_paqet_heap_bytes": 35214960.0,
+          "super_paqet_heap_sys_bytes": 100466688.0,
+          "super_paqet_gc_total": 1904.0,
+          "super_paqet_kcp_BytesSent": 287050992224.0,
+          "super_paqet_kcp_BytesReceived": 31408738811.0,
+          "super_paqet_kcp_MaxConn": 10.0,
+          "super_paqet_kcp_ActiveOpens": 0.0,
+          "super_paqet_kcp_PassiveOpens": 14.0,
+          "super_paqet_kcp_CurrEstab": 8.0,
+          "super_paqet_kcp_InErrs": 0.0,
+          "super_paqet_kcp_InCsumErrors": 0.0,
+          "super_paqet_kcp_KCPInErrors": 0.0,
+          "super_paqet_kcp_InPkts": 49516971.0,
+          "super_paqet_kcp_OutPkts": 241026306.0,
+          "super_paqet_kcp_InSegs": 58586797.0,
+          "super_paqet_kcp_OutSegs": 248365834.0,
+          "super_paqet_kcp_InBytes": 32826560325.0,
+          "super_paqet_kcp_OutBytes": 293693242341.0,
+          "super_paqet_kcp_RetransSegs": 568296.0,
+          "super_paqet_kcp_FastRetransSegs": 110973.0,
+          "super_paqet_kcp_EarlyRetransSegs": 151.0,
+          "super_paqet_kcp_LostSegs": 457172.0,
+          "super_paqet_kcp_RepeatSegs": 13575.0,
+          "super_paqet_kcp_FECFullShards": 0.0,
+          "super_paqet_kcp_FECParityShards": 0.0,
+          "super_paqet_kcp_FECErrs": 0.0,
+          "super_paqet_kcp_FECRecovered": 0.0,
+          "super_paqet_kcp_FECShardSet": 0.0,
+          "super_paqet_kcp_FECShardMin": 0.0,
+          "super_paqet_kcp_RingBufferSndQueue": 0.0,
+          "super_paqet_kcp_RingBufferRcvQueue": 0.0,
+          "super_paqet_kcp_RingBufferSndBuffer": 8.0,
+          "super_paqet_kcp_OOBPackets": 0.0
+        },
+        "gaps": [],
+        "error_intervals": [],
+        "recovery_intervals": []
+      },
+      "retry_summary": {
+        "intervals": 0,
+        "hourly": {},
+        "retries_in_intervals_with_sampled_mux_block": 0
+      },
+      "journal": {
+        "records": 17,
+        "first_utc": "2026-10-08T21:49:13.538305+00:00",
+        "last_utc": "2026-10-08T22:00:27.185824+00:00",
+        "counts": {
+          "connection.failed": 6,
+          "session.closed": 6
+        },
+        "current_process_events": [
+          {
+            "journal_utc": "2026-10-08T21:49:26.801896+00:00",
+            "pid": "960629",
+            "event": {
+              "time": "2026-10-08T21:49:26.80174071Z",
+              "level": "WARN",
+              "msg": "connection.failed",
+              "error_id": 1,
+              "error": "read stream control: EOF"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T21:49:26.804689+00:00",
+            "pid": "960629",
+            "event": {
+              "time": "2026-10-08T21:49:26.803576224Z",
+              "level": "WARN",
+              "msg": "connection.failed",
+              "error_id": 2,
+              "error": "read stream control: EOF"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T21:49:26.805356+00:00",
+            "pid": "960629",
+            "event": {
+              "time": "2026-10-08T21:49:26.803591442Z",
+              "level": "WARN",
+              "msg": "connection.failed",
+              "error_id": 3,
+              "error": "read stream control: EOF"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T21:49:26.805521+00:00",
+            "pid": "960629",
+            "event": {
+              "time": "2026-10-08T21:49:26.803598095Z",
+              "level": "WARN",
+              "msg": "connection.failed",
+              "error_id": 4,
+              "error": "read stream control: EOF"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T21:49:26.805632+00:00",
+            "pid": "960629",
+            "event": {
+              "time": "2026-10-08T21:49:26.803601953Z",
+              "level": "WARN",
+              "msg": "connection.failed",
+              "error_id": 5,
+              "error": "read stream control: EOF"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T22:00:24.985071+00:00",
+            "pid": "960629",
+            "event": {
+              "time": "2026-10-08T22:00:24.984903546Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 3850072802,
+              "remote": "89.45.68.118:60231",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T22:00:25.036945+00:00",
+            "pid": "960629",
+            "event": {
+              "time": "2026-10-08T22:00:25.036890664Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 1908786866,
+              "remote": "89.45.68.118:47974",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T22:00:27.084893+00:00",
+            "pid": "960629",
+            "event": {
+              "time": "2026-10-08T22:00:27.084800154Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 3423050899,
+              "remote": "89.45.68.14:60136",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T22:00:27.085779+00:00",
+            "pid": "960629",
+            "event": {
+              "time": "2026-10-08T22:00:27.084810073Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 1706238505,
+              "remote": "89.45.68.118:35111",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T22:00:27.134906+00:00",
+            "pid": "960629",
+            "event": {
+              "time": "2026-10-08T22:00:27.134786043Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 512882974,
+              "remote": "89.45.68.14:57306",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T22:00:27.185824+00:00",
+            "pid": "960629",
+            "event": {
+              "time": "2026-10-08T22:00:27.185738938Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 1818970046,
+              "remote": "89.45.68.118:55668",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          }
+        ],
+        "system_messages": [
+          {
+            "utc": "2026-10-08T21:49:13.538305+00:00",
+            "pid": "1",
+            "message": "Stopping Super paqet raw TCP KCP tunnel..."
+          },
+          {
+            "utc": "2026-10-08T21:49:14.133434+00:00",
+            "pid": "1",
+            "message": "super-paqet.service: Deactivated successfully."
+          },
+          {
+            "utc": "2026-10-08T21:49:14.133777+00:00",
+            "pid": "1",
+            "message": "Stopped Super paqet raw TCP KCP tunnel."
+          },
+          {
+            "utc": "2026-10-08T21:49:14.134110+00:00",
+            "pid": "1",
+            "message": "super-paqet.service: Consumed 7h 9min 16.587s CPU time."
+          },
+          {
+            "utc": "2026-10-08T21:49:14.158055+00:00",
+            "pid": "1",
+            "message": "Started Super paqet raw TCP KCP tunnel."
+          }
+        ]
+      },
+      "kernel_read": {
+        "rc": 0,
+        "out": "",
+        "err": ""
+      },
+      "qdisc": {
+        "rc": 0,
+        "out": "qdisc noqueue 0: dev lo root refcnt 2 \n Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\nqdisc fq_codel 0: dev eth0 root refcnt 2 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64 \n Sent 11110303546570 bytes 13468984644 pkt (dropped 70, overlimits 0 requeues 3701) \n backlog 0b 0p requeues 3701\n  maxpacket 68130 drop_overlimit 0 new_flow_count 331744992 ecn_mark 0\n  new_flows_len 0 old_flows_len 0\nqdisc mq 0: dev CloudflareWARP root \n Sent 827132312156 bytes 3889485037 pkt (dropped 0, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\nqdisc fq_codel 0: dev CloudflareWARP parent :1 limit 10240p flows 1024 quantum 1280 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64 \n Sent 827132312208 bytes 3889485038 pkt (dropped 0, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\n  maxpacket 67840 drop_overlimit 0 new_flow_count 10036618 ecn_mark 0\n  new_flows_len 0 old_flows_len 0\nqdisc noqueue 0: dev sit_de1 root refcnt 2 \n Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\n",
+        "err": ""
+      },
+      "free": {
+        "rc": 0,
+        "out": "               total        used        free      shared  buff/cache   available\nMem:            3815        1707         834          15        1273        1828\nSwap:              0           0           0\n",
+        "err": ""
+      }
+    },
+    "171.22.132.226": {
+      "identity": {
+        "collected_utc": "2026-10-09T15:46:59.417924+00:00",
+        "unit": {
+          "ActiveState": "active",
+          "UnitFileState": "enabled",
+          "MainPID": "3151995",
+          "Result": "success",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Thu 2026-10-08 21:58:28 UTC",
+          "MemoryCurrent": "63668224",
+          "TasksCurrent": "10"
+        },
+        "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+        "disk_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+        "running_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+        "xray_processes": [
+          {
+            "pid": 2929362,
+            "start_ticks": "558964932",
+            "executable": "/usr/local/bin/xray"
+          }
+        ],
+        "health": "ok"
+      },
+      "observer": {
+        "unit": {
+          "rc": 0,
+          "out": "ActiveState=active\nUnitFileState=enabled\nMainPID=3152782\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 22:12:06 UTC\nMemoryCurrent=132919296\nTasksCurrent=2\n",
+          "err": ""
+        },
+        "summary": {
+          "completed": false,
+          "until": "2026-10-09T22:05:41.745259+00:00",
+          "journal_recorder": {
+            "records": 24,
+            "cursor_resume": false,
+            "last_realtime_usec": "1791519247958808"
+          },
+          "first_utc": "2026-10-08T22:12:06.441811+00:00",
+          "last_utc": "2026-10-09T15:46:57.128508+00:00",
+          "samples": 6330,
+          "triggers": {
+            "packet_drops_increased": 1
+          },
+          "peak_active": 1874.0,
+          "peak_rss_kib": 84984,
+          "peak_fds": 1884,
+          "runs": {
+            "3151995": {
+              "first_utc": "2026-10-08T22:12:06.441811+00:00",
+              "last_counters": {
+                "errors_total": 6.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0,
+                "path_recovery_attempts_total": 0.0,
+                "path_recovery_succeeded_total": 0.0,
+                "path_recovery_rejected_total": 0.0,
+                "log_dropped_total": 0.0
+              },
+              "last_utc": "2026-10-09T15:46:57.128508+00:00"
+            }
+          },
+          "observed_processes": 1,
+          "counter_deltas": {
+            "errors_total": 6.0,
+            "rejected_total": 0,
+            "opening_transport_retries_total": 0,
+            "config_reload_rejected_total": 0,
+            "path_recovery_attempts_total": 0,
+            "path_recovery_succeeded_total": 0,
+            "path_recovery_rejected_total": 0,
+            "log_dropped_total": 0
+          },
+          "captures": 1
+        },
+        "files": {
+          "installation.json": 5097,
+          "samples.jsonl.2": 33553634,
+          "samples.jsonl.4": 33545525,
+          "journal-state.json": 193,
+          "latest.json": 22150,
+          "window.json": 1426,
+          "samples.jsonl.1": 33547426,
+          "summary.json": 1092,
+          "samples.jsonl.3": 33548838,
+          "samples.jsonl": 5812078,
+          "tunnel.journal.jsonl": 11145,
+          "capture-0.json": 132
+        }
+      },
+      "archive_aggregate": {
+        "rows": 6340,
+        "first": "2026-10-08T22:12:06.441811+00:00",
+        "last": "2026-10-09T15:48:37.129532+00:00",
+        "max_gap_seconds": 10.00379442051053,
+        "metric_errors": 0,
+        "process_ids": [
+          "3151995"
+        ],
+        "peak_active": 1874.0,
+        "peak_rss_kib": 84984,
+        "peak_swap_kib": 0,
+        "mean_cpu_cores": 0.12368623708774232,
+        "peak_cpu_cores": 0.32957185293852453,
+        "mean_relay_mbps": 10.173112749570626,
+        "peak_relay_mbps": 175.0084935634535,
+        "cgroup_event_peak": {
+          "memory.low": 0,
+          "memory.high": 0,
+          "memory.max": 0,
+          "memory.oom": 0,
+          "memory.oom_kill": 0,
+          "memory.oom_group_kill": 0,
+          "memory.sock_throttled": 0,
+          "pids.max": 0
+        },
+        "label_counter_growth": {
+          "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"0\"}": 0,
+          "super_paqet_listener_capture_drops{listener=\"0\",worker=\"0\"}": 0,
+          "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"1\"}": 41.0,
+          "super_paqet_listener_capture_drops{listener=\"0\",worker=\"1\"}": 0
+        },
+        "state_peak": {},
+        "first_unlabelled_counters": {
+          "super_paqet_path_recovery_attempts_total": 0.0,
+          "super_paqet_path_recovery_succeeded_total": 0.0,
+          "super_paqet_path_recovery_rejected_total": 0.0,
+          "super_paqet_log_dropped_total": 0.0,
+          "super_paqet_active_connections": 328.0,
+          "super_paqet_accepted_total": 7840.0,
+          "super_paqet_rejected_total": 0.0,
+          "super_paqet_errors_total": 0.0,
+          "super_paqet_opening_transport_retries_total": 0.0,
+          "super_paqet_sent_bytes_total": 895102815.0,
+          "super_paqet_received_bytes_total": 71371351.0,
+          "super_paqet_aborted_connections_total": 681.0,
+          "super_paqet_server_sessions": 6.0,
+          "super_paqet_goroutines": 711.0,
+          "super_paqet_config_revision": 1.0,
+          "super_paqet_config_reload_applied_total": 0.0,
+          "super_paqet_config_reload_rejected_total": 0.0,
+          "super_paqet_config_degraded": 0.0,
+          "super_paqet_heap_bytes": 17165648.0,
+          "super_paqet_heap_sys_bytes": 30998528.0,
+          "super_paqet_gc_total": 16.0,
+          "super_paqet_kcp_BytesSent": 897757196.0,
+          "super_paqet_kcp_BytesReceived": 72548225.0,
+          "super_paqet_kcp_MaxConn": 10.0,
+          "super_paqet_kcp_ActiveOpens": 0.0,
+          "super_paqet_kcp_PassiveOpens": 12.0,
+          "super_paqet_kcp_CurrEstab": 6.0,
+          "super_paqet_kcp_InErrs": 0.0,
+          "super_paqet_kcp_InCsumErrors": 0.0,
+          "super_paqet_kcp_KCPInErrors": 0.0,
+          "super_paqet_kcp_InPkts": 167382.0,
+          "super_paqet_kcp_OutPkts": 794608.0,
+          "super_paqet_kcp_InSegs": 310357.0,
+          "super_paqet_kcp_OutSegs": 811490.0,
+          "super_paqet_kcp_InBytes": 80010589.0,
+          "super_paqet_kcp_OutBytes": 928526819.0,
+          "super_paqet_kcp_RetransSegs": 16780.0,
+          "super_paqet_kcp_FastRetransSegs": 8067.0,
+          "super_paqet_kcp_EarlyRetransSegs": 222.0,
+          "super_paqet_kcp_LostSegs": 8491.0,
+          "super_paqet_kcp_RepeatSegs": 28.0,
+          "super_paqet_kcp_FECFullShards": 0.0,
+          "super_paqet_kcp_FECParityShards": 0.0,
+          "super_paqet_kcp_FECErrs": 0.0,
+          "super_paqet_kcp_FECRecovered": 0.0,
+          "super_paqet_kcp_FECShardSet": 0.0,
+          "super_paqet_kcp_FECShardMin": 0.0,
+          "super_paqet_kcp_RingBufferSndQueue": 0.0,
+          "super_paqet_kcp_RingBufferRcvQueue": 0.0,
+          "super_paqet_kcp_RingBufferSndBuffer": 7.0,
+          "super_paqet_kcp_OOBPackets": 0.0
+        },
+        "last_unlabelled_counters": {
+          "super_paqet_path_recovery_attempts_total": 0.0,
+          "super_paqet_path_recovery_succeeded_total": 0.0,
+          "super_paqet_path_recovery_rejected_total": 0.0,
+          "super_paqet_log_dropped_total": 0.0,
+          "super_paqet_active_connections": 751.0,
+          "super_paqet_accepted_total": 546206.0,
+          "super_paqet_rejected_total": 0.0,
+          "super_paqet_errors_total": 6.0,
+          "super_paqet_opening_transport_retries_total": 0.0,
+          "super_paqet_sent_bytes_total": 73845339215.0,
+          "super_paqet_received_bytes_total": 7731211627.0,
+          "super_paqet_aborted_connections_total": 28112.0,
+          "super_paqet_server_sessions": 8.0,
+          "super_paqet_goroutines": 1568.0,
+          "super_paqet_config_revision": 1.0,
+          "super_paqet_config_reload_applied_total": 0.0,
+          "super_paqet_config_reload_rejected_total": 0.0,
+          "super_paqet_config_degraded": 0.0,
+          "super_paqet_heap_bytes": 33013328.0,
+          "super_paqet_heap_sys_bytes": 58982400.0,
+          "super_paqet_gc_total": 1099.0,
+          "super_paqet_kcp_BytesSent": 74041245427.0,
+          "super_paqet_kcp_BytesReceived": 7830548499.0,
+          "super_paqet_kcp_MaxConn": 13.0,
+          "super_paqet_kcp_ActiveOpens": 0.0,
+          "super_paqet_kcp_PassiveOpens": 21.0,
+          "super_paqet_kcp_CurrEstab": 8.0,
+          "super_paqet_kcp_InErrs": 0.0,
+          "super_paqet_kcp_InCsumErrors": 0.0,
+          "super_paqet_kcp_KCPInErrors": 0.0,
+          "super_paqet_kcp_InPkts": 15200272.0,
+          "super_paqet_kcp_OutPkts": 64542262.0,
+          "super_paqet_kcp_InSegs": 24126984.0,
+          "super_paqet_kcp_OutSegs": 66331977.0,
+          "super_paqet_kcp_InBytes": 8411392723.0,
+          "super_paqet_kcp_OutBytes": 76081245646.0,
+          "super_paqet_kcp_RetransSegs": 374343.0,
+          "super_paqet_kcp_FastRetransSegs": 316210.0,
+          "super_paqet_kcp_EarlyRetransSegs": 3705.0,
+          "super_paqet_kcp_LostSegs": 54428.0,
+          "super_paqet_kcp_RepeatSegs": 2649.0,
+          "super_paqet_kcp_FECFullShards": 0.0,
+          "super_paqet_kcp_FECParityShards": 0.0,
+          "super_paqet_kcp_FECErrs": 0.0,
+          "super_paqet_kcp_FECRecovered": 0.0,
+          "super_paqet_kcp_FECShardSet": 0.0,
+          "super_paqet_kcp_FECShardMin": 0.0,
+          "super_paqet_kcp_RingBufferSndQueue": 0.0,
+          "super_paqet_kcp_RingBufferRcvQueue": 0.0,
+          "super_paqet_kcp_RingBufferSndBuffer": 4.0,
+          "super_paqet_kcp_OOBPackets": 0.0
+        },
+        "gaps": [],
+        "error_intervals": [
+          {
+            "from": "2026-10-08T23:29:46.490758+00:00",
+            "until": "2026-10-08T23:29:56.490860+00:00",
+            "deltas": {
+              "errors_total": 3.0,
+              "opening_transport_retries_total": 0.0,
+              "path_recovery_attempts_total": 0.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 0.0
+            },
+            "blocked": {},
+            "active": 397.0,
+            "host_cpu_pressure": "some avg10=10.86 avg60=9.69 avg300=8.62 total=312833466463\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+            "cgroup_cpu_stat": "usage_usec 602732371\nuser_usec 255529259\nsystem_usec 347203111\nnice_usec 0\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+            "lane_metrics": [
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"230637927\",remote=\"89.45.68.14:65202\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"230637927\",remote=\"89.45.68.14:65202\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3684622519\",remote=\"89.45.68.118:40155\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3684622519\",remote=\"89.45.68.118:40155\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2510120145\",remote=\"89.45.68.118:32949\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2510120145\",remote=\"89.45.68.118:32949\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2805314098\",remote=\"89.45.68.118:36186\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2805314098\",remote=\"89.45.68.118:36186\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"977195925\",remote=\"89.45.68.14:46740\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"977195925\",remote=\"89.45.68.14:46740\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3614227566\",remote=\"89.45.68.14:44464\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3614227566\",remote=\"89.45.68.14:44464\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2008324608\",remote=\"89.45.68.14:62419\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2008324608\",remote=\"89.45.68.14:62419\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2737232030\",remote=\"89.45.68.118:55261\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2737232030\",remote=\"89.45.68.118:55261\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"738504959\",remote=\"89.45.68.118:49950\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"738504959\",remote=\"89.45.68.118:49950\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3453887446\",remote=\"89.45.68.14:50721\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3453887446\",remote=\"89.45.68.14:50721\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3469072882\",remote=\"89.45.68.14:44464\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3469072882\",remote=\"89.45.68.14:44464\"} 0.0"
+            ]
+          },
+          {
+            "from": "2026-10-08T23:29:56.490860+00:00",
+            "until": "2026-10-08T23:30:06.490929+00:00",
+            "deltas": {
+              "errors_total": 2.0,
+              "opening_transport_retries_total": 0.0,
+              "path_recovery_attempts_total": 0.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 0.0
+            },
+            "blocked": {},
+            "active": 371.0,
+            "host_cpu_pressure": "some avg10=10.58 avg60=9.83 avg300=8.68 total=312834599520\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+            "cgroup_cpu_stat": "usage_usec 603564735\nuser_usec 255887831\nsystem_usec 347676904\nnice_usec 0\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+            "lane_metrics": [
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2008324608\",remote=\"89.45.68.14:62419\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2008324608\",remote=\"89.45.68.14:62419\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2737232030\",remote=\"89.45.68.118:39533\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2737232030\",remote=\"89.45.68.118:39533\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"738504959\",remote=\"89.45.68.118:49950\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"738504959\",remote=\"89.45.68.118:49950\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3453887446\",remote=\"89.45.68.14:50721\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3453887446\",remote=\"89.45.68.14:50721\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3469072882\",remote=\"89.45.68.14:44464\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3469072882\",remote=\"89.45.68.14:44464\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2809609464\",remote=\"89.45.68.14:49850\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2809609464\",remote=\"89.45.68.14:49850\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"230637927\",remote=\"89.45.68.14:65202\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"230637927\",remote=\"89.45.68.14:65202\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3684622519\",remote=\"89.45.68.118:40155\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3684622519\",remote=\"89.45.68.118:40155\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3134369329\",remote=\"89.45.68.118:39533\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3134369329\",remote=\"89.45.68.118:39533\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2510120145\",remote=\"89.45.68.118:32949\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2510120145\",remote=\"89.45.68.118:32949\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2805314098\",remote=\"89.45.68.118:36186\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2805314098\",remote=\"89.45.68.118:36186\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"977195925\",remote=\"89.45.68.14:46740\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"977195925\",remote=\"89.45.68.14:46740\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3614227566\",remote=\"89.45.68.14:44464\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3614227566\",remote=\"89.45.68.14:44464\"} 0.0"
+            ]
+          },
+          {
+            "from": "2026-10-08T23:30:06.490929+00:00",
+            "until": "2026-10-08T23:30:16.491031+00:00",
+            "deltas": {
+              "errors_total": 1.0,
+              "opening_transport_retries_total": 0.0,
+              "path_recovery_attempts_total": 0.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 0.0
+            },
+            "blocked": {},
+            "active": 405.0,
+            "host_cpu_pressure": "some avg10=10.46 avg60=9.97 avg300=8.76 total=312835707178\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+            "cgroup_cpu_stat": "usage_usec 604630076\nuser_usec 256361257\nsystem_usec 348268818\nnice_usec 0\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+            "lane_metrics": [
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2510120145\",remote=\"89.45.68.118:32949\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2510120145\",remote=\"89.45.68.118:32949\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2805314098\",remote=\"89.45.68.118:36186\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2805314098\",remote=\"89.45.68.118:36186\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"977195925\",remote=\"89.45.68.14:46740\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"977195925\",remote=\"89.45.68.14:46740\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3614227566\",remote=\"89.45.68.14:44464\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3614227566\",remote=\"89.45.68.14:44464\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2008324608\",remote=\"89.45.68.14:62419\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2008324608\",remote=\"89.45.68.14:62419\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2737232030\",remote=\"89.45.68.118:39533\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2737232030\",remote=\"89.45.68.118:39533\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"738504959\",remote=\"89.45.68.118:49950\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"738504959\",remote=\"89.45.68.118:49950\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3453887446\",remote=\"89.45.68.14:50721\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3453887446\",remote=\"89.45.68.14:50721\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3469072882\",remote=\"89.45.68.14:44464\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3469072882\",remote=\"89.45.68.14:44464\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2809609464\",remote=\"89.45.68.14:49850\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2809609464\",remote=\"89.45.68.14:49850\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"230637927\",remote=\"89.45.68.14:65202\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"230637927\",remote=\"89.45.68.14:65202\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3684622519\",remote=\"89.45.68.118:40155\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3684622519\",remote=\"89.45.68.118:40155\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3134369329\",remote=\"89.45.68.118:39533\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3134369329\",remote=\"89.45.68.118:39533\"} 0.0"
+            ]
+          }
+        ],
+        "recovery_intervals": []
+      },
+      "retry_summary": {
+        "intervals": 0,
+        "hourly": {},
+        "retries_in_intervals_with_sampled_mux_block": 0
+      },
+      "journal": {
+        "records": 24,
+        "first_utc": "2026-10-08T21:58:28.214199+00:00",
+        "last_utc": "2026-10-09T04:14:07.958808+00:00",
+        "counts": {
+          "session.closed": 13,
+          "connection.failed": 6
+        },
+        "current_process_events": [
+          {
+            "journal_utc": "2026-10-08T22:00:13.108811+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-08T22:00:13.108639529Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 3375412433,
+              "remote": "89.45.68.14:52751",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T22:00:13.208770+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-08T22:00:13.208672181Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 374604322,
+              "remote": "89.45.68.118:46277",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T22:00:13.258586+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-08T22:00:13.258476545Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 2593240886,
+              "remote": "89.45.68.118:55204",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T22:00:13.359477+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-08T22:00:13.359340455Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 3783700393,
+              "remote": "89.45.68.118:62793",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T22:00:15.058675+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-08T22:00:15.058551366Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 3219933796,
+              "remote": "89.45.68.14:45213",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T22:00:39.258809+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-08T22:00:39.258710139Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 470491569,
+              "remote": "89.45.68.118:64243",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:29:46.817589+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-08T23:29:46.817500676Z",
+              "level": "WARN",
+              "msg": "connection.failed",
+              "error_id": 1,
+              "error": "read stream control: timeout"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:29:46.818131+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-08T23:29:46.817576569Z",
+              "level": "WARN",
+              "msg": "connection.failed",
+              "error_id": 2,
+              "error": "read stream control: timeout"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:29:46.818131+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-08T23:29:46.81760925Z",
+              "level": "WARN",
+              "msg": "connection.failed",
+              "error_id": 3,
+              "error": "read stream control: timeout"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:29:57.157059+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-08T23:29:57.156960812Z",
+              "level": "WARN",
+              "msg": "connection.failed",
+              "error_id": 4,
+              "error": "read stream control: timeout"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:29:57.981657+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-08T23:29:57.981499776Z",
+              "level": "WARN",
+              "msg": "connection.failed",
+              "error_id": 5,
+              "error": "read stream control: timeout"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:30:12.955401+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-08T23:30:12.955349347Z",
+              "level": "WARN",
+              "msg": "connection.failed",
+              "error_id": 6,
+              "error": "read stream control: timeout"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:30:41.258743+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-08T23:30:41.25852677Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 230637927,
+              "remote": "89.45.68.14:65202",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:30:41.958834+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-08T23:30:41.958685649Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 3453887446,
+              "remote": "89.45.68.14:50721",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:30:43.008855+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-08T23:30:43.008726663Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 3684622519,
+              "remote": "89.45.68.118:40155",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:30:45.960505+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-08T23:30:45.960150338Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 3469072882,
+              "remote": "89.45.68.14:44464",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:30:57.958695+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-08T23:30:57.958622491Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 2809609464,
+              "remote": "89.45.68.14:49850",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:31:00.008524+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-08T23:31:00.008410893Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 3134369329,
+              "remote": "89.45.68.118:39533",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-09T04:14:07.958808+00:00",
+            "pid": "3151995",
+            "event": {
+              "time": "2026-10-09T04:14:07.958533734Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 3798110813,
+              "remote": "89.45.68.118:44402",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          }
+        ],
+        "system_messages": [
+          {
+            "utc": "2026-10-08T21:58:28.214199+00:00",
+            "pid": "1",
+            "message": "Stopping super-paqet.service - Super paqet raw TCP KCP tunnel..."
+          },
+          {
+            "utc": "2026-10-08T21:58:28.365492+00:00",
+            "pid": "1",
+            "message": "super-paqet.service: Deactivated successfully."
+          },
+          {
+            "utc": "2026-10-08T21:58:28.366080+00:00",
+            "pid": "1",
+            "message": "Stopped super-paqet.service - Super paqet raw TCP KCP tunnel."
+          },
+          {
+            "utc": "2026-10-08T21:58:28.366710+00:00",
+            "pid": "1",
+            "message": "super-paqet.service: Consumed 3h 50min 47.587s CPU time over 1d 3h 29min 10.853s wall clock time, 79.1M memory peak."
+          },
+          {
+            "utc": "2026-10-08T21:58:28.397128+00:00",
+            "pid": "1",
+            "message": "Started super-paqet.service - Super paqet raw TCP KCP tunnel."
+          }
+        ]
+      },
+      "kernel_read": {
+        "error": "Command '['journalctl', '-k', '--since', '2026-10-08 21:49:00 UTC', '--no-pager', '-o', 'cat', '-p', 'warning', '-n', '200']' timed out after 15 seconds"
+      },
+      "qdisc": {
+        "rc": 0,
+        "out": "qdisc noqueue 0: dev lo root refcnt 2 \n Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\nqdisc pfifo_fast 0: dev net0 root refcnt 2 bands 3 priomap 1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1\n Sent 13318756711581 bytes 17227209796 pkt (dropped 162966, overlimits 0 requeues 3039129) \n backlog 0b 0p requeues 3039129\nqdisc mq 0: dev CloudflareWARP root \n Sent 57716936982 bytes 277112839 pkt (dropped 0, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\nqdisc fq 0: dev CloudflareWARP parent :1 limit 10000p flow_limit 100p buckets 1024 orphan_mask 1023 bands 3 priomap 1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1 weights 589824 196608 65536 quantum 2560b initial_quantum 12800b low_rate_threshold 550Kbit refill_delay 40ms timer_slack 10us horizon 10s horizon_drop offload_horizon 0us \n Sent 57716936982 bytes 277112839 pkt (dropped 0, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\n  flows 1044 (inactive 1044 throttled 0) band0_pkts 0 band1_pkts 0 band2_pkts 0\n  gc 160401 highprio 0 fastpath 256754573 throttled 4622500 latency 22.3us\n",
+        "err": ""
+      },
+      "free": {
+        "rc": 0,
+        "out": "               total        used        free      shared  buff/cache   available\nMem:            3910        1221         125           2        2815        2688\nSwap:              0           0           0\n",
+        "err": ""
+      }
+    },
+    "65.109.249.222": {
+      "identity": {
+        "collected_utc": "2026-10-09T15:46:59.427880+00:00",
+        "unit": {
+          "MainPID": "250828",
+          "Result": "success",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Thu 2026-10-08 21:59:20 UTC",
+          "MemoryCurrent": "77324288",
+          "TasksCurrent": "14",
+          "ActiveState": "active",
+          "UnitFileState": "enabled"
+        },
+        "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+        "disk_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+        "running_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+        "xray_processes": [
+          {
+            "pid": 71633,
+            "start_ticks": "2098986",
+            "executable": "/usr/local/bin/xray"
+          }
+        ],
+        "health": "ok"
+      },
+      "observer": {
+        "unit": {
+          "rc": 0,
+          "out": "MainPID=251417\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 22:12:06 UTC\nMemoryCurrent=133140480\nTasksCurrent=2\nActiveState=active\nUnitFileState=enabled\n",
+          "err": ""
+        },
+        "summary": {
+          "completed": false,
+          "until": "2026-10-09T22:05:41.745259+00:00",
+          "journal_recorder": {
+            "records": 10,
+            "cursor_resume": false,
+            "last_realtime_usec": "1791496831318060"
+          },
+          "first_utc": "2026-10-08T22:12:06.265943+00:00",
+          "last_utc": "2026-10-09T15:46:54.033281+00:00",
+          "samples": 6300,
+          "triggers": {
+            "packet_drops_increased": 259
+          },
+          "peak_active": 1522.0,
+          "peak_rss_kib": 85672,
+          "peak_fds": 1530,
+          "runs": {
+            "250828": {
+              "first_utc": "2026-10-08T22:12:06.265943+00:00",
+              "last_counters": {
+                "errors_total": 0.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0,
+                "path_recovery_attempts_total": 0.0,
+                "path_recovery_succeeded_total": 0.0,
+                "path_recovery_rejected_total": 0.0,
+                "log_dropped_total": 0.0
+              },
+              "last_utc": "2026-10-09T15:46:54.033281+00:00"
+            }
+          },
+          "observed_processes": 1,
+          "counter_deltas": {
+            "errors_total": 0,
+            "rejected_total": 0,
+            "opening_transport_retries_total": 0,
+            "config_reload_rejected_total": 0,
+            "path_recovery_attempts_total": 0,
+            "path_recovery_succeeded_total": 0,
+            "path_recovery_rejected_total": 0,
+            "log_dropped_total": 0
+          },
+          "captures": 73
+        },
+        "files": {
+          "capture-6.json": 132,
+          "capture-7.json": 132,
+          "tunnel.journal.jsonl": 4049,
+          "samples.jsonl.2": 33545886,
+          "samples.jsonl.1": 33544485,
+          "installation.json": 5087,
+          "capture-0.json": 132,
+          "summary.json": 1092,
+          "samples.jsonl": 4980708,
+          "capture-2.json": 132,
+          "capture-11.json": 132,
+          "capture-8.json": 132,
+          "capture-9.json": 132,
+          "capture-4.json": 132,
+          "capture-1.json": 132,
+          "window.json": 1422,
+          "latest.json": 22468,
+          "journal-state.json": 191,
+          "samples.jsonl.3": 33553956,
+          "capture-10.json": 132,
+          "capture-5.json": 132,
+          "capture-3.json": 132,
+          "samples.jsonl.4": 33533466
+        }
+      },
+      "archive_aggregate": {
+        "rows": 6310,
+        "first": "2026-10-08T22:12:06.265943+00:00",
+        "last": "2026-10-09T15:48:34.512836+00:00",
+        "max_gap_seconds": 10.05555655801436,
+        "metric_errors": 0,
+        "process_ids": [
+          "250828"
+        ],
+        "peak_active": 1522.0,
+        "peak_rss_kib": 85672,
+        "peak_swap_kib": 0,
+        "mean_cpu_cores": 0.20562265145339637,
+        "peak_cpu_cores": 0.5209554782706809,
+        "mean_relay_mbps": 17.763465575654745,
+        "peak_relay_mbps": 344.90848689314646,
+        "cgroup_event_peak": {
+          "memory.low": 0,
+          "memory.high": 0,
+          "memory.max": 0,
+          "memory.oom": 0,
+          "memory.oom_kill": 0,
+          "pids.max": 0
+        },
+        "label_counter_growth": {
+          "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"0\"}": 13460.0,
+          "super_paqet_listener_capture_drops{listener=\"0\",worker=\"0\"}": 0,
+          "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"1\"}": 32416.0,
+          "super_paqet_listener_capture_drops{listener=\"0\",worker=\"1\"}": 0
+        },
+        "state_peak": {},
+        "first_unlabelled_counters": {
+          "super_paqet_path_recovery_attempts_total": 0.0,
+          "super_paqet_path_recovery_succeeded_total": 0.0,
+          "super_paqet_path_recovery_rejected_total": 0.0,
+          "super_paqet_log_dropped_total": 0.0,
+          "super_paqet_active_connections": 558.0,
+          "super_paqet_accepted_total": 7735.0,
+          "super_paqet_rejected_total": 0.0,
+          "super_paqet_errors_total": 0.0,
+          "super_paqet_opening_transport_retries_total": 0.0,
+          "super_paqet_sent_bytes_total": 1058971789.0,
+          "super_paqet_received_bytes_total": 87782374.0,
+          "super_paqet_aborted_connections_total": 794.0,
+          "super_paqet_server_sessions": 8.0,
+          "super_paqet_goroutines": 1183.0,
+          "super_paqet_config_revision": 1.0,
+          "super_paqet_config_reload_applied_total": 0.0,
+          "super_paqet_config_reload_rejected_total": 0.0,
+          "super_paqet_config_degraded": 0.0,
+          "super_paqet_heap_bytes": 21477640.0,
+          "super_paqet_heap_sys_bytes": 33325056.0,
+          "super_paqet_gc_total": 18.0,
+          "super_paqet_kcp_BytesSent": 1061415383.0,
+          "super_paqet_kcp_BytesReceived": 89132829.0,
+          "super_paqet_kcp_MaxConn": 8.0,
+          "super_paqet_kcp_ActiveOpens": 0.0,
+          "super_paqet_kcp_PassiveOpens": 12.0,
+          "super_paqet_kcp_CurrEstab": 8.0,
+          "super_paqet_kcp_InErrs": 0.0,
+          "super_paqet_kcp_InCsumErrors": 0.0,
+          "super_paqet_kcp_KCPInErrors": 0.0,
+          "super_paqet_kcp_InPkts": 193132.0,
+          "super_paqet_kcp_OutPkts": 935583.0,
+          "super_paqet_kcp_InSegs": 209859.0,
+          "super_paqet_kcp_OutSegs": 952414.0,
+          "super_paqet_kcp_InBytes": 94193930.0,
+          "super_paqet_kcp_OutBytes": 1092896844.0,
+          "super_paqet_kcp_RetransSegs": 11508.0,
+          "super_paqet_kcp_FastRetransSegs": 610.0,
+          "super_paqet_kcp_EarlyRetransSegs": 3.0,
+          "super_paqet_kcp_LostSegs": 10895.0,
+          "super_paqet_kcp_RepeatSegs": 35.0,
+          "super_paqet_kcp_FECFullShards": 0.0,
+          "super_paqet_kcp_FECParityShards": 0.0,
+          "super_paqet_kcp_FECErrs": 0.0,
+          "super_paqet_kcp_FECRecovered": 0.0,
+          "super_paqet_kcp_FECShardSet": 0.0,
+          "super_paqet_kcp_FECShardMin": 0.0,
+          "super_paqet_kcp_RingBufferSndQueue": 0.0,
+          "super_paqet_kcp_RingBufferRcvQueue": 0.0,
+          "super_paqet_kcp_RingBufferSndBuffer": 191.0,
+          "super_paqet_kcp_OOBPackets": 0.0
+        },
+        "last_unlabelled_counters": {
+          "super_paqet_path_recovery_attempts_total": 0.0,
+          "super_paqet_path_recovery_succeeded_total": 0.0,
+          "super_paqet_path_recovery_rejected_total": 0.0,
+          "super_paqet_log_dropped_total": 0.0,
+          "super_paqet_active_connections": 1120.0,
+          "super_paqet_accepted_total": 746239.0,
+          "super_paqet_rejected_total": 0.0,
+          "super_paqet_errors_total": 0.0,
+          "super_paqet_opening_transport_retries_total": 0.0,
+          "super_paqet_sent_bytes_total": 128620669158.0,
+          "super_paqet_received_bytes_total": 13275452745.0,
+          "super_paqet_aborted_connections_total": 39420.0,
+          "super_paqet_server_sessions": 8.0,
+          "super_paqet_goroutines": 2306.0,
+          "super_paqet_config_revision": 1.0,
+          "super_paqet_config_reload_applied_total": 0.0,
+          "super_paqet_config_reload_rejected_total": 0.0,
+          "super_paqet_config_degraded": 0.0,
+          "super_paqet_heap_bytes": 24441304.0,
+          "super_paqet_heap_sys_bytes": 58359808.0,
+          "super_paqet_gc_total": 1162.0,
+          "super_paqet_kcp_BytesSent": 128826363460.0,
+          "super_paqet_kcp_BytesReceived": 13421994838.0,
+          "super_paqet_kcp_MaxConn": 8.0,
+          "super_paqet_kcp_ActiveOpens": 0.0,
+          "super_paqet_kcp_PassiveOpens": 12.0,
+          "super_paqet_kcp_CurrEstab": 8.0,
+          "super_paqet_kcp_InErrs": 0.0,
+          "super_paqet_kcp_InCsumErrors": 0.0,
+          "super_paqet_kcp_KCPInErrors": 0.0,
+          "super_paqet_kcp_InPkts": 22953543.0,
+          "super_paqet_kcp_OutPkts": 108512752.0,
+          "super_paqet_kcp_InSegs": 26887570.0,
+          "super_paqet_kcp_OutSegs": 111144855.0,
+          "super_paqet_kcp_InBytes": 14069507773.0,
+          "super_paqet_kcp_OutBytes": 131710444951.0,
+          "super_paqet_kcp_RetransSegs": 176189.0,
+          "super_paqet_kcp_FastRetransSegs": 102833.0,
+          "super_paqet_kcp_EarlyRetransSegs": 583.0,
+          "super_paqet_kcp_LostSegs": 72773.0,
+          "super_paqet_kcp_RepeatSegs": 2411.0,
+          "super_paqet_kcp_FECFullShards": 0.0,
+          "super_paqet_kcp_FECParityShards": 0.0,
+          "super_paqet_kcp_FECErrs": 0.0,
+          "super_paqet_kcp_FECRecovered": 0.0,
+          "super_paqet_kcp_FECShardSet": 0.0,
+          "super_paqet_kcp_FECShardMin": 0.0,
+          "super_paqet_kcp_RingBufferSndQueue": 7.0,
+          "super_paqet_kcp_RingBufferRcvQueue": 0.0,
+          "super_paqet_kcp_RingBufferSndBuffer": 211.0,
+          "super_paqet_kcp_OOBPackets": 0.0
+        },
+        "gaps": [],
+        "error_intervals": [],
+        "recovery_intervals": []
+      },
+      "retry_summary": {
+        "intervals": 0,
+        "hourly": {},
+        "retries_in_intervals_with_sampled_mux_block": 0
+      },
+      "journal": {
+        "records": 10,
+        "first_utc": "2026-10-08T21:59:20.568432+00:00",
+        "last_utc": "2026-10-08T22:00:31.318060+00:00",
+        "counts": {
+          "session.closed": 4
+        },
+        "current_process_events": [
+          {
+            "journal_utc": "2026-10-08T22:00:30.968500+00:00",
+            "pid": "250828",
+            "event": {
+              "time": "2026-10-08T22:00:30.968188391Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 600794875,
+              "remote": "89.45.68.118:56758",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T22:00:31.067539+00:00",
+            "pid": "250828",
+            "event": {
+              "time": "2026-10-08T22:00:31.067420206Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 3427109150,
+              "remote": "89.45.68.118:61630",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T22:00:31.167804+00:00",
+            "pid": "250828",
+            "event": {
+              "time": "2026-10-08T22:00:31.167716134Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 615313405,
+              "remote": "89.45.68.118:49631",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T22:00:31.318060+00:00",
+            "pid": "250828",
+            "event": {
+              "time": "2026-10-08T22:00:31.317901713Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 187244574,
+              "remote": "89.45.68.118:33803",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          }
+        ],
+        "system_messages": [
+          {
+            "utc": "2026-10-08T21:59:20.568432+00:00",
+            "pid": "1",
+            "message": "Stopping Super paqet raw TCP KCP tunnel..."
+          },
+          {
+            "utc": "2026-10-08T21:59:20.868267+00:00",
+            "pid": "1",
+            "message": "super-paqet.service: Deactivated successfully."
+          },
+          {
+            "utc": "2026-10-08T21:59:20.868664+00:00",
+            "pid": "1",
+            "message": "Stopped Super paqet raw TCP KCP tunnel."
+          },
+          {
+            "utc": "2026-10-08T21:59:20.868805+00:00",
+            "pid": "1",
+            "message": "super-paqet.service: Consumed 5h 56min 13.116s CPU time."
+          },
+          {
+            "utc": "2026-10-08T21:59:20.887778+00:00",
+            "pid": "1",
+            "message": "Starting Super paqet raw TCP KCP tunnel..."
+          },
+          {
+            "utc": "2026-10-08T21:59:20.904578+00:00",
+            "pid": "1",
+            "message": "Started Super paqet raw TCP KCP tunnel."
+          }
+        ]
+      },
+      "kernel_read": {
+        "rc": 0,
+        "out": "",
+        "err": ""
+      },
+      "qdisc": {
+        "rc": 0,
+        "out": "qdisc noqueue 0: dev lo root refcnt 2 \n Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\nqdisc fq 0: dev eth0 root refcnt 2 limit 10000p flow_limit 100p buckets 1024 orphan_mask 1023 quantum 3028b initial_quantum 15140b low_rate_threshold 550Kbit refill_delay 40ms timer_slack 10us horizon 10s horizon_drop \n Sent 1136875191470 bytes 1321733098 pkt (dropped 70682, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\n  flows 2047 (inactive 2045 throttled 0)\n  gc 7504376 highprio 6 throttled 43072058 latency 24.3us flows_plimit 70682\nqdisc mq 0: dev CloudflareWARP root \n Sent 73983627041 bytes 331535212 pkt (dropped 0, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\nqdisc fq 0: dev CloudflareWARP parent :1 limit 10000p flow_limit 100p buckets 1024 orphan_mask 1023 quantum 2560b initial_quantum 12800b low_rate_threshold 550Kbit refill_delay 40ms timer_slack 10us horizon 10s horizon_drop \n Sent 73983627041 bytes 331535212 pkt (dropped 0, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\n  flows 2047 (inactive 2043 throttled 0)\n  gc 2084062 highprio 0 throttled 1694908 latency 24.9us\n",
+        "err": ""
+      },
+      "free": {
+        "rc": 0,
+        "out": "               total        used        free      shared  buff/cache   available\nMem:            3815         951         283           4        2580        2590\nSwap:              0           0           0\n",
+        "err": ""
+      }
+    },
+    "89.45.68.14": {
+      "identity": {
+        "collected_utc": "2026-10-09T15:46:59.529412+00:00",
+        "unit": {
+          "MainPID": "376268",
+          "Result": "success",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Thu 2026-10-08 21:59:32 UTC",
+          "MemoryCurrent": "39542784",
+          "TasksCurrent": "15",
+          "ActiveState": "active",
+          "UnitFileState": "enabled"
+        },
+        "config_sha256": "61b976bbe69887aa95aea8779e188826bb8136f4ffd0a5647dfd49fdaa2eacef",
+        "disk_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+        "running_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+        "xray_processes": [],
+        "health": "ok"
+      },
+      "observer": {
+        "unit": {
+          "rc": 0,
+          "out": "MainPID=377072\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 22:12:05 UTC\nMemoryCurrent=133595136\nTasksCurrent=2\nActiveState=active\nUnitFileState=enabled\n",
+          "err": ""
+        },
+        "summary": {
+          "completed": false,
+          "until": "2026-10-09T22:05:41.745259+00:00",
+          "journal_recorder": {
+            "records": 20,
+            "cursor_resume": false,
+            "last_realtime_usec": "1791502211253754"
+          },
+          "first_utc": "2026-10-08T22:12:05.742692+00:00",
+          "last_utc": "2026-10-09T15:46:57.093406+00:00",
+          "samples": 6311,
+          "triggers": {
+            "path_recovery_attempts_total_increased": 2,
+            "path_recovery_succeeded_total_increased": 1,
+            "path_recovery_rejected_total_increased": 2,
+            "source_port_changed": 1,
+            "carrier_became_suspect": 1,
+            "carrier_recovery_started": 1
+          },
+          "peak_active": 161.0,
+          "peak_rss_kib": 119888,
+          "peak_fds": 195,
+          "runs": {
+            "376268": {
+              "first_utc": "2026-10-08T22:12:05.742692+00:00",
+              "last_counters": {
+                "errors_total": 0.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 0.0,
+                "config_reload_rejected_total": 0.0,
+                "path_recovery_attempts_total": 3.0,
+                "path_recovery_succeeded_total": 1.0,
+                "path_recovery_rejected_total": 2.0,
+                "log_dropped_total": 0.0
+              },
+              "last_utc": "2026-10-09T15:46:57.093406+00:00"
+            }
+          },
+          "observed_processes": 1,
+          "counter_deltas": {
+            "errors_total": 0,
+            "rejected_total": 0,
+            "opening_transport_retries_total": 0,
+            "config_reload_rejected_total": 0,
+            "path_recovery_attempts_total": 3.0,
+            "path_recovery_succeeded_total": 1.0,
+            "path_recovery_rejected_total": 2.0,
+            "log_dropped_total": 0
+          },
+          "captures": 1
+        },
+        "files": {
+          "samples.jsonl": 2713653,
+          "journal-state.json": 191,
+          "samples.jsonl.2": 33553102,
+          "tunnel.journal.jsonl": 9991,
+          "summary.json": 1287,
+          "window.json": 1296,
+          "latest.json": 44839,
+          "capture-0.json": 281,
+          "installation.json": 4831,
+          "samples.jsonl.6": 33522991,
+          "samples.jsonl.8": 33523487,
+          "samples.jsonl.5": 33531887,
+          "samples.jsonl.4": 33526501,
+          "samples.jsonl.7": 33543261,
+          "samples.jsonl.3": 33536751,
+          "samples.jsonl.1": 33514703
+        }
+      },
+      "archive_aggregate": {
+        "rows": 6322,
+        "first": "2026-10-08T22:12:05.742692+00:00",
+        "last": "2026-10-09T15:48:47.418444+00:00",
+        "max_gap_seconds": 10.06606593192555,
+        "metric_errors": 0,
+        "process_ids": [
+          "376268"
+        ],
+        "peak_active": 161.0,
+        "peak_rss_kib": 119888,
+        "peak_swap_kib": 0,
+        "mean_cpu_cores": 0.1072725738531477,
+        "peak_cpu_cores": 1.174199723431192,
+        "mean_relay_mbps": 0.7959843061852266,
+        "peak_relay_mbps": 266.411482774337,
+        "cgroup_event_peak": {
+          "memory.low": 0,
+          "memory.high": 0,
+          "memory.max": 0,
+          "memory.oom": 0,
+          "memory.oom_kill": 0,
+          "pids.max": 0
+        },
+        "label_counter_growth": {
+          "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"0\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"germany\",session=\"0\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"1\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"germany\",session=\"1\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"2\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"germany\",session=\"2\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"0\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"finland\",session=\"0\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"1\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"finland\",session=\"1\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"2\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"finland\",session=\"2\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"3\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"finland\",session=\"3\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"0\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"france\",session=\"0\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"1\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"france\",session=\"1\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"2\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"france\",session=\"2\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"3\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"france\",session=\"3\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"3\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"germany\",session=\"3\"}": 0
+        },
+        "state_peak": {
+          "super_paqet_session_mux_receive_blocked{conv=\"3145931255\",remote=\"65.109.249.222:29999\"}": 1.0,
+          "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"0\"}": 1.0,
+          "super_paqet_session_mux_receive_blocked{conv=\"461024748\",remote=\"65.109.249.222:29999\"}": 1.0,
+          "super_paqet_session_mux_receive_blocked{conv=\"389784686\",remote=\"65.109.249.222:29999\"}": 1.0,
+          "super_paqet_session_mux_receive_blocked{conv=\"4100681329\",remote=\"65.109.249.222:29999\"}": 1.0,
+          "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"1\"}": 1.0,
+          "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"2\"}": 1.0,
+          "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"3\"}": 1.0,
+          "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"3\"}": 1.0,
+          "super_paqet_peer_carrier_recovery_pending{peer=\"france\",session=\"3\"}": 1.0
+        },
+        "first_unlabelled_counters": {
+          "super_paqet_path_recovery_attempts_total": 0.0,
+          "super_paqet_path_recovery_succeeded_total": 0.0,
+          "super_paqet_path_recovery_rejected_total": 0.0,
+          "super_paqet_log_dropped_total": 0.0,
+          "super_paqet_active_connections": 0.0,
+          "super_paqet_accepted_total": 10.0,
+          "super_paqet_rejected_total": 0.0,
+          "super_paqet_errors_total": 0.0,
+          "super_paqet_opening_transport_retries_total": 0.0,
+          "super_paqet_sent_bytes_total": 40690.0,
+          "super_paqet_received_bytes_total": 6732957.0,
+          "super_paqet_aborted_connections_total": 8.0,
+          "super_paqet_server_sessions": 0.0,
+          "super_paqet_goroutines": 73.0,
+          "super_paqet_config_revision": 1.0,
+          "super_paqet_config_reload_applied_total": 0.0,
+          "super_paqet_config_reload_rejected_total": 0.0,
+          "super_paqet_config_degraded": 0.0,
+          "super_paqet_heap_bytes": 11934264.0,
+          "super_paqet_heap_sys_bytes": 20086784.0,
+          "super_paqet_gc_total": 7.0,
+          "super_paqet_kcp_BytesSent": 62950.0,
+          "super_paqet_kcp_BytesReceived": 6766991.0,
+          "super_paqet_kcp_MaxConn": 9.0,
+          "super_paqet_kcp_ActiveOpens": 0.0,
+          "super_paqet_kcp_PassiveOpens": 9.0,
+          "super_paqet_kcp_CurrEstab": 9.0,
+          "super_paqet_kcp_InErrs": 0.0,
+          "super_paqet_kcp_InCsumErrors": 0.0,
+          "super_paqet_kcp_KCPInErrors": 0.0,
+          "super_paqet_kcp_InPkts": 10475.0,
+          "super_paqet_kcp_OutPkts": 5630.0,
+          "super_paqet_kcp_InSegs": 10508.0,
+          "super_paqet_kcp_OutSegs": 6526.0,
+          "super_paqet_kcp_InBytes": 7019183.0,
+          "super_paqet_kcp_OutBytes": 219630.0,
+          "super_paqet_kcp_RetransSegs": 6.0,
+          "super_paqet_kcp_FastRetransSegs": 1.0,
+          "super_paqet_kcp_EarlyRetransSegs": 0.0,
+          "super_paqet_kcp_LostSegs": 5.0,
+          "super_paqet_kcp_RepeatSegs": 0.0,
+          "super_paqet_kcp_FECFullShards": 0.0,
+          "super_paqet_kcp_FECParityShards": 0.0,
+          "super_paqet_kcp_FECErrs": 0.0,
+          "super_paqet_kcp_FECRecovered": 0.0,
+          "super_paqet_kcp_FECShardSet": 0.0,
+          "super_paqet_kcp_FECShardMin": 0.0,
+          "super_paqet_kcp_RingBufferSndQueue": 0.0,
+          "super_paqet_kcp_RingBufferRcvQueue": 0.0,
+          "super_paqet_kcp_RingBufferSndBuffer": 0.0,
+          "super_paqet_kcp_OOBPackets": 0.0
+        },
+        "last_unlabelled_counters": {
+          "super_paqet_path_recovery_attempts_total": 3.0,
+          "super_paqet_path_recovery_succeeded_total": 1.0,
+          "super_paqet_path_recovery_rejected_total": 2.0,
+          "super_paqet_log_dropped_total": 0.0,
+          "super_paqet_active_connections": 22.0,
+          "super_paqet_accepted_total": 27487.0,
+          "super_paqet_rejected_total": 0.0,
+          "super_paqet_errors_total": 0.0,
+          "super_paqet_opening_transport_retries_total": 0.0,
+          "super_paqet_sent_bytes_total": 594189659.0,
+          "super_paqet_received_bytes_total": 5720926349.0,
+          "super_paqet_aborted_connections_total": 24949.0,
+          "super_paqet_server_sessions": 0.0,
+          "super_paqet_goroutines": 135.0,
+          "super_paqet_config_revision": 1.0,
+          "super_paqet_config_reload_applied_total": 0.0,
+          "super_paqet_config_reload_rejected_total": 0.0,
+          "super_paqet_config_degraded": 0.0,
+          "super_paqet_heap_bytes": 24992848.0,
+          "super_paqet_heap_sys_bytes": 111345664.0,
+          "super_paqet_gc_total": 540.0,
+          "super_paqet_kcp_BytesSent": 602254560.0,
+          "super_paqet_kcp_BytesReceived": 5909927641.0,
+          "super_paqet_kcp_MaxConn": 13.0,
+          "super_paqet_kcp_ActiveOpens": 0.0,
+          "super_paqet_kcp_PassiveOpens": 16.0,
+          "super_paqet_kcp_CurrEstab": 12.0,
+          "super_paqet_kcp_InErrs": 0.0,
+          "super_paqet_kcp_InCsumErrors": 0.0,
+          "super_paqet_kcp_KCPInErrors": 0.0,
+          "super_paqet_kcp_InPkts": 5697177.0,
+          "super_paqet_kcp_OutPkts": 1777315.0,
+          "super_paqet_kcp_InSegs": 5735611.0,
+          "super_paqet_kcp_OutSegs": 2140083.0,
+          "super_paqet_kcp_InBytes": 6048135176.0,
+          "super_paqet_kcp_OutBytes": 653730992.0,
+          "super_paqet_kcp_RetransSegs": 713.0,
+          "super_paqet_kcp_FastRetransSegs": 90.0,
+          "super_paqet_kcp_EarlyRetransSegs": 52.0,
+          "super_paqet_kcp_LostSegs": 571.0,
+          "super_paqet_kcp_RepeatSegs": 611.0,
+          "super_paqet_kcp_FECFullShards": 0.0,
+          "super_paqet_kcp_FECParityShards": 0.0,
+          "super_paqet_kcp_FECErrs": 0.0,
+          "super_paqet_kcp_FECRecovered": 0.0,
+          "super_paqet_kcp_FECShardSet": 0.0,
+          "super_paqet_kcp_FECShardMin": 0.0,
+          "super_paqet_kcp_RingBufferSndQueue": 0.0,
+          "super_paqet_kcp_RingBufferRcvQueue": 0.0,
+          "super_paqet_kcp_RingBufferSndBuffer": 0.0,
+          "super_paqet_kcp_OOBPackets": 0.0
+        },
+        "gaps": [],
+        "error_intervals": [],
+        "recovery_intervals": [
+          {
+            "from": "2026-10-08T23:29:39.153901+00:00",
+            "until": "2026-10-08T23:29:49.164324+00:00",
+            "deltas": {
+              "errors_total": 0.0,
+              "opening_transport_retries_total": 0.0,
+              "path_recovery_attempts_total": 2.0,
+              "path_recovery_succeeded_total": 1.0,
+              "path_recovery_rejected_total": 1.0
+            },
+            "blocked": {
+              "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"3\"}": 1.0
+            },
+            "active": 0.0,
+            "host_cpu_pressure": "some avg10=0.24 avg60=0.10 avg300=0.07 total=5533374167\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+            "cgroup_cpu_stat": "usage_usec 578101799\nuser_usec 253109009\nsystem_usec 324992789\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\n",
+            "lane_metrics": [
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2008324608\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2008324608\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"230637927\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"230637927\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"135573104\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"135573104\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"650892430\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"650892430\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3145931255\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3145931255\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"977195925\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"977195925\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3614227566\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3614227566\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2788125207\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2788125207\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"4100681329\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"4100681329\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"461024748\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"461024748\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"389784686\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"389784686\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"0\"} 32978.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"1\"} 60754.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"2\"} 43316.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"3\"} 0.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"0\"} 34775.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"1\"} 34201.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"2\"} 40213.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"3\"} 55722.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"0\"} 46740.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"1\"} 44464.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"2\"} 62419.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"3\"} 65202.0"
+            ]
+          },
+          {
+            "from": "2026-10-08T23:29:49.164324+00:00",
+            "until": "2026-10-08T23:29:59.167182+00:00",
+            "deltas": {
+              "errors_total": 0.0,
+              "opening_transport_retries_total": 0.0,
+              "path_recovery_attempts_total": 1.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 0.0
+            },
+            "blocked": {
+              "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"3\"}": 1.0,
+              "super_paqet_peer_carrier_recovery_pending{peer=\"france\",session=\"3\"}": 1.0
+            },
+            "active": 0.0,
+            "host_cpu_pressure": "some avg10=0.09 avg60=0.08 avg300=0.07 total=5533449872\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+            "cgroup_cpu_stat": "usage_usec 579202992\nuser_usec 253632235\nsystem_usec 325570757\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\n",
+            "lane_metrics": [
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"135573104\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"135573104\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"650892430\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"650892430\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3145931255\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3145931255\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"977195925\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"977195925\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3614227566\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3614227566\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2788125207\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2788125207\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2809609464\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2809609464\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"4100681329\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"4100681329\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"461024748\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"461024748\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"389784686\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"389784686\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2008324608\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2008324608\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"230637927\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"230637927\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"0\"} 32978.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"1\"} 60754.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"2\"} 43316.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"3\"} 0.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"0\"} 34775.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"1\"} 34201.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"2\"} 40213.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"3\"} 55722.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"0\"} 46740.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"1\"} 44464.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"2\"} 62419.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"3\"} 65202.0"
+            ]
+          },
+          {
+            "from": "2026-10-08T23:29:59.167182+00:00",
+            "until": "2026-10-08T23:30:09.193566+00:00",
+            "deltas": {
+              "errors_total": 0.0,
+              "opening_transport_retries_total": 0.0,
+              "path_recovery_attempts_total": 0.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 1.0
+            },
+            "blocked": {
+              "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"3\"}": 1.0
+            },
+            "active": 0.0,
+            "host_cpu_pressure": "some avg10=0.15 avg60=0.10 avg300=0.07 total=5533530010\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+            "cgroup_cpu_stat": "usage_usec 580327723\nuser_usec 254110459\nsystem_usec 326217263\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\n",
+            "lane_metrics": [
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2788125207\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2788125207\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"4100681329\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"4100681329\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"461024748\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"461024748\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"389784686\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"389784686\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2008324608\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2008324608\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"230637927\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"230637927\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"135573104\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"135573104\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"650892430\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"650892430\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3145931255\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3145931255\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"977195925\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"977195925\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3614227566\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3614227566\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"0\"} 32978.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"1\"} 60754.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"2\"} 43316.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"3\"} 0.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"0\"} 34775.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"1\"} 34201.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"2\"} 40213.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"3\"} 55722.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"0\"} 46740.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"1\"} 44464.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"2\"} 62419.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"3\"} 65202.0"
+            ]
+          }
+        ]
+      },
+      "retry_summary": {
+        "intervals": 0,
+        "hourly": {},
+        "retries_in_intervals_with_sampled_mux_block": 0
+      },
+      "journal": {
+        "records": 20,
+        "first_utc": "2026-10-08T21:49:24.983869+00:00",
+        "last_utc": "2026-10-08T23:30:11.253754+00:00",
+        "counts": {
+          "path.recovery_probe": 7,
+          "path.recovered": 5,
+          "path.recovery_probe_failed": 2,
+          "session.closed": 1
+        },
+        "current_process_events": [
+          {
+            "journal_utc": "2026-10-08T23:29:41.889221+00:00",
+            "pid": "376268",
+            "event": {
+              "time": "2026-10-08T23:29:41.888054623Z",
+              "level": "WARN",
+              "msg": "path.recovery_probe",
+              "peer": "france",
+              "session": 3,
+              "old_source_port": 65202,
+              "remote": "171.22.132.226:29999"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:29:43.887433+00:00",
+            "pid": "376268",
+            "event": {
+              "time": "2026-10-08T23:29:43.887107391Z",
+              "level": "WARN",
+              "msg": "path.recovery_probe",
+              "peer": "france",
+              "session": 1,
+              "old_source_port": 49386,
+              "remote": "171.22.132.226:29999"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:29:44.607114+00:00",
+            "pid": "376268",
+            "event": {
+              "time": "2026-10-08T23:29:44.606730391Z",
+              "level": "WARN",
+              "msg": "path.recovered",
+              "peer": "france",
+              "session": 1,
+              "old_source_port": 49386,
+              "new_source_port": 44464,
+              "local": {
+                "IP": "89.45.68.14",
+                "Port": 44464,
+                "Zone": ""
+              },
+              "connections_preserved": true,
+              "preservation_reason": "preserved",
+              "preservation_error": null,
+              "old_close_reason": "",
+              "reason": "fresh carrier tuple verified after transport stalled"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:29:47.170013+00:00",
+            "pid": "376268",
+            "event": {
+              "time": "2026-10-08T23:29:47.169872762Z",
+              "level": "WARN",
+              "msg": "path.recovery_probe_failed",
+              "peer": "france",
+              "session": 3,
+              "error": "timeout"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:29:57.895353+00:00",
+            "pid": "376268",
+            "event": {
+              "time": "2026-10-08T23:29:57.895032058Z",
+              "level": "WARN",
+              "msg": "path.recovery_probe",
+              "peer": "france",
+              "session": 3,
+              "old_source_port": 65202,
+              "remote": "171.22.132.226:29999"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:30:03.298268+00:00",
+            "pid": "376268",
+            "event": {
+              "time": "2026-10-08T23:30:03.298031484Z",
+              "level": "WARN",
+              "msg": "path.recovery_probe_failed",
+              "peer": "france",
+              "session": 3,
+              "error": "io: read/write on closed pipe"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:30:11.253754+00:00",
+            "pid": "376268",
+            "event": {
+              "time": "2026-10-08T23:30:11.253535061Z",
+              "level": "WARN",
+              "msg": "session.closed",
+              "conv": 230637927,
+              "remote": "171.22.132.226:29999",
+              "reason": "keepalive_timeout",
+              "error": null
+            }
+          }
+        ],
+        "system_messages": [
+          {
+            "utc": "2026-10-08T21:59:27.895953+00:00",
+            "pid": "1",
+            "message": "Stopping Super paqet raw TCP KCP tunnel..."
+          },
+          {
+            "utc": "2026-10-08T21:59:32.493816+00:00",
+            "pid": "1",
+            "message": "super-paqet.service: Deactivated successfully."
+          },
+          {
+            "utc": "2026-10-08T21:59:32.494946+00:00",
+            "pid": "1",
+            "message": "Stopped Super paqet raw TCP KCP tunnel."
+          },
+          {
+            "utc": "2026-10-08T21:59:32.495835+00:00",
+            "pid": "1",
+            "message": "super-paqet.service: Consumed 3h 10min 56.149s CPU time."
+          },
+          {
+            "utc": "2026-10-08T21:59:32.542879+00:00",
+            "pid": "1",
+            "message": "Started Super paqet raw TCP KCP tunnel."
+          }
+        ]
+      },
+      "kernel_read": {
+        "rc": 0,
+        "out": "kauditd_printk_skb: 5 callbacks suppressed\n",
+        "err": ""
+      },
+      "qdisc": {
+        "rc": 0,
+        "out": "qdisc noqueue 0: dev lo root refcnt 2 \n Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\nqdisc mq 0: dev ens160 root \n Sent 346528241535 bytes 420486507 pkt (dropped 2943, overlimits 0 requeues 3883) \n backlog 0b 0p requeues 3883\nqdisc fq 0: dev ens160 parent :4 limit 10000p flow_limit 100p buckets 1024 orphan_mask 1023 quantum 3028b initial_quantum 15140b low_rate_threshold 550Kbit refill_delay 40ms timer_slack 10us horizon 10s horizon_drop \n Sent 87338746552 bytes 105307985 pkt (dropped 1512, overlimits 0 requeues 1030) \n backlog 0b 0p requeues 1030\n  flows 2047 (inactive 2042 throttled 0)\n  gc 2518891 highprio 51526 throttled 14357620 latency 50.9us flows_plimit 1512\nqdisc fq 0: dev ens160 parent :3 limit 10000p flow_limit 100p buckets 1024 orphan_mask 1023 quantum 3028b initial_quantum 15140b low_rate_threshold 550Kbit refill_delay 40ms timer_slack 10us horizon 10s horizon_drop \n Sent 93041771705 bytes 110344541 pkt (dropped 1232, overlimits 0 requeues 1069) \n backlog 0b 0p requeues 1069\n  flows 2047 (inactive 2045 throttled 0)\n  gc 2520470 highprio 2 throttled 15169870 latency 64.1us flows_plimit 1231\n horizon_drops 1\nqdisc fq 0: dev ens160 parent :2 limit 10000p flow_limit 100p buckets 1024 orphan_mask 1023 quantum 3028b initial_quantum 15140b low_rate_threshold 550Kbit refill_delay 40ms timer_slack 10us horizon 10s horizon_drop \n Sent 82377977031 bytes 100748194 pkt (dropped 0, overlimits 0 requeues 880) \n backlog 0b 0p requeues 880\n  flows 2047 (inactive 2045 throttled 0)\n  gc 2518579 highprio 0 throttled 14275638 latency 40.7us\nqdisc fq 0: dev ens160 parent :1 limit 10000p flow_limit 100p buckets 1024 orphan_mask 1023 quantum 3028b initial_quantum 15140b low_rate_threshold 550Kbit refill_delay 40ms timer_slack 10us horizon 10s horizon_drop \n Sent 83769746247 bytes 104085787 pkt (dropped 199, overlimits 0 requeues 904) \n backlog 0b 0p requeues 904\n  flows 2047 (inactive 2042 throttled 0)\n  gc 2521761 highprio 0 throttled 14345149 latency 35.9us flows_plimit 154\n horizon_drops 45\n",
+        "err": ""
+      },
+      "free": {
+        "rc": 0,
+        "out": "               total        used        free      shared  buff/cache   available\nMem:            7937         630        3127           1        4180        6998\nSwap:           2047           0        2047\n",
+        "err": ""
+      }
+    },
+    "89.45.68.118": {
+      "identity": {
+        "collected_utc": "2026-10-09T15:47:00.022033+00:00",
+        "unit": {
+          "MainPID": "1058941",
+          "Result": "success",
+          "NRestarts": "0",
+          "ExecMainStartTimestamp": "Thu 2026-10-08 21:59:41 UTC",
+          "MemoryCurrent": "200138752",
+          "TasksCurrent": "19",
+          "ActiveState": "active",
+          "UnitFileState": "enabled"
+        },
+        "config_sha256": "5f788d4490d39b66753f64b4f50f65a132aeafeb81a7ff881fe823061ee23e9d",
+        "disk_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+        "running_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+        "xray_processes": [],
+        "health": "ok"
+      },
+      "observer": {
+        "unit": {
+          "rc": 0,
+          "out": "MainPID=1059480\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 22:12:06 UTC\nMemoryCurrent=94277632\nTasksCurrent=2\nActiveState=active\nUnitFileState=enabled\n",
+          "err": ""
+        },
+        "summary": {
+          "completed": false,
+          "until": "2026-10-09T22:05:41.745259+00:00",
+          "journal_recorder": {
+            "records": 44,
+            "cursor_resume": false,
+            "last_realtime_usec": "1791547542042738"
+          },
+          "first_utc": "2026-10-08T22:12:07.229555+00:00",
+          "last_utc": "2026-10-09T15:46:53.285861+00:00",
+          "samples": 6299,
+          "triggers": {
+            "opening_transport_retries_total_increased": 118,
+            "carrier_became_suspect": 1,
+            "path_recovery_attempts_total_increased": 3,
+            "path_recovery_rejected_total_increased": 1,
+            "path_recovery_succeeded_total_increased": 2,
+            "source_port_changed": 2
+          },
+          "peak_active": 4776.0,
+          "peak_rss_kib": 281648,
+          "peak_fds": 4808,
+          "runs": {
+            "1058941": {
+              "first_utc": "2026-10-08T22:12:07.229555+00:00",
+              "last_counters": {
+                "errors_total": 10.0,
+                "rejected_total": 0.0,
+                "opening_transport_retries_total": 3387.0,
+                "config_reload_rejected_total": 0.0,
+                "path_recovery_attempts_total": 3.0,
+                "path_recovery_succeeded_total": 2.0,
+                "path_recovery_rejected_total": 1.0,
+                "log_dropped_total": 0.0
+              },
+              "last_utc": "2026-10-09T15:46:53.285861+00:00"
+            }
+          },
+          "observed_processes": 1,
+          "counter_deltas": {
+            "errors_total": 10.0,
+            "rejected_total": 0,
+            "opening_transport_retries_total": 3387.0,
+            "config_reload_rejected_total": 0,
+            "path_recovery_attempts_total": 3.0,
+            "path_recovery_succeeded_total": 2.0,
+            "path_recovery_rejected_total": 1.0,
+            "log_dropped_total": 0
+          },
+          "captures": 25
+        },
+        "files": {
+          "samples.jsonl": 30854988,
+          "journal-state.json": 193,
+          "capture-5.json": 152,
+          "samples.jsonl.2": 33553061,
+          "capture-2.json": 152,
+          "tunnel.journal.jsonl": 23434,
+          "summary.json": 1322,
+          "capture-4.json": 152,
+          "window.json": 1297,
+          "capture-6.json": 152,
+          "capture-9.json": 152,
+          "latest.json": 41510,
+          "capture-0.json": 152,
+          "installation.json": 4844,
+          "capture-7.json": 152,
+          "samples.jsonl.6": 33523930,
+          "capture-1.json": 152,
+          "samples.jsonl.5": 33533016,
+          "capture-3.json": 152,
+          "samples.jsonl.4": 33544329,
+          "samples.jsonl.7": 33548857,
+          "samples.jsonl.3": 33549564,
+          "samples.jsonl.1": 33516309,
+          "capture-8.json": 152,
+          "capture-11.json": 152,
+          "capture-10.json": 152
+        }
+      },
+      "archive_aggregate": {
+        "rows": 6314,
+        "first": "2026-10-08T22:12:07.229555+00:00",
+        "last": "2026-10-09T15:49:24.050905+00:00",
+        "max_gap_seconds": 10.163357067853212,
+        "metric_errors": 0,
+        "process_ids": [
+          "1058941"
+        ],
+        "peak_active": 4776.0,
+        "peak_rss_kib": 281648,
+        "peak_swap_kib": 0,
+        "mean_cpu_cores": 1.0636855001011067,
+        "peak_cpu_cores": 1.7062337128021174,
+        "mean_relay_mbps": 65.67952326895058,
+        "peak_relay_mbps": 328.89449458414686,
+        "cgroup_event_peak": {
+          "memory.low": 0,
+          "memory.high": 0,
+          "memory.max": 0,
+          "memory.oom": 0,
+          "memory.oom_kill": 0,
+          "pids.max": 0
+        },
+        "label_counter_growth": {
+          "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"0\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"germany\",session=\"0\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"1\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"germany\",session=\"1\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"2\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"germany\",session=\"2\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"3\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"germany\",session=\"3\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"0\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"finland\",session=\"0\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"1\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"finland\",session=\"1\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"2\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"finland\",session=\"2\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"3\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"finland\",session=\"3\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"0\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"france\",session=\"0\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"1\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"france\",session=\"1\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"2\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"france\",session=\"2\"}": 0,
+          "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"3\"}": 0,
+          "super_paqet_peer_capture_drops{peer=\"france\",session=\"3\"}": 0
+        },
+        "state_peak": {
+          "super_paqet_session_mux_receive_blocked{conv=\"3590503674\",remote=\"91.107.251.85:29999\"}": 1.0,
+          "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"2\"}": 1.0,
+          "super_paqet_session_mux_receive_blocked{conv=\"2667069347\",remote=\"91.107.251.85:29999\"}": 1.0,
+          "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"1\"}": 1.0,
+          "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"1\"}": 1.0,
+          "super_paqet_session_mux_receive_blocked{conv=\"3961529425\",remote=\"91.107.251.85:29999\"}": 1.0,
+          "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"0\"}": 1.0,
+          "super_paqet_session_mux_receive_blocked{conv=\"973046921\",remote=\"65.109.249.222:29999\"}": 1.0,
+          "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"2\"}": 1.0,
+          "super_paqet_session_mux_receive_blocked{conv=\"2712805205\",remote=\"65.109.249.222:29999\"}": 1.0,
+          "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"3\"}": 1.0,
+          "super_paqet_session_mux_receive_blocked{conv=\"368309134\",remote=\"65.109.249.222:29999\"}": 1.0,
+          "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"0\"}": 1.0,
+          "super_paqet_session_mux_receive_blocked{conv=\"582152124\",remote=\"91.107.251.85:29999\"}": 1.0,
+          "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"3\"}": 1.0,
+          "super_paqet_session_mux_receive_blocked{conv=\"2805314098\",remote=\"171.22.132.226:29999\"}": 1.0,
+          "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"3\"}": 1.0,
+          "super_paqet_session_mux_receive_blocked{conv=\"2510120145\",remote=\"171.22.132.226:29999\"}": 1.0,
+          "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"2\"}": 1.0,
+          "super_paqet_session_mux_receive_blocked{conv=\"2566316826\",remote=\"65.109.249.222:29999\"}": 1.0,
+          "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"1\"}": 1.0
+        },
+        "first_unlabelled_counters": {
+          "super_paqet_path_recovery_attempts_total": 0.0,
+          "super_paqet_path_recovery_succeeded_total": 0.0,
+          "super_paqet_path_recovery_rejected_total": 0.0,
+          "super_paqet_log_dropped_total": 0.0,
+          "super_paqet_active_connections": 2584.0,
+          "super_paqet_accepted_total": 54397.0,
+          "super_paqet_rejected_total": 0.0,
+          "super_paqet_errors_total": 0.0,
+          "super_paqet_opening_transport_retries_total": 0.0,
+          "super_paqet_sent_bytes_total": 484368073.0,
+          "super_paqet_received_bytes_total": 7537227823.0,
+          "super_paqet_aborted_connections_total": 40600.0,
+          "super_paqet_server_sessions": 0.0,
+          "super_paqet_goroutines": 5239.0,
+          "super_paqet_config_revision": 1.0,
+          "super_paqet_config_reload_applied_total": 0.0,
+          "super_paqet_config_reload_rejected_total": 0.0,
+          "super_paqet_config_degraded": 0.0,
+          "super_paqet_heap_bytes": 50895232.0,
+          "super_paqet_heap_sys_bytes": 79691776.0,
+          "super_paqet_gc_total": 30.0,
+          "super_paqet_kcp_BytesSent": 492656221.0,
+          "super_paqet_kcp_BytesReceived": 7584117449.0,
+          "super_paqet_kcp_MaxConn": 12.0,
+          "super_paqet_kcp_ActiveOpens": 0.0,
+          "super_paqet_kcp_PassiveOpens": 12.0,
+          "super_paqet_kcp_CurrEstab": 12.0,
+          "super_paqet_kcp_InErrs": 0.0,
+          "super_paqet_kcp_InCsumErrors": 0.0,
+          "super_paqet_kcp_KCPInErrors": 0.0,
+          "super_paqet_kcp_InPkts": 6388430.0,
+          "super_paqet_kcp_OutPkts": 1058012.0,
+          "super_paqet_kcp_InSegs": 6505540.0,
+          "super_paqet_kcp_OutSegs": 1294182.0,
+          "super_paqet_kcp_InBytes": 7744955548.0,
+          "super_paqet_kcp_OutBytes": 523795824.0,
+          "super_paqet_kcp_RetransSegs": 189.0,
+          "super_paqet_kcp_FastRetransSegs": 72.0,
+          "super_paqet_kcp_EarlyRetransSegs": 14.0,
+          "super_paqet_kcp_LostSegs": 103.0,
+          "super_paqet_kcp_RepeatSegs": 4005.0,
+          "super_paqet_kcp_FECFullShards": 0.0,
+          "super_paqet_kcp_FECParityShards": 0.0,
+          "super_paqet_kcp_FECErrs": 0.0,
+          "super_paqet_kcp_FECRecovered": 0.0,
+          "super_paqet_kcp_FECShardSet": 0.0,
+          "super_paqet_kcp_FECShardMin": 0.0,
+          "super_paqet_kcp_RingBufferSndQueue": 0.0,
+          "super_paqet_kcp_RingBufferRcvQueue": 0.0,
+          "super_paqet_kcp_RingBufferSndBuffer": 1.0,
+          "super_paqet_kcp_OOBPackets": 0.0
+        },
+        "last_unlabelled_counters": {
+          "super_paqet_path_recovery_attempts_total": 3.0,
+          "super_paqet_path_recovery_succeeded_total": 2.0,
+          "super_paqet_path_recovery_rejected_total": 1.0,
+          "super_paqet_log_dropped_total": 0.0,
+          "super_paqet_active_connections": 3459.0,
+          "super_paqet_accepted_total": 3217985.0,
+          "super_paqet_rejected_total": 0.0,
+          "super_paqet_errors_total": 10.0,
+          "super_paqet_opening_transport_retries_total": 3387.0,
+          "super_paqet_sent_bytes_total": 51368110196.0,
+          "super_paqet_received_bytes_total": 477466007372.0,
+          "super_paqet_aborted_connections_total": 2688316.0,
+          "super_paqet_server_sessions": 0.0,
+          "super_paqet_goroutines": 6890.0,
+          "super_paqet_config_revision": 1.0,
+          "super_paqet_config_reload_applied_total": 0.0,
+          "super_paqet_config_reload_rejected_total": 0.0,
+          "super_paqet_config_degraded": 0.0,
+          "super_paqet_heap_bytes": 77010160.0,
+          "super_paqet_heap_sys_bytes": 223313920.0,
+          "super_paqet_gc_total": 1489.0,
+          "super_paqet_kcp_BytesSent": 51915445658.0,
+          "super_paqet_kcp_BytesReceived": 479920093493.0,
+          "super_paqet_kcp_MaxConn": 13.0,
+          "super_paqet_kcp_ActiveOpens": 0.0,
+          "super_paqet_kcp_PassiveOpens": 15.0,
+          "super_paqet_kcp_CurrEstab": 12.0,
+          "super_paqet_kcp_InErrs": 0.0,
+          "super_paqet_kcp_InCsumErrors": 0.0,
+          "super_paqet_kcp_KCPInErrors": 0.0,
+          "super_paqet_kcp_InPkts": 404325806.0,
+          "super_paqet_kcp_OutPkts": 85474918.0,
+          "super_paqet_kcp_InSegs": 415941173.0,
+          "super_paqet_kcp_OutSegs": 106974922.0,
+          "super_paqet_kcp_InBytes": 490477620800.0,
+          "super_paqet_kcp_OutBytes": 54528585225.0,
+          "super_paqet_kcp_RetransSegs": 57771.0,
+          "super_paqet_kcp_FastRetransSegs": 35524.0,
+          "super_paqet_kcp_EarlyRetransSegs": 971.0,
+          "super_paqet_kcp_LostSegs": 21276.0,
+          "super_paqet_kcp_RepeatSegs": 467793.0,
+          "super_paqet_kcp_FECFullShards": 0.0,
+          "super_paqet_kcp_FECParityShards": 0.0,
+          "super_paqet_kcp_FECErrs": 0.0,
+          "super_paqet_kcp_FECRecovered": 0.0,
+          "super_paqet_kcp_FECShardSet": 0.0,
+          "super_paqet_kcp_FECShardMin": 0.0,
+          "super_paqet_kcp_RingBufferSndQueue": 2.0,
+          "super_paqet_kcp_RingBufferRcvQueue": 0.0,
+          "super_paqet_kcp_RingBufferSndBuffer": 179.0,
+          "super_paqet_kcp_OOBPackets": 0.0
+        },
+        "gaps": [],
+        "error_intervals": [
+          {
+            "from": "2026-10-09T12:00:56.865808+00:00",
+            "until": "2026-10-09T12:01:06.913766+00:00",
+            "deltas": {
+              "errors_total": 1.0,
+              "opening_transport_retries_total": 0.0,
+              "path_recovery_attempts_total": 0.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 0.0
+            },
+            "blocked": {
+              "super_paqet_session_mux_receive_blocked{conv=\"2566316826\",remote=\"65.109.249.222:29999\"}": 1.0,
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"1\"}": 1.0
+            },
+            "active": 3582.0,
+            "host_cpu_pressure": "some avg10=33.96 avg60=36.52 avg300=35.88 total=96764980313\nfull avg10=8.86 avg60=8.81 avg300=8.65 total=56958994298\n",
+            "cgroup_cpu_stat": "usage_usec 49426547131\nuser_usec 19108930594\nsystem_usec 30317616536\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\n",
+            "lane_metrics": [
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3590503674\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3590503674\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2566316826\",remote=\"65.109.249.222:29999\"} 4259813.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2566316826\",remote=\"65.109.249.222:29999\"} 1.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3961529425\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3961529425\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2737232030\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2737232030\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2712805205\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2712805205\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"368309134\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"368309134\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2805314098\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2805314098\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"582152124\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"582152124\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2510120145\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2510120145\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"973046921\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"973046921\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2667069347\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2667069347\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"738504959\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"738504959\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"0\"} 47878.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"1\"} 38324.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"2\"} 58027.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"3\"} 56402.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"0\"} 36962.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"1\"} 1.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"1\"} 53007.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"2\"} 61846.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"3\"} 38176.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"0\"} 49950.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"1\"} 44402.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"2\"} 32949.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"3\"} 36186.0"
+            ]
+          },
+          {
+            "from": "2026-10-09T12:05:38.213942+00:00",
+            "until": "2026-10-09T12:05:48.261783+00:00",
+            "deltas": {
+              "errors_total": 9.0,
+              "opening_transport_retries_total": 0.0,
+              "path_recovery_attempts_total": 0.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 0.0
+            },
+            "blocked": {
+              "super_paqet_session_mux_receive_blocked{conv=\"2566316826\",remote=\"65.109.249.222:29999\"}": 1.0,
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"1\"}": 1.0
+            },
+            "active": 3226.0,
+            "host_cpu_pressure": "some avg10=23.82 avg60=26.04 avg300=31.43 total=96850019507\nfull avg10=7.20 avg60=7.21 avg300=7.88 total=56981592817\n",
+            "cgroup_cpu_stat": "usage_usec 49826189119\nuser_usec 19266511022\nsystem_usec 30559678097\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\n",
+            "lane_metrics": [
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2712805205\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2712805205\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"368309134\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"368309134\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2805314098\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2805314098\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"582152124\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"582152124\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2510120145\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2510120145\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"973046921\",remote=\"65.109.249.222:29999\"} 1638400.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"973046921\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2667069347\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2667069347\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"738504959\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"738504959\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3590503674\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3590503674\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2566316826\",remote=\"65.109.249.222:29999\"} 4259813.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2566316826\",remote=\"65.109.249.222:29999\"} 1.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3961529425\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3961529425\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2737232030\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2737232030\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"0\"} 49950.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"1\"} 44402.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"2\"} 32949.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"3\"} 36186.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"0\"} 47878.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"1\"} 38324.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"2\"} 58027.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"3\"} 56402.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"0\"} 36962.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"1\"} 1.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"1\"} 53007.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"2\"} 61846.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"3\"} 38176.0"
+            ]
+          }
+        ],
+        "recovery_intervals": [
+          {
+            "from": "2026-10-08T23:29:39.509764+00:00",
+            "until": "2026-10-08T23:29:49.557851+00:00",
+            "deltas": {
+              "errors_total": 0.0,
+              "opening_transport_retries_total": 0.0,
+              "path_recovery_attempts_total": 1.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 1.0
+            },
+            "blocked": {
+              "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"1\"}": 1.0
+            },
+            "active": 1950.0,
+            "host_cpu_pressure": "some avg10=17.46 avg60=17.52 avg300=17.94 total=88581882697\nfull avg10=6.74 avg60=6.70 avg300=6.78 total=54148143261\n",
+            "cgroup_cpu_stat": "usage_usec 6383492755\nuser_usec 2431697754\nsystem_usec 3951795000\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\n",
+            "lane_metrics": [
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3590503674\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3590503674\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2566316826\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2566316826\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3961529425\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3961529425\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2737232030\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2737232030\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2712805205\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2712805205\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"368309134\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"368309134\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2805314098\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2805314098\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"582152124\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"582152124\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2510120145\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2510120145\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"973046921\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"973046921\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2667069347\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2667069347\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"738504959\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"738504959\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"0\"} 47878.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"1\"} 38324.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"2\"} 58027.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"3\"} 56402.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"0\"} 36962.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"1\"} 53007.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"2\"} 61846.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"3\"} 38176.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"0\"} 49950.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"1\"} 55261.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"2\"} 32949.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"3\"} 36186.0"
+            ]
+          },
+          {
+            "from": "2026-10-08T23:29:49.557851+00:00",
+            "until": "2026-10-08T23:29:59.606004+00:00",
+            "deltas": {
+              "errors_total": 0.0,
+              "opening_transport_retries_total": 0.0,
+              "path_recovery_attempts_total": 1.0,
+              "path_recovery_succeeded_total": 1.0,
+              "path_recovery_rejected_total": 0.0
+            },
+            "blocked": {},
+            "active": 1974.0,
+            "host_cpu_pressure": "some avg10=17.86 avg60=17.67 avg300=17.96 total=88583806146\nfull avg10=6.94 avg60=6.77 avg300=6.80 total=54148899289\n",
+            "cgroup_cpu_stat": "usage_usec 6394895766\nuser_usec 2436219187\nsystem_usec 3958676579\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\n",
+            "lane_metrics": [
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2805314098\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2805314098\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"582152124\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"582152124\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2510120145\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2510120145\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"973046921\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"973046921\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2667069347\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2667069347\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"738504959\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"738504959\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3590503674\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3590503674\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2566316826\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2566316826\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3961529425\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3961529425\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2737232030\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2737232030\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2712805205\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2712805205\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"368309134\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"368309134\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"0\"} 47878.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"1\"} 38324.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"2\"} 58027.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"3\"} 56402.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"0\"} 36962.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"1\"} 53007.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"2\"} 61846.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"3\"} 38176.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"0\"} 49950.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"1\"} 39533.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"2\"} 32949.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"3\"} 36186.0"
+            ]
+          },
+          {
+            "from": "2026-10-09T04:13:00.279677+00:00",
+            "until": "2026-10-09T04:13:10.326506+00:00",
+            "deltas": {
+              "errors_total": 0.0,
+              "opening_transport_retries_total": 3.0,
+              "path_recovery_attempts_total": 1.0,
+              "path_recovery_succeeded_total": 1.0,
+              "path_recovery_rejected_total": 0.0
+            },
+            "blocked": {},
+            "active": 784.0,
+            "host_cpu_pressure": "some avg10=5.33 avg60=6.47 avg300=6.60 total=89953116204\nfull avg10=2.83 avg60=3.33 avg300=3.39 total=54857213361\n",
+            "cgroup_cpu_stat": "usage_usec 16640557030\nuser_usec 6605641424\nsystem_usec 10034915606\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\n",
+            "lane_metrics": [
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3590503674\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3590503674\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2566316826\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2566316826\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"3961529425\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"3961529425\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2737232030\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2737232030\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2712805205\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2712805205\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"368309134\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"368309134\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2805314098\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2805314098\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"582152124\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"582152124\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2510120145\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2510120145\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"973046921\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"973046921\",remote=\"65.109.249.222:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"2667069347\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"2667069347\",remote=\"91.107.251.85:29999\"} 0.0",
+              "super_paqet_session_mux_receive_buffered_bytes{conv=\"738504959\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_session_mux_receive_blocked{conv=\"738504959\",remote=\"171.22.132.226:29999\"} 0.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"0\"} 47878.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"1\"} 38324.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"2\"} 58027.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"germany\",session=\"3\"} 56402.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"0\"} 36962.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"1\"} 53007.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"2\"} 61846.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"finland\",session=\"3\"} 38176.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"0\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"0\"} 49950.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"1\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"1\"} 44402.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"2\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"2\"} 32949.0",
+              "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"3\"} 0.0",
+              "super_paqet_peer_source_port{peer=\"france\",session=\"3\"} 36186.0"
+            ]
+          }
+        ]
+      },
+      "retry_summary": {
+        "intervals": 118,
+        "hourly": {
+          "2026-10-08T22": 1.0,
+          "2026-10-08T23": 146.0,
+          "2026-10-09T00": 2.0,
+          "2026-10-09T02": 1.0,
+          "2026-10-09T04": 5.0,
+          "2026-10-09T08": 6.0,
+          "2026-10-09T09": 5.0,
+          "2026-10-09T10": 981.0,
+          "2026-10-09T11": 569.0,
+          "2026-10-09T12": 1351.0,
+          "2026-10-09T13": 45.0,
+          "2026-10-09T14": 8.0,
+          "2026-10-09T15": 267.0
+        },
+        "retries_in_intervals_with_sampled_mux_block": 1300.0
+      },
+      "journal": {
+        "records": 44,
+        "first_utc": "2026-10-08T21:49:24.878715+00:00",
+        "last_utc": "2026-10-09T12:05:42.042738+00:00",
+        "counts": {
+          "path.recovery_probe": 15,
+          "path.recovered": 14,
+          "connection.failed": 9,
+          "path.recovery_probe_failed": 1
+        },
+        "current_process_events": [
+          {
+            "journal_utc": "2026-10-08T23:29:42.920161+00:00",
+            "pid": "1058941",
+            "event": {
+              "time": "2026-10-08T23:29:42.919321128Z",
+              "level": "WARN",
+              "msg": "path.recovery_probe",
+              "peer": "france",
+              "session": 1,
+              "old_source_port": 55261,
+              "remote": "171.22.132.226:29999"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:29:48.097973+00:00",
+            "pid": "1058941",
+            "event": {
+              "time": "2026-10-08T23:29:48.097829015Z",
+              "level": "WARN",
+              "msg": "path.recovery_probe_failed",
+              "peer": "france",
+              "session": 1,
+              "error": "timeout"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:29:57.905277+00:00",
+            "pid": "1058941",
+            "event": {
+              "time": "2026-10-08T23:29:57.905024077Z",
+              "level": "WARN",
+              "msg": "path.recovery_probe",
+              "peer": "france",
+              "session": 1,
+              "old_source_port": 55261,
+              "remote": "171.22.132.226:29999"
+            }
+          },
+          {
+            "journal_utc": "2026-10-08T23:29:58.358485+00:00",
+            "pid": "1058941",
+            "event": {
+              "time": "2026-10-08T23:29:58.357943282Z",
+              "level": "WARN",
+              "msg": "path.recovered",
+              "peer": "france",
+              "session": 1,
+              "old_source_port": 55261,
+              "new_source_port": 39533,
+              "local": {
+                "IP": "89.45.68.118",
+                "Port": 39533,
+                "Zone": ""
+              },
+              "connections_preserved": true,
+              "preservation_reason": "preserved",
+              "preservation_error": null,
+              "old_close_reason": "",
+              "reason": "fresh carrier tuple verified after transport stalled"
+            }
+          },
+          {
+            "journal_utc": "2026-10-09T04:13:05.882725+00:00",
+            "pid": "1058941",
+            "event": {
+              "time": "2026-10-09T04:13:05.882469273Z",
+              "level": "WARN",
+              "msg": "path.recovery_probe",
+              "peer": "france",
+              "session": 1,
+              "old_source_port": 39533,
+              "remote": "171.22.132.226:29999"
+            }
+          },
+          {
+            "journal_utc": "2026-10-09T04:13:06.251926+00:00",
+            "pid": "1058941",
+            "event": {
+              "time": "2026-10-09T04:13:06.251728922Z",
+              "level": "WARN",
+              "msg": "path.recovered",
+              "peer": "france",
+              "session": 1,
+              "old_source_port": 39533,
+              "new_source_port": 44402,
+              "local": {
+                "IP": "89.45.68.118",
+                "Port": 44402,
+                "Zone": ""
+              },
+              "connections_preserved": true,
+              "preservation_reason": "preserved",
+              "preservation_error": null,
+              "old_close_reason": "",
+              "reason": "fresh carrier tuple verified after transport stalled"
+            }
+          },
+          {
+            "journal_utc": "2026-10-09T12:01:01.110314+00:00",
+            "pid": "1058941",
+            "event": {
+              "time": "2026-10-09T12:01:01.109637112Z",
+              "level": "WARN",
+              "msg": "connection.failed",
+              "error_id": 1,
+              "error": "open 65.109.249.222:2096 via finland: io: read/write on closed pipe"
+            }
+          },
+          {
+            "journal_utc": "2026-10-09T12:05:41.994985+00:00",
+            "pid": "1058941",
+            "event": {
+              "time": "2026-10-09T12:05:41.994630534Z",
+              "level": "WARN",
+              "msg": "connection.failed",
+              "error_id": 2,
+              "error": "open 65.109.249.222:2096 via finland: timeout"
+            }
+          },
+          {
+            "journal_utc": "2026-10-09T12:05:41.998028+00:00",
+            "pid": "1058941",
+            "event": {
+              "time": "2026-10-09T12:05:41.994998369Z",
+              "level": "WARN",
+              "msg": "connection.failed",
+              "error_id": 3,
+              "error": "open 65.109.249.222:2096 via finland: timeout"
+            }
+          },
+          {
+            "journal_utc": "2026-10-09T12:05:41.998028+00:00",
+            "pid": "1058941",
+            "event": {
+              "time": "2026-10-09T12:05:41.995289273Z",
+              "level": "WARN",
+              "msg": "connection.failed",
+              "error_id": 4,
+              "error": "open 65.109.249.222:2096 via finland: timeout"
+            }
+          },
+          {
+            "journal_utc": "2026-10-09T12:05:42.042738+00:00",
+            "pid": "1058941",
+            "event": {
+              "time": "2026-10-09T12:05:42.042522436Z",
+              "level": "WARN",
+              "msg": "connection.failed",
+              "error_id": 5,
+              "error": "open 65.109.249.222:2096 via finland: timeout"
+            }
+          }
+        ],
+        "system_messages": [
+          {
+            "utc": "2026-10-08T21:59:39.684822+00:00",
+            "pid": "1",
+            "message": "Stopping Super paqet raw TCP KCP tunnel..."
+          },
+          {
+            "utc": "2026-10-08T21:59:41.719267+00:00",
+            "pid": "1",
+            "message": "super-paqet.service: Deactivated successfully."
+          },
+          {
+            "utc": "2026-10-08T21:59:41.721813+00:00",
+            "pid": "1",
+            "message": "Stopped Super paqet raw TCP KCP tunnel."
+          },
+          {
+            "utc": "2026-10-08T21:59:41.722820+00:00",
+            "pid": "1",
+            "message": "super-paqet.service: Consumed 1d 8h 31min 11.835s CPU time."
+          },
+          {
+            "utc": "2026-10-08T21:59:41.789170+00:00",
+            "pid": "1",
+            "message": "Started Super paqet raw TCP KCP tunnel."
+          }
+        ]
+      },
+      "kernel_read": {
+        "rc": 0,
+        "out": "",
+        "err": ""
+      },
+      "qdisc": {
+        "rc": 0,
+        "out": "qdisc noqueue 0: dev lo root refcnt 2 \n Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\nqdisc mq 0: dev ens160 root \n Sent 14911497415843 bytes 17751726615 pkt (dropped 25, overlimits 0 requeues 28818) \n backlog 0b 0p requeues 28818\nqdisc fq_codel 0: dev ens160 parent :4 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64 \n Sent 3738297359667 bytes 4443664384 pkt (dropped 4, overlimits 0 requeues 6023) \n backlog 0b 0p requeues 6023\n  maxpacket 68352 drop_overlimit 0 new_flow_count 70216812 ecn_mark 0\n  new_flows_len 0 old_flows_len 0\nqdisc fq_codel 0: dev ens160 parent :3 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64 \n Sent 3739116288374 bytes 4457079797 pkt (dropped 7, overlimits 0 requeues 6770) \n backlog 0b 0p requeues 6770\n  maxpacket 68352 drop_overlimit 0 new_flow_count 70689043 ecn_mark 0\n  new_flows_len 0 old_flows_len 0\nqdisc fq_codel 0: dev ens160 parent :2 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64 \n Sent 3737764481474 bytes 4443936136 pkt (dropped 6, overlimits 0 requeues 7772) \n backlog 0b 0p requeues 7772\n  maxpacket 68352 drop_overlimit 0 new_flow_count 70009170 ecn_mark 0\n  new_flows_len 0 old_flows_len 0\nqdisc fq_codel 0: dev ens160 parent :1 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64 \n Sent 3696319286328 bytes 4407046298 pkt (dropped 8, overlimits 0 requeues 8253) \n backlog 0b 0p requeues 8253\n  maxpacket 68352 drop_overlimit 0 new_flow_count 69917358 ecn_mark 0\n  new_flows_len 0 old_flows_len 0\nqdisc noqueue 0: dev sit_de1 root refcnt 2 \n Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\n",
+        "err": ""
+      },
+      "free": {
+        "rc": 0,
+        "out": "               total        used        free      shared  buff/cache   available\nMem:            7951        1127        2148           1        4675        6515\nSwap:           2047           3        2044\n",
+        "err": ""
+      }
+    }
+  },
+  "limitations": [
+    "Archive covers about 17.6 hours, not the full observer deadline.",
+    "No fresh authenticated end-to-end probes were run; health and passive traffic are not equivalent to verifying every route.",
+    "Ten-second samples cannot exclude shorter interruptions or attribute a sampled retry to a particular customer stream.",
+    "France kernel journal read exceeded its 15-second deadline; cgroup memory/task event histories are available and zero.",
+    "Queue drops are driver datagrams and KCP OutSegs is protocol segments; their ratio is contextual, not a wire-loss estimate."
+  ]
+}

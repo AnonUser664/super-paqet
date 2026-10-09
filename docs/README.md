@@ -14,6 +14,7 @@ that same host. Measured capacity limitations remain explicit in the status and
 | [STATUS.md](STATUS.md) | Running version, current paths and outstanding work. |
 | [Latest rollout — 9 October](LATENCY-DEPLOYMENT-2026-10-09.md) | Accepted five-host latency.1 deployment, unchanged configs, cleanup, rollback and renewed observer window. |
 | [PRODUCTION-OBSERVATION-2026-10-07.md](PRODUCTION-OBSERVATION-2026-10-07.md) | Earlier five-host observer window, retention and review procedures. |
+| [Production log review — 9 October](PRODUCTION-REVIEW-2026-10-09.md) | 17.6-hour latency.1 review, France preserving recoveries, opening backpressure, queue drops and unchanged fleet identities. |
 | [Production review — 8 October](PRODUCTION-REVIEW-2026-10-08.md) | Three-hour customer-load review, France recovery incident, profiling and six-route acceptance. |
 | [Production follow-up — 8 October](PRODUCTION-FOLLOWUP-2026-10-08.md) | Fifteen-hour review, six-route checks, Finland receiver backpressure and measured transmit-queue pressure. |
 | [Recovery grace — 8 October](RECOVERY-GRACE-2026-10-08.md) | Opt-in extended-outage preservation, bounded expiry, diagnostic causes and local regression measurements before selective integration. |
