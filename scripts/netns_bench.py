@@ -74,6 +74,8 @@ def main():
     p.add_argument('--mode', choices=['http','http-churn','bulk','both'], default='both')
     p.add_argument('--ramp-timeout', type=int, default=600)
     p.add_argument('--queue-packets', type=int, default=0)
+    p.add_argument('--fq-flow-limit', type=int, default=0, help='isolated root fq per-socket queue bound; excludes netem and fault schedules')
+    p.add_argument('--fq-maxrate-mbit', type=int, default=0, help='isolated fq per-socket transmit cap; requires fq-flow-limit')
     p.add_argument('--adaptive', choices=['on','off'], default='on')
     p.add_argument('--kcp-options', default='{}', help='JSON KCP parameter overrides for controlled experiments')
     p.add_argument('--functional', action='store_true')
@@ -121,6 +123,9 @@ def main():
         if any(event.get(k,0)>100 for k in ('loss','reorder')): p.error('epoch percentages must be 0..100')
         if event['at']>=a.duration+a.warmup:p.error('epoch must occur within the workload interval')
     epochs.sort(key=lambda event:event['at'])
+    if a.fq_flow_limit < 0 or a.fq_maxrate_mbit < 0: p.error('fq limits cannot be negative')
+    if a.fq_maxrate_mbit and not a.fq_flow_limit: p.error('fq-maxrate-mbit requires fq-flow-limit')
+    if a.fq_flow_limit and (a.loss or a.burst_loss or a.delay_ms or a.jitter_ms or a.rate_mbit or a.down_rate_mbit or a.reorder or epochs or a.bridge): p.error('isolated fq fixture excludes other shaping and schedules')
     if a.preserve_connections and (not a.path_recovery or a.shared_source):p.error('preserve-connections requires independent source ports and path-recovery')
     if a.path_recovery and not a.enterprise:p.error('path-recovery requires enterprise')
     if min(a.client_memory_mib,a.server_memory_mib)<0:p.error('memory budgets cannot be negative')
@@ -259,6 +264,12 @@ def main():
             ns(n,'ip','link','set',iface,'up')
             down = (n==c) if a.bridge else (n==s)
             rate = a.down_rate_mbit if down and a.down_rate_mbit is not None else a.rate_mbit
+            if a.fq_flow_limit:
+                # Only this disposable endpoint's injected packet sockets use
+                # fq. Host qdiscs and unrelated customer services are untouched.
+                args=['tc','qdisc','add','dev',iface,'root','fq','limit','10000','flow_limit',str(a.fq_flow_limit)]
+                if a.fq_maxrate_mbit: args += ['maxrate',f'{a.fq_maxrate_mbit}mbit']
+                ns(n,*args)
             if a.loss or a.burst_loss or a.delay_ms or rate or a.reorder or epochs:
                 # netem's delay queue includes packets "in propagation". Size
                 # for small ACK frames as well as MTU-sized data; using 1500

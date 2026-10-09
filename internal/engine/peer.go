@@ -7,6 +7,7 @@ package engine
 
 import (
 	"context"
+	"crypto/rand"
 	"errors"
 	"fmt"
 	"io"
@@ -222,6 +223,13 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 	if err != nil {
 		return nil, err
 	}
+	var requestID [16]byte
+	retryableOpening := kind == protocol.PTCP3 || kind == protocol.PUDP3
+	if retryableOpening {
+		if _, err := rand.Read(requestID[:]); err != nil {
+			return nil, err
+		}
+	}
 	var last error
 	var excluded map[*slot]bool
 	transportRetry := false
@@ -278,16 +286,31 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 		}
 		strm.SetDeadline(firstReply)
 		stop := context.AfterFunc(ctx, func() { abortOpening(strm) })
-		err = (&protocol.Proto{Type: kind, Addr: a}).Write(strm)
+		err = (&protocol.Proto{Type: kind, Addr: a, RequestID: requestID}).Write(strm)
 		var ack [1]byte
 		if err == nil {
 			_, err = io.ReadFull(strm, ack[:])
 			if err == nil && ack[0] == 2 {
 				strm.SetDeadline(deadline)
-				_, err = io.ReadFull(strm, ack[:])
+				if retryableOpening {
+					err = p.readOpeningResult(ctx, strm, c, s, excluded, deadline, ack[:])
+				} else {
+					_, err = io.ReadFull(strm, ack[:])
+				}
 			}
 			if err == nil && ack[0] != 0 {
 				err = fmt.Errorf("remote target connection rejected")
+			}
+		}
+		// A target becomes a relay only after this winning stream commits.
+		// Never retry a failed commit: its write may already have been accepted.
+		if err == nil && retryableOpening {
+			strm.SetDeadline(deadline)
+			err = writeOpeningAck(strm, 0)
+			if err != nil {
+				abortOpening(strm)
+				stop()
+				return nil, fmt.Errorf("opening commit: %w", err)
 			}
 		}
 		stopped := stop()
@@ -299,14 +322,21 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 		}
 		if err != nil {
 			var timeout interface{ Timeout() bool }
-			transportTimedOut := ack[0] == 0 && errors.As(err, &timeout) && timeout.Timeout()
-			if transportTimedOut && p.engine.ctx.Err() == nil {
-				p.recoveryFailures.Add(1)
-				s.recordTransportFailure()
+			transportTimedOut := (ack[0] == 0 || retryableOpening) && errors.As(err, &timeout) && timeout.Timeout()
+			unreceivedClose := (ack[0] == 0 || retryableOpening) && (errors.Is(err, io.EOF) || errors.Is(err, io.ErrClosedPipe) || errors.Is(err, net.ErrClosed))
+			if (transportTimedOut || unreceivedClose) && ctx.Err() == nil && p.engine.ctx.Err() == nil {
+				_, _, blocked := c.Session.ReceiveBufferStats()
+				if blocked {
+					p.engine.stats.OpenCapacityRetries.Add(1)
+				}
+				if !blocked {
+					p.recoveryFailures.Add(1)
+					s.recordTransportFailure()
+				}
 				abortOpening(strm)
 				// Only this new stream failed. Existing forwards retain their carrier.
 				transportRetry = true
-				p.engine.log().Debug("opening.transport_timeout", "remote", p.configuration().Address, "target", target, "conv", c.UDPSession.GetConv(), "attempt", attempts+1, "remaining_ms", time.Until(deadline).Milliseconds(), "streams", c.Session.NumStreams(), "error", err)
+				p.engine.log().Debug("opening.transport_retry", "receive_blocked", blocked, "receipt", ack[0], "remote", p.configuration().Address, "target", target, "conv", c.UDPSession.GetConv(), "attempt", attempts+1, "remaining_ms", time.Until(deadline).Milliseconds(), "streams", c.Session.NumStreams(), "error", err)
 				p.invalidateIdle(s, c)
 				if excluded == nil {
 					excluded = make(map[*slot]bool)
@@ -316,7 +346,8 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 				continue
 			}
 			abortOpening(strm)
-			return nil, err
+			_, buffered, blocked := c.Session.ReceiveBufferStats()
+			return nil, fmt.Errorf("opening reply receipt=%d conv=%d receive_blocked=%t buffered=%d: %w", ack[0], c.UDPSession.GetConv(), blocked, buffered, err)
 		}
 		strm.SetDeadline(time.Time{})
 		p.recoverySuccess.Store(time.Now().UnixNano())
@@ -638,4 +669,46 @@ func (p *peer) lifecycle() context.Context {
 		return p.ctx
 	}
 	return p.engine.ctx
+}
+
+// readOpeningResult polls only unfinished idempotent openings. Capacity can fill
+// after selection/ACK2, hiding ACK0 behind another stream's data. A short read
+// checkpoint discovers that case while healthy slow target dials keep the full
+// budget and remain one target dial across any retry. No established relay polls.
+func (p *peer) readOpeningResult(ctx context.Context, stream tnet.Strm, conn *kcp.Conn, selected *slot, excluded map[*slot]bool, deadline time.Time, ack []byte) error {
+	for {
+		checkpoint := minTime(deadline, time.Now().Add(250*time.Millisecond))
+		stream.SetReadDeadline(checkpoint)
+		_, err := io.ReadFull(stream, ack)
+		if err == nil {
+			return nil
+		}
+		var timeout interface{ Timeout() bool }
+		if !errors.As(err, &timeout) || !timeout.Timeout() || ctx.Err() != nil || !time.Now().Before(deadline) {
+			return err
+		}
+		_, _, blocked := conn.Session.ReceiveBufferStats()
+		if blocked {
+			p.mu.RLock()
+			alternative := false
+			for _, s := range p.slots {
+				if s != selected && !excluded[s] && !s.suspect.Load() && s.score.Load()&blockedCarrier == 0 {
+					alternative = true
+					break
+				}
+			}
+			p.mu.RUnlock()
+			if alternative {
+				return err
+			}
+		}
+	}
+}
+
+// minTime retains an earlier user deadline instead of extending cancellation.
+func minTime(a, b time.Time) time.Time {
+	if a.Before(b) {
+		return a
+	}
+	return b
 }

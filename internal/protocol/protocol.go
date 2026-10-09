@@ -46,6 +46,9 @@ const (
 	PMMOVE PType = 0x0a
 	// PMREPLY carries an explicit migration result and matching capability/generation.
 	PMREPLY PType = 0x0b
+	// PTCP3/PUDP3 retain a bounded opening identity across carrier retries.
+	PTCP3 PType = 0x0c
+	PUDP3 PType = 0x0d
 )
 
 const (
@@ -85,6 +88,8 @@ const (
 // Proto holds one validated inner ping/flag/target request; application bytes follow on the
 // same mux stream.
 type Proto struct {
+	// RequestID identifies one uncommitted target dial; never reused by retries.
+	RequestID [16]byte
 	// Validated inner control kind used by engine dispatch.
 	Type PType
 	// Target hostname/port to be interpreted only for target-opening request kinds.
@@ -169,7 +174,7 @@ func (p *Proto) Write(w io.Writer) error {
 		body = binary.BigEndian.AppendUint64(body, p.Epoch)
 		body = append(body, p.Status)
 
-	case PTCP, PUDP, PTCP2, PUDP2:
+	case PTCP, PUDP, PTCP2, PUDP2, PTCP3, PUDP3:
 		if p.Addr == nil {
 			return errors.New("protocol: address required")
 		}
@@ -179,6 +184,12 @@ func (p *Proto) Write(w io.Writer) error {
 		}
 		if p.Addr.Port < 1 || p.Addr.Port > maxPort {
 			return fmt.Errorf("protocol: port %d out of range", p.Addr.Port)
+		}
+		if p.Type == PTCP3 || p.Type == PUDP3 {
+			if p.RequestID == [16]byte{} {
+				return errors.New("protocol: opening identity required")
+			}
+			body = append(body, p.RequestID[:]...)
 		}
 		body = append(body, byte(len(host)))
 		body = append(body, host...)
@@ -234,6 +245,7 @@ func (p *Proto) Read(r io.Reader) error {
 	}
 	p.Type = hdr[2]
 	p.Addr, p.TCPF = nil, nil
+	p.RequestID = [16]byte{}
 	p.Capability, p.Epoch, p.Status = [32]byte{}, 0, 0
 
 	n := int(binary.BigEndian.Uint16(hdr[3:]))
@@ -266,7 +278,17 @@ func (p *Proto) Read(r io.Reader) error {
 		p.Status = body[40]
 		return nil
 
-	case PTCP, PUDP, PTCP2, PUDP2:
+	case PTCP, PUDP, PTCP2, PUDP2, PTCP3, PUDP3:
+		if p.Type == PTCP3 || p.Type == PUDP3 {
+			if len(body) < 19 {
+				return errors.New("protocol: truncated opening identity")
+			}
+			copy(p.RequestID[:], body[:16])
+			body = body[16:]
+			if p.RequestID == [16]byte{} {
+				return errors.New("protocol: opening identity required")
+			}
+		}
 		if len(body) < 3 {
 			return errors.New("protocol: truncated address body")
 		}

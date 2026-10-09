@@ -223,7 +223,7 @@ func (e *Engine) serveUDP(ctx context.Context, conn *net.UDPConn, key string) {
 						}
 					}()
 					openCtx, cancel := context.WithTimeout(ctx, e.current().Limits.OpenDuration)
-					strm, err := peer.open(openCtx, protocol.PUDP2, f.Target)
+					strm, err := peer.open(openCtx, protocol.PUDP3, f.Target)
 					cancel()
 					if err != nil {
 						e.stats.Errors.Add(1)

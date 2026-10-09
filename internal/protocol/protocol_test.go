@@ -14,7 +14,7 @@ import (
 // TestRoundTripAndMalformedControls checks Round Trip And Malformed Controls so a change
 // cannot silently weaken the recorded regression contract.
 func TestRoundTripAndMalformedControls(t *testing.T) {
-	for _, p := range []Proto{{Type: PMTOKEN}, {Type: PMCHECK, Capability: [32]byte{1}, Epoch: 7}, {Type: PMMOVE, Capability: [32]byte{2}, Epoch: 8}, {Type: PMREPLY, Capability: [32]byte{3}, Epoch: 9, Status: 1}, {Type: PPING}, {Type: PPONG}, {Type: PTCP2, Addr: &tnet.Addr{Host: "example.com", Port: 443}}, {Type: PUDP2, Addr: &tnet.Addr{Host: "::1", Port: 53}}, {Type: PTCPF, TCPF: []conf.TCPF{{PSH: true, ACK: true}, {SYN: true}}}} {
+	for _, p := range []Proto{{Type: PMTOKEN}, {Type: PMCHECK, Capability: [32]byte{1}, Epoch: 7}, {Type: PMMOVE, Capability: [32]byte{2}, Epoch: 8}, {Type: PMREPLY, Capability: [32]byte{3}, Epoch: 9, Status: 1}, {Type: PPING}, {Type: PPONG}, {Type: PTCP3, RequestID: [16]byte{1, 2}, Addr: &tnet.Addr{Host: "example.com", Port: 443}}, {Type: PUDP3, RequestID: [16]byte{3, 4}, Addr: &tnet.Addr{Host: "::1", Port: 53}}, {Type: PTCP2, Addr: &tnet.Addr{Host: "example.com", Port: 443}}, {Type: PUDP2, Addr: &tnet.Addr{Host: "::1", Port: 53}}, {Type: PTCPF, TCPF: []conf.TCPF{{PSH: true, ACK: true}, {SYN: true}}}} {
 		var wire bytes.Buffer
 		if err := p.Write(&wire); err != nil {
 			t.Fatal(err)

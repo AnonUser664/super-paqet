@@ -36,6 +36,10 @@ type Stats struct {
 	Active, Accepted, Rejected, Errors, Aborted, Sent, Received, Sessions atomic.Int64
 	// Counts new-opening recovery attempts without counting them as application failures.
 	OpenRetries atomic.Int64
+	// Capacity retries are not evidence that a physical source tuple failed.
+	OpenCapacityRetries atomic.Int64
+	// Counts same-target dial reuse across unfinished stream attempts.
+	OpenReused atomic.Int64
 }
 
 // Engine owns one process runtime and its resource lifetimes; carrier and flow state remain
@@ -43,6 +47,10 @@ type Stats struct {
 type Engine struct {
 	// Capability ownership is separate from per-packet dispatch and reload state.
 	migrations migrationRegistry
+	// Bounded unfinished dials and replay tombstones, independent of physical carriers.
+	openings openingRegistry
+	// Optional test seam for delayed target dials; production uses net.Dialer.
+	openingDial func(context.Context, string, string) (net.Conn, error)
 	// Protects controller registration and listener-observer snapshots shared by
 	// tuning/diagnostic tasks.
 	tuneMu sync.Mutex
@@ -120,6 +128,7 @@ func run(ctx context.Context, cfg *Config, watch func(*Engine)) (err error) {
 	e.log().Info("engine.start", "cpus", runtime.GOMAXPROCS(0), "connection_limit", cfg.Limits.Connections, "session_limit", cfg.Limits.Sessions, "log_flow_sample", cfg.Log.FlowSample)
 	e.launch(e.tune)
 	e.launch(e.observe)
+	e.launch(e.sweepOpenings)
 	e.recoverySlots = make(chan struct{}, 4)
 	e.launch(e.recoverPaths)
 	if watch != nil {
@@ -135,6 +144,7 @@ func (e *Engine) launch(fn func()) { e.wg.Add(1); go func() { defer e.wg.Done();
 // close releases each endpoint-owned socket/guard and rule journal under the
 // reload lock, including earlier failed cleanups; run then joins tracked work.
 func (e *Engine) close() error {
+	e.openings.close()
 	e.reloadMu.Lock()
 	defer e.reloadMu.Unlock()
 	var errs []error
@@ -306,7 +316,7 @@ func (e *Engine) forward(listener *net.TCPListener, key string) {
 			defer e.stats.Active.Add(-1)
 			defer conn.Close()
 			ctx, cancel := context.WithTimeout(p.lifecycle(), e.current().Limits.OpenDuration)
-			strm, err := p.open(ctx, protocol.PTCP2, f.Target)
+			strm, err := p.open(ctx, protocol.PTCP3, f.Target)
 			cancel()
 			if err != nil {
 				e.log().Debug("flow.open_failed", "flow_id", trace, "peer", f.Peer, "target", f.Target, "error", err)
@@ -395,6 +405,9 @@ func (e *Engine) handle(ctx context.Context, listener tnet.Listener, strm tnet.S
 		return
 	case protocol.PPING:
 		(&protocol.Proto{Type: protocol.PPONG}).Write(strm)
+		return
+	case protocol.PTCP3, protocol.PUDP3:
+		e.handleOpening(ctx, listener, strm, p, trace)
 		return
 	case protocol.PTCP2, protocol.PUDP2:
 	default:

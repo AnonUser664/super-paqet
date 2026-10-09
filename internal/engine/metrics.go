@@ -17,6 +17,8 @@ import (
 // metrics exports process and carrier snapshots; expensive stream scans are bounded separately
 // by mux telemetry.
 func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
+	receipts, pending := e.openings.counts()
+	fmt.Fprintf(w, "super_paqet_opening_receipts %d\nsuper_paqet_opening_pending_targets %d\nsuper_paqet_opening_capacity_retries_total %d\nsuper_paqet_opening_reused_targets_total %d\n", receipts, pending, e.stats.OpenCapacityRetries.Load(), e.stats.OpenReused.Load())
 	fmt.Fprintf(w, "super_paqet_path_recovery_attempts_total %d\nsuper_paqet_path_recovery_succeeded_total %d\nsuper_paqet_path_recovery_rejected_total %d\n", e.pathRecoveryAttempts.Load(), e.pathRecoverySucceeded.Load(), e.pathRecoveryRejected.Load())
 	w.Header().Set("Content-Type", "text/plain; version=0.0.4")
 	if e.diagnostics != nil {
