@@ -227,3 +227,39 @@ queue drops total 46,360, with zero capture drops. Other service and Xray identi
 remain unchanged. Local observer changes add capacity-retry/reused-target counters
 to summaries and incident triggers, with legacy missing metrics/reset handling;
 13 observer unit tests pass. Neither the observer nor runtime changes are deployed.
+
+## Pressure, capacity and recovery follow-up
+
+The exact queue5 executable verifies all 10,000 held forwards in both control and
+candidate runs, plus 100,000 in a candidate-only capacity run (7.70 s ramp). Every
+held socket is rechecked, not merely counted. The 100k run peaks at about 1.67 GiB
+server / 1.72 GiB client RSS and records nonzero swap on this laptop; this is an
+integrity/capacity result, not simultaneous saturated-traffic latency acceptance.
+Functional checks cover multiple clients/listeners, UDP and directional EOF.
+Repeated migration preserves all four established sequenced 64 KiB streams and
+logical carriers with zero healthy-peer errors. A 70-second failed-probe fixture
+also preserves all four using negotiated 60-second recovery grace. Live reload
+passes 64 active streams, four carriers, two capture workers and three edit cycles.
+All owned rules/processes/namespaces are cleaned. Original receipts remain under
+`followup-queue5/`.
+
+Short, unplaced fq download runs are adverse (medians 133.96 → 126.56 Mbit/s),
+despite fewer drops; variable placement is not erased or treated as success. The
+first controlled-fq launch stops before load because its generated output literal
+still points to an existing directory; mkdir prevents overwriting it. The corrected
+fixture uses fixed source ports, pinned equal carrier populations, separate CPU
+roles, 20 seconds warmup / 30 seconds measurement and production 15s / 5s budgets.
+Controlled download medians are 135.18 → 136.77 Mbit/s; first-pair drops fall from
+331,483 to 50,744. Both receive workers are active.
+
+The controlled mixed-pressure gate **fails throughput**: median combined bulk is
+258.94 → 222.29 Mbit/s (about −14%), although mean HTTP latency falls from 2.655 s
+to 0.936 s and p99 upper bounds from 4.194 s to about 1.415 s. Zero generator errors
+and clean teardown do not override that regression. Queue5 is not deployed.
+
+A serialized 1,000-pair local wait experiment (`queue-wait-timing/`) measures the
+50 us Go sleep at mean 1,048.8 us versus kernel nanosleep at mean 102.1 us. The next
+Linux-only candidate uses a best-effort kernel yield after ENOBUFS; interruptions
+end the yield, and admission/retry bounds remain unchanged. It does not spin, add
+healthy-path syscalls or promise a strict 50 us deadline. Blocking syscall thread
+use and pressure/bulk/latency outcomes must be qualified before promotion.

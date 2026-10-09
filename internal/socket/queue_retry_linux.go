@@ -6,12 +6,19 @@ package socket
 
 import (
 	"golang.org/x/sys/unix"
-	"time"
 )
 
 // waitTXQueue yields briefly for kernel transmit progress. It runs only after
-// ENOBUFS; the normal packet path retains no timer or extra pacing delay.
-func waitTXQueue() { time.Sleep(50 * time.Microsecond) }
+// ENOBUFS; the normal packet path retains no timer or extra pacing delay. A Go
+// timer can round this short yield to about a millisecond, multiplying the cost
+// when the caller retains a rejected batch tail. A kernel sleep avoids spinning
+// and leaves the syscall thread blocked briefly instead. Scheduling can still
+// lengthen either sleep. Interruption simply ends this best-effort queue yield;
+// packet admission and the retry bound remain authoritative.
+func waitTXQueue() {
+	delay := unix.Timespec{Nsec: 50_000}
+	_ = unix.Nanosleep(&delay, nil)
+}
 
 // sendWithQueueRetry retries only a wholly rejected batch. Successful/partial
 // sends return immediately, so an accepted datagram is never replayed here.
