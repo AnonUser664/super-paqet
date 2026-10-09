@@ -263,3 +263,20 @@ Linux-only candidate uses a best-effort kernel yield after ENOBUFS; interruption
 end the yield, and admission/retry bounds remain unchanged. It does not spin, add
 healthy-path syscalls or promise a strict 50 us deadline. Blocking syscall thread
 use and pressure/bulk/latency outcomes must be qualified before promotion.
+
+## Queue experiment isolation
+
+The kernel-yield candidate (`b08160d`, executable `7eee1040…`) passes race/vet but
+its controlled mixed throughput gate still fails: combined bulk medians about
+256.15 → 231.60 Mbit/s (−9.6%). Mean latency improves, while the p99 upper bound
+stays at the histogram's 4.194 s ceiling. The idle wait measurement is not proof
+that every Go timer under concurrent I/O takes a millisecond. Full receipts remain
+in `fq-fixed-queue6/`; no production update occurred.
+
+The next candidate restores the exact deployed transmit queue policy and tests the
+opening correction in isolation. Queue counter growth is recoverable local loss,
+not itself a process crash or proof of customer delivery failure. A lower drop
+counter does not justify a throughput regression. Both smaller-prefix and kernel-
+yield experiments remain in Git history for later investigation; neither is being
+promoted on the strength of incomplete/failed gates. Recovery grace and opening
+correctness remain separate qualification decisions.
