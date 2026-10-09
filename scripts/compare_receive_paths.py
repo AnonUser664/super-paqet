@@ -73,7 +73,7 @@ def compact_result(directory):
         raise RuntimeError('cleanup or unrelated-rule preservation failed')
     rows = []
     for result in report['results']:
-        if result.get('errors', 0):
+        if result.get('errors', 0) or result.get('warmup_errors', 0):
             raise RuntimeError('workload errors')
         if 'iperf' in result:
             row = {k: result[k] for k in ('iperf', 'method', 'tunnel_cpu_cores', 'idle_wait_seconds') if k in result}
@@ -109,6 +109,7 @@ def main():
     parser.add_argument('--repetitions', type=int, default=2)
     parser.add_argument('--duration', type=int, default=15)
     parser.add_argument('--warmup', type=int, default=0, help='omitted iperf startup seconds; HTTP/capacity cases are unchanged')
+    parser.add_argument('--http-warmup', type=int, default=0, help='unmeasured startup for HTTP/bulk/churn cases; capacity and iperf cases are unchanged')
     parser.add_argument('--client-procs', type=int, default=4)
     parser.add_argument('--server-procs', type=int, default=2)
     parser.add_argument('--client-cpus', default='')
@@ -121,7 +122,7 @@ def main():
     args = parser.parse_args()
     if os.geteuid() != 0:
         parser.error('run as root; only owned namespaces are changed')
-    if args.duration < 12 or args.warmup < 0 or min(args.repetitions, args.client_procs, args.server_procs) < 1:
+    if args.duration < 12 or min(args.warmup, args.http_warmup) < 0 or min(args.repetitions, args.client_procs, args.server_procs) < 1:
         parser.error('duration must be >=12 and repetitions/core budgets positive')
     if len(set(args.cases)) != len(args.cases):
         parser.error('cases must be unique so each receipt has one workload identity')
@@ -156,6 +157,8 @@ def main():
                     command.append('--duplex-http-steady')
                 if args.warmup and '--iperf' in CASES[case]:
                     command.extend(['--warmup', str(args.warmup)])
+                if args.http_warmup and '--iperf' not in CASES[case] and '--hold' not in CASES[case]:
+                    command.extend(['--http-warmup', str(args.http_warmup)])
                 if args.pinned_lanes and '--iperf' in CASES[case]:
                     command.append('--pinned-lanes')
                 for option in ('client-cpus', 'server-cpus', 'workload-cpus'):

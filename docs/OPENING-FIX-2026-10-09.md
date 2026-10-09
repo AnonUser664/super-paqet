@@ -164,3 +164,31 @@ interleave. Shutdown retains full bounded-map cleanup without unnecessary yields
 Five repetitions of the expanded opening race cases pass, including publication
 racing 32 waiters, one concurrent claim winner, a 1,024-entry expiry burst and
 large-preface handling against the actual mux. Performance evidence is pending.
+
+## Lazy-wakeup comparison and clock evidence
+
+The queue4 candidate (`bc876ee4…`, source `1e15632`) passed the complete
+application race suite and vet. Its two mixed comparisons retain mean-latency
+medians 1,118 → 1,115 microseconds and p99 upper-bound medians 6.5 → 7.5 ms,
+within the declared +5% mean / +2 ms p99 limits. These are finite observations,
+not proof of a universal speedup. Clock samples show the first mixed candidate
+ran at higher sampled client/server clocks than its control, so causal claims
+remain unqualified. Full receipts and one-second frequency/CPU-tick samples are
+in `comparison-queue4-paced/`.
+
+The first churn pair measured 17,229 → 12,529 requests/s, while the reverse pair
+measured 12,975 → 12,493. Preserve both. Churn had no warmup: the first control's
+average sampled client clock was about 3.61 GHz versus 2.53 GHz for its candidate.
+Those instantaneous clock samples do not prove all variation came from clocks.
+They do show why an unmatched cold pair cannot establish a runtime regression
+or improvement. A separate `--http-warmup` fixture option now keeps startup
+requests/bytes/errors in receipts, measures latency by request start after warmup,
+and rejects warmup errors. CPU accounting covers the complete workload, including
+warmup. Existing defaults remain unchanged.
+
+The next runtime edit replaces nested target-dial deadline contexts with one
+context enforcing the earlier of the opening and dial deadlines. Parent
+cancellation is retained. This removes an extra timer/context and child map on
+the healthy opening path; its performance effect must still be measured. The
+metrics response also sets its Prometheus Content-Type before writing the body.
+No production host has been changed.

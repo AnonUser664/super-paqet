@@ -313,8 +313,10 @@ func (e *Engine) handleOpening(ctx context.Context, listener tnet.Listener, strm
 		e.stats.OpenReused.Add(1)
 	}
 	if fresh {
-		dialCtx, cancel := context.WithDeadline(ctx, t.deadline)
-		dialCtx, dialCancel := context.WithTimeout(dialCtx, e.current().Limits.DialDuration)
+		// One context enforces both bounds. Nested deadline contexts would
+		// allocate another timer and child map on every healthy opening.
+		dialDeadline := minTime(t.deadline, time.Now().Add(e.current().Limits.DialDuration))
+		dialCtx, cancel := context.WithDeadline(ctx, dialDeadline)
 		proto := "tcp"
 		if p.Type == protocol.PUDP3 {
 			proto = "udp"
@@ -326,7 +328,6 @@ func (e *Engine) handleOpening(ctx context.Context, listener tnet.Listener, strm
 		} else {
 			c, err = (&net.Dialer{KeepAlive: 30 * time.Second}).DialContext(dialCtx, proto, t.target)
 		}
-		dialCancel()
 		cancel()
 		e.openings.finish(t, c, err)
 	}

@@ -70,6 +70,7 @@ def main():
     p.add_argument('--mtu',type=int,default=1500)
     p.add_argument('--ipv6',action='store_true')
     p.add_argument('--warmup',type=int,default=0,help='iperf3 omitted startup seconds')
+    p.add_argument('--http-warmup',type=int,default=0,help='unmeasured HTTP/bulk/churn startup seconds; warmup errors remain in the receipt')
     p.add_argument('--duplex-http-gap-ms',type=int,default=0,help='per-worker HTTP pause beside bulk; zero retains saturation')
     p.add_argument('--duplex-http-steady',action='store_true',help='omit the same configured startup duration from mixed HTTP statistics; keep legacy timing by default')
     p.add_argument('--schedule',help='JSON list of link changes relative to each workload start')
@@ -117,13 +118,14 @@ def main():
     if a.ipv6 and a.mtu<1280: p.error('IPv6 requires MTU >=1280')
     if a.ipv6 and a.functional: p.error('use standalone IPv6 workloads; the multi-address fixture is IPv4')
     if a.warmup<0 or (a.warmup and not a.iperf): p.error('warmup requires iperf and cannot be negative')
+    if a.http_warmup<0 or (a.http_warmup and (a.iperf or a.hold)): p.error('http-warmup requires an HTTP/bulk/churn load without iperf or hold')
     epochs=json.loads(a.schedule) if a.schedule else []
     allowed={'at','rate_mbit','down_rate_mbit','delay_ms','jitter_ms','loss','reorder','queue_packets'}
     for event in epochs:
         if not isinstance(event,dict) or 'at' not in event or set(event)-allowed: p.error('invalid link epoch fields')
         if any(not isinstance(v,(int,float)) or not math.isfinite(v) or v<0 for v in event.values()): p.error('link epochs require finite nonnegative numbers')
         if any(event.get(k,0)>100 for k in ('loss','reorder')): p.error('epoch percentages must be 0..100')
-        if event['at']>=a.duration+a.warmup:p.error('epoch must occur within the workload interval')
+        if event['at']>=a.duration+a.warmup+a.http_warmup:p.error('epoch must occur within the workload interval')
     epochs.sort(key=lambda event:event['at'])
     if a.fq_flow_limit < 0 or a.fq_maxrate_mbit < 0: p.error('fq limits cannot be negative')
     if a.fq_maxrate_mbit and not a.fq_flow_limit: p.error('fq-maxrate-mbit requires fq-flow-limit')
@@ -468,6 +470,7 @@ def main():
             sample()
             cpu_before = {name:v.get('cpu_seconds',0) for name,v in peaks.items()}
             args = [str(ROOT/'build/spq-bench'),'-mode',mode,'-duration',f'{a.duration}s','-workers',str(a.workers),'-addr','127.0.0.1:28080']
+            if a.http_warmup: args += ['-warmup',f'{a.http_warmup}s']
             if a.hold: args[-1] = ','.join(f'127.0.0.1:{28080+i}' for i in range(8)); args += ['-connections',str(a.hold)]
             proc = spawn(c,'load-'+mode,*args)
             start_epochs(mode)
@@ -476,7 +479,7 @@ def main():
                 for name, namespace in (('client',c),('server',s)):
                     profile_path = str(out/(name+'-'+mode+'.pprof'))
                     profiles.append(spawn(namespace, 'profile-'+name, sys.executable, '-c', f'import urllib.request; data=urllib.request.urlopen("http://127.0.0.1:29090/debug/pprof/profile?seconds={max(1,min(10,a.duration-1))}",timeout=30).read(); open({profile_path!r},"wb").write(data)'))
-            deadline = time.monotonic()+max(a.ramp_timeout,a.duration+60)
+            deadline = time.monotonic()+max(a.ramp_timeout,a.duration+a.http_warmup+60)
             hold_sampled = False
             mixed_procs = []
             while proc.poll() is None:
@@ -497,7 +500,9 @@ def main():
             workload_reports = [json.loads(line) for line in (out/('load-'+mode+'.log')).read_text().splitlines()]
             sample()
             for result in workload_reports:
-                if 'seconds' in result: result['tunnel_cpu_cores']={name:round((peaks[name]['cpu_seconds']-cpu_before.get(name,0))/result['seconds'],3) for name in ('client','server') if name in peaks}
+                # CPU samples cover warmup too; do not divide that work by only
+                # the shorter steady measurement interval.
+                if 'seconds' in result: result['tunnel_cpu_cores']={name:round((peaks[name]['cpu_seconds']-cpu_before.get(name,0))/result.get('total_seconds',result['seconds']),3) for name in ('client','server') if name in peaks}
             reports += workload_reports
             for load in mixed_procs:
                 load.wait(timeout=30)
@@ -630,7 +635,7 @@ def main():
             (out/(n.split('-')[1]+'-qdisc.json')).write_text(ns(n,'tc','-s','-j','qdisc','show').stdout)
         (out/'results.json').write_text(json.dumps(report,indent=2)+'\n')
         print(json.dumps(report,indent=2),flush=True)
-        if any(row.get('errors',0) for row in reports):raise RuntimeError('workload reported errors; inspect results.json')
+        if any(row.get('errors',0) or row.get('warmup_errors',0) for row in reports):raise RuntimeError('workload reported errors; inspect results.json')
     finally:
         if host_settings:
             current=int(backlog_path.read_text())
