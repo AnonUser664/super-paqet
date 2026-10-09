@@ -216,7 +216,7 @@ func (p *peer) connection(ctx context.Context, s *slot) (*kcp.Conn, error) {
 
 // open opens one target stream, separates transport receipt from target failure and bounds
 // carrier retry selection.
-func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, error) {
+func (p *peer) open(ctx context.Context, kind byte, target string, initialTCP ...*net.TCPConn) (tnet.Strm, error) {
 	ctx, cancel := context.WithTimeout(ctx, p.engine.current().Limits.OpenDuration)
 	defer cancel()
 	a, err := tnet.NewAddr(target)
@@ -306,7 +306,11 @@ func (p *peer) open(ctx context.Context, kind byte, target string) (tnet.Strm, e
 		// Never retry a failed commit: its write may already have been accepted.
 		if err == nil && retryableOpening {
 			strm.SetDeadline(deadline)
-			err = writeOpeningAck(strm, 0)
+			var initial *net.TCPConn
+			if len(initialTCP) > 0 {
+				initial = initialTCP[0]
+			}
+			err = writeOpeningCommit(strm, initial, &p.engine.stats.Sent)
 			if err != nil {
 				abortOpening(strm)
 				stop()

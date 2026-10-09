@@ -316,7 +316,9 @@ func (e *Engine) forward(listener *net.TCPListener, key string) {
 			defer e.stats.Active.Add(-1)
 			defer conn.Close()
 			ctx, cancel := context.WithTimeout(p.lifecycle(), e.current().Limits.OpenDuration)
-			strm, err := p.open(ctx, protocol.PTCP3, f.Target)
+			// After target readiness, the commit can share its frame with
+			// already queued client bytes; it never waits for application data.
+			strm, err := p.open(ctx, protocol.PTCP3, f.Target, conn)
 			cancel()
 			if err != nil {
 				e.log().Debug("flow.open_failed", "flow_id", trace, "peer", f.Peer, "target", f.Target, "error", err)

@@ -113,3 +113,28 @@ fixture failure, not a successful latency result. The current helper was rebuilt
 from cmd/bench. The first 60-second-warmed, pinned-carrier/CPU-role bulk pair
 measured 5.338 → 5.403 Gbit/s upload and 4.162 → 4.204 download, both workers
 active. Reverse-order, latency and WAN qualification remain pending.
+
+## Coalescing investigation after the failed mixed gate
+
+The complete two-pair placed comparison retains bulk medians of 5.400 →
+5.436 Gbit/s upload and 4.195 → 4.180 download. Churn medians are 12,720 →
+12,377 requests/s. The mixed mean gate **fails**: 1,119 → 1,193 microseconds
+(+6.6%), despite p99 upper-bound medians improving from 8 to 7 ms and equal
+1 Gbit/s each-way offered traffic. This candidate is not accepted for rollout.
+
+The next candidate retains queue retries and opening identity/ownership, but
+coalesces the commit with up to 4,095 already queued TCP application bytes after
+target readiness. One nonblocking local TCP read cannot wait for application
+data; an empty/server-first socket sends the ordinary commit immediately. It
+borrows a 4 KiB pool class only for this attempt, releases it before an empty
+commit, and returns populated scratch after mux payload ownership transfers.
+Only accepted application bytes enter the existing relay counter. Failed reads
+or commits are terminal; no coalesced application bytes are replayed on retries.
+UDP/generic stream callers retain the ordinary commit path.
+
+Five repetitions of expanded opening race cases pass with the coalescing code.
+Tests verify the real late-backpressure sibling retry with/without queued client
+bytes, a retained target banner, exact hello/reply payloads and one target dial.
+Separate real TCP tests cover empty sockets, directional EOF, closed sockets,
+bounded prefix consumption, untouched unread tails and short-write accounting.
+Performance qualification for this new candidate remains pending.

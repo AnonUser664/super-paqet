@@ -14,7 +14,10 @@ import (
 	"io"
 	"net"
 	"sync"
+	"sync/atomic"
 	"time"
+
+	"golang.org/x/sys/unix"
 
 	"paqet/internal/protocol"
 	"paqet/internal/tnet"
@@ -327,4 +330,58 @@ func (r *openingRegistry) counts() (int, int) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	return len(r.entries), r.pending
+}
+
+// writeOpeningCommit folds already queued TCP application bytes into the winning
+// commit frame. This avoids a separate tiny KCP packet on client-first traffic.
+// One nonblocking read never delays server-first protocols; an empty socket sends
+// the ordinary immediate commit. Scratch is returned after mux write ownership
+// transfers, and only accepted application bytes enter the relay byte counter.
+// Any read/write failure is terminal: a commit may already have reached the peer.
+func writeOpeningCommit(stream tnet.Strm, tcp *net.TCPConn, sent *atomic.Int64) error {
+	if tcp == nil {
+		return writeOpeningAck(stream, 0)
+	}
+	raw, err := tcp.SyscallConn()
+	if err != nil {
+		return err
+	}
+	b, class := getBuffer(4096)
+	defer func() {
+		if b != nil {
+			copyPools[class].Put(b)
+		}
+	}()
+	var n int
+	var readErr error
+	err = raw.Read(func(fd uintptr) bool {
+		n, readErr = unix.Read(int(fd), (*b)[1:])
+		if errors.Is(readErr, unix.EAGAIN) || errors.Is(readErr, unix.EINTR) {
+			n, readErr = 0, nil
+		}
+		return true // Do not enter netpoll waiting for application bytes.
+	})
+	if err != nil {
+		return err
+	}
+	if readErr != nil {
+		return readErr
+	}
+	if n == 0 {
+		copyPools[class].Put(b)
+		b = nil // Empty/server-first openings retain no scratch while committing.
+		return writeOpeningAck(stream, 0)
+	}
+	(*b)[0] = 0
+	var written int
+	if priority, ok := stream.(interface{ WritePriority([]byte) (int, error) }); ok {
+		written, err = priority.WritePriority((*b)[:n+1])
+	} else {
+		written, err = stream.Write((*b)[:n+1])
+	}
+	sent.Add(int64(min(n, max(0, written-1))))
+	if err == nil && written != n+1 {
+		return io.ErrShortWrite
+	}
+	return err
 }

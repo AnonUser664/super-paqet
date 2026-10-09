@@ -21,6 +21,116 @@ import (
 	"paqet/internal/tnet"
 )
 
+// openingTCPPair owns both sides of a real loopback connection for nonblocking
+// first-read and directional EOF tests, independently of privileged fixtures.
+func openingTCPPair(t *testing.T) (*net.TCPConn, *net.TCPConn) {
+	t.Helper()
+	l, err := net.ListenTCP("tcp", &net.TCPAddr{IP: net.IPv4(127, 0, 0, 1)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer l.Close()
+	client, err := net.DialTCP("tcp", nil, l.Addr().(*net.TCPAddr))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { client.Close() })
+	server, err := l.AcceptTCP()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { server.Close() })
+	return client, server
+}
+
+// openingCommitCapture copies accepted bytes like a real mux, with a bounded
+// short-write seam. Unused stream methods are supplied only by the embedding.
+type openingCommitCapture struct {
+	tnet.Strm
+	data  []byte
+	limit int
+}
+
+// Write records only the bytes this destination accepts.
+func (s *openingCommitCapture) Write(p []byte) (int, error) {
+	n := len(p)
+	if s.limit >= 0 {
+		n = min(n, s.limit)
+	}
+	s.data = append(s.data, p[:n]...)
+	return n, nil
+}
+
+// WritePriority exercises the same priority interface as the live stream.
+func (s *openingCommitCapture) WritePriority(p []byte) (int, error) { return s.Write(p) }
+
+// TestOpeningCommitPreface verifies bounded consumption, the nonblocking
+// server-first path, EOF, short-write accounting and rejection after TCP close.
+func TestOpeningCommitPreface(t *testing.T) {
+	for _, tc := range []struct {
+		name        string
+		size, limit int
+		eof, closed bool
+	}{
+		{"empty", 0, -1, false, false}, {"data", 20, -1, false, false},
+		{"bounded", 8192, -1, false, false}, {"short", 20, 3, false, false},
+		{"eof", 0, -1, true, false}, {"closed", 0, -1, false, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			client, tcp := openingTCPPair(t)
+			payload := bytes.Repeat([]byte{0x61}, tc.size)
+			if tc.size > 0 {
+				if _, err := client.Write(payload); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if tc.eof {
+				client.CloseWrite()
+			}
+			if tc.closed {
+				tcp.Close()
+			}
+			stream := &openingCommitCapture{limit: tc.limit}
+			var count atomic.Int64
+			started := time.Now()
+			err := writeOpeningCommit(stream, tcp, &count)
+			if time.Since(started) > 100*time.Millisecond {
+				t.Fatal("commit waited for application data")
+			}
+			if tc.closed {
+				if err == nil || len(stream.data) != 0 {
+					t.Fatal("closed TCP committed", err)
+				}
+				return
+			}
+			n := min(tc.size, 4095)
+			want := append([]byte{0}, payload[:n]...)
+			if tc.limit >= 0 {
+				want = want[:min(len(want), tc.limit)]
+			}
+			if !bytes.Equal(stream.data, want) || count.Load() != int64(max(0, len(want)-1)) {
+				t.Fatal("commit bytes/accounting changed")
+			}
+			if tc.limit >= 0 && err != io.ErrShortWrite || tc.limit < 0 && err != nil {
+				t.Fatal("commit error", err)
+			}
+			if tc.size > n {
+				tcp.SetReadDeadline(time.Now().Add(time.Second))
+				tail := make([]byte, tc.size-n)
+				if _, err := io.ReadFull(tcp, tail); err != nil || !bytes.Equal(tail, payload[n:]) {
+					t.Fatal("unread TCP tail changed", err)
+				}
+			}
+			if tc.eof {
+				tcp.SetReadDeadline(time.Now().Add(time.Second))
+				if _, err := tcp.Read(make([]byte, 1)); err != io.EOF {
+					t.Fatal("directional EOF consumed", err)
+				}
+			}
+		})
+	}
+}
+
 // TestOpeningReceiptReusesDialAndCommitsOnce checks that a delayed copy cannot
 // claim the target twice or resurrect it after its ownership reached a relay.
 func TestOpeningReceiptReusesDialAndCommitsOnce(t *testing.T) {
@@ -139,6 +249,14 @@ func TestOpeningReceiptRetainsFailedDial(t *testing.T) {
 // streams retain their payloads and ownership. This is the missed production
 // case: a cached admission hint cannot repair an already assigned opening.
 func TestAcknowledgedOpeningEscapesLateReceiveBlock(t *testing.T) {
+	for _, preface := range []bool{false, true} {
+		t.Run(fmt.Sprintf("preface-%t", preface), func(t *testing.T) { acknowledgedOpeningEscapesLateReceiveBlock(t, preface) })
+	}
+}
+
+// acknowledgedOpeningEscapesLateReceiveBlock shares the real mux regression
+// between ordinary commit and commit/application coalescing.
+func acknowledgedOpeningEscapesLateReceiveBlock(t *testing.T, preface bool) {
 	e := reloadFixture(t)
 	cfg := smux.DefaultConfig()
 	cfg.Version, cfg.HalfClose = 2, true
@@ -218,7 +336,15 @@ func TestAcknowledgedOpeningEscapesLateReceiveBlock(t *testing.T) {
 	p := &peer{engine: e, endpoint: Endpoint{MaxSessions: 2}, slots: []*slot{blocked, healthy}}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	opened, err := p.open(ctx, protocol.PTCP3, listener.Addr().String())
+	var initial []*net.TCPConn
+	if preface {
+		client, accepted := openingTCPPair(t)
+		if _, err := client.Write([]byte("hello")); err != nil {
+			t.Fatal(err)
+		}
+		initial = append(initial, accepted)
+	}
+	opened, err := p.open(ctx, protocol.PTCP3, listener.Addr().String(), initial...)
 	if err != nil {
 		t.Fatal("acknowledged opening failed behind full receive lane", err)
 	}
@@ -234,8 +360,10 @@ func TestAcknowledgedOpeningEscapesLateReceiveBlock(t *testing.T) {
 	if _, err := io.ReadFull(opened, banner[:]); err != nil || string(banner[:]) != "banner" {
 		t.Fatal("discarded attempt consumed target banner", err)
 	}
-	if _, err := opened.Write([]byte("hello")); err != nil {
-		t.Fatal(err)
+	if !preface {
+		if _, err := opened.Write([]byte("hello")); err != nil {
+			t.Fatal(err)
+		}
 	}
 	var response [5]byte
 	if _, err := io.ReadFull(opened, response[:]); err != nil || string(response[:]) != "reply" {
