@@ -20,6 +20,7 @@ import urllib.error
 import urllib.request
 
 SUMMARY_COUNTERS = ["errors_total", "rejected_total", "opening_transport_retries_total",
+                    "opening_capacity_retries_total", "opening_reused_targets_total",
                     "config_reload_rejected_total", "path_recovery_attempts_total",
                     "path_recovery_succeeded_total", "path_recovery_rejected_total",
                     "log_dropped_total"]

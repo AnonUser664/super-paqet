@@ -192,3 +192,38 @@ cancellation is retained. This removes an extra timer/context and child map on
 the healthy opening path; its performance effect must still be measured. The
 metrics response also sets its Prometheus Content-Type before writing the body.
 No production host has been changed.
+
+## Warmed queue5 checkpoint
+
+Source `ee24e70`, executable
+`7787e9be748549f6917466481629f7658f4034dcb6c542b7c10f098eada8fbc8`,
+passed the application race suite and vet. Four independent source carriers, two
+capture workers, client CPUs 0–3, backend CPUs 4/6 and generator CPUs 8–11 were
+retained. Each of eight alternating runs had 60 seconds warmup and 20 seconds
+measurement, zero warmup/measurement errors, exact verified cold payload and
+clean firewall/process teardown. This laptop is an i5-13420H with 12 logical CPUs.
+
+| Warmed medians | Deployed baseline | Candidate |
+|---|---:|---:|
+| Churn connections/s | 14,007.7 | 13,757.0 |
+| Churn mean latency | 4,567.3 us | 4,649.9 us |
+| Churn p99 upper bound | 10 ms | 11 ms |
+| Mixed mean latency | 924.1 us | 906.2 us |
+| Mixed p99 upper bound | 5.5 ms | 4.5 ms |
+
+Churn is 1.8% slower, within the 5% throughput/mean limits; p99 adds 1 ms, within
+the +2 ms limit. Mixed traffic retains approximately 1 Gbit/s in each direction.
+Both mixed pairs independently satisfy the latency limits. First churn sampled
+clocks closely match, but reverse mixed clocks vary by about 7%; preserve the
+clock observations and do not interpret aggregate latency as a universal speedup.
+The opening ownership cache has a measurable cost: server peak RSS under this
+continuous churn is about 136.8 MiB versus 40.6 MiB. This is bounded transient
+receipt retention, not a zero-cost change. Queue pressure, held-connection, WAN,
+recovery and reload gates for this exact executable remain incomplete.
+
+A read-only 17:42 UTC production refresh still finds original PIDs/hashes and no
+restarts on all five hosts. Client .118 has ten errors and 4,086 retries; Finland
+queue drops total 46,360, with zero capture drops. Other service and Xray identities
+remain unchanged. Local observer changes add capacity-retry/reused-target counters
+to summaries and incident triggers, with legacy missing metrics/reset handling;
+13 observer unit tests pass. Neither the observer nor runtime changes are deployed.

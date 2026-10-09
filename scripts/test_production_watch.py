@@ -68,6 +68,27 @@ class SummaryTests(unittest.TestCase):
             watch.update_summary(summary, sample)
         self.assertEqual(summary["counter_deltas"]["path_recovery_attempts_total"], 3)
 
+    def test_opening_retry_signals_survive_reset_and_older_metrics(self):
+        """New opening counters remain optional on legacy runtimes and reset by PID."""
+        summary = {}
+        previous = None
+        reasons = []
+        for utc, pid, value in [("01", "a", None), ("02", "a", 8),
+                                ("03", "a", 10), ("04", "b", 0), ("05", "b", 1)]:
+            sample = row(utc, pid, 0)
+            sample["unit"]["ActiveState"] = "active"
+            if value is not None:
+                for key in ("opening_capacity_retries_total", "opening_reused_targets_total"):
+                    sample["metrics"] += f"super_paqet_{key} {value}\n"
+            reasons.append(watch.incident(sample, previous))
+            watch.update_summary(summary, sample)
+            previous = sample
+        for key in ("opening_capacity_retries_total", "opening_reused_targets_total"):
+            self.assertEqual(summary["counter_deltas"][key], 3)
+            self.assertIn(key + "_increased", reasons[2])
+        self.assertEqual(reasons[1], [])
+        self.assertEqual(reasons[3], ["process_changed"])
+
     def test_metric_outage_is_retained_without_manufacturing_counter_changes(self):
         summary = {}
         before, after = row("01", "a", 100), row("03", "a", 101)
