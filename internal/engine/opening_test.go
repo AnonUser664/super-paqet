@@ -12,6 +12,7 @@ import (
 	"io"
 	"net"
 	"paqet/internal/tnet/kcp"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -27,17 +28,17 @@ func TestOpeningReceiptReusesDialAndCommitsOnce(t *testing.T) {
 	defer r.close()
 	p := protocol.Proto{Type: protocol.PTCP3, RequestID: [16]byte{1}, Addr: &tnet.Addr{Host: "127.0.0.1", Port: 2096}}
 	deadline := time.Now().Add(time.Second)
-	first, fresh, err := r.reserve(nil, p, 2, deadline)
+	first, fresh, err := r.reserve(context.Background(), nil, p, 2, deadline)
 	if err != nil || !fresh {
 		t.Fatal(err)
 	}
-	replay, fresh, err := r.reserve(nil, p, 2, deadline)
+	replay, fresh, err := r.reserve(context.Background(), nil, p, 2, deadline)
 	if err != nil || fresh || replay != first {
 		t.Fatal("replay created another dial")
 	}
 	bad := p
 	bad.Addr = &tnet.Addr{Host: "127.0.0.1", Port: 2097}
-	if _, _, err := r.reserve(nil, bad, 2, deadline); err == nil {
+	if _, _, err := r.reserve(context.Background(), nil, bad, 2, deadline); err == nil {
 		t.Fatal("conflicting target accepted")
 	}
 	left, right := net.Pipe()
@@ -54,7 +55,7 @@ func TestOpeningReceiptReusesDialAndCommitsOnce(t *testing.T) {
 	if _, err := r.claim(first); err == nil {
 		t.Fatal("target claimed twice")
 	}
-	if _, _, err := r.reserve(nil, p, 2, deadline); err == nil {
+	if _, _, err := r.reserve(context.Background(), nil, p, 2, deadline); err == nil {
 		t.Fatal("delayed opening redialed a committed target")
 	}
 	r.retire(deadline.Add(time.Second), false)
@@ -76,10 +77,10 @@ func TestOpeningReceiptBoundsAndExpiry(t *testing.T) {
 	var r openingRegistry
 	p := protocol.Proto{Type: protocol.PTCP3, RequestID: [16]byte{1}, Addr: &tnet.Addr{Host: "127.0.0.1", Port: 2096}}
 	deadline := time.Now().Add(time.Second)
-	first, _, _ := r.reserve(nil, p, 1, deadline)
+	first, _, _ := r.reserve(context.Background(), nil, p, 1, deadline)
 	other := p
 	other.RequestID = [16]byte{2}
-	if _, _, err := r.reserve(nil, other, 1, deadline); err == nil {
+	if _, _, err := r.reserve(context.Background(), nil, other, 1, deadline); err == nil {
 		t.Fatal("receipt storage exceeded bound")
 	}
 	r.retire(deadline.Add(time.Second), false)
@@ -99,7 +100,7 @@ func TestOpeningReceiptBoundsAndExpiry(t *testing.T) {
 	if _, err := right.Read(got[:]); err != io.EOF {
 		t.Fatal("late dial socket leaked", err)
 	}
-	second, _, err := r.reserve(nil, other, 1, deadline.Add(time.Second))
+	second, _, err := r.reserve(context.Background(), nil, other, 1, deadline.Add(time.Second))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -111,7 +112,7 @@ func TestOpeningReceiptBoundsAndExpiry(t *testing.T) {
 	if _, err := r2.Read(got[:]); err != io.EOF {
 		t.Fatal("shutdown leaked pending target", err)
 	}
-	if _, _, err := r.reserve(nil, p, 1, deadline); err == nil {
+	if _, _, err := r.reserve(context.Background(), nil, p, 1, deadline); err == nil {
 		t.Fatal("closed registry reopened")
 	}
 }
@@ -122,9 +123,9 @@ func TestOpeningReceiptRetainsFailedDial(t *testing.T) {
 	var r openingRegistry
 	defer r.close()
 	p := protocol.Proto{Type: protocol.PTCP3, RequestID: [16]byte{9}, Addr: &tnet.Addr{Host: "127.0.0.1", Port: 2096}}
-	ticket, _, _ := r.reserve(nil, p, 1, time.Now().Add(time.Second))
+	ticket, _, _ := r.reserve(context.Background(), nil, p, 1, time.Now().Add(time.Second))
 	r.finish(ticket, nil, context.DeadlineExceeded)
-	replay, fresh, err := r.reserve(nil, p, 1, time.Now().Add(time.Second))
+	replay, fresh, err := r.reserve(context.Background(), nil, p, 1, time.Now().Add(time.Second))
 	if err != nil || fresh || replay != ticket || r.result(replay) != context.DeadlineExceeded {
 		t.Fatal("failed dial was repeated")
 	}
@@ -200,6 +201,10 @@ func TestAcknowledgedOpeningEscapesLateReceiveBlock(t *testing.T) {
 	}
 	echo := make(chan error, 1)
 	go func() {
+		if _, err := remote.Write([]byte("banner")); err != nil {
+			echo <- err
+			return
+		}
 		var data [5]byte
 		_, err := io.ReadFull(remote, data[:])
 		if err == nil && string(data[:]) != "hello" {
@@ -225,6 +230,10 @@ func TestAcknowledgedOpeningEscapesLateReceiveBlock(t *testing.T) {
 		t.Fatal("capacity was misclassified as failed transport")
 	}
 	opened.SetDeadline(time.Now().Add(time.Second))
+	var banner [6]byte
+	if _, err := io.ReadFull(opened, banner[:]); err != nil || string(banner[:]) != "banner" {
+		t.Fatal("discarded attempt consumed target banner", err)
+	}
 	if _, err := opened.Write([]byte("hello")); err != nil {
 		t.Fatal(err)
 	}
@@ -267,5 +276,132 @@ func TestAcknowledgedOpeningEscapesLateReceiveBlock(t *testing.T) {
 		case <-time.After(time.Second):
 			t.Fatal("handler cleanup did not finish")
 		}
+	}
+}
+
+// TestOpeningReceiptConcurrentClaim proves replay streams cannot simultaneously
+// take the one dial result, even when commits and publication race.
+func TestOpeningReceiptConcurrentClaim(t *testing.T) {
+	var r openingRegistry
+	defer r.close()
+	p := protocol.Proto{Type: protocol.PTCP3, RequestID: [16]byte{3}, Addr: &tnet.Addr{Host: "127.0.0.1", Port: 2096}}
+	ticket, _, err := r.reserve(context.Background(), nil, p, 10, time.Now().Add(time.Second))
+	if err != nil {
+		t.Fatal(err)
+	}
+	left, right := net.Pipe()
+	defer left.Close()
+	defer right.Close()
+	r.finish(ticket, left, nil)
+	var winners atomic.Int32
+	var wg sync.WaitGroup
+	for i := 0; i < 32; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if c, err := r.claim(ticket); err == nil {
+				if c != left {
+					t.Error("different target claimed")
+				}
+				winners.Add(1)
+			}
+		}()
+	}
+	wg.Wait()
+	if winners.Load() != 1 {
+		t.Fatalf("committed %d times", winners.Load())
+	}
+}
+
+// TestOpeningReceiptListenerRetirement releases abandoned targets during reload
+// without waiting for expiry or disturbing another listener generation.
+func TestOpeningReceiptListenerRetirement(t *testing.T) {
+	var r openingRegistry
+	defer r.close()
+	first, second := &kcp.Listener{}, &kcp.Listener{}
+	ctx, cancel := context.WithCancel(context.Background())
+	p := protocol.Proto{Type: protocol.PTCP3, RequestID: [16]byte{4}, Addr: &tnet.Addr{Host: "127.0.0.1", Port: 2096}}
+	a, _, err := r.reserve(ctx, first, p, 10, time.Now().Add(time.Second))
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, _, err := r.reserve(context.Background(), second, p, 10, time.Now().Add(time.Second))
+	if err != nil {
+		t.Fatal(err)
+	}
+	left, right := net.Pipe()
+	defer right.Close()
+	r.finish(a, left, nil)
+	cancel()
+	r.retireListener(first)
+	if count, pending := r.counts(); count != 1 || pending != 1 {
+		t.Fatalf("counts=%d/%d", count, pending)
+	}
+	if _, _, err := r.reserve(ctx, first, p, 10, time.Now().Add(time.Second)); err != context.Canceled {
+		t.Fatal("cancelled generation accepted", err)
+	}
+	right.SetReadDeadline(time.Now().Add(time.Second))
+	if _, err := right.Read(make([]byte, 1)); err != io.EOF {
+		t.Fatal("retired target leaked", err)
+	}
+	if r.entries[b.key] != b || len(r.expiry) != 1 || r.expiry[0] != b {
+		t.Fatal("unrelated receipt retired")
+	}
+}
+
+// TestAcknowledgedSlowTargetKeepsBudget verifies read checkpoints never mistake
+// a healthy slow target for carrier failure or spend another target dial.
+func TestAcknowledgedSlowTargetKeepsBudget(t *testing.T) {
+	e := reloadFixture(t)
+	s, remoteMux := openingCarrier(t, 3110)
+	sibling, _ := openingCarrier(t, 3111)
+	sibling.score.Store(20)
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer listener.Close()
+	var dials atomic.Int32
+	e.openingDial = func(ctx context.Context, network, address string) (net.Conn, error) {
+		dials.Add(1)
+		select {
+		case <-time.After(600 * time.Millisecond):
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		}
+		return (&net.Dialer{}).DialContext(ctx, network, address)
+	}
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		strm, err := remoteMux.AcceptStream()
+		if err != nil {
+			return
+		}
+		defer strm.Abort()
+		e.handle(e.ctx, nil, &kcp.Strm{Stream: strm}, 0)
+	}()
+	p := &peer{engine: e, endpoint: Endpoint{MaxSessions: 2}, slots: []*slot{s, sibling}}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	opened, err := p.open(ctx, protocol.PTCP3, listener.Addr().String())
+	if err != nil {
+		t.Fatal("healthy delayed target failed", err)
+	}
+	remote, err := listener.Accept()
+	if err != nil {
+		t.Fatal(err)
+	}
+	opened.Close()
+	remote.Close()
+	s.conn.Load().Close()
+	remoteMux.Close()
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		t.Fatal("handler did not release")
+	}
+	if dials.Load() != 1 || e.stats.OpenRetries.Load() != 0 || s.suspect.Load() {
+		t.Fatal("healthy slow target retried or suspected")
 	}
 }

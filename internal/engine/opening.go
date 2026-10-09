@@ -80,9 +80,14 @@ type openingRegistry struct {
 // reserve returns the existing dial on replay and rejects conflicting requests.
 // Capacity is derived from the configured admission ceiling and includes replay
 // tombstones, bounding retained memory even under rapid connection churn.
-func (r *openingRegistry) reserve(listener tnet.Listener, p protocol.Proto, limit int64, deadline time.Time) (*openingTicket, bool, error) {
+func (r *openingRegistry) reserve(ctx context.Context, listener tnet.Listener, p protocol.Proto, limit int64, deadline time.Time) (*openingTicket, bool, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	// Cancellation is checked while holding the same lock as listener retirement:
+	// a stopped generation cannot publish new pending targets after cleanup.
+	if err := ctx.Err(); err != nil {
+		return nil, false, err
+	}
 	if r.closed {
 		return nil, false, net.ErrClosed
 	}
@@ -197,6 +202,45 @@ func (r *openingRegistry) retire(now time.Time, closeAll bool) {
 // close releases unfinished target ownership; relays own committed targets.
 func (r *openingRegistry) close() { r.retire(time.Time{}, true) }
 
+// retireListener releases a stopped listener generation immediately. Reload is
+// rare, so rebuilding the expiry heap here avoids extra per-opening indexes or
+// locks on the hot path. Committed relays keep ownership of their target sockets.
+// Call only after cancelling the generation context used by reserve.
+func (r *openingRegistry) retireListener(listener tnet.Listener) {
+	var sockets []net.Conn
+	r.mu.Lock()
+	kept := r.expiry[:0]
+	for _, t := range r.expiry {
+		if t.key.listener != listener {
+			kept = append(kept, t)
+			continue
+		}
+		delete(r.entries, t.key)
+		if t.pending {
+			t.pending = false
+			r.pending--
+		}
+		if t.conn != nil {
+			sockets = append(sockets, t.conn)
+			t.conn = nil
+		}
+		if !t.finished {
+			t.finished, t.err = true, context.Canceled
+			close(t.ready)
+		}
+	}
+	clear(r.expiry[len(kept):])
+	r.expiry = kept
+	heap.Init(&r.expiry)
+	if len(r.entries) == 0 {
+		r.entries, r.expiry = nil, nil
+	}
+	r.mu.Unlock()
+	for _, c := range sockets {
+		c.Close()
+	}
+}
+
 // sweepOpenings uses one coarse engine timer. Per-ticket checks also enforce
 // the exact deadline, so sweeper granularity cannot admit an expired commit.
 func (e *Engine) sweepOpenings() {
@@ -219,7 +263,7 @@ func (e *Engine) handleOpening(ctx context.Context, listener tnet.Listener, strm
 	if err := writeOpeningAck(strm, 2); err != nil {
 		return
 	}
-	t, fresh, err := e.openings.reserve(listener, p, 2*e.current().Limits.Connections, time.Now().Add(e.current().Limits.OpenDuration))
+	t, fresh, err := e.openings.reserve(ctx, listener, p, 2*e.current().Limits.Connections, time.Now().Add(e.current().Limits.OpenDuration))
 	if err != nil {
 		writeOpeningAck(strm, 1)
 		e.log().Debug("opening.identity_rejected", "error", err)

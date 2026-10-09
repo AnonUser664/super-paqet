@@ -88,7 +88,7 @@ const (
 // Proto holds one validated inner ping/flag/target request; application bytes follow on the
 // same mux stream.
 type Proto struct {
-	// RequestID identifies one uncommitted target dial; never reused by retries.
+	// RequestID identifies one uncommitted target dial; retries retain the same ID.
 	RequestID [16]byte
 	// Validated inner control kind used by engine dispatch.
 	Type PType

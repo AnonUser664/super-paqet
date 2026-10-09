@@ -199,8 +199,8 @@ func (p *rawPacket) WriteBatch(ms []ipv4.Message, flags int) (int, error) {
 	var sent int
 	var opErr error
 	err := p.raw.Write(func(fd uintptr) bool {
-		r, errno, retries := sendWithQueueRetry(func() (int, unix.Errno) {
-			r, _, errno := unix.Syscall6(unix.SYS_SENDMMSG, fd, uintptr(unsafe.Pointer(&p.txHdr[0])), uintptr(n), uintptr(unix.MSG_DONTWAIT), 0, 0)
+		r, errno, retries, attempted := sendBatchWithQueueRetry(n, func(prefix int) (int, unix.Errno) {
+			r, _, errno := unix.Syscall6(unix.SYS_SENDMMSG, fd, uintptr(unsafe.Pointer(&p.txHdr[0])), uintptr(prefix), uintptr(unix.MSG_DONTWAIT), 0, 0)
 			return int(r), errno
 		}, waitTXQueue)
 		if retries > 0 {
@@ -213,8 +213,10 @@ func (p *rawPacket) WriteBatch(ms []ipv4.Message, flags int) (int, error) {
 		// loss, not a broken socket: KCP must retransmit rather than abort
 		// every application stream sharing the session.
 		if errno == unix.ENOBUFS {
-			p.txDrops.Add(uint64(n))
-			sent = n
+			// Only this rejected prefix is lost. The KCP batch caller keeps the
+			// remaining encoded payloads and advances by this exact count.
+			p.txDrops.Add(uint64(attempted))
+			sent = attempted
 			return true
 		}
 		if errno != 0 {

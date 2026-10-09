@@ -28,3 +28,21 @@ func sendWithQueueRetry(send func() (int, unix.Errno), wait func()) (sent int, e
 		wait()
 	}
 }
+
+// sendBatchWithQueueRetry reduces only a wholly rejected prefix. A full qdisc
+// may regain room for a few datagrams during the bounded wait, even when it
+// cannot absorb the original batch. Partial sends still return immediately;
+// the caller retains the unsent tail. On persistent pressure, attempted is the
+// exact rejected prefix to count as loss, rather than discarding the whole tail.
+// Healthy batches retain their original size and syscall count.
+func sendBatchWithQueueRetry(batch int, send func(int) (int, unix.Errno), wait func()) (sent int, errno unix.Errno, retries, attempted int) {
+	attempted = batch
+	sent, errno, retries = sendWithQueueRetry(func() (int, unix.Errno) {
+		n, failure := send(attempted)
+		return n, failure
+	}, func() {
+		attempted = max(1, attempted/2)
+		wait()
+	})
+	return
+}

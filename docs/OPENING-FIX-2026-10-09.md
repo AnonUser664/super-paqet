@@ -51,3 +51,35 @@ isolated root fq with explicit per-socket flow_limit/maxrate, excluding unrelate
 netem schedules. This provides an actual Linux ENOBUFS reproduction without
 changing a host or production qdisc. No queue fix or benchmark improvement is
 claimed at this checkpoint.
+
+## Second checkpoint: queue-pressure candidate
+
+The first baseline fixture attempt stopped at argument validation because the
+new worktree lacked the local iperf helper. No workload ran; its failure receipt
+remains. Copying the unchanged helper into this worktree allowed the reproduction.
+The exact deployed binary (`256cfc65…`) produced 23,354 backend transmit drops
+with fq flow_limit 100 and maxrate 50 Mbit/s per flow. This is an isolated socket
+queue limit, not a claimed 50 Mbit/s aggregate WAN.
+
+A local candidate shrinks only wholly rejected sendmmsg prefixes on ENOBUFS:
+64 → 32 → 16 → 8, with the existing three waits and no healthy-path delay.
+Partial sends return immediately. Persistent pressure discards/counts only the
+last rejected prefix; KCP's existing batch cursor retains the untouched tail.
+No accepted datagram is replayed and no queue error tears down a carrier.
+
+The first candidate run (`c46cda9a…`, opening plus queue change) produced
+12,228 drops and 120.30 Mbit/s download versus the baseline's 94.85 Mbit/s.
+Client/server mean CPU was 0.147/0.204 cores versus 0.172/0.190. Cold 16 MiB
+transfer was 3.486 s versus 3.276 s: retain this adverse startup result. These
+single runs are exploratory, not acceptance or a production capacity claim.
+The pressure branch can spend more aggregate time sending a rejected batch's
+tail, so mixed latency and repeated comparisons remain required. No pacing,
+outer encoder, flag cycle, socket ownership or production qdisc is changed.
+
+Listener-generation cleanup now cancels reservation and removes its unfinished
+targets immediately, rebuilding the expiry heap only on retirement. Other
+listeners and relay-owned sockets remain independent. Race tests cover
+concurrent claims (one winner among 32), reload retirement, a healthy 600 ms
+target dial with no retry, and a target banner surviving late receive blockage.
+Three repetitions of the expanded opening race cases and the socket race suite
+pass. Whole-suite and namespace performance qualification remain pending.

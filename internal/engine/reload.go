@@ -230,7 +230,12 @@ func (e *Engine) prepareResource(spec resourceSpec) (_ *liveResource, err error)
 			return nil, listenErr
 		}
 		ctx, cancel := context.WithCancel(e.ctx)
-		r.release = func() { cancel(); listener.Close(); guard.Close() }
+		r.release = func() {
+			cancel()
+			e.openings.retireListener(listener)
+			listener.Close()
+			guard.Close()
+		}
 		r.start = func() { e.launch(func() { e.serve(ctx, listener, r) }) }
 		// Listener packet observers are rebuilt from live resources at commit.
 		r.listener = listener.(*kcp.Listener)
