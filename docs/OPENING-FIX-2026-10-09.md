@@ -394,3 +394,84 @@ with healthy sibling traffic and owned-rule cleanup intact. The exact old/new
 hashes and command are retained in `legacy-client-new-server7/`. The new four-slot
 client still requires backend-first promotion; the new one-slot path uses legacy
 requests from the outset rather than an unsafe post-receipt fallback.
+
+
+## Capability checkpoint: additional failed gates
+
+Source `a348c5cc8b9c2fd053a22f4783562c404746bef1`, executable
+`076cbd29ca7c6eec46bf1e1c6001d3194eea9a5f875ee45b18c22bbd10f506a3`,
+passes the earlier race/vet/observer checks. It remains **unqualified for rollout**.
+The CPU-placed, fixed-source, ordinary four-slot pool pressure test retains two
+pairs with zero request errors, but fails performance: the candidate's combined
+bulk median is about 174.64 versus 189.95 Mbit/s and its mean-request median about
+408.48 versus 344.45 ms. The second pair concentrates bulk streams on one lane
+in both versions and has much higher HTTP latency. Different placements prevent
+attributing all of the difference to opening code; they do not authorize hiding
+the failed gate. This ordinary pooled fixture complements the separate one-slot
+fixture rather than substituting for it.
+
+Four fixed-one-slot pressure runs also complete with zero errors and clean
+teardown. They use legacy requests from the outset; mean medians are about
+3.095 versus 2.999 seconds and combined throughput about 258.14 versus 252.98
+Mbit/s. Their variable tails show why identical healthy wire paths do not imply
+millisecond-repeatable percentiles under this artificial fq saturation. No
+universal tail improvement is claimed.
+
+The warmed reordering follow-up stops on eight **body timeouts during warmup**
+in its first candidate run, preserving its complete report and clean teardown.
+Small HTTP requests have zero errors and about 88.76 ms mean latency; delivered
+bulk bytes average 94.94 Mbit/s, but successful bytes do not erase eight stalled
+responses. The baseline run had no errors. Final metrics identify one backend
+carrier with a four-segment window and 2,558 pending segments while siblings
+have large windows. The fixture logs no opening failures. Adaptive delivery
+under reorder therefore needs investigation independently of safe opening
+ownership. Its queued debug comparison retains failures and continues to collect
+both versions; it must not rewrite the failed warm-up gate. Subsequent exact-
+artifact hold/recovery/reload work was not reached by that aborted matrix.
+
+
+## Untimestamped RTT uncertainty follow-up
+
+The debug comparison shows queue classification toggling while RTT variation is
+large relative to the reported excess over the lifetime RTT minimum. Legacy
+untimestamped adaptation discounts ACK scheduling but ignores measured variation
+in that classification, unlike its transit-timestamp branch. This is a concrete
+controller modeling gap, not yet proof that every observed stall has that cause.
+The first three debug repeats have no workload errors; they do not erase the
+earlier eight warmup timeouts. All debug receipts and original failed reports are
+retained.
+
+A new local edit discounts twice KCP's smoothed RTT deviation in the untimestamped
+queue signal. Existing entry/exit hysteresis, maximum credit, delivery horizon,
+wire behavior and timestamp-attributed branch remain. A deterministic controller
+scenario requires noisy saturated delivery to retain progress, then requires a
+stable RTT increase with little variation to reduce pacing. Full correctness and
+real-link-shaped performance tests are pending, including bottlenecks where a
+variation allowance could incorrectly delay congestion response.
+
+The same edit copies the controller's input RTT/deviation, ACK budget, window and
+sample time into debug records. Existing live stats are collected later; the old
+record could therefore mix decision inputs and newer ACK observations. Named
+snapshot fields and monotonic sample age make that distinction explicit without
+per-packet work or warning-level snapshot overhead. No production promotion is
+claimed at this checkpoint.
+
+
+The RTT-uncertainty edit now passes the full application race suite, vet, five
+focused adaptive repetitions and all 13 observer tests. The same new regression
+was also run against an isolated archive of source `a348c5c`: the old controller
+fails with `congested=true`, window five and rate 21,216 / pacing 6,061 bytes/s.
+The archive/added-test hash, expected failure and log are retained separately.
+The new model also verifies that a stable subsequent queue increase still backs
+off. This establishes the modeled bug/fix, not a production-causality claim.
+
+All four pre-fix debug reordering repeats finish without errors or leaked rules;
+candidate bulk values are 72.17 / 96.31 Mbit/s versus controls 85.96 / 91.87.
+Variation and the original eight-timeout gate remain explicit. The current
+capability executable also completes its exact-artifact clean bulk check:
+upload medians 5.436 → 5.674 Gbit/s and download 4.210 → 4.136 Gbit/s. Both capture
+workers carry traffic, all integrity checks pass and teardown is clean. The
+upload difference is not attributed to a causal optimization; the overall
+candidate remains unqualified because of its failed pooled/reordering gates.
+The next rebuilt artifact must test the new controller under the same failure
+profile and under stable bottlenecks before any promotion.

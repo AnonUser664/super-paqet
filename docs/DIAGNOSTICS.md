@@ -345,3 +345,24 @@ requires exactly one warning. Two backend workers exercise fanout ownership.
 The fixture captures and checks fixed S/PA flags, TCP options, initial client
 sequence rules and retained backend sequence/ACK/timestamp formulas using
 `scripts/check_migration_wire.py`. These packet checks do not predict censorship.
+
+### Local opening candidate byte accounting
+
+The opening candidate may commit up to 511 already queued TCP application bytes
+before the relay starts. Process-wide sent-byte counters include those accepted
+bytes and exclude the one-byte commit. Client `flow.closed` copy totals cover the
+subsequent relay only, so they can be smaller by that prefix; backend relay totals
+include the application prefix. They must not be equated with process totals. A
+failed commit is terminal and never replays consumed application bytes. This
+behavior belongs to the local candidate, not the deployed latency.1 release.
+
+
+The local jitter-controller follow-up adds `controller_sample_age_ms`,
+`controller_rtt_ms`, `controller_rttvar_ms`, `controller_ack_budget_ms` and
+`controller_window` to debug `transport.sample`. These copied values belong to
+the same tuner input epoch as `congested`, `queue_signal_ms` and `min_rtt_ms`.
+Existing RTT/window/queue counters are a newer live transport snapshot. Age `-1`
+means no controller sample yet; other ages use monotonic time at formatting.
+Comparing an old decision directly with the newer RTT can otherwise manufacture
+an apparent contradiction. Warning-level production skips this debug snapshot.
+The fields pass local race/vet verification and are not yet deployed.

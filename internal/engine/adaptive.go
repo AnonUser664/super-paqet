@@ -130,12 +130,21 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 			total := float64(s.ForwardQueue) + float64(s.ReverseQueue)
 			c.queueSignal = max(0, networkRTT-c.minRTT) * float64(s.ForwardQueue) / max(1, total)
 			c.congested = c.queueSignal > threshold
-		} else if c.congested {
-			c.queueSignal = max(0, rtt-c.minRTT-c.ackScheduleBudget)
-			c.congested = rtt > c.minRTT*1.1+2+c.ackScheduleBudget
 		} else {
-			c.queueSignal = max(0, rtt-c.minRTT-c.ackScheduleBudget)
-			c.congested = rtt > c.minRTT*1.25+5+c.ackScheduleBudget
+			// Without transit timestamps, an unusually fast reordered ACK
+			// can set a low lifetime floor. Discount measured RTT variation
+			// as well as ACK scheduling before attributing growth to a queue.
+			// Otherwise noisy links can permanently suppress probing and
+			// collapse a saturated sender to its initial packet credit.
+			// Stable queue growth still exceeds this uncertainty allowance;
+			// ceilings and entry/exit hysteresis retain their existing bounds.
+			uncertainty := 2 * max(0, float64(s.SRTTVar))
+			c.queueSignal = max(0, rtt-c.minRTT-c.ackScheduleBudget-uncertainty)
+			if c.congested {
+				c.congested = c.queueSignal > c.minRTT*.1+2
+			} else {
+				c.congested = c.queueSignal > c.minRTT*.25+5
+			}
 		}
 	}
 	if acked == 0 {

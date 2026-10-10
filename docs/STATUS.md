@@ -34,14 +34,18 @@ Successful metrics samples, active journal followers and unchanged tunnel/config
 binary/Xray identities were verified. Client .14 had no warnings in the selected
 journal interval, a valid empty record rather than an observer failure.
 
-The [opening investigation](OPENING-FIX-2026-10-09.md) remains a local candidate.
-Its safe same-identity retry passes race, delayed-backpressure and ownership tests;
-100,000 held-flow verification, migration and reload pass on an earlier candidate
-with the same opening implementation. Queue experiments were rejected for bulk
-regressions and the current candidate restores deployed queue behavior. Current
-clean bulk/WAN/compatibility qualification is unfinished, and sustained queue
-pressure still shows an adverse p99. No candidate binary/configuration has been
-promoted to the five production hosts.
+The [opening investigation](OPENING-FIX-2026-10-09.md) remains a local candidate
+on `fix/production-backpressure-20261009`. Its safe same-identity retry passes
+race, delayed-backpressure and ownership tests; fixed one-carrier peers retain the
+original handshake. Earlier candidate hold/migration/reload controls pass, and
+new clean bulk/legacy-client compatibility controls pass. Two ordinary pooled
+pressure pairs fail throughput/latency limits; a longer warmed reordering run also
+reports eight response-body timeouts. These failed gates remain in the record.
+Current candidate source `a348c5c`, SHA-256
+`076cbd29ca7c6eec46bf1e1c6001d3194eea9a5f875ee45b18c22bbd10f506a3`, is
+**unqualified for production rollout**. Queue experiments were rejected and are
+absent from this runtime. No candidate binary/configuration has been promoted to
+the five hosts; adaptive established delivery is now a separate investigation.
 
 The [9 October production log review](PRODUCTION-REVIEW-2026-10-09.md) covers about
 17.6 hours. Original PIDs, executable/config hashes and Xray identities remain;

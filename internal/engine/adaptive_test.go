@@ -379,3 +379,41 @@ func TestLargeQueueBackoffDrainsFasterThanSmallQueue(t *testing.T) {
 		t.Fatal("large forward queue did not increase bounded backoff", small, large)
 	}
 }
+
+// TestLegacyRTTJitterRetainsProgress models an ACK-timestamp-disabled path whose
+// reordered packets create a low RTT floor and large measured variation. Jitter
+// must not trap a saturated sender at its tiny initial credit; a later stable
+// queue increase must still back off without changing the configured ceiling.
+func TestLegacyRTTJitterRetainsProgress(t *testing.T) {
+	c := newController(1024, 4096)
+	c.ackScheduleBudget = reliabilityACKBudget(conf.KCP{Mode: "manual", Interval: 30, ACKDelayMaxMS: 20})
+	now := time.Unix(100, 0)
+	s := kcp.TransportStats{SRTT: 20, MSS: 1326, Pending: 10000, PendingBytes: 13260000}
+	c.update(s, now)
+	now = now.Add(250 * time.Millisecond)
+	c.update(s, now) // Retain the idle propagation observation before payload.
+	for range 12 {
+		now = now.Add(250 * time.Millisecond)
+		s.SRTT, s.SRTTVar = 120, 40
+		s.AckedBytes += 5304
+		s.AckedSegments += 4
+		s.SentSegments += 4
+		c.update(s, now)
+		if c.window < 1 || c.window > 1024 {
+			t.Fatal("jitter escaped the configured credit bound", c.window)
+		}
+	}
+	if c.congested || c.window < 16 || c.pacingRate() < uint64(c.rate) {
+		t.Fatalf("jitter locked delivery: congested=%t window=%d rate=%v pacing=%d", c.congested, c.window, c.rate, c.pacingRate())
+	}
+	before := c.pacingRate()
+	now = now.Add(250 * time.Millisecond)
+	s.SRTT, s.SRTTVar = 240, 2
+	s.AckedBytes += 5304
+	s.AckedSegments += 4
+	s.SentSegments += 4
+	c.update(s, now)
+	if !c.congested || c.pacingRate() >= before {
+		t.Fatal("stable queue growth stopped reducing pacing")
+	}
+}

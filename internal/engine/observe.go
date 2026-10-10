@@ -45,6 +45,11 @@ type observedSession struct {
 	queueSignal float64
 	// Identifies packet-window-only control for a predominantly small-message lane.
 	smallMessages bool
+	// Exact input epoch for the copied controller decision. Live transport
+	// statistics below may be newer, so logs must distinguish both snapshots.
+	sampledAt                 time.Time
+	sampledRTT, sampledRTTVar int32
+	ackBudget                 float64
 }
 
 // observedState retains the previous carrier counters/time so periodic logs can report deltas
@@ -82,7 +87,13 @@ func (e *Engine) observe() {
 			e.tuneMu.Lock()
 			connections := make([]observedSession, 0, len(e.tuners))
 			for conn, c := range e.tuners {
-				connections = append(connections, observedSession{conn, c.minRTT, c.rate, c.window, c.startup, c.peakRate, c.lossRatio, c.congested, c.queueSignal, c.smallMessages})
+				connections = append(connections, observedSession{
+					conn: conn, minRTT: c.minRTT, rate: c.rate, window: c.window,
+					startup: c.startup, peakRate: c.peakRate, lossRatio: c.lossRatio,
+					congested: c.congested, queueSignal: c.queueSignal, smallMessages: c.smallMessages,
+					sampledAt: c.last, sampledRTT: c.previous.SRTT, sampledRTTVar: c.previous.SRTTVar,
+					ackBudget: c.ackScheduleBudget,
+				})
 			}
 			packets := append([]observedPacket(nil), e.packetObservers...)
 			e.tuneMu.Unlock()
@@ -129,6 +140,12 @@ func (e *Engine) observe() {
 					seconds = e.current().Log.duration.Seconds()
 				}
 				previous[conn] = observedState{s, flowWait, drops, now}
+				// A queued observer tick can precede the most recent tuner update.
+				// Use wall monotonic age at formatting, not the stale tick time.
+				var controllerAge int64 = -1
+				if !v.sampledAt.IsZero() {
+					controllerAge = max(0, time.Since(v.sampledAt).Milliseconds())
+				}
 				e.log().Debug("transport.sample", "conv", conn.UDPSession.GetConv(), "remote", conn.RemoteAddr().String(), "pacing_mbit", float64(s.PacingBytesPerSecond)*8/1e6, "startup", v.startup, "peak_mbit", v.peakRate*8/1e6, "loss_ratio", v.lossRatio,
 					"delivery_mbit", float64(s.AckedBytes-old.stats.AckedBytes)*8/seconds/1e6, "estimate_mbit", v.rate*8/1e6,
 					"output_pps", float64(s.OutputPackets-old.stats.OutputPackets)/seconds, "output_kcp_mbit", float64(s.OutputBytes-old.stats.OutputBytes)*8/seconds/1e6,
@@ -138,6 +155,7 @@ func (e *Engine) observe() {
 					"credit_pending", creditPending, "credit_hints_sent", hintsSent, "credit_hints_received", hintsReceived,
 					"write_budget_bytes", s.WriteBudgetBytes,
 					"rtt_ms", s.SRTT, "rttvar_ms", s.SRTTVar, "min_rtt_ms", v.minRTT, "rto_ms", s.RTO,
+					"controller_sample_age_ms", controllerAge, "controller_rtt_ms", v.sampledRTT, "controller_rttvar_ms", v.sampledRTTVar, "controller_ack_budget_ms", v.ackBudget, "controller_window", v.window,
 					"forward_queue_ms", s.ForwardQueue, "reverse_queue_ms", s.ReverseQueue, "transit_samples", s.TransitSamples, "congested", v.congested, "small_messages", v.smallMessages,
 					"queue_signal_ms", v.queueSignal, "peer_ack_delay_ms", s.PeerACKDelay,
 					"send_window", s.SendWindow, "remote_window", s.RemoteWindow, "pending", s.Pending, "send_queued", s.SendQueued,
