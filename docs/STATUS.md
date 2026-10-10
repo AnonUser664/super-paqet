@@ -21,12 +21,27 @@ removed; complete rollback archives remain. See the
 This finite check does not establish sustained full-capacity customer traffic or
 one-day stability.
 
-All five independent ten-second observers now retain private metric/journal
-archives beneath `/var/log/super-paqet-watch/latency1-20261008T220541Z/` until
-**2026-10-09 22:05:41 UTC**. Initial samples and journals were verified;
-installation left all tunnel/config/binary/Xray identities unchanged. No completed
-24-hour result is claimed. The earlier window ended 8 October 19:14 UTC; earlier
-observations below describe their identified versions.
+The original 24-hour observers completed at **2026-10-09 22:05:41 UTC**,
+retaining about 8,560 samples per host beneath
+`/var/log/super-paqet-watch/latency1-20261008T220541Z/`. The 10 October refresh
+verifies the same running hashes/PIDs, active services, healthy endpoints and zero
+automatic restarts. It includes additional opening errors and a Finland migration;
+it is not an incident-free stability result.
+
+All five observers were renewed through **2026-10-11 15:52:54 UTC** with separate
+archives beneath `/var/log/super-paqet-watch/latency1-review-20261010T155254Z/`.
+Successful metrics samples, active journal followers and unchanged tunnel/config/
+binary/Xray identities were verified. Client .14 had no warnings in the selected
+journal interval, a valid empty record rather than an observer failure.
+
+The [opening investigation](OPENING-FIX-2026-10-09.md) remains a local candidate.
+Its safe same-identity retry passes race, delayed-backpressure and ownership tests;
+100,000 held-flow verification, migration and reload pass on an earlier candidate
+with the same opening implementation. Queue experiments were rejected for bulk
+regressions and the current candidate restores deployed queue behavior. Current
+clean bulk/WAN/compatibility qualification is unfinished, and sustained queue
+pressure still shows an adverse p99. No candidate binary/configuration has been
+promoted to the five production hosts.
 
 The [9 October production log review](PRODUCTION-REVIEW-2026-10-09.md) covers about
 17.6 hours. Original PIDs, executable/config hashes and Xray identities remain;

@@ -343,3 +343,54 @@ combined throughput, and a higher p99 (candidate 4.362 / 4.862 s versus controls
 local interruption and cannot be represented as an uninterrupted pair. The first
 post-resume bulk launch stops on an invalid case name before load; its receipt
 remains. The corrected runner uses the existing `multiworker-bulk` case.
+
+
+## Avoiding replay costs when no sibling can exist
+
+The fixed-lane pressure fixture creates four separate one-session peers. Such a
+peer cannot retry an acknowledged opening on another slot, so replay IDs, receipt
+retention and a commit have no benefit there. A new local edit keeps PTCP2/PUDP2
+for fixed one-slot pools. Multi-slot and growable pools retain PTCP3/PUDP3,
+including a growable pool whose second reservation has not yet been allocated.
+The choice is made once before opening; an attempt never downgrades after sending
+its identity or application bytes. Production's four-slot pools therefore keep
+the safe retry. Server-first traffic on fixed one-slot pools keeps its original
+latency/handshake. This is a capability optimization, not a claim that the adverse
+multi-carrier pressure case is solved. Real mux tests cover TCP/UDP legacy payload
+boundaries and growable-pool commits; those new tests are still pending execution
+behind the currently reserved performance matrix.
+
+The exact opening-only candidate `5a540988…` completes two clean, CPU-placed pairs
+with four pinned lanes and two capture workers. Upload medians are 5.503 → 5.544
+Gbit/s; download 4.125 → 4.164 Gbit/s. Both workers carry bulk traffic, all payload
+checks pass, and teardown preserves the unrelated rule. CPU budgets and warmup
+are identical; finite changes below 1% are not claimed as universal speedups.
+These receipts describe the pre-capability-edit executable, not a rebuilt final
+artifact. Full reports are under `comparison-queue7-bulk/`.
+
+
+The capability edit passes the complete application race suite, vet, and five
+repetitions of the real-mux capability / late-after-receipt retry tests. All 13
+observer tests pass with the established direct-script invocation. An attempted
+unittest module invocation from the repository root failed importing the observer
+before any test ran; both that failure and the corrected receipt are retained.
+No observer source change was necessary.
+
+The pre-capability candidate completes all 16 short WAN runs with zero workload
+errors and clean teardown. High-delay churn mean medians are 516.77 → 514.43 ms,
+p99 1368 → 1416.5 ms; ACK-bottleneck upload 73.97 → 73.01 Mbit/s. Reordering HTTP
+means are 90.20 → 89.74 ms, p99 162 → 165.5 ms, but short bulk goodput is adverse:
+89.35 → 82.11 Mbit/s (−8.1%). Carrier populations differ substantially between
+runs, and the second bulk pair is nearly equal. This remains a failed short
+throughput comparison pending a longer warmed follow-up, not an erased outlier.
+The asymmetric bulk latency sample contains only one completed control request
+per run and one/zero candidate completions; its quantiles cannot establish a
+latency improvement. Its delivered-body rate includes partial canceled bodies
+and is about 5.70 → 5.67 Mbit/s. Other HTTP requests complete normally.
+
+An original latency.1 client with the new backend also passes the established
+migration fixture: sequenced 64 KiB payloads retain their sessions through recovery,
+with healthy sibling traffic and owned-rule cleanup intact. The exact old/new
+hashes and command are retained in `legacy-client-new-server7/`. The new four-slot
+client still requires backend-first promotion; the new one-slot path uses legacy
+requests from the outset rather than an unsafe post-receipt fallback.

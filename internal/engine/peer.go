@@ -223,6 +223,22 @@ func (p *peer) open(ctx context.Context, kind byte, target string, initialTCP ..
 	if err != nil {
 		return nil, err
 	}
+	p.mu.RLock()
+	attemptLimit := len(p.slots) + 1
+	canUseSibling := len(p.slots) > 1 || p.configuration().MaxSessions > 1
+	p.mu.RUnlock()
+	// A fixed one-carrier pool cannot retry on a sibling. Keep its original
+	// handshake: allocating replay identities and waiting for a commit would
+	// add cost (including a server-first RTT) without enabling recovery.
+	// Growable pools retain replay support before their next slot is created.
+	if !canUseSibling {
+		switch kind {
+		case protocol.PTCP3:
+			kind = protocol.PTCP2
+		case protocol.PUDP3:
+			kind = protocol.PUDP2
+		}
+	}
 	var requestID [16]byte
 	retryableOpening := kind == protocol.PTCP3 || kind == protocol.PUDP3
 	if retryableOpening {
@@ -233,9 +249,6 @@ func (p *peer) open(ctx context.Context, kind byte, target string, initialTCP ..
 	var last error
 	var excluded map[*slot]bool
 	transportRetry := false
-	p.mu.RLock()
-	attemptLimit := len(p.slots) + 1
-	p.mu.RUnlock()
 	for attempts := 0; attempts < attemptLimit; attempts++ {
 		if err := ctx.Err(); err != nil {
 			return nil, err

@@ -42,6 +42,11 @@ indefinite replay cache or cross-process resume. The outer encoder, TCP flags,
 KCP ordering and mux frame layout are unchanged. This extension is a local
 candidate, not the currently deployed protocol.
 
+In this local candidate, fixed one-carrier pools retain PTCP2/PUDP2 because no
+acknowledged sibling retry is possible. Multi-slot and growable pools choose the
+replay handshake before sending opening bytes. Outer packets and existing relays
+remain unchanged.
+
 The v1 control header gains enterprise TCP/UDP message types (0x06/0x07).
 TCP opening receives an explicit success/failure response. UDP uses a two-byte
 big-endian datagram length, including zero-length datagrams. smux v2 keeps its

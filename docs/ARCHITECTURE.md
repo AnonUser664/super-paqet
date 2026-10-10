@@ -160,6 +160,11 @@ poll their receipt deadline (250 ms checkpoints); established relays do not.
 A receiver filling after status 2 can then be escaped without consuming a target
 banner or duplicating its dial. This candidate is not yet deployed or accepted.
 
+In this local candidate, fixed one-carrier pools retain PTCP2/PUDP2 because no
+acknowledged sibling retry is possible. Multi-slot and growable pools choose the
+replay handshake before sending opening bytes. Outer packets and existing relays
+remain unchanged.
+
 ```mermaid
 sequenceDiagram
     participant App as Client application

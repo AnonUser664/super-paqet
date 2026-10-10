@@ -640,3 +640,95 @@ func TestAcknowledgedSlowTargetKeepsBudget(t *testing.T) {
 		t.Fatal("healthy slow target retried or suspected")
 	}
 }
+
+// TestOpeningHandshakeMatchesPoolCapability exercises real mux bytes. Fixed
+// one-carrier peers retain the original TCP/UDP handshake; growable peers keep
+// replay support even before allocating their second slot. Application bytes
+// must never acquire an unexpected commit prefix in the legacy case.
+func TestOpeningHandshakeMatchesPoolCapability(t *testing.T) {
+	for _, tc := range []struct {
+		name          string
+		maximum       int
+		request, wire byte
+	}{
+		{"fixed-tcp", 1, protocol.PTCP3, protocol.PTCP2},
+		{"fixed-udp", 1, protocol.PUDP3, protocol.PUDP2},
+		{"growable-tcp", 2, protocol.PTCP3, protocol.PTCP3},
+		{"growable-udp", 2, protocol.PUDP3, protocol.PUDP3},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			e := reloadFixture(t)
+			s, server := openingCarrier(t, 2601)
+			p := &peer{engine: e, endpoint: Endpoint{MaxSessions: tc.maximum}, slots: []*slot{s}}
+			done := make(chan error, 1)
+			go func() {
+				stream, err := server.AcceptStream()
+				if err != nil {
+					done <- err
+					return
+				}
+				defer stream.Close()
+				stream.SetDeadline(time.Now().Add(2 * time.Second))
+				var request protocol.Proto
+				if err = request.Read(stream); err != nil {
+					done <- err
+					return
+				}
+				if request.Type != tc.wire {
+					done <- fmt.Errorf("wire type %d, want %d", request.Type, tc.wire)
+					return
+				}
+				replay := tc.wire == protocol.PTCP3 || tc.wire == protocol.PUDP3
+				if (request.RequestID != [16]byte{}) != replay {
+					done <- fmt.Errorf("request identity does not match pool capability")
+					return
+				}
+				for _, ack := range []byte{2, 0} {
+					if err = writeOpeningAck(&kcp.Strm{Stream: stream}, ack); err != nil {
+						done <- err
+						return
+					}
+				}
+				if replay {
+					var commit [1]byte
+					if _, err = io.ReadFull(stream, commit[:]); err != nil {
+						done <- err
+						return
+					}
+					if commit[0] != 0 {
+						done <- fmt.Errorf("invalid commit")
+						return
+					}
+				}
+				if _, err = stream.Write([]byte("banner")); err != nil {
+					done <- err
+					return
+				}
+				var payload [5]byte
+				_, err = io.ReadFull(stream, payload[:])
+				if err == nil && string(payload[:]) != "hello" {
+					err = fmt.Errorf("application prefix changed: %q", payload)
+				}
+				done <- err
+			}()
+			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+			defer cancel()
+			stream, err := p.open(ctx, tc.request, "127.0.0.1:2096")
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer stream.Close()
+			stream.SetDeadline(time.Now().Add(2 * time.Second))
+			var banner [6]byte
+			if _, err := io.ReadFull(stream, banner[:]); err != nil || string(banner[:]) != "banner" {
+				t.Fatalf("banner lost: %q %v", banner, err)
+			}
+			if _, err := stream.Write([]byte("hello")); err != nil {
+				t.Fatal(err)
+			}
+			if err := <-done; err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
