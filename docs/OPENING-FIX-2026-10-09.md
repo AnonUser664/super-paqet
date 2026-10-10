@@ -290,3 +290,56 @@ its millisecond buckets through the HTTP client's 30-second timeout. Traffic and
 request deadlines stay unchanged; this adds about 224 KiB to the load generator,
 not to the tunnel. Old helper hashes/receipts remain, and both comparison versions
 will use the same newly built helper.
+
+
+## Interruption and production refresh — 10 October
+
+Qualification resumed after the local service interruption. The long pressure
+matrix retained three completed runs and an interrupted final control with no
+result/cleanup receipt. No workload or namespace remained at resume. Its output
+is preserved; the missing control is run in a new directory, never appended over
+the interrupted run. Each completed 120-second pressure run uses the same fine
+30-second histogram helper (`11e08c7b…`) and reports zero request/warmup errors.
+Candidate combined throughput is about 252 Mbit/s versus the first control's
+249 Mbit/s. Mean latency is 3.060 / 2.788 seconds versus 3.114 seconds in that
+control, while candidate p99 is 4.362 / 4.862 seconds versus 4.186 seconds. These
+are incomplete paired results, not a latency gate pass. Fixed socket fq policing
+and separate pinned peers isolate queue pressure; they do not reproduce normal
+four-sibling production admission.
+
+The read-only refresh at approximately 15:54 UTC on 10 October still finds the
+same latency.1 executable, original tunnel/Xray process identities, zero service
+restarts and healthy endpoints on all five hosts. The original 24-hour observer
+completed successfully, retaining about 8,560 samples per host. Client .118's
+archive reaches 5,351 active forwards and 281,648 KiB peak RSS; it ends with 7,084
+opening transport retries and ten reported opening errors. The live refresh has
+11,091 retries and twelve errors. One additional warning explicitly reports a
+Finland opening timeout at 07:12 UTC. At 01:13 UTC the same peer logs a successful
+preserving migration; Finland closes its migrated conversation for keepalive
+expiry approximately one minute later. That timing supports qualifying a backend
+recovery grace, without establishing censorship as the cause.
+
+Germany and France also record `read stream control: EOF` warnings with no
+process restart. These mean a stream closed during its opening header; they do
+not by themselves establish a broken carrier or customer-delivery failure.
+Production's active binary/configuration remains unchanged. Observer renewal has
+its own archive and receipts; a logging change is not a tunnel deployment.
+
+
+The renewed recorder is verified active on all five hosts through 11 October
+15:52:54 UTC, with a new `latency1-review-20261010T155254Z` archive. Binary/config
+hashes, tunnel PIDs and Xray identities remain unchanged. The renewal's first
+acknowledgement gate incorrectly required a nonempty warning journal on client
+.14; it had no warnings in the selected interval. Read-only reconciliation verifies
+its live recorder, successful metrics samples and journal-follow process without
+restarting it again. Zero journal records is valid for a quiet host. Four initial
+success receipts and all five reconciliation receipts are preserved.
+
+The missing long pressure control completes with 179 requests, zero errors,
+2.624 s mean / 4.080 s p99 and 258.77 Mbit/s combined bulk. Combining it with the
+three retained runs gives approximately +1.9% candidate mean latency, −1.0%
+combined throughput, and a higher p99 (candidate 4.362 / 4.862 s versus controls
+4.186 / 4.080 s). The strict tail gate remains unresolved; these runs span the
+local interruption and cannot be represented as an uninterrupted pair. The first
+post-resume bulk launch stops on an invalid case name before load; its receipt
+remains. The corrected runner uses the existing `multiworker-bulk` case.
