@@ -30,9 +30,17 @@ fails: median throughput is 29.12 versus the prior candidate's 35.15 Mbit/s,
 and mean/p99 worsen. The ramp and its runtime-only regression fixture have been
 removed; the attempted source, failed gates and model receipts remain preserved.
 
-A narrower [queue-probe pause](queue-probe-models-2026-10-12.json) passes model,
-race and vet checks, retaining ordinary sending while briefly suppressing only
-extra probes. Its performance qualification is pending; production is unchanged.
+The narrower [queue-probe pause](queue-probe-models-2026-10-12.json) also passes
+models/race/vet but its [performance gate](queue-probe-performance-2026-10-12.json)
+fails body p99 against the preceding candidate (+17.20%). It is removed too.
+The current controller again matches the per-carrier feedback checkpoint above.
+
+A [raw batch allocation follow-up](raw-batch-allocation-2026-10-12.json) reduces
+single-packet allocation traffic from 80 to 72 bytes per call, with unchanged
+reported allocation count and effectively unchanged follow-up syscall timing.
+Real owned-socket payload/permanent-error checks, root race/vet and compiler
+diagnostics pass; exact-executable whole-tunnel qualification remains pending.
+No production binary, configuration, observer or Xray service changes were made.
 
 The warning-level visibility follow-up exports each carrier's existing soft-loss
 counter on `/metrics` and includes it in finite observer incident detection.

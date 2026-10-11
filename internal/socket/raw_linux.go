@@ -203,7 +203,7 @@ func (p *rawPacket) writeBatchWithDrops(ms []ipv4.Message, flags int) (int, int,
 		p.txHdr[i].Hdr.Iov = &p.txVec[i][0]
 		p.txHdr[i].Hdr.SetIovlen(2)
 	}
-	var sent, dropped int
+	var sent int
 	var opErr error
 	err := p.raw.Write(func(fd uintptr) bool {
 		r, errno, retries := sendWithQueueRetry(func() (int, unix.Errno) {
@@ -221,8 +221,10 @@ func (p *rawPacket) writeBatchWithDrops(ms []ipv4.Message, flags int) (int, int,
 		// every application stream sharing the session.
 		if errno == unix.ENOBUFS {
 			p.txDrops.Add(uint64(n))
-			dropped = n
-			sent = n
+			// A negative count is private callback state marking this wholly
+			// rejected batch. Translate it before returning to callers; sharing
+			// the existing count avoids another captured allocation per batch.
+			sent = -n
 			return true
 		}
 		if errno != 0 {
@@ -237,6 +239,13 @@ func (p *rawPacket) writeBatchWithDrops(ms []ipv4.Message, flags int) (int, int,
 	// Do not retain KCP buffer pointers after the caller recycles them.
 	for i := 0; i < n; i++ {
 		p.txVec[i][1].Base = nil
+	}
+	// Only ENOBUFS consumes an unsent batch as reliable-transport loss.
+	// Keep readiness, partial-send and permanent-error outcomes unchanged.
+	dropped := 0
+	if sent < 0 {
+		dropped = -sent
+		sent = dropped
 	}
 	if err != nil {
 		return sent, dropped, err

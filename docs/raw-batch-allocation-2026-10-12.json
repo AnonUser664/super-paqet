@@ -1,0 +1,198 @@
+{
+  "production_changed": false,
+  "runtime_change": "reuse existing captured sent count with a private negative soft-loss marker; normalize to positive consumed/dropped counts before any return; no frame/queue/retry/pacer changes",
+  "qualification": "unit/race/vet and allocation controls pass; exact-binary clean/pressure/recovery qualification pending",
+  "checks": [
+    {
+      "source": "9ef464ca4b31b1d117c3b01e660ae61ebfd136c2",
+      "checks": [
+        {
+          "command": [
+            "go",
+            "test",
+            "-race",
+            "-run",
+            "Test(RawBatch|QueueRetry|PCAPQueue|OnlyRecognizedPCAP)",
+            "-count=5",
+            "./internal/socket"
+          ],
+          "exit_code": 0,
+          "seconds": 1.5147158719992149
+        },
+        {
+          "command": [
+            "go",
+            "test",
+            "-race",
+            "./..."
+          ],
+          "exit_code": 0,
+          "seconds": 8.90026530000614
+        },
+        {
+          "command": [
+            "go",
+            "vet",
+            "./..."
+          ],
+          "exit_code": 0,
+          "seconds": 0.5423712620031438
+        },
+        {
+          "command": [
+            "go",
+            "build",
+            "-gcflags=paqet/internal/socket=-m",
+            "./internal/socket"
+          ],
+          "exit_code": 0,
+          "seconds": 0.15023084599670256
+        }
+      ],
+      "worktree_patch_sha256": "dcb0c684990e9cd0c99211d88f60dcb5a8650b49b42b57f1a2d6a04759a60e42",
+      "private_path": "build/opening-fix-20261009/checks-batch18/receipt.json"
+    },
+    {
+      "source": "9ef464ca4b31b1d117c3b01e660ae61ebfd136c2",
+      "checks": [
+        {
+          "command": [
+            "go",
+            "test",
+            "-race",
+            "-run",
+            "Test(RawBatch|QueueRetry|PCAPQueue|OnlyRecognizedPCAP)",
+            "-count=5",
+            "./internal/socket"
+          ],
+          "exit_code": 0,
+          "seconds": 1.5183517190016573
+        },
+        {
+          "command": [
+            "go",
+            "test",
+            "-race",
+            "./..."
+          ],
+          "exit_code": 0,
+          "seconds": 8.86158772300405
+        },
+        {
+          "command": [
+            "go",
+            "vet",
+            "./..."
+          ],
+          "exit_code": 0,
+          "seconds": 0.5180678920005448
+        },
+        {
+          "command": [
+            "go",
+            "build",
+            "-gcflags=paqet/internal/socket=-m",
+            "./internal/socket"
+          ],
+          "exit_code": 0,
+          "seconds": 0.14626082599716028
+        }
+      ],
+      "worktree_patch_sha256": "dc0ba538959e2828d8e2ea610cb6175dcb86a22156fc7fec8a55250f42ffaf60",
+      "private_path": "build/opening-fix-20261009/checks-batch19/receipt.json"
+    }
+  ],
+  "benchmarks": [
+    {
+      "name": "batch18-allocation",
+      "receipt": [
+        {
+          "label": "prior",
+          "command": [
+            "go",
+            "test",
+            "-overlay",
+            "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/batch18-allocation/overlay.json",
+            "-run",
+            "^$",
+            "-bench",
+            "^BenchmarkRawBatchHealthy$",
+            "-benchmem",
+            "-benchtime=1s",
+            "-count=3",
+            "./internal/socket"
+          ],
+          "exit_code": 0,
+          "seconds": 10.910362998998608
+        },
+        {
+          "label": "candidate",
+          "command": [
+            "go",
+            "test",
+            "-run",
+            "^$",
+            "-bench",
+            "^BenchmarkRawBatchHealthy$",
+            "-benchmem",
+            "-benchtime=1s",
+            "-count=3",
+            "./internal/socket"
+          ],
+          "exit_code": 0,
+          "seconds": 11.361165881004126
+        }
+      ],
+      "logs": {
+        "prior": "goos: linux\ngoarch: amd64\npkg: paqet/internal/socket\ncpu: 13th Gen Intel(R) Core(TM) i5-13420H\nBenchmarkRawBatchHealthy/packets=1-12         \t 1250284\t       948.1 ns/op\t1388.00 MB/s\t      80 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=1-12         \t 1243830\t       961.6 ns/op\t1368.59 MB/s\t      80 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=1-12         \t 1245369\t       948.1 ns/op\t1387.99 MB/s\t      80 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=32-12        \t   53877\t     23351 ns/op\t1803.46 MB/s\t      87 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=32-12        \t   53172\t     22571 ns/op\t1865.79 MB/s\t      84 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=32-12        \t   46010\t     21845 ns/op\t1927.80 MB/s\t      82 B/op\t       3 allocs/op\nPASS\nok  \tpaqet/internal/socket\t10.446s\n",
+        "candidate": "goos: linux\ngoarch: amd64\npkg: paqet/internal/socket\ncpu: 13th Gen Intel(R) Core(TM) i5-13420H\nBenchmarkRawBatchHealthy/packets=1-12         \t 1261885\t       978.3 ns/op\t1345.17 MB/s\t      72 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=1-12         \t 1208906\t       977.0 ns/op\t1346.93 MB/s\t      72 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=1-12         \t 1238233\t       985.5 ns/op\t1335.38 MB/s\t      72 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=32-12        \t   49904\t     22484 ns/op\t1872.95 MB/s\t      74 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=32-12        \t   55068\t     22342 ns/op\t1884.85 MB/s\t      75 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=32-12        \t   53700\t     24134 ns/op\t1744.94 MB/s\t      80 B/op\t       3 allocs/op\nPASS\nok  \tpaqet/internal/socket\t10.961s\n"
+      }
+    },
+    {
+      "name": "batch19-allocation",
+      "receipt": [
+        {
+          "label": "prior",
+          "command": [
+            "go",
+            "test",
+            "-overlay",
+            "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/batch19-allocation/overlay.json",
+            "-run",
+            "^$",
+            "-bench",
+            "^BenchmarkRawBatchHealthy$",
+            "-benchmem",
+            "-benchtime=1s",
+            "-count=3",
+            "./internal/socket"
+          ],
+          "exit_code": 0,
+          "seconds": 11.011701150004228
+        },
+        {
+          "label": "candidate",
+          "command": [
+            "go",
+            "test",
+            "-run",
+            "^$",
+            "-bench",
+            "^BenchmarkRawBatchHealthy$",
+            "-benchmem",
+            "-benchtime=1s",
+            "-count=3",
+            "./internal/socket"
+          ],
+          "exit_code": 0,
+          "seconds": 10.030177043998265
+        }
+      ],
+      "logs": {
+        "prior": "goos: linux\ngoarch: amd64\npkg: paqet/internal/socket\ncpu: 13th Gen Intel(R) Core(TM) i5-13420H\nBenchmarkRawBatchHealthy/packets=1-12         \t 1206584\t       979.2 ns/op\t1343.97 MB/s\t      80 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=1-12         \t 1253655\t       985.1 ns/op\t1335.91 MB/s\t      80 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=1-12         \t 1208088\t       979.7 ns/op\t1343.26 MB/s\t      80 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=32-12        \t   54111\t     22631 ns/op\t1860.79 MB/s\t      85 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=32-12        \t   52225\t     22839 ns/op\t1843.85 MB/s\t      86 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=32-12        \t   55628\t     22609 ns/op\t1862.59 MB/s\t      86 B/op\t       3 allocs/op\nPASS\nok  \tpaqet/internal/socket\t10.720s\n",
+        "candidate": "goos: linux\ngoarch: amd64\npkg: paqet/internal/socket\ncpu: 13th Gen Intel(R) Core(TM) i5-13420H\nBenchmarkRawBatchHealthy/packets=1-12         \t 1217029\t       975.6 ns/op\t1348.87 MB/s\t      72 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=1-12         \t 1225898\t       983.3 ns/op\t1338.32 MB/s\t      72 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=1-12         \t 1000000\t      1006 ns/op\t1307.75 MB/s\t      72 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=32-12        \t   54975\t     22717 ns/op\t1853.75 MB/s\t      77 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=32-12        \t   50302\t     22140 ns/op\t1902.06 MB/s\t      75 B/op\t       3 allocs/op\nBenchmarkRawBatchHealthy/packets=32-12        \t   51250\t     22445 ns/op\t1876.22 MB/s\t      78 B/op\t       3 allocs/op\nPASS\nok  \tpaqet/internal/socket\t9.630s\n"
+      }
+    }
+  ],
+  "interpretation": "8 bytes less allocated per healthy call; reported allocs/op unchanged at 3 (do not claim one fewer measured allocation). First error-slot marker has +3.18% single-packet median ns; retained as an intermediate trial. Selected signed-count marker has +0.37% single-packet and -0.82% 32-packet median ns in a separate control, within 1%. Unix datagram CPU/MBps is not tunnel goodput. Partial calls can increase allocation bytes per 32-packet benchmark iteration. No affinity control in these microbenchmarks."
+}

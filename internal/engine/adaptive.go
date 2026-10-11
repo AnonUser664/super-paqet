@@ -63,9 +63,9 @@ type controller struct {
 	// Hysteretic queue classification used to avoid reacting permanently to reorder/jitter
 	// noise.
 	congested bool
-	// Low-RTT pressure temporarily retains byte pacing; on higher-RTT links
-	// the same timestamp pauses extra probes briefly after queue growth.
-	// Ordinary sending still resumes immediately when the queue clears.
+	// Low propagation delay normally skips byte pacing for the fast LAN path.
+	// After actual queue growth, retain pacing briefly across queue relief so
+	// the next tick cannot immediately refill the same bottleneck unpaced.
 	pacingUntil time.Time
 	// Local output loss is direct evidence of an overfilled host queue, even
 	// when ACK scheduling or RTT variation masks growth in the network RTT.
@@ -177,14 +177,6 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 	}
 	if c.minRTT < 10 && (c.congested || c.outputPressure) {
 		c.pacingUntil = now.Add(max(time.Second, min(8*time.Second, time.Duration(s.SRTT)*4*time.Millisecond)))
-	} else if c.congested {
-		// Queue relief alone does not prove that a doubled-rate probe fits.
-		// Wait two regular sampling periods or two RTTs, capped at two
-		// seconds. Preserve ordinary pacing and measured delivery growth.
-		until := now.Add(max(500*time.Millisecond, min(2*time.Second, time.Duration(s.SRTT)*2*time.Millisecond)))
-		if c.pacingUntil.Before(until) {
-			c.pacingUntil = until
-		}
 	}
 	if acked == 0 {
 		return c.window
@@ -264,16 +256,15 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 	// the measured bandwidth-delay budget on every tick (random loss can
 	// inflate SRTT without persistent queue congestion).
 	if !queued && saturated {
-		queueProbeQuiet := c.minRTT >= 10 && now.Before(c.pacingUntil)
 		// Keep discovered credit while a probe's delivery sample catches up.
 		// Shrinking it immediately on the next tick cancels the probe itself.
 		target = max(target, c.window)
 		if !now.Before(c.outputQuietUntil) && measured > previousRate*1.03 {
 			target = max(target, min(c.maximum, c.window+c.window/4+1))
-		} else if !now.Before(c.outputQuietUntil) && !queueProbeQuiet && c.samples%8 == 0 {
+		} else if !now.Before(c.outputQuietUntil) && c.samples%8 == 0 {
 			target = max(target, min(c.maximum, c.window+c.window/4+1))
 		}
-		if c.startup && !now.Before(c.outputQuietUntil) && !queueProbeQuiet {
+		if c.startup && !now.Before(c.outputQuietUntil) {
 			target = max(target, min(c.maximum, c.window*2))
 		}
 	}
@@ -306,7 +297,7 @@ func (c *controller) pacingRate() uint64 {
 		// Drain a large real queue promptly; a fixed gentle reduction can
 		// leave a narrow uplink saturated by data plus ACK/control traffic.
 		gain = max(.25, min(.85, c.minRTT/(c.minRTT+c.queueSignal)))
-	} else if !c.last.Before(c.outputQuietUntil) && !(c.minRTT >= 10 && c.last.Before(c.pacingUntil)) && (c.startup || c.samples%8 == 0) {
+	} else if !c.last.Before(c.outputQuietUntil) && (c.startup || c.samples%8 == 0) {
 		gain = 2
 	}
 	return uint64(max(1024, c.rate*gain))

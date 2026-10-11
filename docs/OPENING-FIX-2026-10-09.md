@@ -942,3 +942,37 @@ immediate ordinary sending after relief, suppressed extra probes, finite expiry
 and small-message exemption. Five focused race repetitions, full root race and
 vet pass. Exact-executable comparisons remain pending. This trial is distinct
 from the rejected gain ramp and does not throttle normal recovery sending.
+
+### Probe pause rejected; remove measured batch allocation overhead
+
+The [six-run probe-pause comparison](queue-probe-performance-2026-10-12.json)
+finishes without errors. Against the preceding candidate, median rate changes
+34.008 → 34.371 Mbit/s and mean 1622.29 → 1572.61 ms, but body p99 changes
+2662.5 → 3120.5 ms (+17.20%). It offers no accepted tail improvement; its runtime
+edit/model are removed and its source/failed gate remain. The prior controller
+is restored byte-for-byte. Favorable comparisons against the slower production
+control do not establish superiority over the preceding candidate.
+
+Compiler diagnostics confirm a captured `dropped` integer escaping per raw
+batch. Reusing existing callback state avoids that extra allocation traffic
+without changing batch construction, retry budgets, partial-send handling,
+permanent errors or soft-loss consumed counts. An intermediate error-slot marker
+reduces bytes but has a +3.18% single-packet median syscall time in its unpinned
+microbenchmark. Its exact source/logs remain. The selected private negative-count
+marker normalizes to positive consumed/dropped counts before every return;
+healthy and permanent-error counts retain their original semantics.
+
+The [allocation/correctness receipts](raw-batch-allocation-2026-10-12.json) use
+owned connected Unix datagram sockets to run actual sendmmsg and scatter/gather
+encoding without raw-socket privileges. Tests decode ordered first/second
+payloads, distinguish real permanent peer-closure errors from soft loss, and
+verify cleared caller-buffer pointers. Five focused socket race repetitions,
+full root race and vet pass. The compiler no longer reports `dropped` escaping.
+
+Both intermediate/selected versions reduce single-packet allocation bytes from
+80 to 72; measured allocs/op stays at three, so no fewer measured allocation
+count is claimed. Selected-marker median syscall time changes +0.37% for one
+packet and -0.82% for 32 packets, within 1% in a separate three-repeat comparison.
+Partial batches account for small byte variations in the 32-packet case. These
+are unpinned syscall/encoder microbenchmarks, not tunnel throughput or a universal
+CPU speedup. Exact-binary clean/pressure/recovery comparisons remain pending.
