@@ -1,0 +1,87 @@
+{
+  "production_changed": false,
+  "performance_acceptance": "pending exact-binary comparisons",
+  "policy": "after real queue pressure, raise pacing gain by at most one per second until the existing finite pressure horizon expires; retain immediate reductions, healthy probes, small-message bypass, and quiet LAN bypass",
+  "receipts": [
+    {
+      "command": [
+        "python3",
+        "scripts/with_test_lock.py",
+        "--",
+        "go",
+        "test",
+        "-race",
+        "-run",
+        "Test(QueueRelief|LocalDrops|OutputDropCounters|LowRTTQueuePacing|QueuedControlTraffic|SmallACKsWithBulk|LegacyRTTJitter)",
+        "-count=5",
+        "./internal/engine"
+      ],
+      "source": "8043309692de941449dad9ac0308e5415e0d742e",
+      "session_id": 81930,
+      "started_without_explicit_deploy_library_environment": true,
+      "exit_code": 0,
+      "output": "Exclusive test reservation acquired.\nok  \tpaqet/internal/engine\t1.020s\n",
+      "private_receipt": "build/opening-fix-20261009/model-output16-first/receipt.json"
+    },
+    {
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "-overlay",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/model-output16-control/overlay.json",
+        "-run",
+        "^TestQueueReliefDoesNotInstantlyRefill$",
+        "-count=1",
+        "./internal/engine"
+      ],
+      "control_source": "3d4387f",
+      "exit_code": 1,
+      "seconds": 1.3072295189995202,
+      "expected_failure": true,
+      "private_receipt": "build/opening-fix-20261009/model-output16-control/receipt.json"
+    },
+    {
+      "source": "8043309692de941449dad9ac0308e5415e0d742e",
+      "checks": [
+        {
+          "command": [
+            "go",
+            "test",
+            "-race",
+            "./..."
+          ],
+          "exit_code": 1,
+          "seconds": 8.580515948000539
+        }
+      ],
+      "private_receipt": "build/opening-fix-20261009/checks-output16/receipt.json"
+    },
+    {
+      "source": "8043309692de941449dad9ac0308e5415e0d742e",
+      "checks": [
+        {
+          "command": [
+            "go",
+            "test",
+            "-race",
+            "./..."
+          ],
+          "exit_code": 0,
+          "seconds": 0.40341993699985323
+        },
+        {
+          "command": [
+            "go",
+            "vet",
+            "./..."
+          ],
+          "exit_code": 0,
+          "seconds": 0.4300760469996021
+        }
+      ],
+      "private_receipt": "build/opening-fix-20261009/checks-output16-v2/receipt.json"
+    }
+  ],
+  "harness_failure": "First recursive root run discovered the isolated old adaptive.go control text under build as an incomplete Go package. Engine race tests passed; the overall command failed. Retaining the text as .go.txt removes package discovery without changing production code. The original failed log, manifest and source text remain; corrected full root race/vet pass."
+}

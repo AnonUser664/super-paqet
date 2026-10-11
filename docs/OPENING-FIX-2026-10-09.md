@@ -876,3 +876,32 @@ summing duplicate worker/session evidence. A new regression checks legacy metric
 absence, migration label changes, decreasing counters and PID replacement.
 Observer tests, root race and vet pass. These edits add no packet-path state or
 adaptation changes, and no production observer/binary is replaced.
+
+### Queue relief pacing ramp: model checkpoint
+
+The reverse-order bandwidth-step repeat also completes without errors. Candidate
+body p99 is 2.991 versus 2.743 seconds in that second pair; the two-pair medians
+are 3.127 versus 2.531 seconds (+23.55%). Throughput and mean improve, but the
+tail concern remains. The original gate is retained rather than cleared by the
+second pair's smaller difference. Both versions place persistent requests 4/2/2
+across three bulk carriers; equal counts do not prove identical scheduling.
+
+Exact-epoch diagnostics show candidate pacing alternating between roughly one
+quarter of its learned rate and the full rate when a transient queue indication
+clears. A new local controller policy bounds upward gain recovery by one per
+second during the existing recent-pressure horizon (1–8 seconds, based on RTT).
+Reductions remain immediate, new delivered capacity is still learned, and
+ordinary probes resume after expiry. Healthy startup, small-message bypass and
+the quiet low-RTT unpaced path remain. State adds one float and one timestamp
+per carrier, without per-forward state, timer, allocation or packet-format edit.
+
+The [deterministic model and race receipts](pacing-recovery-models-2026-10-12.json)
+verify immediate drain, bounded recovery, repeated-epoch idempotence, expiry and
+resumed healthy probing. The same model overlaid onto the old controller fails
+at the expected immediate-refill assertion; five native race repetitions pass
+on the candidate. The first full root command fails because Go recursively
+discovers the retained old controller text as an incomplete package under build;
+that owned text is retained as `.go.txt`. Engine race checks pass in that failed
+attempt, and the corrected full root race/vet command passes. This is a harness
+correction, not an erased failure. Exact-binary performance comparisons remain
+pending, so the pacing ramp is not accepted or deployed at this checkpoint.

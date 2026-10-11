@@ -19,8 +19,13 @@ client/server peak RSS is about 1.65 GiB each, with swap in this laptop experime
 240 ms RTT connection churn has unchanged mean/p99; two constrained-ACK pairs
 retain 98.24% of production median upload. A bandwidth-change pair improves rate
 and mean but raises bulk p99 from **2.319 to 3.263 seconds**. A reverse-order repeat
-is pending; this adverse result blocks an unconditional nonregression claim.
+completes without errors but leaves two-pair bulk p99 at **3.127 versus 2.531
+seconds** (+23.55%); this adverse result blocks a nonregression claim.
 This candidate is **local and not deployed or release-qualified**.
+
+A [local queue-relief pacing ramp](pacing-recovery-models-2026-10-12.json) passes
+deterministic temporal models and full root race/vet checks. It limits upward gain
+only after recent pressure; its exact-binary performance qualification is pending.
 
 The warning-level visibility follow-up exports each carrier's existing soft-loss
 counter on `/metrics` and includes it in finite observer incident detection.
