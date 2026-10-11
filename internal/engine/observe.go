@@ -155,6 +155,10 @@ func (e *Engine) observe() {
 					"credit_pending", creditPending, "credit_hints_sent", hintsSent, "credit_hints_received", hintsReceived,
 					"write_budget_bytes", s.WriteBudgetBytes,
 					"rtt_ms", s.SRTT, "rttvar_ms", s.SRTTVar, "min_rtt_ms", v.minRTT, "rto_ms", s.RTO,
+					// Late original ACKs can identify possible spurious retries.
+					// Keep these separate from total retransmissions: random
+					// loss, reorder and local queue drops need different fixes.
+					"spurious_retransmit_delta", s.SpuriousRetransmissions-old.stats.SpuriousRetransmissions, "spurious_retransmit_total", s.SpuriousRetransmissions, "reorder_delay_ms", s.ReorderDelay,
 					"controller_sample_age_ms", controllerAge, "controller_rtt_ms", v.sampledRTT, "controller_rttvar_ms", v.sampledRTTVar, "controller_ack_budget_ms", v.ackBudget, "controller_window", v.window,
 					"forward_queue_ms", s.ForwardQueue, "reverse_queue_ms", s.ReverseQueue, "transit_samples", s.TransitSamples, "congested", v.congested, "small_messages", v.smallMessages,
 					"queue_signal_ms", v.queueSignal, "peer_ack_delay_ms", s.PeerACKDelay,
