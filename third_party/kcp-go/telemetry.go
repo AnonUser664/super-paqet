@@ -3,6 +3,18 @@
 
 package kcp
 
+import "net"
+
+// OutputPacketConn returns the current physical output socket for read-only
+// diagnostics. The session/listener retains ownership. Reading the immutable
+// route follows migration without inspecting the retired construction socket.
+func (s *UDPSession) OutputPacketConn() net.PacketConn {
+	if route := s.route.Load(); route != nil {
+		return route.conn
+	}
+	return nil
+}
+
 // PostProcessingDrops counts local pipeline overflow, distinct from network loss.
 func (s *UDPSession) PostProcessingDrops() uint64 { return s.postProcessingDrops.Load() }
 

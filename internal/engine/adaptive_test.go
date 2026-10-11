@@ -8,9 +8,85 @@ package engine
 import (
 	kcp "github.com/xtaci/kcp-go/v5"
 	"paqet/internal/conf"
+	"paqet/internal/socket"
 	"testing"
 	"time"
 )
+
+// TestLocalDropsDrainAnACKMaskedQueue keeps RTT inside the known ACK budget.
+// Direct local queue loss must still stop growth, while quiet recovery retains
+// the surviving flight credit rather than repeatedly shrinking it to zero.
+func TestLocalDropsDrainAnACKMaskedQueue(t *testing.T) {
+	c := newController(4096, 4096)
+	c.window, c.rate, c.bulkSeen, c.startup = 1024, 5000000, true, false
+	c.ackScheduleBudget = 50
+	packet := new(socket.PacketConn)
+	now := time.Unix(100, 0)
+	s := kcp.TransportStats{SRTT: 2, MSS: 1326, Pending: 1100, PendingBytes: 1458600}
+	c.observeOutput(packet, 0, 0, s, now)
+	c.update(s, now)
+	now = now.Add(250 * time.Millisecond)
+	c.observeOutput(packet, 0, 0, s, now)
+	c.update(s, now)
+	now = now.Add(250 * time.Millisecond)
+	s.AckedBytes += 200000
+	s.AckedSegments += 150
+	s.OutputPackets += 1000
+	c.observeOutput(packet, 50, 0, s, now)
+	before := c.window
+	c.update(s, now)
+	if c.congested || !c.outputPressure || c.window >= before || c.pacingRate() == 0 || float64(c.pacingRate()) >= c.rate {
+		t.Fatal("direct local queue loss was hidden by the ACK-delay allowance")
+	}
+	before = c.window
+	now = now.Add(250 * time.Millisecond)
+	s.AckedBytes += 200000
+	s.AckedSegments += 150
+	s.OutputPackets += 1000
+	c.observeOutput(packet, 50, 0, s, now)
+	c.update(s, now)
+	if c.outputPressure || c.window != before {
+		t.Fatal("quiet interval discarded surviving flight credit or probed too early")
+	}
+	now = now.Add(2 * time.Second)
+	c.samples = 7 // The existing periodic probe is eligible after cooldown.
+	s.AckedBytes += 1600000
+	s.AckedSegments += 1200
+	s.OutputPackets += 1000
+	c.observeOutput(packet, 50, 0, s, now)
+	c.update(s, now)
+	if c.window <= before || c.pacingRate() != 0 {
+		t.Fatal("quiet low-RTT link did not resume normal probing and fast output")
+	}
+}
+
+// TestOutputDropCountersFollowTheirOwner separates socket-wide queue loss from
+// migration, isolated drops, counter resets and per-session pipeline overflow.
+func TestOutputDropCountersFollowTheirOwner(t *testing.T) {
+	c := newController(4096, 4096)
+	a, b := new(socket.PacketConn), new(socket.PacketConn)
+	now := time.Unix(100, 0)
+	s := kcp.TransportStats{}
+	c.observeOutput(a, 100, 100, s, now)
+	c.update(s, now)
+	s.OutputPackets = 1000
+	c.observeOutput(a, 104, 104, s, now)
+	if c.outputPressure {
+		t.Fatal("isolated output drops became congestion")
+	}
+	c.observeOutput(b, 1000000, 104, s, now)
+	if c.outputPressure {
+		t.Fatal("new socket lifetime counter became carrier loss")
+	}
+	c.observeOutput(b, 0, 0, s, now)
+	if c.outputPressure {
+		t.Fatal("counter reset underflowed into congestion")
+	}
+	c.observeOutput(b, 0, 50, s, now)
+	if !c.outputPressure {
+		t.Fatal("per-session pipeline overflow was ignored")
+	}
+}
 
 // TestStartupIdlePreservesCapacityAndSamplingBudget models a short first
 // transfer followed by idle keepalives. Startup history must remain useful

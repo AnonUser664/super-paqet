@@ -9,6 +9,7 @@ import (
 	kcplib "github.com/xtaci/kcp-go/v5"
 	"math"
 	"paqet/internal/conf"
+	"paqet/internal/socket"
 	"paqet/internal/tnet/kcp"
 	"sync/atomic"
 	"time"
@@ -67,10 +68,40 @@ type controller struct {
 	// After actual queue growth, retain pacing briefly across queue relief so
 	// the next tick cannot immediately refill the same bottleneck unpaced.
 	pacingUntil time.Time
+	// Local output loss is direct evidence of an overfilled host queue, even
+	// when ACK scheduling or RTT variation masks growth in the network RTT.
+	outputPressure bool
+	// Socket identity separates counters after a physical carrier move. Shared
+	// server sockets report pressure on that worker, not per-user network loss.
+	outputPacket               *socket.PacketConn
+	outputDrops, pipelineDrops uint64
+	// Suppress immediate probing briefly after local drops; only a fresh drop
+	// sample requests a window reduction, so quiet recovery cannot shrink it.
+	outputQuietUntil time.Time
 	// Optional outgoing pool member receiving cached pressure scores from this controller.
 	slot *slot
 	// Keeps a carrier's cached busy score alive briefly after a bulk observation.
 	hotUntil time.Time
+}
+
+// observeOutput samples existing atomic drop counters at the controller cadence.
+// Ignore isolated drops and socket changes, which otherwise turn a fresh shared
+// socket's lifetime counter into fictitious loss on the migrated conversation.
+func (c *controller) observeOutput(packet *socket.PacketConn, drops, pipelineDrops uint64, s kcplib.TransportStats, now time.Time) {
+	c.outputPressure = false
+	if !c.last.IsZero() && s.OutputPackets >= c.previous.OutputPackets {
+		threshold := max(uint64(4), (s.OutputPackets-c.previous.OutputPackets)/100)
+		if packet != nil && packet == c.outputPacket && drops >= c.outputDrops && drops-c.outputDrops > threshold {
+			c.outputPressure = true
+		}
+		if pipelineDrops >= c.pipelineDrops && pipelineDrops-c.pipelineDrops > threshold {
+			c.outputPressure = true
+		}
+	}
+	c.outputPacket, c.outputDrops, c.pipelineDrops = packet, drops, pipelineDrops
+	if c.outputPressure {
+		c.outputQuietUntil = now.Add(time.Second)
+	}
 }
 
 // deliverySample retains a timestamped delivery rate so one short delivery gap does not erase
@@ -151,7 +182,7 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 			}
 		}
 	}
-	if c.minRTT < 10 && c.congested {
+	if c.minRTT < 10 && (c.congested || c.outputPressure) {
 		c.pacingUntil = now.Add(max(time.Second, min(8*time.Second, time.Duration(s.SRTT)*4*time.Millisecond)))
 	}
 	if acked == 0 {
@@ -213,7 +244,7 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 	target = max(target, int(math.Ceil(2*c.packetRate*flightRTT/1000))+2)
 	target = min(c.maximum, max(min(4, c.maximum), target))
 	saturated := waited || s.Pending >= c.window/2
-	queued := c.congested
+	queued := c.congested || c.outputPressure
 	if sent > 0 {
 		c.lossRatio = .75*c.lossRatio + .25*min(.5, float64(resent)/float64(sent))
 	}
@@ -235,12 +266,12 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 		// Keep discovered credit while a probe's delivery sample catches up.
 		// Shrinking it immediately on the next tick cancels the probe itself.
 		target = max(target, c.window)
-		if measured > previousRate*1.03 {
+		if !now.Before(c.outputQuietUntil) && measured > previousRate*1.03 {
 			target = max(target, min(c.maximum, c.window+c.window/4+1))
-		} else if c.samples%8 == 0 {
+		} else if !now.Before(c.outputQuietUntil) && c.samples%8 == 0 {
 			target = max(target, min(c.maximum, c.window+c.window/4+1))
 		}
-		if c.startup {
+		if c.startup && !now.Before(c.outputQuietUntil) {
 			target = max(target, min(c.maximum, c.window*2))
 		}
 	}
@@ -265,11 +296,15 @@ func (c *controller) pacingRate() uint64 {
 		return 0
 	}
 	gain := 1.05 * (1 + c.lossRatio)
-	if c.congested {
+	if c.outputPressure {
+		// Host queues need brief relief; random network loss alone never
+		// enters this branch. Controls retain the small-message exception.
+		gain = .85
+	} else if c.congested {
 		// Drain a large real queue promptly; a fixed gentle reduction can
 		// leave a narrow uplink saturated by data plus ACK/control traffic.
 		gain = max(.25, min(.85, c.minRTT/(c.minRTT+c.queueSignal)))
-	} else if c.startup || c.samples%8 == 0 {
+	} else if !c.last.Before(c.outputQuietUntil) && (c.startup || c.samples%8 == 0) {
 		gain = 2
 	}
 	return uint64(max(1024, c.rate*gain))
@@ -383,6 +418,12 @@ func (e *Engine) tune() {
 				// on a lossless high-delay path. Fast retransmission still handles
 				// explicit gaps; the timer floor avoids racing the normal ACKs.
 				conn.UDPSession.SetMinRTO(uint32(max(30, int(s.SRTT)*2+int(s.SRTTVar)*4)))
+				packet, _ := conn.UDPSession.OutputPacketConn().(*socket.PacketConn)
+				var drops uint64
+				if packet != nil {
+					drops = packet.TXDrops()
+				}
+				c.observeOutput(packet, drops, conn.UDPSession.PostProcessingDrops(), s, now)
 				window := c.update(s, now)
 				conn.UDPSession.SetPacingRate(c.pacingRate())
 				if s.SendWindow != window {

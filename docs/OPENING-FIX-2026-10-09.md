@@ -676,3 +676,43 @@ relief, and return-to-unpaced checks. Five focused race repetitions, full root
 race tests, and vet pass (`checks-build12-v2/`). Its initial executable records a
 dirty source patch explicitly; performance comparisons use a rebuilt committed
 artifact. No performance acceptance or production deployment is claimed.
+
+
+The [four matched low-RTT pacing runs](low-rtt-pacing-diagnostics-2026-10-11.json)
+finish with zero workload errors and clean teardown, but fail the mean/p99 gate.
+Median combined throughput rises from 134.23 to 213.95 Mbit/s while median
+small-request latency rises from 815.86 to 2299.93 ms. Placement is highly
+variable: one control run isolates small requests and averages 0.60 ms, whereas
+the other averages 1631 ms. This is a rejected acceptance result, not evidence
+that the entire median change is caused by the pacing policy. Candidate
+`c288585`, SHA-256 `945971a4f2c122155b6f4945417b0f50ae26fc2764705125b97bfebe4e0a74b6`,
+remains local. Debug observations confirm low-floor congestion with pacing off
+in the control, but RTT-based classification still misses much local pressure.
+
+A new experiment samples already-existing host queue loss at the controller
+cadence. More than four drops and one percent of attempted output during a
+sample activates local output pressure. Socket identity is checked across
+migration; decreasing counters are not subtracted as unsigned loss. Shared
+backend worker counters represent shared worker pressure, not per-user loss.
+Per-session output-pipeline drops are also sampled. Known local pressure stops
+window probing, permits bounded window reduction and uses 85% delivery-rate
+pacing for that sample. A one-second quiet interval suppresses new probes while
+retaining surviving credit; network loss alone does not enter this policy.
+Low-RTT pacing still has the earlier bounded expiry. Small-message exceptions
+remain. This adds no new packet-path counters, timers or user-stream controllers.
+
+The KCP session exposes its immutable current output-route socket read-only for
+this sampling. Ownership stays with the session/listener, and migration updates
+the observed physical socket. Existing migration tests verify that the accessor
+follows both ends of an actual move, including AES/null transfer integrity.
+Models cover ACK-masked local loss, retained credit during quiet recovery,
+resumed probing, isolated drops, counter resets, socket changes and pipeline
+loss. Five focused race repetitions, full application race/vet and three
+vendored migration race repetitions pass. Performance qualification is pending.
+
+The [evening production follow-up](production-followup-2026-10-11-evening.json)
+finds the same tunnel PIDs, healthy enabled services and zero automatic restarts.
+Bounded warning records report backend 2096 refusals around 18:38/18:41 UTC and
+matching client target rejections. Xray identities changed outside this work;
+these messages show destination refusals rather than establish path filtering.
+Observers remain active. No candidate binary or transport policy was deployed.

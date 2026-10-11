@@ -45,6 +45,8 @@ type observedSession struct {
 	queueSignal float64
 	// Identifies packet-window-only control for a predominantly small-message lane.
 	smallMessages bool
+	// Direct local host queue pressure, distinct from the RTT queue inference.
+	outputPressure bool
 	// Exact input epoch for the copied controller decision. Live transport
 	// statistics below may be newer, so logs must distinguish both snapshots.
 	sampledAt                 time.Time
@@ -91,7 +93,8 @@ func (e *Engine) observe() {
 					conn: conn, minRTT: c.minRTT, rate: c.rate, window: c.window,
 					startup: c.startup, peakRate: c.peakRate, lossRatio: c.lossRatio,
 					congested: c.congested, queueSignal: c.queueSignal, smallMessages: c.smallMessages,
-					sampledAt: c.last, sampledRTT: c.previous.SRTT, sampledRTTVar: c.previous.SRTTVar,
+					outputPressure: c.outputPressure,
+					sampledAt:      c.last, sampledRTT: c.previous.SRTT, sampledRTTVar: c.previous.SRTTVar,
 					ackBudget: c.ackScheduleBudget,
 				})
 			}
@@ -132,8 +135,10 @@ func (e *Engine) observe() {
 				drops := conn.UDPSession.PostProcessingDrops()
 				old := previous[conn]
 				var txDrops any
-				if conn.CurrentPacket() != nil {
-					txDrops = conn.CurrentPacket().TXDrops()
+				if packet, ok := conn.UDPSession.OutputPacketConn().(*socket.PacketConn); ok {
+					// Accepted sessions share worker counters; this is socket
+					// pressure and must not be summed as per-carrier packet loss.
+					txDrops = packet.TXDrops()
 				}
 				seconds := now.Sub(old.at).Seconds()
 				if old.at.IsZero() {
@@ -161,7 +166,7 @@ func (e *Engine) observe() {
 					"spurious_retransmit_delta", s.SpuriousRetransmissions-old.stats.SpuriousRetransmissions, "spurious_retransmit_total", s.SpuriousRetransmissions, "reorder_delay_ms", s.ReorderDelay,
 					"controller_sample_age_ms", controllerAge, "controller_rtt_ms", v.sampledRTT, "controller_rttvar_ms", v.sampledRTTVar, "controller_ack_budget_ms", v.ackBudget, "controller_window", v.window,
 					"forward_queue_ms", s.ForwardQueue, "reverse_queue_ms", s.ReverseQueue, "transit_samples", s.TransitSamples, "congested", v.congested, "small_messages", v.smallMessages,
-					"queue_signal_ms", v.queueSignal, "peer_ack_delay_ms", s.PeerACKDelay,
+					"queue_signal_ms", v.queueSignal, "local_output_pressure", v.outputPressure, "peer_ack_delay_ms", s.PeerACKDelay,
 					"send_window", s.SendWindow, "remote_window", s.RemoteWindow, "pending", s.Pending, "send_queued", s.SendQueued,
 					"receive_queued", s.ReceiveQueued, "receive_reordered", s.ReceiveReordered, "pipeline_queued", s.PipelineQueued,
 					"retransmit_delta", s.RetransmittedSegments-old.stats.RetransmittedSegments, "sent_delta", s.SentSegments-old.stats.SentSegments,

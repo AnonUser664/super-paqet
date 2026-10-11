@@ -1,0 +1,248 @@
+{
+  "review_utc": "2026-10-11T20:30:00Z",
+  "interval_start_utc": "2026-10-11T16:38:30Z",
+  "hosts": {
+    "116.202.177.233": {
+      "unit": "MainPID=960629\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 21:49:14 UTC\nMemoryCurrent=123244544\nTasksCurrent=20\nActiveState=active\nUnitFileState=enabled\n",
+      "health": "ok\n",
+      "running_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+      "summary": {
+        "first_utc": "2026-10-11T16:38:45.551255+00:00",
+        "last_utc": "2026-10-11T20:30:22.154350+00:00",
+        "samples": 1384,
+        "peak_active": 2587.0,
+        "peak_rss_kib": 114260,
+        "triggers": {
+          "errors_total_increased": 1
+        },
+        "counter_deltas": {
+          "errors_total": 1734.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        },
+        "captures": 1
+      },
+      "warning_records": [
+        {
+          "time": "2026-10-11T18:41:30.926359735Z",
+          "level": "WARN",
+          "msg": "connection.failed",
+          "error_id": 1518,
+          "error": "dial 116.202.177.233:2096: dial tcp 116.202.177.233:2096: connect: connection refused"
+        }
+      ],
+      "xray_processes": [
+        {
+          "pid": 1147072,
+          "start_ticks": "170552102",
+          "executable": "/usr/local/bin/xray"
+        }
+      ]
+    },
+    "171.22.132.226": {
+      "unit": "ActiveState=active\nUnitFileState=enabled\nMainPID=3151995\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 21:58:28 UTC\nMemoryCurrent=84054016\nTasksCurrent=12\n",
+      "health": "ok\n",
+      "running_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+      "summary": {
+        "first_utc": "2026-10-11T16:38:42.975514+00:00",
+        "last_utc": "2026-10-11T20:30:23.142247+00:00",
+        "samples": 1391,
+        "peak_active": 1430.0,
+        "peak_rss_kib": 94428,
+        "triggers": {
+          "errors_total_increased": 3
+        },
+        "counter_deltas": {
+          "errors_total": 1529.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        },
+        "captures": 1
+      },
+      "warning_records": [
+        {
+          "time": "2026-10-11T18:38:42.118909342Z",
+          "level": "WARN",
+          "msg": "connection.failed",
+          "error_id": 1352,
+          "error": "dial 171.22.132.226:2096: dial tcp 171.22.132.226:2096: connect: connection refused"
+        },
+        {
+          "time": "2026-10-11T18:41:37.62513688Z",
+          "level": "WARN",
+          "msg": "connection.failed",
+          "error_id": 2099,
+          "error": "dial 171.22.132.226:2096: dial tcp 171.22.132.226:2096: connect: connection refused"
+        }
+      ],
+      "xray_processes": [
+        {
+          "pid": 3302975,
+          "start_ticks": "604353943",
+          "executable": "/usr/local/bin/xray"
+        }
+      ]
+    },
+    "65.109.249.222": {
+      "unit": "MainPID=250828\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 21:59:20 UTC\nMemoryCurrent=104677376\nTasksCurrent=15\nActiveState=active\nUnitFileState=enabled\n",
+      "health": "ok\n",
+      "running_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+      "summary": {
+        "first_utc": "2026-10-11T16:38:57.152447+00:00",
+        "last_utc": "2026-10-11T20:30:23.765900+00:00",
+        "samples": 1383,
+        "peak_active": 2015.0,
+        "peak_rss_kib": 103352,
+        "triggers": {
+          "packet_drops_increased": 35,
+          "errors_total_increased": 1
+        },
+        "counter_deltas": {
+          "errors_total": 515.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        },
+        "captures": 10
+      },
+      "warning_records": [
+        {
+          "time": "2026-10-11T18:41:28.96837586Z",
+          "level": "WARN",
+          "msg": "connection.failed",
+          "error_id": 350,
+          "error": "dial 65.109.249.222:2096: dial tcp 65.109.249.222:2096: connect: connection refused"
+        }
+      ],
+      "xray_processes": [
+        {
+          "pid": 423587,
+          "start_ticks": "47487899",
+          "executable": "/usr/local/bin/xray"
+        }
+      ]
+    },
+    "89.45.68.118": {
+      "unit": "MainPID=1058941\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 21:59:41 UTC\nMemoryCurrent=174829568\nTasksCurrent=19\nActiveState=active\nUnitFileState=enabled\n",
+      "health": "ok\n",
+      "running_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256": "ab844772497e4cc4c1de64a78f7d82a6d71d5d59ad72cd122181721e352bb718",
+      "summary": {
+        "first_utc": "2026-10-11T16:38:42.940756+00:00",
+        "last_utc": "2026-10-11T20:30:19.760650+00:00",
+        "samples": 1384,
+        "peak_active": 3511.0,
+        "peak_rss_kib": 191780,
+        "triggers": {
+          "opening_transport_retries_total_increased": 21,
+          "errors_total_increased": 3
+        },
+        "counter_deltas": {
+          "errors_total": 1784.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 260.0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        },
+        "captures": 3
+      },
+      "warning_records": [
+        {
+          "time": "2026-10-11T18:38:42.420944055Z",
+          "level": "WARN",
+          "msg": "connection.failed",
+          "error_id": 29541,
+          "error": "open 171.22.132.226:2096 via france: remote target connection rejected"
+        },
+        {
+          "time": "2026-10-11T18:41:29.015356803Z",
+          "level": "WARN",
+          "msg": "connection.failed",
+          "error_id": 29828,
+          "error": "open 65.109.249.222:2096 via finland: remote target connection rejected"
+        },
+        {
+          "time": "2026-10-11T18:41:39.017019945Z",
+          "level": "WARN",
+          "msg": "connection.failed",
+          "error_id": 31158,
+          "error": "open 171.22.132.226:2096 via france: remote target connection rejected"
+        }
+      ],
+      "xray_processes": []
+    },
+    "89.45.68.14": {
+      "unit": "MainPID=376268\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 21:59:32 UTC\nMemoryCurrent=128946176\nTasksCurrent=18\nActiveState=active\nUnitFileState=enabled\n",
+      "health": "ok\n",
+      "running_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256": "0e0c6aaea2a232251774434dbb16bc764ca703dc5eac2a12cbd90b707ad5ab2f",
+      "summary": {
+        "first_utc": "2026-10-11T16:38:43.793733+00:00",
+        "last_utc": "2026-10-11T20:30:20.409438+00:00",
+        "samples": 1384,
+        "peak_active": 2700.0,
+        "peak_rss_kib": 152804,
+        "triggers": {
+          "opening_transport_retries_total_increased": 2,
+          "errors_total_increased": 3
+        },
+        "counter_deltas": {
+          "errors_total": 1994.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 9.0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        },
+        "captures": 3
+      },
+      "warning_records": [
+        {
+          "time": "2026-10-11T18:38:42.289788946Z",
+          "level": "WARN",
+          "msg": "connection.failed",
+          "error_id": 9240,
+          "error": "open 171.22.132.226:2096 via france: remote target connection rejected"
+        },
+        {
+          "time": "2026-10-11T18:41:29.284491108Z",
+          "level": "WARN",
+          "msg": "connection.failed",
+          "error_id": 9700,
+          "error": "open 65.109.249.222:2096 via finland: remote target connection rejected"
+        },
+        {
+          "time": "2026-10-11T18:41:39.323382427Z",
+          "level": "WARN",
+          "msg": "connection.failed",
+          "error_id": 10900,
+          "error": "open 171.22.132.226:2096 via france: remote target connection rejected"
+        }
+      ],
+      "xray_processes": []
+    }
+  },
+  "interpretation": "All tunnel processes retain original PIDs and hashes, enabled and healthy with no automatic restarts. Warning messages in this bounded interval are backend 2096 connection refusals and matching client target rejections; no filtering attribution. Backend Xray identities changed outside this investigation. No binary, transport configuration, profiling, or service mutation. Earlier 800x config addition is recorded separately. Ten-second sampling and warning sampling cannot exclude short or unlogged incidents."
+}

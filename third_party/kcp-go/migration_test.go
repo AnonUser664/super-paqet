@@ -157,6 +157,9 @@ func TestMigrationRetainsPendingBytesAndOwnership(t *testing.T) {
 			if err := nextClient.MoveSession(c, nextServer.Addr()); err != nil {
 				t.Fatal(err)
 			}
+			if c.OutputPacketConn() != nextClient.conn || s.OutputPacketConn() != nextServer.conn {
+				t.Fatal("output telemetry retained a retired physical socket")
+			}
 			c.RetransmitNow()
 			s.RetransmitNow()
 			if err := s.MigrateVia(via); err != nil {
