@@ -62,6 +62,14 @@ workload errors; independent rate-cap, bottleneck and mixed-load qualification
 remains incomplete. The earlier failed gates remain explicit; this executable
 is also **not accepted for deployment**.
 
+The independently capped WAN comparison remains diagnostic. Its first
+asymmetric pair reports response-body timeouts in both versions; the second
+candidate repetition also reports timeouts. These failures do not clear the
+earlier gates. On 11 October at 17:06 UTC the operator reported concurrent
+laptop use, with unspecified start time and workload. Local performance
+comparisons from this session require controlled repeats before acceptance;
+preserved failures still require investigation. Production is unchanged.
+
 The [9 October production log review](PRODUCTION-REVIEW-2026-10-09.md) covers about
 17.6 hours. Original PIDs, executable/config hashes and Xray identities remain;
 there are no automatic restarts, sampled OOM/task-limit events or capture drops.

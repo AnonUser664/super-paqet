@@ -514,3 +514,32 @@ replacement launcher then failed on an unused module-level `case` reference,
 before creating an output directory or starting workloads. Both attempts are
 retained separately; the corrected launcher now compares identical strict
 profiles. Its results and the earlier pooled-pressure gate remain pending.
+
+### Shared-host activity and incomplete strict WAN qualification
+
+At **2026-10-11 17:06 UTC**, the operator reported using the test laptop.
+The activity's start time and resource demand are unspecified. Preserve these
+receipts as diagnostic observations; do not accept throughput or latency
+differences from this session as evidence for deployment. A controlled repeat
+is required for performance acceptance. Concurrent activity does not establish
+the cause of any timeout, and a later successful repeat must retain the failures.
+The private notice is `shared-host-activity-20261011.json`.
+
+In the first independently capped asymmetric pair (50 Mbit/s upstream,
+10 Mbit/s downstream, 80 ms nominal RTT, 0.5% loss, 5% reorder), the corrected
+candidate delivers 4.459 Mbit/s of response-body payload and the deployed control
+4.452 Mbit/s. The candidate reports four body timeouts and four warmup errors;
+the control reports eleven and eleven. These counters describe phases and
+must not be summed as distinct users. Successful-request latency excludes
+failed requests and cannot demonstrate an improvement by itself. Both runs
+fail the zero-error requirement, despite small HTTP requests having no errors.
+
+The second asymmetric control reports zero errors and 4.675 Mbit/s; the second
+candidate reports thirteen body timeouts, thirteen warmup errors and
+4.190 Mbit/s. The candidate therefore remains unqualified. This also shows why
+one favorable run cannot clear the failed gate. All four fixtures preserve clean
+owned firewall teardown. The matrix was still running at this checkpoint;
+`comparison-jitter9-wan/receipt.json` retains each completed attempt. A separate
+matched debug pair is queued behind the machine-wide reservation to identify
+controller, retransmission and ordered-delivery behavior. No production binary,
+configuration, tunnel service or Xray service was changed.
