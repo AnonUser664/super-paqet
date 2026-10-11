@@ -529,8 +529,8 @@ In the first independently capped asymmetric pair (50 Mbit/s upstream,
 10 Mbit/s downstream, 80 ms nominal RTT, 0.5% loss, 5% reorder), the corrected
 candidate delivers 4.459 Mbit/s of response-body payload and the deployed control
 4.452 Mbit/s. The candidate reports four body timeouts and four warmup errors;
-the control reports eleven and eleven. These counters describe phases and
-must not be summed as distinct users. Successful-request latency excludes
+the control reports eleven and eleven. `errors` includes `warmup_errors`;
+the latter is a subset, not an additional failure count. Successful-request latency excludes
 failed requests and cannot demonstrate an improvement by itself. Both runs
 fail the zero-error requirement, despite small HTTP requests having no errors.
 
@@ -543,3 +543,14 @@ owned firewall teardown. The matrix was still running at this checkpoint;
 matched debug pair is queued behind the machine-wide reservation to identify
 controller, retransmission and ordered-delivery behavior. No production binary,
 configuration, tunnel service or Xray service was changed.
+
+The HTTP helper attributes each response's byte count to its request-start
+phase. Bodies that begin during warmup and finish during measurement are
+excluded from `bytes`, including bytes received after the measurement boundary.
+Its reported `goodput_gbps` therefore describes the measured-start cohort,
+not all payload arriving during that wall-clock interval. This matters for
+multi-second responses: the first asymmetric pair's whole-run body averages,
+including warmup and partial bodies, are 5.359 / 5.822 Mbit/s; the second pair
+is 5.657 Mbit/s for the control and 5.332 for the candidate. These are different
+estimands and remain diagnostic. None is a precise steady-state physical-link
+utilization measurement. The timeouts and zero-error gate remain unchanged.
