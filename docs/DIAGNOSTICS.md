@@ -378,6 +378,16 @@ session's own batches, retaining totals across physical migration. These are
 reported local output failures, not distinct user packets or all network loss.
 `pipeline_drop_delta` is separate session-local queue overflow.
 
+The follow-up exports `super_paqet_session_local_output_drops_total{conv,remote}`
+on `/metrics` using the same existing atomic counter. This works with warning
+logs; collection adds no packet-path state or counter increments. The finite
+observer recognizes growth of at least ten attempts between matching samples.
+Missing legacy metrics, first observations after a source-label migration,
+decreasing counters and process replacements do not invent drop increments.
+Session and worker counts can describe the same attempts and must not be added
+together. A migrated logical carrier retains its counter but changes its remote
+label, so compare matching labels or explicitly reconcile that migration.
+
 Accepted carriers also expose their current worker's socket-wide `tx_queue_drops`
 for diagnosis. Several carriers can show the same worker total; never sum those
 fields as independent losses. The controller does not use shared worker totals.

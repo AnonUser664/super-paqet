@@ -70,6 +70,10 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprintf(w, "super_paqet_session_recovery_grace_active{%s} %d\nsuper_paqet_session_recovery_grace_total{%s} %d\n", labels, grace, labels, graceStarts)
 		fmt.Fprintf(w, "super_paqet_session_postprocessing_drops_total{%s} %d\n", labels, c.UDPSession.PostProcessingDrops())
+		// This carrier owns these failed batch attempts even on a shared worker.
+		// Export the existing atomic counter at scrape time so warning-level
+		// production monitoring does not need expensive debug sampling.
+		fmt.Fprintf(w, "super_paqet_session_local_output_drops_total{%s} %d\n", labels, c.UDPSession.LocalOutputDrops())
 		fmt.Fprintf(w, "super_paqet_session_output_packets_total{%s} %d\nsuper_paqet_session_output_kcp_bytes_total{%s} %d\nsuper_paqet_session_control_packets_total{%s} %d\nsuper_paqet_session_ack_segments_total{%s} %d\nsuper_paqet_session_pending_credits{%s} %d\n", labels, state.OutputPackets, labels, state.OutputBytes, labels, state.ACKPackets, labels, state.ACKSegments, labels, c.Session.PendingCredits())
 		capacity, buffered, blocked := c.Session.ReceiveBufferStats()
 		waiting := 0

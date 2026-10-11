@@ -828,3 +828,51 @@ Direct comparisons against production on the two WAN shapes and a longer
 through 21:42 UTC finds no new selected warnings or opening-error increments;
 Finland adds 2,714 transmit drops, a concrete reason to finish the feedback
 qualification. Production binaries, configs and Xray identities remain unchanged.
+
+### Extended checks and warning-level visibility
+
+The exact candidate's direct production comparison completes without errors on
+both WAN shapes. Asymmetric body payload changes from 5.526 to 6.438 Mbit/s,
+mean from 22.843 to 21.857 seconds, and p99 from 24.701 to 24.896 seconds;
+small mean/p99 changes from 87.95/259 to 89.90/275 ms, within 10%. Symmetric-loss
+body payload changes from 41.543 to 41.748 Mbit/s and p99 from 7.145 to 5.632
+seconds; small mean/p99 remains within 1%. All owned cleanup checks pass.
+
+100,000 connections establish in 6.276 seconds, remain held for 120 seconds,
+all pass payload verification and close with zero errors. Client/server peak
+RSS is 1,736,400/1,733,336 KiB and peak swap is 262,136/308,352 KiB. These peaks
+need not occur at the same sample; the simultaneous resident-plus-swap peaks
+are separately retained. Generator/target/kernel memory also consumes laptop
+RAM. This is a finite correctness/resource result, not a RAM-only limit for the
+smaller production hosts or a simultaneous full-rate/100,000-flow qualification.
+
+240 ms RTT churn means are 480.897 versus 480.813 ms with identical 482 ms p99
+and no errors. Across two 100/1 Mbit/s upload/ACK-return pairs, candidate rates
+are 76.887/76.685 versus control 80.527/75.800 Mbit/s: medians retain 98.24% of
+control, within the 5% allowance. The first pair was near that limit and prompted
+the reverse-order repeat rather than a per-run speedup claim.
+
+The 50 → 5 → 50 Mbit/s body workload completes without errors, increases measured
+payload/mean, but has adverse p99 of 3.263 versus 2.319 seconds. Its transitions
+occur in the 20-second warmup; warmed completions can still span earlier queueing.
+The full schedule, warmup statistics and subsequent quantiles remain in the
+receipt. A reverse-order repeat is pending before acceptance. Exact samples show
+no local-output-pressure events on either version; the local-drop feedback is
+therefore not established as the cause. Predecessor logs lack some newer
+spurious-retry fields: missing values must not be interpreted as measured zeroes.
+
+Four native CPU profiles of the first ten clean workload seconds (including
+warmup) show syscall CPU as the dominant sampled cost, approximately 43–54% in
+the endpoint profiles examined. These are CPU profiles, not lock-wait traces;
+they do not prove a transmit-mutex explanation for the directional gap. Compiler
+escape diagnostics additionally confirm that the new captured `dropped` scalar
+allocates per raw batch. A follow-up can avoid that allocation while preserving
+batch outcome/retry semantics; no such packet-path edit is yet in this checkpoint.
+
+Production warning logs bypass debug samples, so the follow-up exposes
+`super_paqet_session_local_output_drops_total{conv,remote}` by reading the existing
+per-carrier atomic at scrape time. The finite observer records its growth without
+summing duplicate worker/session evidence. A new regression checks legacy metric
+absence, migration label changes, decreasing counters and PID replacement.
+Observer tests, root race and vet pass. These edits add no packet-path state or
+adaptation changes, and no production observer/binary is replaced.

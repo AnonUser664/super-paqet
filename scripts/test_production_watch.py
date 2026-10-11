@@ -18,6 +18,24 @@ def row(utc, pid, errors, active=1, rss=1):
 class SummaryTests(unittest.TestCase):
     """Keep full-window evidence accurate when raw history is bounded."""
 
+    def test_precise_output_loss_handles_legacy_labels_and_process_resets(self):
+        """Attribute warning-level evidence without inventing loss on migration."""
+        previous = None
+        signals = []
+        for index, (pid, remote, value) in enumerate([
+                ('a', None, None), ('a', 'old', 20), ('a', 'old', 32),
+                ('a', 'new', 32), ('a', 'new', 44), ('a', 'new', 0),
+                ('b', 'new', 100), ('b', 'new', 110)]):
+            sample = row(str(index), pid, 0)
+            sample['unit']['ActiveState'] = 'active'
+            if value is not None:
+                sample['metrics'] += (
+                    'super_paqet_session_local_output_drops_total'
+                    f'{{conv="7",remote="{remote}"}} {value}\n')
+            signals.append('packet_drops_increased' in watch.incident(sample, previous))
+            previous = sample
+        self.assertEqual(signals, [False, False, True, False, True, False, False, True])
+
     def test_process_reset_and_duplicate_replay(self):
         summary = {}
         for observation in [row("01", "a", 100, 8, 10), row("02", "a", 105, 12, 20), row("03", "b", 1, 2, 9), row("04", "b", 4, 4, 8)]:

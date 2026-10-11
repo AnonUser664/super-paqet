@@ -13,8 +13,20 @@ recovery, and two-worker live reload pass for the candidate. Its asymmetric
 control has body timeouts, retained in the receipt; conditional body-latency
 quantiles are consequently not an uncensored latency comparison.
 Root race/vet, targeted library races and the full native library suite pass.
-Direct production WAN comparisons and the exact-artifact 100,000-connection hold
-remain pending. This candidate is **local and not deployed or release-qualified**.
+Direct production WAN comparisons pass on both shapes. The exact artifact also
+opens and verifies 100,000 connections after a 120-second hold, with zero errors;
+client/server peak RSS is about 1.65 GiB each, with swap in this laptop experiment.
+240 ms RTT connection churn has unchanged mean/p99; two constrained-ACK pairs
+retain 98.24% of production median upload. A bandwidth-change pair improves rate
+and mean but raises bulk p99 from **2.319 to 3.263 seconds**. A reverse-order repeat
+is pending; this adverse result blocks an unconditional nonregression claim.
+This candidate is **local and not deployed or release-qualified**.
+
+The warning-level visibility follow-up exports each carrier's existing soft-loss
+counter on `/metrics` and includes it in finite observer incident detection.
+The [observer/race/vet checks](output-loss-observer-checks-2026-10-12.json) pass;
+legacy absence, migrated labels, counter resets and process replacement are
+covered. No packet-path counter/state or adaptive algorithm changes are added.
 
 The [latest read-only production refresh](production-followup-2026-10-12.json)
 through approximately 21:42 UTC on 11 October finds healthy services, unchanged

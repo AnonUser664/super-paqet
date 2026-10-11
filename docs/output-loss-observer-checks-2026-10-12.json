@@ -1,0 +1,97 @@
+{
+  "source": "2f3d50fce5c05e7e9f5ca2c1bcef110a35ff052d",
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "scripts/test_production_watch.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.11009895100141875
+    },
+    {
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "./..."
+      ],
+      "exit_code": 0,
+      "seconds": 8.988652337997337
+    },
+    {
+      "command": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "exit_code": 0,
+      "seconds": 0.45083356800023466
+    },
+    {
+      "command": [
+        "go",
+        "tool",
+        "pprof",
+        "-top",
+        "-nodecount=25",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/profile-output14-clean/clean-profile-candidate-0/client-iperf-upload.pprof"
+      ],
+      "exit_code": 0,
+      "seconds": 0.668405010997958
+    },
+    {
+      "command": [
+        "go",
+        "tool",
+        "pprof",
+        "-top",
+        "-nodecount=25",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/profile-output14-clean/clean-profile-candidate-0/client-iperf-download.pprof"
+      ],
+      "exit_code": 0,
+      "seconds": 0.052873330998409074
+    },
+    {
+      "command": [
+        "go",
+        "tool",
+        "pprof",
+        "-top",
+        "-nodecount=25",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/profile-output14-clean/clean-profile-candidate-0/server-iperf-upload.pprof"
+      ],
+      "exit_code": 0,
+      "seconds": 0.04785258699848782
+    },
+    {
+      "command": [
+        "go",
+        "tool",
+        "pprof",
+        "-top",
+        "-nodecount=25",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/profile-output14-clean/clean-profile-candidate-0/server-iperf-download.pprof"
+      ],
+      "exit_code": 0,
+      "seconds": 0.04891825900267577
+    },
+    {
+      "command": [
+        "go",
+        "build",
+        "-gcflags=paqet/internal/socket=-m",
+        "./internal/socket"
+      ],
+      "exit_code": 0,
+      "seconds": 0.14869510199787328
+    }
+  ],
+  "worktree_patch_sha256": "171560651a640dc407fbe4292f63ddc972f0bc67bda04e1552aba2acb57d79cb",
+  "production_changed": false,
+  "runtime_delta": "scrape one existing atomic counter; no packet-path or adaptation changes"
+}

@@ -96,7 +96,12 @@ def incident(row, previous):
                 if name in now and name in old and now[name] - old[name] >= (10 if key == "errors_total" else 1):
                     reasons.append(key + "_increased")
     if previous and row["unit"].get("MainPID") == previous["unit"].get("MainPID"):
-        current_drops = {k: v for k, v in counters_with_labels(row).items() if "tx_queue_drops" in k or "capture_drops" in k}
+        # A session's precise losses remain visible with warning logs. Trigger
+        # once per sample; never sum them with shared-worker totals, which can
+        # describe the same failed attempts. New labels/reset counters are quiet.
+        current_drops = {k: v for k, v in counters_with_labels(row).items()
+                         if "tx_queue_drops" in k or "capture_drops" in k
+                         or "session_local_output_drops_total{" in k}
         old_drops = counters_with_labels(previous)
         if any(v - old_drops.get(k, v) >= 10 for k, v in current_drops.items()):
             reasons.append("packet_drops_increased")
