@@ -70,6 +70,18 @@ laptop use, with unspecified start time and workload. Local performance
 comparisons from this session require controlled repeats before acceptance;
 preserved failures still require investigation. Production is unchanged.
 
+The twenty-run strict WAN matrix is complete, with four workload failures and
+clean owned teardown in all twenty attempts. Quiet-window debug runs expose
+thousands of possible spurious retries on a busy carrier. A local follow-up
+adds those existing counters to debug samples, prevents timer-only ACKs from
+inventing gap-delay evidence, and experiments with a finite 200 ms adaptive
+reordering ceiling. Root race/vet and the full native KCP suite pass; remaining
+library race coverage and matched performance comparisons are pending.
+The first full library race attempt hit its ten-minute deadline and remains a
+failed receipt. Test fixtures now explicitly release their accepted carriers.
+No new candidate has been deployed; see the
+[continued investigation](OPENING-FIX-2026-10-09.md).
+
 The [9 October production log review](PRODUCTION-REVIEW-2026-10-09.md) covers about
 17.6 hours. Original PIDs, executable/config hashes and Xray identities remain;
 there are no automatic restarts, sampled OOM/task-limit events or capture drops.

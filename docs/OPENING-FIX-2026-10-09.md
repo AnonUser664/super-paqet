@@ -554,3 +554,75 @@ including warmup and partial bodies, are 5.359 / 5.822 Mbit/s; the second pair
 is 5.657 Mbit/s for the control and 5.332 for the candidate. These are different
 estimands and remain diagnostic. None is a precise steady-state physical-link
 utilization measurement. The timeouts and zero-error gate remain unchanged.
+
+### Completed strict matrix and quiet-window retry diagnosis
+
+All twenty ordinary strict WAN attempts are retained in the
+[compact diagnostic receipt](opening-wan-diagnostics-2026-10-11.json).
+Four attempts fail: the first production reordering run and three of the four
+asymmetric runs. All owned firewall cleanups pass. Other profiles complete
+without workload errors, but concurrent laptop use prevents treating these
+performance differences as an acceptance result. The quiet-window notice was
+recorded at **17:15:22 UTC**; the original attempts are preserved separately.
+
+The subsequent quiet debug pair completes with zero workload errors in both
+versions. Corrected candidate response latency averages 24.10 seconds versus
+22.87 for the deployed control, and whole-run body payload averages
+5.216 / 5.473 Mbit/s. A zero-error repeat does not clear earlier failed gates.
+The candidate routes all sixteen bulk workers through one carrier in this
+attempt. Its first bulk seconds expand the send window to 4,096 segments,
+increase RTT/RTO sharply, then oscillate between probing and queue draining.
+This combines ordered-carrier head-of-line blocking with retry/queue feedback;
+it is not evidence that asymmetry inherently requires poor utilization.
+Private evidence: `asymmetric-jitter9-debug/receipt.json`.
+
+Source `24df993` exposes already existing per-carrier observations in debug
+samples: `spurious_retransmit_delta`, `spurious_retransmit_total`, and
+`reorder_delay_ms`. It changes no recovery policy or warning-level snapshot
+work. Full application race tests and vet pass. The first check launcher omitted
+the runtime libpcap search path and failed before the affected package tests
+could run; its failed receipt and canceled pre-authentication debug launch are
+retained. The corrected launcher passes and builds SHA-256
+`1095ea78df13f88577da68b35414246c47f223dc5d8fb0ca9299ff8385ae889b`.
+
+That diagnostic executable completes its quiet asymmetric exercise without
+workload errors. The busy carrier reports 16,744 retries, 26,150 new segments
+and 5,297 ACK observations consistent with possible spurious retries. These
+observations are not proof that every retry was unnecessary; some ACKs may
+belong to an earlier retransmission. The learned reorder-delay signal repeatedly
+hits its 50 ms ceiling. Whole-run payload averages about 5.30 Mbit/s, while
+the measured-start request cohort reports 3.797 Mbit/s. Exact logs, executable
+identity and clean teardown remain in `asymmetric-observe10-debug/receipt.json`.
+
+A virtual-clock regression reproduces an ACK arriving after 60 ms of gap
+evidence but within the caller's 100 ms learned tolerance. The old setter clamps
+that tolerance to 50 ms and retransmits before the original ACK arrives. Its
+expected failure is retained in `grace11-old-model/`. A local experiment raises
+the finite adaptive/library ceiling to 200 ms while retaining zero grace on
+low-RTT carriers and independent timer expiry. A genuine gap may consequently
+wait up to 150 ms longer than the former ceiling; loss/reorder/latency comparisons
+are required before accepting that tradeoff. This experiment is not deployed
+or accepted. Full application and vendored-library checks are in progress.
+
+The first full vendored race run reaches its ten-minute suite deadline while
+`TestReliability` is running. The 1 GiB and 6 GiB echo cases had completed;
+the dump also retains thousands of accepted echo sessions from earlier fixtures.
+These fixtures closed their listeners but did not own/close the accepted
+sessions. Production intentionally keeps accepted carriers independent of
+listener ownership for migration; the test must provide explicit teardown.
+Fixture-owned wrappers now close their accepted sessions, and lossy-link
+fixtures close their accepted/client/packet resources. Production listener
+ownership is unchanged. The failed full-race receipt is retained in `checks11/`.
+The corrected qualification separates the full native suite (including both
+large integrity echoes) from the race suite excluding only those two large
+echo workloads. It records each scope explicitly rather than calling the timed
+out full-race run a pass.
+
+A second clock regression proves that a late timer ACK with no gap evidence
+previously sets the learned reorder delay to its ceiling by subtracting a zero
+gap timestamp. The fix still counts the possible spurious retry but learns gap
+delay only while fast-ACK evidence remains present. The old failure is retained
+in `grace11-timer-old/`; three race-instrumented repetitions of the new gap,
+timer, finite-ceiling and real fixture-ownership tests pass. Whole application
+race and vet checks also pass at this checkpoint. Full native/library race
+qualification and matched real-link comparisons remain pending.

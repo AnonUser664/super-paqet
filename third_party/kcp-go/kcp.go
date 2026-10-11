@@ -791,8 +791,12 @@ func (kcp *KCP) Input(data []byte, pktType PacketType, ackNoDelay bool) int {
 		if cmd == IKCP_CMD_ACK && _itimediff(sn, kcp.snd_una) >= 0 && _itimediff(sn, kcp.snd_nxt) < 0 {
 			if seg, ok := kcp.snd_buf.At(int(sn - kcp.snd_una)); ok && seg.xmit > 1 && seg.acked == 0 && _itimediff(ts, seg.ts) < 0 {
 				kcp.spuriousRetransmissions++
-				if delay := _itimediff(kcp.now(), seg.gapAt); delay > 0 {
-					kcp.observedReorderDelay = max(kcp.observedReorderDelay, min(50, uint32(delay)))
+				// A timer-only retry has no current gap evidence. Its zero
+				// gapAt would measure clock age, not reordering, and pin the
+				// learned allowance to the ceiling. Fast retries retain a
+				// nonzero fastack marker until their timer recovers.
+				if delay := _itimediff(kcp.now(), seg.gapAt); seg.fastack != 0 && delay > 0 {
+					kcp.observedReorderDelay = max(kcp.observedReorderDelay, min(MaxReorderGraceMS, uint32(delay)))
 				}
 			}
 		}

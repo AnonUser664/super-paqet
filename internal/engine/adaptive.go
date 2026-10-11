@@ -365,7 +365,10 @@ func (e *Engine) tune() {
 					conn.UDPSession.SetACKDelay(0)
 				}
 				if s.SRTT >= 20 {
-					conn.UDPSession.SetReorderGrace(min(50, max(s.ReorderDelay, uint32(max(1, s.SRTTVar*4+1)))))
+					// Let measured late-original ACKs and RTT variation exceed
+					// the former 50 ms ceiling. The library bounds gap tolerance;
+					// timer recovery remains independent on genuinely lost data.
+					conn.UDPSession.SetReorderGrace(min(kcplib.MaxReorderGraceMS, max(s.ReorderDelay, uint32(max(1, s.SRTTVar*4+1)))))
 				} else {
 					conn.UDPSession.SetReorderGrace(0)
 				}

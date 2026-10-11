@@ -494,7 +494,11 @@ per forwarded customer connection. The controller:
   historical bulk byte pacing; a new full-size backlog returns to bulk pacing.
   This avoids treating queued control packets as saturated bulk delivery.
 - Adjusts ACK delay within the configured ceiling.
-- Applies a 0–50 ms allowance before gap-based retransmission to tolerate reorder.
+- Applies a 0–200 ms allowance before gap-based retransmission to tolerate reorder
+  in the current local candidate. The deployed latency.1 executable retains its
+  former 0–50 ms ceiling. Below 20 ms SRTT the allowance remains zero; otherwise
+  the controller bounds the greater of observed gap delay and `4 × RTT variation
+  + 1 ms`. A late timer-only ACK does not supply gap-delay evidence.
 - Adjusts the RTO floor to approximately `max(30 ms, 2 × SRTT + 4 × RTT variation)`.
 
 Timeout retries remain active independently of reorder allowance. The fast
@@ -505,6 +509,10 @@ that override; the final four-session deployment enables endpoint adaptation.
 A fixed `sessions: 4` / `max_sessions: 4` keeps carrier count bounded while send
 windows, pacing, ACK scheduling, reorder allowance and RTO floors adapt.
 Receive-buffer adaptation remains independently configurable.
+
+The enlarged local allowance can postpone genuine gap recovery by up to 150 ms
+more than the deployed ceiling. It is under loss/reorder qualification; it is
+not a fleet configuration change or an accepted universal performance benefit.
 
 The receive.5 candidate separately samples admission capacity even when
 `adaptive: false`: a full local mux receiver or zero remote KCP window makes an

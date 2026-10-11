@@ -167,13 +167,14 @@ func echoServer(port int, block BlockCrypt) net.Listener {
 		panic(err)
 	}
 
+	owner := &fixtureListener{Listener: l}
 	go func() {
 		kcplistener := l.(*Listener)
 		kcplistener.SetReadBuffer(4 * 1024 * 1024)
 		kcplistener.SetWriteBuffer(4 * 1024 * 1024)
 		kcplistener.SetDSCP(46)
 		for {
-			s, err := l.Accept()
+			s, err := owner.Accept()
 			if err != nil {
 				return
 			}
@@ -185,7 +186,7 @@ func echoServer(port int, block BlockCrypt) net.Listener {
 		}
 	}()
 
-	return l
+	return owner
 }
 
 // sinkServer starts the loopback discard acceptor and returns its listener for explicit
@@ -196,13 +197,14 @@ func sinkServer(port int) net.Listener {
 		panic(err)
 	}
 
+	owner := &fixtureListener{Listener: l}
 	go func() {
 		kcplistener := l.(*Listener)
 		kcplistener.SetReadBuffer(4 * 1024 * 1024)
 		kcplistener.SetWriteBuffer(4 * 1024 * 1024)
 		kcplistener.SetDSCP(46)
 		for {
-			s, err := l.Accept()
+			s, err := owner.Accept()
 			if err != nil {
 				return
 			}
@@ -211,7 +213,7 @@ func sinkServer(port int) net.Listener {
 		}
 	}()
 
-	return l
+	return owner
 }
 
 // tinyBufferEchoServer starts the small-buffer acceptor to exercise stream aggregation and
@@ -222,16 +224,17 @@ func tinyBufferEchoServer(port int) net.Listener {
 		panic(err)
 	}
 
+	owner := &fixtureListener{Listener: l}
 	go func() {
 		for {
-			s, err := l.Accept()
+			s, err := owner.Accept()
 			if err != nil {
 				return
 			}
 			go handleTinyBufferEcho(s.(*UDPSession))
 		}
 	}()
-	return l
+	return owner
 }
 
 ///////////////////////////

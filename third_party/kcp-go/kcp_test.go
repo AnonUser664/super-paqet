@@ -29,6 +29,7 @@ import (
 	"container/heap"
 	"io"
 	"log/slog"
+	"net"
 	"sync"
 	"testing"
 	"time"
@@ -121,13 +122,22 @@ func testlink(t *testing.T, client *lossyconn.LossyConn, server *lossyconn.Lossy
 	t.Log("testing with nodelay parameters:", nodelay, interval, resend, nc)
 	sess, _ := NewConn2(server.LocalAddr(), nil, 0, 0, client)
 	listener, _ := ServeConn(nil, 0, 0, server)
-	echoServer := func(l *Listener) {
+	owner := &fixtureListener{Listener: listener}
+	defer func() {
+		owner.Close()
+		sess.Close()
+		client.Close()
+		server.Close()
+	}()
+	echoServer := func(l net.Listener) {
 		for {
-			conn, err := l.AcceptKCP()
+			accepted, err := l.Accept()
 			if err != nil {
 				return
 			}
+			conn := accepted.(*UDPSession)
 			go func() {
+				defer conn.Close()
 				conn.SetNoDelay(nodelay, interval, resend, nc)
 				buf := make([]byte, 65536)
 				for {
@@ -158,7 +168,7 @@ func testlink(t *testing.T, client *lossyconn.LossyConn, server *lossyconn.Lossy
 		t.Logf("total time: %v for %v round trip:", rtt, repeat)
 	}
 
-	go echoServer(listener)
+	go echoServer(owner)
 	echoTester(sess)
 }
 

@@ -1,0 +1,591 @@
+{
+  "scope": "Local diagnostic comparisons; no production rollout",
+  "candidate_sha256": "70239e4684f9d276d0a653bfd11517e13c07b55ca42f930ebcdd1b883ae1d8c0",
+  "baseline_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+  "strict_rate": true,
+  "slots": 4,
+  "capture_workers": 2,
+  "client_procs": 4,
+  "server_procs": 2,
+  "cpu_affinity": null,
+  "measurement_seconds": 30,
+  "http_warmup_seconds": 20,
+  "iperf_omit_seconds": 10,
+  "recovery_grace_seconds": 0,
+  "acceptance": "Not accepted: failed workloads and concurrent laptop use; no performance promotion",
+  "host_activity": {
+    "reported_utc": "2026-10-11T17:06:27.334988+00:00",
+    "operator_notice": "Laptop in use; amount/start time unspecified",
+    "affected_scope": "Potentially current 11 October local performance comparisons; retain receipts, use diagnostically and repeat acceptance under controlled host load",
+    "production_scope": "Operator confirmed Xray/nginx restarts during reviewed production interval"
+  },
+  "quiet_notice": {
+    "reported_utc": "2026-10-11T17:15:22.878322+00:00",
+    "operator_notice": "System is now free; finish qualification faster",
+    "scope": "Earlier interference retained. Subsequent tests may use this quiet window, with workload process checks and the shared test reservation still mandatory."
+  },
+  "counter_contract": "errors includes warmup_errors; do not sum. HTTP byte attribution uses request-start cohorts, not arrival window. Canceled requests are reported separately.",
+  "private_evidence": "build/opening-fix-20261009/comparison-jitter9-wan/receipt.json",
+  "runs": [
+    {
+      "name": "reorder-candidate-0",
+      "exit_code": 0,
+      "sha256": "70239e4684f9d276d0a653bfd11517e13c07b55ca42f930ebcdd1b883ae1d8c0",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "mode": "http",
+          "requests": 6327,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 16,
+          "bytes": 139194,
+          "warmup_bytes": 93412,
+          "seconds": 30.000560792,
+          "total_seconds": 50.000560719,
+          "goodput_gbps": 3.71177061562443e-05,
+          "mean_latency_us": 75555.2209577999,
+          "p99_us_upper": 148000,
+          "error_kinds": {}
+        },
+        {
+          "mode": "bulk",
+          "requests": 199,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 16,
+          "bytes": 216050242,
+          "warmup_bytes": 159383552,
+          "seconds": 30.000745129,
+          "total_seconds": 50.000745064,
+          "goodput_gbps": 0.05761196692175666,
+          "mean_latency_us": 2198873.0351758795,
+          "p99_us_upper": 2571000,
+          "error_kinds": {}
+        }
+      ]
+    },
+    {
+      "name": "reorder-baseline-0",
+      "exit_code": 1,
+      "sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "mode": "http",
+          "requests": 6247,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 16,
+          "bytes": 137434,
+          "warmup_bytes": 94314,
+          "seconds": 30.001112633,
+          "total_seconds": 50.001112571,
+          "goodput_gbps": 3.664770748504259e-05,
+          "mean_latency_us": 76617.40707539619,
+          "p99_us_upper": 148000,
+          "error_kinds": {}
+        },
+        {
+          "mode": "bulk",
+          "requests": 186,
+          "errors": 8,
+          "warmup_errors": 8,
+          "canceled_requests": 16,
+          "bytes": 201568396,
+          "warmup_bytes": 146446626,
+          "seconds": 30.00095401,
+          "total_seconds": 50.000953952,
+          "goodput_gbps": 0.053749863003106545,
+          "mean_latency_us": 1930828.4139784947,
+          "p99_us_upper": 8211000,
+          "error_kinds": {
+            "body_timeout": 8
+          }
+        }
+      ]
+    },
+    {
+      "name": "asymmetric-candidate-0",
+      "exit_code": 1,
+      "sha256": "70239e4684f9d276d0a653bfd11517e13c07b55ca42f930ebcdd1b883ae1d8c0",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "mode": "http",
+          "requests": 5502,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 16,
+          "bytes": 121044,
+          "warmup_bytes": 77000,
+          "seconds": 30.000859581,
+          "total_seconds": 50.000859533,
+          "goodput_gbps": 3.227747516318739e-05,
+          "mean_latency_us": 87015.8026172301,
+          "p99_us_upper": 255000,
+          "error_kinds": {}
+        },
+        {
+          "mode": "bulk",
+          "requests": 6,
+          "errors": 4,
+          "warmup_errors": 4,
+          "canceled_requests": 16,
+          "bytes": 16722606,
+          "warmup_bytes": 16769024,
+          "seconds": 30.000267668,
+          "total_seconds": 50.000267602,
+          "goodput_gbps": 0.004459321812741634,
+          "mean_latency_us": 9537616.666666666,
+          "p99_us_upper": 11755000,
+          "error_kinds": {
+            "body_timeout": 4
+          }
+        }
+      ]
+    },
+    {
+      "name": "asymmetric-baseline-0",
+      "exit_code": 1,
+      "sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "mode": "http",
+          "requests": 5442,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 16,
+          "bytes": 119724,
+          "warmup_bytes": 75350,
+          "seconds": 30.00088023,
+          "total_seconds": 50.00088019,
+          "goodput_gbps": 3.1925463274982047e-05,
+          "mean_latency_us": 87833.01323042999,
+          "p99_us_upper": 258000,
+          "error_kinds": {}
+        },
+        {
+          "mode": "bulk",
+          "requests": 11,
+          "errors": 11,
+          "warmup_errors": 11,
+          "canceled_requests": 16,
+          "bytes": 16694863,
+          "warmup_bytes": 19691459,
+          "seconds": 30.000667037,
+          "total_seconds": 50.00066699,
+          "goodput_gbps": 0.004451864481389065,
+          "mean_latency_us": 9080730.272727273,
+          "p99_us_upper": 11638000,
+          "error_kinds": {
+            "body_timeout": 11
+          }
+        }
+      ]
+    },
+    {
+      "name": "high-delay-candidate-0",
+      "exit_code": 0,
+      "sha256": "70239e4684f9d276d0a653bfd11517e13c07b55ca42f930ebcdd1b883ae1d8c0",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "mode": "http-churn",
+          "requests": 982,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 16,
+          "bytes": 21604,
+          "warmup_bytes": 14080,
+          "seconds": 30.000996633,
+          "total_seconds": 50.000996583,
+          "goodput_gbps": 5.7608752840527675e-06,
+          "mean_latency_us": 481253.79735234217,
+          "p99_us_upper": 482000,
+          "error_kinds": {}
+        }
+      ]
+    },
+    {
+      "name": "high-delay-baseline-0",
+      "exit_code": 0,
+      "sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "mode": "http-churn",
+          "requests": 984,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 16,
+          "bytes": 21648,
+          "warmup_bytes": 13992,
+          "seconds": 30.001013989,
+          "total_seconds": 50.001013945,
+          "goodput_gbps": 5.772604888071405e-06,
+          "mean_latency_us": 481181.1768292683,
+          "p99_us_upper": 482000,
+          "error_kinds": {}
+        }
+      ]
+    },
+    {
+      "name": "upload-ack-bottleneck-candidate-0",
+      "exit_code": 0,
+      "sha256": "70239e4684f9d276d0a653bfd11517e13c07b55ca42f930ebcdd1b883ae1d8c0",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "iperf": "upload",
+          "receiver_mbit": 76.4781968853306,
+          "tunnel_cpu_cores": {
+            "client": 0.114,
+            "server": 0.119
+          }
+        }
+      ]
+    },
+    {
+      "name": "upload-ack-bottleneck-baseline-0",
+      "exit_code": 0,
+      "sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "iperf": "upload",
+          "receiver_mbit": 81.3132711367875,
+          "tunnel_cpu_cores": {
+            "client": 0.108,
+            "server": 0.127
+          }
+        }
+      ]
+    },
+    {
+      "name": "rate-step-candidate-0",
+      "exit_code": 0,
+      "sha256": "70239e4684f9d276d0a653bfd11517e13c07b55ca42f930ebcdd1b883ae1d8c0",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "mode": "bulk",
+          "requests": 143,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 8,
+          "bytes": 153053858,
+          "warmup_bytes": 68157440,
+          "seconds": 30.001090447,
+          "total_seconds": 50.001090401,
+          "goodput_gbps": 0.040812878657296894,
+          "mean_latency_us": 1560774.5174825175,
+          "p99_us_upper": 3370000,
+          "error_kinds": {}
+        }
+      ]
+    },
+    {
+      "name": "rate-step-baseline-0",
+      "exit_code": 0,
+      "sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "mode": "bulk",
+          "requests": 134,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 8,
+          "bytes": 144121780,
+          "warmup_bytes": 67108864,
+          "seconds": 30.000311007,
+          "total_seconds": 50.000310943,
+          "goodput_gbps": 0.038432076245175445,
+          "mean_latency_us": 1671406.0597014925,
+          "p99_us_upper": 2967000,
+          "error_kinds": {}
+        }
+      ]
+    },
+    {
+      "name": "reorder-baseline-1",
+      "exit_code": 0,
+      "sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "mode": "http",
+          "requests": 6211,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 16,
+          "bytes": 136642,
+          "warmup_bytes": 92972,
+          "seconds": 30.001206781,
+          "total_seconds": 50.001206704,
+          "goodput_gbps": 3.6436400974786504e-05,
+          "mean_latency_us": 77061.53952664627,
+          "p99_us_upper": 151000,
+          "error_kinds": {}
+        },
+        {
+          "mode": "bulk",
+          "requests": 199,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 16,
+          "bytes": 219129914,
+          "warmup_bytes": 157286400,
+          "seconds": 30.000786127,
+          "total_seconds": 50.000786,
+          "goodput_gbps": 0.05843311253841798,
+          "mean_latency_us": 2198885.326633166,
+          "p99_us_upper": 2643000,
+          "error_kinds": {}
+        }
+      ]
+    },
+    {
+      "name": "reorder-candidate-1",
+      "exit_code": 0,
+      "sha256": "70239e4684f9d276d0a653bfd11517e13c07b55ca42f930ebcdd1b883ae1d8c0",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "mode": "http",
+          "requests": 6262,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 16,
+          "bytes": 137764,
+          "warmup_bytes": 92796,
+          "seconds": 30.000589385,
+          "total_seconds": 50.000589325,
+          "goodput_gbps": 3.673634493831128e-05,
+          "mean_latency_us": 76417.91919514532,
+          "p99_us_upper": 152000,
+          "error_kinds": {}
+        },
+        {
+          "mode": "bulk",
+          "requests": 204,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 16,
+          "bytes": 217783585,
+          "warmup_bytes": 157286400,
+          "seconds": 30.001127223,
+          "total_seconds": 50.001127154,
+          "goodput_gbps": 0.05807344060940186,
+          "mean_latency_us": 2203201.656862745,
+          "p99_us_upper": 2654000,
+          "error_kinds": {}
+        }
+      ]
+    },
+    {
+      "name": "asymmetric-baseline-1",
+      "exit_code": 0,
+      "sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "mode": "http",
+          "requests": 5442,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 16,
+          "bytes": 119724,
+          "warmup_bytes": 76736,
+          "seconds": 30.001015414,
+          "total_seconds": 50.001015368,
+          "goodput_gbps": 3.19253194194569e-05,
+          "mean_latency_us": 87990.8926865123,
+          "p99_us_upper": 256000,
+          "error_kinds": {}
+        },
+        {
+          "mode": "bulk",
+          "requests": 13,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 16,
+          "bytes": 17532448,
+          "warmup_bytes": 17825792,
+          "seconds": 30.000539811,
+          "total_seconds": 50.000539764,
+          "goodput_gbps": 0.004675235341884495,
+          "mean_latency_us": 23297669.230769232,
+          "p99_us_upper": 23981000,
+          "error_kinds": {}
+        }
+      ]
+    },
+    {
+      "name": "asymmetric-candidate-1",
+      "exit_code": 1,
+      "sha256": "70239e4684f9d276d0a653bfd11517e13c07b55ca42f930ebcdd1b883ae1d8c0",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "mode": "http",
+          "requests": 5481,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 16,
+          "bytes": 120582,
+          "warmup_bytes": 76450,
+          "seconds": 30.001123741,
+          "total_seconds": 50.001123695,
+          "goodput_gbps": 3.215399557456197e-05,
+          "mean_latency_us": 87343.8726509761,
+          "p99_us_upper": 257000,
+          "error_kinds": {}
+        },
+        {
+          "mode": "bulk",
+          "requests": 10,
+          "errors": 13,
+          "warmup_errors": 13,
+          "canceled_requests": 16,
+          "bytes": 15713255,
+          "warmup_bytes": 17612890,
+          "seconds": 30.001154992,
+          "total_seconds": 50.00115488,
+          "goodput_gbps": 0.004190040017909988,
+          "mean_latency_us": 5829353.5,
+          "p99_us_upper": 7025000,
+          "error_kinds": {
+            "body_timeout": 13
+          }
+        }
+      ]
+    },
+    {
+      "name": "high-delay-baseline-1",
+      "exit_code": 0,
+      "sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "mode": "http-churn",
+          "requests": 982,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 16,
+          "bytes": 21604,
+          "warmup_bytes": 14190,
+          "seconds": 30.000517899,
+          "total_seconds": 50.000517801,
+          "goodput_gbps": 5.760967213361372e-06,
+          "mean_latency_us": 481115.49389002036,
+          "p99_us_upper": 482000,
+          "error_kinds": {}
+        }
+      ]
+    },
+    {
+      "name": "high-delay-candidate-1",
+      "exit_code": 0,
+      "sha256": "70239e4684f9d276d0a653bfd11517e13c07b55ca42f930ebcdd1b883ae1d8c0",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "mode": "http-churn",
+          "requests": 979,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 16,
+          "bytes": 21538,
+          "warmup_bytes": 14190,
+          "seconds": 30.001159529,
+          "total_seconds": 50.001159445,
+          "goodput_gbps": 5.7432446847078e-06,
+          "mean_latency_us": 480938.2574055158,
+          "p99_us_upper": 482000,
+          "error_kinds": {}
+        }
+      ]
+    },
+    {
+      "name": "upload-ack-bottleneck-baseline-1",
+      "exit_code": 0,
+      "sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "iperf": "upload",
+          "receiver_mbit": 79.3373661771915,
+          "tunnel_cpu_cores": {
+            "client": 0.11,
+            "server": 0.128
+          }
+        }
+      ]
+    },
+    {
+      "name": "upload-ack-bottleneck-candidate-1",
+      "exit_code": 0,
+      "sha256": "70239e4684f9d276d0a653bfd11517e13c07b55ca42f930ebcdd1b883ae1d8c0",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "iperf": "upload",
+          "receiver_mbit": 78.5378545577532,
+          "tunnel_cpu_cores": {
+            "client": 0.112,
+            "server": 0.119
+          }
+        }
+      ]
+    },
+    {
+      "name": "rate-step-baseline-1",
+      "exit_code": 0,
+      "sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "mode": "bulk",
+          "requests": 129,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 8,
+          "bytes": 140491823,
+          "warmup_bytes": 63963136,
+          "seconds": 30.000385834,
+          "total_seconds": 50.00038578,
+          "goodput_gbps": 0.03746400430377878,
+          "mean_latency_us": 1692734.2015503875,
+          "p99_us_upper": 3851000,
+          "error_kinds": {}
+        }
+      ]
+    },
+    {
+      "name": "rate-step-candidate-1",
+      "exit_code": 0,
+      "sha256": "70239e4684f9d276d0a653bfd11517e13c07b55ca42f930ebcdd1b883ae1d8c0",
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "mode": "bulk",
+          "requests": 147,
+          "errors": 0,
+          "warmup_errors": 0,
+          "canceled_requests": 8,
+          "bytes": 158166853,
+          "warmup_bytes": 74448896,
+          "seconds": 30.000136402,
+          "total_seconds": 50.000136327,
+          "goodput_gbps": 0.04217763569620453,
+          "mean_latency_us": 1552417.448979592,
+          "p99_us_upper": 2322000,
+          "error_kinds": {}
+        }
+      ]
+    }
+  ]
+}
