@@ -1,0 +1,4125 @@
+{
+  "source": "3d4387f036036a2157f387795626401857f0bfc9",
+  "sha256": "cd693a374a9f4ae3425a43138655920184d15b632b5fe0f9f20e48c99ffd3466",
+  "production_deployed": false,
+  "acceptance": "partial local qualification; direct production WAN comparison and exact-artifact 100,000-connection hold pending",
+  "comparison_limits": {
+    "bulk_rate_ratio_min": 0.95,
+    "small_mean_ratio_max": 1.1,
+    "small_p99_ratio_max": 1.1,
+    "candidate_errors_max": 0,
+    "cleanup": "all owned processes/namespaces/rules removed; unrelated rule preserved"
+  },
+  "limits": "finite laptop tests; pooled placement varies; asymmetric conditional completion latency cannot be compared with a timed-out control as uncensored latency",
+  "runs": [
+    {
+      "name": "fq-control-0",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/scripts/netns_bench.py",
+        "--binary",
+        "/home/shayan/Codes/super-paqet/build/latency-deploy-20261009/super-paqet",
+        "--output",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/pressure-output14-production-control/fq-control-0",
+        "--source-ports",
+        "39941",
+        "37475",
+        "54359",
+        "52477",
+        "--client-cpus",
+        "0,1,2,3",
+        "--server-cpus",
+        "4,6",
+        "--workload-cpus",
+        "8,9,10,11",
+        "--open-timeout",
+        "15s",
+        "--dial-timeout",
+        "5s",
+        "--debug",
+        "--sessions",
+        "4",
+        "--packet-workers",
+        "2",
+        "--conversation-listener",
+        "--path-recovery",
+        "--preserve-connections",
+        "--client-flag",
+        "S",
+        "--server-flag",
+        "PA",
+        "--block",
+        "null",
+        "--kcp-options",
+        "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "--client-procs",
+        "4",
+        "--server-procs",
+        "2",
+        "--duration",
+        "60",
+        "--warmup",
+        "20",
+        "--workers",
+        "16",
+        "--iperf",
+        "--iperf-directions",
+        "bidirectional",
+        "--fq-flow-limit",
+        "100",
+        "--fq-maxrate-mbit",
+        "50",
+        "--duplex-http",
+        "--duplex-http-gap-ms",
+        "1",
+        "--duplex-http-steady"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 89.30498005900154,
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      },
+      "matrix": "pressure-output14-production-control",
+      "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "benchmark_helper_sha256": "11e08c7becbdbe41b517c854244f598737a9b4ad1bc679dcc155d41b9ecb2445",
+      "parameters": {
+        "binary": "/home/shayan/Codes/super-paqet/build/latency-deploy-20261009/super-paqet",
+        "duration": 60,
+        "open_timeout": "15s",
+        "dial_timeout": "5s",
+        "cold_read_bytes": null,
+        "workers": 16,
+        "loss": 0,
+        "delay_ms": 0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "burst_loss": null,
+        "seed": null,
+        "rate_mbit": 0,
+        "strict_rate": false,
+        "down_rate_mbit": null,
+        "sessions": 4,
+        "max_sessions": 4,
+        "path_recovery": true,
+        "preserve_connections": true,
+        "shared_source": false,
+        "client_memory_mib": 0,
+        "server_memory_mib": 0,
+        "client_procs": 4,
+        "server_procs": 2,
+        "client_cpus": "0,1,2,3",
+        "server_cpus": "4,6",
+        "workload_cpus": "8,9,10,11",
+        "packet_workers": 2,
+        "conversation_listener": true,
+        "client_flag": "S",
+        "server_flag": "PA",
+        "source_ports": [
+          39941,
+          37475,
+          54359,
+          52477
+        ],
+        "hold": 0,
+        "enterprise": true,
+        "profile": false,
+        "debug": true,
+        "flow_sample": 1000,
+        "backend": "packet",
+        "duplex_http": true,
+        "mtu": 1500,
+        "ipv6": false,
+        "warmup": 20,
+        "http_warmup": 0,
+        "duplex_http_gap_ms": 1,
+        "duplex_http_steady": true,
+        "schedule": null,
+        "mode": "both",
+        "ramp_timeout": 600,
+        "queue_packets": 0,
+        "fq_flow_limit": 100,
+        "fq_maxrate_mbit": 50,
+        "adaptive": "on",
+        "kcp_options": "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "functional": false,
+        "block": "null",
+        "fec": [
+          0,
+          0
+        ],
+        "iperf": true,
+        "iperf_rate_mbit": 0,
+        "pinned_lanes": false,
+        "iperf_directions": [
+          "bidirectional"
+        ],
+        "direct_iperf": false,
+        "tcp_buffer_mib": 0,
+        "capture": false,
+        "restart": false,
+        "mixed": false,
+        "socket_buffer_mib": 0,
+        "host_backlog": 0,
+        "bridge": false,
+        "output": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/pressure-output14-production-control/fq-control-0"
+      },
+      "processes": {
+        "target": {
+          "peak_rss_kib": 11944,
+          "peak_fds": 10,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 11944,
+          "rss_high_water_kib": 11944,
+          "cpu_seconds": 0.07
+        },
+        "server": {
+          "peak_rss_kib": 84184,
+          "peak_fds": 51,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 84184,
+          "rss_high_water_kib": 84184,
+          "cpu_seconds": 12.52
+        },
+        "client": {
+          "peak_rss_kib": 85632,
+          "peak_fds": 66,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 85632,
+          "rss_high_water_kib": 85632,
+          "cpu_seconds": 22.48
+        }
+      },
+      "kernel": "7.2.4-arch1-2",
+      "results": [
+        {
+          "verified_bytes": 16777216,
+          "cold_transfer_seconds": 3.388730170998315
+        },
+        {
+          "mixed_workload": "http-churn",
+          "bytes": 5434,
+          "canceled_requests": 4,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 7.24529235915221e-07,
+          "mean_latency_us": 934061.5708502025,
+          "mode": "http-churn",
+          "p50_us_upper": 863000,
+          "p99_us_upper": 2645000,
+          "request_gap_seconds": 0.001,
+          "requests": 247,
+          "requests_per_second": 4.116643385881937,
+          "seconds": 60.000339317,
+          "successful_workers": 4,
+          "total_seconds": 80.000339245,
+          "warmup_bytes": 2640,
+          "warmup_errors": 0,
+          "warmup_requests": 120,
+          "warmup_seconds": 20,
+          "workers": 4,
+          "whole_run_payload_mbit": 0.0008073965761843563
+        },
+        {
+          "iperf": "bidirectional",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 60.000888,
+              "seconds": 60.000888,
+              "bytes": 1051721728,
+              "bits_per_second": 140227488.3665055,
+              "retransmits": 1411,
+              "sender": true
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 61.092619,
+              "seconds": 61.092619,
+              "bytes": 1064960000,
+              "bits_per_second": 139455144.3276642,
+              "sender": true
+            },
+            "cpu_utilization_percent": {
+              "host_total": 0.3878284401230914,
+              "host_user": 0.004720130468850397,
+              "host_system": 0.383108309654241,
+              "remote_total": 0.9084662781918138,
+              "remote_user": 0.08622000505612587,
+              "remote_system": 0.8222499725595238
+            },
+            "sum_sent_bidir_reverse": {
+              "start": 0,
+              "end": 60.434104,
+              "seconds": 60.434104,
+              "bytes": 216137728,
+              "bits_per_second": 28611358.646104857,
+              "retransmits": 1,
+              "sender": false
+            },
+            "sum_received_bidir_reverse": {
+              "start": 0,
+              "end": 59.999764,
+              "seconds": 59.999764,
+              "bytes": 215482368,
+              "bits_per_second": 28731095.408975277,
+              "sender": false
+            }
+          },
+          "tunnel_cpu_cores": {
+            "client": 0.265,
+            "server": 0.145
+          },
+          "idle_wait_seconds": 0.079,
+          "method": "concurrent_unidirectional"
+        }
+      ]
+    },
+    {
+      "name": "fq-candidate-0",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/scripts/netns_bench.py",
+        "--binary",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "--output",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/pressure-output14-production-control/fq-candidate-0",
+        "--source-ports",
+        "39941",
+        "37475",
+        "54359",
+        "52477",
+        "--client-cpus",
+        "0,1,2,3",
+        "--server-cpus",
+        "4,6",
+        "--workload-cpus",
+        "8,9,10,11",
+        "--open-timeout",
+        "15s",
+        "--dial-timeout",
+        "5s",
+        "--debug",
+        "--sessions",
+        "4",
+        "--packet-workers",
+        "2",
+        "--conversation-listener",
+        "--path-recovery",
+        "--preserve-connections",
+        "--client-flag",
+        "S",
+        "--server-flag",
+        "PA",
+        "--block",
+        "null",
+        "--kcp-options",
+        "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "--client-procs",
+        "4",
+        "--server-procs",
+        "2",
+        "--duration",
+        "60",
+        "--warmup",
+        "20",
+        "--workers",
+        "16",
+        "--iperf",
+        "--iperf-directions",
+        "bidirectional",
+        "--fq-flow-limit",
+        "100",
+        "--fq-maxrate-mbit",
+        "50",
+        "--duplex-http",
+        "--duplex-http-gap-ms",
+        "1",
+        "--duplex-http-steady"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 86.81362836100016,
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      },
+      "matrix": "pressure-output14-production-control",
+      "binary_sha256": "cd693a374a9f4ae3425a43138655920184d15b632b5fe0f9f20e48c99ffd3466",
+      "benchmark_helper_sha256": "11e08c7becbdbe41b517c854244f598737a9b4ad1bc679dcc155d41b9ecb2445",
+      "parameters": {
+        "binary": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "duration": 60,
+        "open_timeout": "15s",
+        "dial_timeout": "5s",
+        "cold_read_bytes": null,
+        "workers": 16,
+        "loss": 0,
+        "delay_ms": 0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "burst_loss": null,
+        "seed": null,
+        "rate_mbit": 0,
+        "strict_rate": false,
+        "down_rate_mbit": null,
+        "sessions": 4,
+        "max_sessions": 4,
+        "path_recovery": true,
+        "preserve_connections": true,
+        "shared_source": false,
+        "client_memory_mib": 0,
+        "server_memory_mib": 0,
+        "client_procs": 4,
+        "server_procs": 2,
+        "client_cpus": "0,1,2,3",
+        "server_cpus": "4,6",
+        "workload_cpus": "8,9,10,11",
+        "packet_workers": 2,
+        "conversation_listener": true,
+        "client_flag": "S",
+        "server_flag": "PA",
+        "source_ports": [
+          39941,
+          37475,
+          54359,
+          52477
+        ],
+        "hold": 0,
+        "enterprise": true,
+        "profile": false,
+        "debug": true,
+        "flow_sample": 1000,
+        "backend": "packet",
+        "duplex_http": true,
+        "mtu": 1500,
+        "ipv6": false,
+        "warmup": 20,
+        "http_warmup": 0,
+        "duplex_http_gap_ms": 1,
+        "duplex_http_steady": true,
+        "schedule": null,
+        "mode": "both",
+        "ramp_timeout": 600,
+        "queue_packets": 0,
+        "fq_flow_limit": 100,
+        "fq_maxrate_mbit": 50,
+        "adaptive": "on",
+        "kcp_options": "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "functional": false,
+        "block": "null",
+        "fec": [
+          0,
+          0
+        ],
+        "iperf": true,
+        "iperf_rate_mbit": 0,
+        "pinned_lanes": false,
+        "iperf_directions": [
+          "bidirectional"
+        ],
+        "direct_iperf": false,
+        "tcp_buffer_mib": 0,
+        "capture": false,
+        "restart": false,
+        "mixed": false,
+        "socket_buffer_mib": 0,
+        "host_backlog": 0,
+        "bridge": false,
+        "output": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/pressure-output14-production-control/fq-candidate-0"
+      },
+      "processes": {
+        "target": {
+          "peak_rss_kib": 14908,
+          "peak_fds": 10,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 14908,
+          "rss_high_water_kib": 14908,
+          "cpu_seconds": 0.49
+        },
+        "server": {
+          "peak_rss_kib": 35788,
+          "peak_fds": 50,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 35788,
+          "rss_high_water_kib": 35788,
+          "cpu_seconds": 14.73
+        },
+        "client": {
+          "peak_rss_kib": 38580,
+          "peak_fds": 66,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 38580,
+          "rss_high_water_kib": 38580,
+          "cpu_seconds": 18.3
+        }
+      },
+      "kernel": "7.2.4-arch1-2",
+      "results": [
+        {
+          "verified_bytes": 16777216,
+          "cold_transfer_seconds": 3.2341812519953237
+        },
+        {
+          "mixed_workload": "http-churn",
+          "bytes": 45430,
+          "canceled_requests": 4,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 6.0572818187762865e-06,
+          "mean_latency_us": 114869.47360774818,
+          "mode": "http-churn",
+          "p50_us_upper": 112000,
+          "p99_us_upper": 193000,
+          "request_gap_seconds": 0.001,
+          "requests": 2065,
+          "requests_per_second": 34.41637397031981,
+          "seconds": 60.000510274,
+          "successful_workers": 4,
+          "total_seconds": 80.000510212,
+          "warmup_bytes": 14982,
+          "warmup_errors": 0,
+          "warmup_requests": 681,
+          "warmup_seconds": 20,
+          "workers": 4,
+          "whole_run_payload_mbit": 0.00604116147158654
+        },
+        {
+          "iperf": "bidirectional",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 60.000716,
+              "seconds": 60.000716,
+              "bytes": 1306656768,
+              "bits_per_second": 174218823.38870758,
+              "retransmits": 20,
+              "sender": true
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 60.076613,
+              "seconds": 60.076613,
+              "bytes": 1307049984,
+              "bits_per_second": 174051088.2662443,
+              "sender": true
+            },
+            "cpu_utilization_percent": {
+              "host_total": 0.4403762073774249,
+              "host_user": 0.00967543006712587,
+              "host_system": 0.430699529350791,
+              "remote_total": 1.731448778695329,
+              "remote_user": 0.1168995823097127,
+              "remote_system": 1.6145491963856162
+            },
+            "sum_sent_bidir_reverse": {
+              "start": 0,
+              "end": 60.065986,
+              "seconds": 60.065986,
+              "bytes": 1304166400,
+              "bits_per_second": 173697826.25394678,
+              "retransmits": 0,
+              "sender": false
+            },
+            "sum_received_bidir_reverse": {
+              "start": 0,
+              "end": 59.999977,
+              "seconds": 59.999977,
+              "bytes": 1302331392,
+              "bits_per_second": 173644252.16363,
+              "sender": false
+            }
+          },
+          "tunnel_cpu_cores": {
+            "client": 0.22,
+            "server": 0.177
+          },
+          "idle_wait_seconds": 0.083,
+          "method": "concurrent_unidirectional"
+        }
+      ]
+    },
+    {
+      "name": "fq-candidate-1",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/scripts/netns_bench.py",
+        "--binary",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "--output",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/pressure-output14-production-control/fq-candidate-1",
+        "--source-ports",
+        "39941",
+        "37475",
+        "54359",
+        "52477",
+        "--client-cpus",
+        "0,1,2,3",
+        "--server-cpus",
+        "4,6",
+        "--workload-cpus",
+        "8,9,10,11",
+        "--open-timeout",
+        "15s",
+        "--dial-timeout",
+        "5s",
+        "--debug",
+        "--sessions",
+        "4",
+        "--packet-workers",
+        "2",
+        "--conversation-listener",
+        "--path-recovery",
+        "--preserve-connections",
+        "--client-flag",
+        "S",
+        "--server-flag",
+        "PA",
+        "--block",
+        "null",
+        "--kcp-options",
+        "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "--client-procs",
+        "4",
+        "--server-procs",
+        "2",
+        "--duration",
+        "60",
+        "--warmup",
+        "20",
+        "--workers",
+        "16",
+        "--iperf",
+        "--iperf-directions",
+        "bidirectional",
+        "--fq-flow-limit",
+        "100",
+        "--fq-maxrate-mbit",
+        "50",
+        "--duplex-http",
+        "--duplex-http-gap-ms",
+        "1",
+        "--duplex-http-steady"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 86.68839213900355,
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      },
+      "matrix": "pressure-output14-production-control",
+      "binary_sha256": "cd693a374a9f4ae3425a43138655920184d15b632b5fe0f9f20e48c99ffd3466",
+      "benchmark_helper_sha256": "11e08c7becbdbe41b517c854244f598737a9b4ad1bc679dcc155d41b9ecb2445",
+      "parameters": {
+        "binary": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "duration": 60,
+        "open_timeout": "15s",
+        "dial_timeout": "5s",
+        "cold_read_bytes": null,
+        "workers": 16,
+        "loss": 0,
+        "delay_ms": 0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "burst_loss": null,
+        "seed": null,
+        "rate_mbit": 0,
+        "strict_rate": false,
+        "down_rate_mbit": null,
+        "sessions": 4,
+        "max_sessions": 4,
+        "path_recovery": true,
+        "preserve_connections": true,
+        "shared_source": false,
+        "client_memory_mib": 0,
+        "server_memory_mib": 0,
+        "client_procs": 4,
+        "server_procs": 2,
+        "client_cpus": "0,1,2,3",
+        "server_cpus": "4,6",
+        "workload_cpus": "8,9,10,11",
+        "packet_workers": 2,
+        "conversation_listener": true,
+        "client_flag": "S",
+        "server_flag": "PA",
+        "source_ports": [
+          39941,
+          37475,
+          54359,
+          52477
+        ],
+        "hold": 0,
+        "enterprise": true,
+        "profile": false,
+        "debug": true,
+        "flow_sample": 1000,
+        "backend": "packet",
+        "duplex_http": true,
+        "mtu": 1500,
+        "ipv6": false,
+        "warmup": 20,
+        "http_warmup": 0,
+        "duplex_http_gap_ms": 1,
+        "duplex_http_steady": true,
+        "schedule": null,
+        "mode": "both",
+        "ramp_timeout": 600,
+        "queue_packets": 0,
+        "fq_flow_limit": 100,
+        "fq_maxrate_mbit": 50,
+        "adaptive": "on",
+        "kcp_options": "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "functional": false,
+        "block": "null",
+        "fec": [
+          0,
+          0
+        ],
+        "iperf": true,
+        "iperf_rate_mbit": 0,
+        "pinned_lanes": false,
+        "iperf_directions": [
+          "bidirectional"
+        ],
+        "direct_iperf": false,
+        "tcp_buffer_mib": 0,
+        "capture": false,
+        "restart": false,
+        "mixed": false,
+        "socket_buffer_mib": 0,
+        "host_backlog": 0,
+        "bridge": false,
+        "output": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/pressure-output14-production-control/fq-candidate-1"
+      },
+      "processes": {
+        "target": {
+          "peak_rss_kib": 14264,
+          "peak_fds": 10,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 14264,
+          "rss_high_water_kib": 14264,
+          "cpu_seconds": 0.53
+        },
+        "server": {
+          "peak_rss_kib": 36088,
+          "peak_fds": 49,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 36088,
+          "rss_high_water_kib": 36088,
+          "cpu_seconds": 14.82
+        },
+        "client": {
+          "peak_rss_kib": 38852,
+          "peak_fds": 66,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 38852,
+          "rss_high_water_kib": 38852,
+          "cpu_seconds": 18.45
+        }
+      },
+      "kernel": "7.2.4-arch1-2",
+      "results": [
+        {
+          "verified_bytes": 16777216,
+          "cold_transfer_seconds": 3.3330802860000404
+        },
+        {
+          "mixed_workload": "http-churn",
+          "bytes": 42658,
+          "canceled_requests": 3,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 5.687681682927203e-06,
+          "mean_latency_us": 122429.71841155234,
+          "mode": "http-churn",
+          "p50_us_upper": 119000,
+          "p99_us_upper": 216000,
+          "request_gap_seconds": 0.001,
+          "requests": 1939,
+          "requests_per_second": 32.316373198450016,
+          "seconds": 60.000544866,
+          "successful_workers": 4,
+          "total_seconds": 80.000544801,
+          "warmup_bytes": 14696,
+          "warmup_errors": 0,
+          "warmup_requests": 668,
+          "warmup_seconds": 20,
+          "workers": 4,
+          "whole_run_payload_mbit": 0.005735360942120292
+        },
+        {
+          "iperf": "bidirectional",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 60.000578,
+              "seconds": 60.000578,
+              "bytes": 1302200320,
+              "bits_per_second": 173625036.74547935,
+              "retransmits": 469,
+              "sender": true
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 60.03418,
+              "seconds": 60.03418,
+              "bytes": 1301413888,
+              "bits_per_second": 173423058.39773276,
+              "sender": true
+            },
+            "cpu_utilization_percent": {
+              "host_total": 0.4474288978745646,
+              "host_user": 0.01237116195291945,
+              "host_system": 0.4350577359216452,
+              "remote_total": 1.582936627309011,
+              "remote_user": 0.10674091292855234,
+              "remote_system": 1.4761994627444852
+            },
+            "sum_sent_bidir_reverse": {
+              "start": 0,
+              "end": 60.003136,
+              "seconds": 60.003136,
+              "bytes": 1298399232,
+              "bits_per_second": 173110849.67292377,
+              "retransmits": 450,
+              "sender": false
+            },
+            "sum_received_bidir_reverse": {
+              "start": 0,
+              "end": 59.999956,
+              "seconds": 59.999956,
+              "bytes": 1297612800,
+              "bits_per_second": 173015166.87778905,
+              "sender": false
+            }
+          },
+          "tunnel_cpu_cores": {
+            "client": 0.222,
+            "server": 0.179
+          },
+          "idle_wait_seconds": 0.08,
+          "method": "concurrent_unidirectional"
+        }
+      ]
+    },
+    {
+      "name": "fq-control-1",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/scripts/netns_bench.py",
+        "--binary",
+        "/home/shayan/Codes/super-paqet/build/latency-deploy-20261009/super-paqet",
+        "--output",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/pressure-output14-production-control/fq-control-1",
+        "--source-ports",
+        "39941",
+        "37475",
+        "54359",
+        "52477",
+        "--client-cpus",
+        "0,1,2,3",
+        "--server-cpus",
+        "4,6",
+        "--workload-cpus",
+        "8,9,10,11",
+        "--open-timeout",
+        "15s",
+        "--dial-timeout",
+        "5s",
+        "--debug",
+        "--sessions",
+        "4",
+        "--packet-workers",
+        "2",
+        "--conversation-listener",
+        "--path-recovery",
+        "--preserve-connections",
+        "--client-flag",
+        "S",
+        "--server-flag",
+        "PA",
+        "--block",
+        "null",
+        "--kcp-options",
+        "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "--client-procs",
+        "4",
+        "--server-procs",
+        "2",
+        "--duration",
+        "60",
+        "--warmup",
+        "20",
+        "--workers",
+        "16",
+        "--iperf",
+        "--iperf-directions",
+        "bidirectional",
+        "--fq-flow-limit",
+        "100",
+        "--fq-maxrate-mbit",
+        "50",
+        "--duplex-http",
+        "--duplex-http-gap-ms",
+        "1",
+        "--duplex-http-steady"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 88.95650927099632,
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      },
+      "matrix": "pressure-output14-production-control",
+      "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "benchmark_helper_sha256": "11e08c7becbdbe41b517c854244f598737a9b4ad1bc679dcc155d41b9ecb2445",
+      "parameters": {
+        "binary": "/home/shayan/Codes/super-paqet/build/latency-deploy-20261009/super-paqet",
+        "duration": 60,
+        "open_timeout": "15s",
+        "dial_timeout": "5s",
+        "cold_read_bytes": null,
+        "workers": 16,
+        "loss": 0,
+        "delay_ms": 0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "burst_loss": null,
+        "seed": null,
+        "rate_mbit": 0,
+        "strict_rate": false,
+        "down_rate_mbit": null,
+        "sessions": 4,
+        "max_sessions": 4,
+        "path_recovery": true,
+        "preserve_connections": true,
+        "shared_source": false,
+        "client_memory_mib": 0,
+        "server_memory_mib": 0,
+        "client_procs": 4,
+        "server_procs": 2,
+        "client_cpus": "0,1,2,3",
+        "server_cpus": "4,6",
+        "workload_cpus": "8,9,10,11",
+        "packet_workers": 2,
+        "conversation_listener": true,
+        "client_flag": "S",
+        "server_flag": "PA",
+        "source_ports": [
+          39941,
+          37475,
+          54359,
+          52477
+        ],
+        "hold": 0,
+        "enterprise": true,
+        "profile": false,
+        "debug": true,
+        "flow_sample": 1000,
+        "backend": "packet",
+        "duplex_http": true,
+        "mtu": 1500,
+        "ipv6": false,
+        "warmup": 20,
+        "http_warmup": 0,
+        "duplex_http_gap_ms": 1,
+        "duplex_http_steady": true,
+        "schedule": null,
+        "mode": "both",
+        "ramp_timeout": 600,
+        "queue_packets": 0,
+        "fq_flow_limit": 100,
+        "fq_maxrate_mbit": 50,
+        "adaptive": "on",
+        "kcp_options": "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "functional": false,
+        "block": "null",
+        "fec": [
+          0,
+          0
+        ],
+        "iperf": true,
+        "iperf_rate_mbit": 0,
+        "pinned_lanes": false,
+        "iperf_directions": [
+          "bidirectional"
+        ],
+        "direct_iperf": false,
+        "tcp_buffer_mib": 0,
+        "capture": false,
+        "restart": false,
+        "mixed": false,
+        "socket_buffer_mib": 0,
+        "host_backlog": 0,
+        "bridge": false,
+        "output": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/pressure-output14-production-control/fq-control-1"
+      },
+      "processes": {
+        "target": {
+          "peak_rss_kib": 9568,
+          "peak_fds": 11,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 9568,
+          "rss_high_water_kib": 9568,
+          "cpu_seconds": 0.03
+        },
+        "server": {
+          "peak_rss_kib": 100380,
+          "peak_fds": 51,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 100380,
+          "rss_high_water_kib": 100380,
+          "cpu_seconds": 20.02
+        },
+        "client": {
+          "peak_rss_kib": 106824,
+          "peak_fds": 66,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 106824,
+          "rss_high_water_kib": 106824,
+          "cpu_seconds": 25.37
+        }
+      },
+      "kernel": "7.2.4-arch1-2",
+      "results": [
+        {
+          "verified_bytes": 16777216,
+          "cold_transfer_seconds": 3.3233606809953926
+        },
+        {
+          "mixed_workload": "http-churn",
+          "bytes": 1716,
+          "canceled_requests": 4,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 2.2879869533645283e-07,
+          "mean_latency_us": 2913751.5384615385,
+          "mode": "http-churn",
+          "p50_us_upper": 2867000,
+          "p99_us_upper": 4697000,
+          "request_gap_seconds": 0.001,
+          "requests": 78,
+          "requests_per_second": 1.2999925871389366,
+          "seconds": 60.000342134,
+          "successful_workers": 4,
+          "total_seconds": 80.000342076,
+          "warmup_bytes": 1254,
+          "warmup_errors": 0,
+          "warmup_requests": 57,
+          "warmup_seconds": 20,
+          "workers": 4,
+          "whole_run_payload_mbit": 0.00029699873004828027
+        },
+        {
+          "iperf": "bidirectional",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 60.000589,
+              "seconds": 60.000589,
+              "bytes": 953548800,
+              "bits_per_second": 127138591.92282262,
+              "retransmits": 1300,
+              "sender": true
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 60.845403,
+              "seconds": 60.845403,
+              "bytes": 972947456,
+              "bits_per_second": 127923873.69017838,
+              "sender": true
+            },
+            "cpu_utilization_percent": {
+              "host_total": 0.3784204146011492,
+              "host_user": 0.0006644728673163624,
+              "host_system": 0.3777546950680405,
+              "remote_total": 0.8638358328474325,
+              "remote_user": 0.07467866835843484,
+              "remote_system": 0.789159638316521
+            },
+            "sum_sent_bidir_reverse": {
+              "start": 0,
+              "end": 60.000143,
+              "seconds": 60.000143,
+              "bytes": 978845696,
+              "bits_per_second": 130512448.41199794,
+              "retransmits": 1474,
+              "sender": false
+            },
+            "sum_received_bidir_reverse": {
+              "start": 0,
+              "end": 59.999679,
+              "seconds": 59.999679,
+              "bytes": 977797120,
+              "bits_per_second": 130373646.83234389,
+              "sender": false
+            }
+          },
+          "tunnel_cpu_cores": {
+            "client": 0.301,
+            "server": 0.236
+          },
+          "idle_wait_seconds": 0.082,
+          "method": "concurrent_unidirectional"
+        }
+      ]
+    },
+    {
+      "name": "clean-control-0",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/scripts/netns_bench.py",
+        "--binary",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-grace11",
+        "--output",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/clean-output14-equal-cpu/clean-control-0",
+        "--source-ports",
+        "39941",
+        "37475",
+        "54359",
+        "52477",
+        "--client-cpus",
+        "0,1,2,3",
+        "--server-cpus",
+        "4,5,6,7",
+        "--workload-cpus",
+        "8,9,10,11",
+        "--open-timeout",
+        "15s",
+        "--dial-timeout",
+        "5s",
+        "--sessions",
+        "4",
+        "--packet-workers",
+        "2",
+        "--conversation-listener",
+        "--path-recovery",
+        "--preserve-connections",
+        "--client-flag",
+        "S",
+        "--server-flag",
+        "PA",
+        "--block",
+        "null",
+        "--kcp-options",
+        "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "--client-procs",
+        "4",
+        "--server-procs",
+        "4",
+        "--duration",
+        "30",
+        "--warmup",
+        "10",
+        "--workers",
+        "16",
+        "--iperf",
+        "--iperf-directions",
+        "upload",
+        "download",
+        "--pinned-lanes"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 84.34631890199671,
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      },
+      "matrix": "clean-output14-equal-cpu",
+      "binary_sha256": "8ba95e5436dbee0525f62f3494e13ad981874612043e9300a03584276d11099c",
+      "benchmark_helper_sha256": "11e08c7becbdbe41b517c854244f598737a9b4ad1bc679dcc155d41b9ecb2445",
+      "parameters": {
+        "binary": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-grace11",
+        "duration": 30,
+        "open_timeout": "15s",
+        "dial_timeout": "5s",
+        "cold_read_bytes": null,
+        "workers": 16,
+        "loss": 0,
+        "delay_ms": 0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "burst_loss": null,
+        "seed": null,
+        "rate_mbit": 0,
+        "strict_rate": false,
+        "down_rate_mbit": null,
+        "sessions": 4,
+        "max_sessions": 4,
+        "path_recovery": true,
+        "preserve_connections": true,
+        "shared_source": false,
+        "client_memory_mib": 0,
+        "server_memory_mib": 0,
+        "client_procs": 4,
+        "server_procs": 4,
+        "client_cpus": "0,1,2,3",
+        "server_cpus": "4,5,6,7",
+        "workload_cpus": "8,9,10,11",
+        "packet_workers": 2,
+        "conversation_listener": true,
+        "client_flag": "S",
+        "server_flag": "PA",
+        "source_ports": [
+          39941,
+          37475,
+          54359,
+          52477
+        ],
+        "hold": 0,
+        "enterprise": true,
+        "profile": false,
+        "debug": false,
+        "flow_sample": 1000,
+        "backend": "packet",
+        "duplex_http": false,
+        "mtu": 1500,
+        "ipv6": false,
+        "warmup": 10,
+        "http_warmup": 0,
+        "duplex_http_gap_ms": 0,
+        "duplex_http_steady": false,
+        "schedule": null,
+        "mode": "both",
+        "ramp_timeout": 600,
+        "queue_packets": 0,
+        "fq_flow_limit": 0,
+        "fq_maxrate_mbit": 0,
+        "adaptive": "on",
+        "kcp_options": "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "functional": false,
+        "block": "null",
+        "fec": [
+          0,
+          0
+        ],
+        "iperf": true,
+        "iperf_rate_mbit": 0,
+        "pinned_lanes": true,
+        "iperf_directions": [
+          "upload",
+          "download"
+        ],
+        "direct_iperf": false,
+        "tcp_buffer_mib": 0,
+        "capture": false,
+        "restart": false,
+        "mixed": false,
+        "socket_buffer_mib": 0,
+        "host_backlog": 0,
+        "bridge": false,
+        "output": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/clean-output14-equal-cpu/clean-control-0"
+      },
+      "processes": {
+        "target": {
+          "peak_rss_kib": 8528,
+          "peak_fds": 6,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 8528,
+          "rss_high_water_kib": 8528,
+          "cpu_seconds": 0.0
+        },
+        "server": {
+          "peak_rss_kib": 148356,
+          "peak_fds": 29,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 148356,
+          "rss_high_water_kib": 148356,
+          "cpu_seconds": 156.33
+        },
+        "client": {
+          "peak_rss_kib": 148516,
+          "peak_fds": 50,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 148516,
+          "rss_high_water_kib": 148516,
+          "cpu_seconds": 175.21
+        }
+      },
+      "kernel": "7.2.4-arch1-2",
+      "results": [
+        {
+          "verified_bytes": 16777216,
+          "cold_transfer_seconds": 0.39213410999946063
+        },
+        {
+          "iperf": "upload",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 30.000596,
+              "seconds": 30.000596,
+              "bytes": 20235681792,
+              "bits_per_second": 5396093147.67764,
+              "retransmits": 1116,
+              "sender": true
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 30.027705,
+              "seconds": 30.027705,
+              "bytes": 20258095104,
+              "bits_per_second": 5397973461.596783,
+              "sender": true
+            },
+            "cpu_utilization_percent": {
+              "host_total": 6.687921207879212,
+              "host_user": 0.12019048095190481,
+              "host_system": 6.567735726427356,
+              "remote_total": 7.844667544312135,
+              "remote_user": 0.6349006173430446,
+              "remote_system": 7.20976442873734
+            }
+          },
+          "tunnel_cpu_cores": {
+            "client": 2.412,
+            "server": 2.033
+          },
+          "idle_wait_seconds": 0.088,
+          "pinned_lanes": 4
+        },
+        {
+          "iperf": "download",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 30.005197,
+              "seconds": 30.005197,
+              "bytes": 15846342656,
+              "bits_per_second": 4225078687.9149218,
+              "retransmits": 958,
+              "sender": false
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 29.999945,
+              "seconds": 29.999945,
+              "bytes": 15840051200,
+              "bits_per_second": 4224022706.9321146,
+              "sender": false
+            },
+            "cpu_utilization_percent": {
+              "host_total": 5.358653419985508,
+              "host_user": 0.41551694141060663,
+              "host_system": 4.943138977954993,
+              "remote_total": 3.801989147265313,
+              "remote_user": 0.10397548242326664,
+              "remote_system": 3.6980136648420467
+            }
+          },
+          "tunnel_cpu_cores": {
+            "client": 1.948,
+            "server": 1.858
+          },
+          "idle_wait_seconds": 0.138,
+          "pinned_lanes": 4
+        }
+      ]
+    },
+    {
+      "name": "clean-candidate-0",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/scripts/netns_bench.py",
+        "--binary",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "--output",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/clean-output14-equal-cpu/clean-candidate-0",
+        "--source-ports",
+        "39941",
+        "37475",
+        "54359",
+        "52477",
+        "--client-cpus",
+        "0,1,2,3",
+        "--server-cpus",
+        "4,5,6,7",
+        "--workload-cpus",
+        "8,9,10,11",
+        "--open-timeout",
+        "15s",
+        "--dial-timeout",
+        "5s",
+        "--sessions",
+        "4",
+        "--packet-workers",
+        "2",
+        "--conversation-listener",
+        "--path-recovery",
+        "--preserve-connections",
+        "--client-flag",
+        "S",
+        "--server-flag",
+        "PA",
+        "--block",
+        "null",
+        "--kcp-options",
+        "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "--client-procs",
+        "4",
+        "--server-procs",
+        "4",
+        "--duration",
+        "30",
+        "--warmup",
+        "10",
+        "--workers",
+        "16",
+        "--iperf",
+        "--iperf-directions",
+        "upload",
+        "download",
+        "--pinned-lanes"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 84.46570670200163,
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      },
+      "matrix": "clean-output14-equal-cpu",
+      "binary_sha256": "cd693a374a9f4ae3425a43138655920184d15b632b5fe0f9f20e48c99ffd3466",
+      "benchmark_helper_sha256": "11e08c7becbdbe41b517c854244f598737a9b4ad1bc679dcc155d41b9ecb2445",
+      "parameters": {
+        "binary": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "duration": 30,
+        "open_timeout": "15s",
+        "dial_timeout": "5s",
+        "cold_read_bytes": null,
+        "workers": 16,
+        "loss": 0,
+        "delay_ms": 0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "burst_loss": null,
+        "seed": null,
+        "rate_mbit": 0,
+        "strict_rate": false,
+        "down_rate_mbit": null,
+        "sessions": 4,
+        "max_sessions": 4,
+        "path_recovery": true,
+        "preserve_connections": true,
+        "shared_source": false,
+        "client_memory_mib": 0,
+        "server_memory_mib": 0,
+        "client_procs": 4,
+        "server_procs": 4,
+        "client_cpus": "0,1,2,3",
+        "server_cpus": "4,5,6,7",
+        "workload_cpus": "8,9,10,11",
+        "packet_workers": 2,
+        "conversation_listener": true,
+        "client_flag": "S",
+        "server_flag": "PA",
+        "source_ports": [
+          39941,
+          37475,
+          54359,
+          52477
+        ],
+        "hold": 0,
+        "enterprise": true,
+        "profile": false,
+        "debug": false,
+        "flow_sample": 1000,
+        "backend": "packet",
+        "duplex_http": false,
+        "mtu": 1500,
+        "ipv6": false,
+        "warmup": 10,
+        "http_warmup": 0,
+        "duplex_http_gap_ms": 0,
+        "duplex_http_steady": false,
+        "schedule": null,
+        "mode": "both",
+        "ramp_timeout": 600,
+        "queue_packets": 0,
+        "fq_flow_limit": 0,
+        "fq_maxrate_mbit": 0,
+        "adaptive": "on",
+        "kcp_options": "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "functional": false,
+        "block": "null",
+        "fec": [
+          0,
+          0
+        ],
+        "iperf": true,
+        "iperf_rate_mbit": 0,
+        "pinned_lanes": true,
+        "iperf_directions": [
+          "upload",
+          "download"
+        ],
+        "direct_iperf": false,
+        "tcp_buffer_mib": 0,
+        "capture": false,
+        "restart": false,
+        "mixed": false,
+        "socket_buffer_mib": 0,
+        "host_backlog": 0,
+        "bridge": false,
+        "output": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/clean-output14-equal-cpu/clean-candidate-0"
+      },
+      "processes": {
+        "target": {
+          "peak_rss_kib": 8756,
+          "peak_fds": 6,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 8756,
+          "rss_high_water_kib": 8756,
+          "cpu_seconds": 0.0
+        },
+        "server": {
+          "peak_rss_kib": 148312,
+          "peak_fds": 29,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 148312,
+          "rss_high_water_kib": 148312,
+          "cpu_seconds": 158.96
+        },
+        "client": {
+          "peak_rss_kib": 147088,
+          "peak_fds": 50,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 147088,
+          "rss_high_water_kib": 147088,
+          "cpu_seconds": 173.34
+        }
+      },
+      "kernel": "7.2.4-arch1-2",
+      "results": [
+        {
+          "verified_bytes": 16777216,
+          "cold_transfer_seconds": 0.45901830699585844
+        },
+        {
+          "iperf": "upload",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 30.000514,
+              "seconds": 30.000514,
+              "bytes": 21201420288,
+              "bits_per_second": 5653627274.710787,
+              "retransmits": 1002,
+              "sender": true
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 30.026604,
+              "seconds": 30.026604,
+              "bytes": 21225144320,
+              "bits_per_second": 5655409266.104391,
+              "sender": true
+            },
+            "cpu_utilization_percent": {
+              "host_total": 6.248276406846977,
+              "host_user": 0.12693094928361517,
+              "host_system": 6.121345457563362,
+              "remote_total": 7.876667795487623,
+              "remote_user": 0.7040070312512686,
+              "remote_system": 7.172663262549056
+            }
+          },
+          "tunnel_cpu_cores": {
+            "client": 2.371,
+            "server": 2.092
+          },
+          "idle_wait_seconds": 0.084,
+          "pinned_lanes": 4
+        },
+        {
+          "iperf": "download",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 30.004781,
+              "seconds": 30.004781,
+              "bytes": 15873081344,
+              "bits_per_second": 4232434614.5027647,
+              "retransmits": 734,
+              "sender": false
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 29.999945,
+              "seconds": 29.999945,
+              "bytes": 15870459904,
+              "bits_per_second": 4232062726.607002,
+              "sender": false
+            },
+            "cpu_utilization_percent": {
+              "host_total": 5.326816155074122,
+              "host_user": 0.3851622656608567,
+              "host_system": 4.941656388957473,
+              "remote_total": 3.821281353646903,
+              "remote_user": 0.0923456912947257,
+              "remote_system": 3.7289331626718236
+            }
+          },
+          "tunnel_cpu_cores": {
+            "client": 1.944,
+            "server": 1.865
+          },
+          "idle_wait_seconds": 0.135,
+          "pinned_lanes": 4
+        }
+      ]
+    },
+    {
+      "name": "clean-candidate-1",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/scripts/netns_bench.py",
+        "--binary",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "--output",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/clean-output14-equal-cpu/clean-candidate-1",
+        "--source-ports",
+        "39941",
+        "37475",
+        "54359",
+        "52477",
+        "--client-cpus",
+        "0,1,2,3",
+        "--server-cpus",
+        "4,5,6,7",
+        "--workload-cpus",
+        "8,9,10,11",
+        "--open-timeout",
+        "15s",
+        "--dial-timeout",
+        "5s",
+        "--sessions",
+        "4",
+        "--packet-workers",
+        "2",
+        "--conversation-listener",
+        "--path-recovery",
+        "--preserve-connections",
+        "--client-flag",
+        "S",
+        "--server-flag",
+        "PA",
+        "--block",
+        "null",
+        "--kcp-options",
+        "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "--client-procs",
+        "4",
+        "--server-procs",
+        "4",
+        "--duration",
+        "30",
+        "--warmup",
+        "10",
+        "--workers",
+        "16",
+        "--iperf",
+        "--iperf-directions",
+        "upload",
+        "download",
+        "--pinned-lanes"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 84.3036084300038,
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      },
+      "matrix": "clean-output14-equal-cpu",
+      "binary_sha256": "cd693a374a9f4ae3425a43138655920184d15b632b5fe0f9f20e48c99ffd3466",
+      "benchmark_helper_sha256": "11e08c7becbdbe41b517c854244f598737a9b4ad1bc679dcc155d41b9ecb2445",
+      "parameters": {
+        "binary": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "duration": 30,
+        "open_timeout": "15s",
+        "dial_timeout": "5s",
+        "cold_read_bytes": null,
+        "workers": 16,
+        "loss": 0,
+        "delay_ms": 0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "burst_loss": null,
+        "seed": null,
+        "rate_mbit": 0,
+        "strict_rate": false,
+        "down_rate_mbit": null,
+        "sessions": 4,
+        "max_sessions": 4,
+        "path_recovery": true,
+        "preserve_connections": true,
+        "shared_source": false,
+        "client_memory_mib": 0,
+        "server_memory_mib": 0,
+        "client_procs": 4,
+        "server_procs": 4,
+        "client_cpus": "0,1,2,3",
+        "server_cpus": "4,5,6,7",
+        "workload_cpus": "8,9,10,11",
+        "packet_workers": 2,
+        "conversation_listener": true,
+        "client_flag": "S",
+        "server_flag": "PA",
+        "source_ports": [
+          39941,
+          37475,
+          54359,
+          52477
+        ],
+        "hold": 0,
+        "enterprise": true,
+        "profile": false,
+        "debug": false,
+        "flow_sample": 1000,
+        "backend": "packet",
+        "duplex_http": false,
+        "mtu": 1500,
+        "ipv6": false,
+        "warmup": 10,
+        "http_warmup": 0,
+        "duplex_http_gap_ms": 0,
+        "duplex_http_steady": false,
+        "schedule": null,
+        "mode": "both",
+        "ramp_timeout": 600,
+        "queue_packets": 0,
+        "fq_flow_limit": 0,
+        "fq_maxrate_mbit": 0,
+        "adaptive": "on",
+        "kcp_options": "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "functional": false,
+        "block": "null",
+        "fec": [
+          0,
+          0
+        ],
+        "iperf": true,
+        "iperf_rate_mbit": 0,
+        "pinned_lanes": true,
+        "iperf_directions": [
+          "upload",
+          "download"
+        ],
+        "direct_iperf": false,
+        "tcp_buffer_mib": 0,
+        "capture": false,
+        "restart": false,
+        "mixed": false,
+        "socket_buffer_mib": 0,
+        "host_backlog": 0,
+        "bridge": false,
+        "output": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/clean-output14-equal-cpu/clean-candidate-1"
+      },
+      "processes": {
+        "target": {
+          "peak_rss_kib": 8592,
+          "peak_fds": 6,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 8592,
+          "rss_high_water_kib": 8592,
+          "cpu_seconds": 0.0
+        },
+        "server": {
+          "peak_rss_kib": 148156,
+          "peak_fds": 29,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 148156,
+          "rss_high_water_kib": 148156,
+          "cpu_seconds": 158.99
+        },
+        "client": {
+          "peak_rss_kib": 148600,
+          "peak_fds": 50,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 148600,
+          "rss_high_water_kib": 148600,
+          "cpu_seconds": 173.36
+        }
+      },
+      "kernel": "7.2.4-arch1-2",
+      "results": [
+        {
+          "verified_bytes": 16777216,
+          "cold_transfer_seconds": 0.358627361994877
+        },
+        {
+          "iperf": "upload",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 30.000632,
+              "seconds": 30.000632,
+              "bytes": 21228027904,
+              "bits_per_second": 5660701309.348211,
+              "retransmits": 1410,
+              "sender": true
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 30.028458,
+              "seconds": 30.028458,
+              "bytes": 21242445824,
+              "bits_per_second": 5659902489.666183,
+              "sender": true
+            },
+            "cpu_utilization_percent": {
+              "host_total": 6.360573430864622,
+              "host_user": 0.10571483551856488,
+              "host_system": 6.254858595346057,
+              "remote_total": 7.894364413788368,
+              "remote_user": 0.7205169805203476,
+              "remote_system": 7.17384743326802
+            }
+          },
+          "tunnel_cpu_cores": {
+            "client": 2.372,
+            "server": 2.094
+          },
+          "idle_wait_seconds": 0.085,
+          "pinned_lanes": 4
+        },
+        {
+          "iperf": "download",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 30.003244,
+              "seconds": 30.003244,
+              "bytes": 15824715776,
+              "bits_per_second": 4219375211.849788,
+              "retransmits": 780,
+              "sender": false
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 29.999963,
+              "seconds": 29.999963,
+              "bytes": 15822356480,
+              "bits_per_second": 4219300529.767717,
+              "sender": false
+            },
+            "cpu_utilization_percent": {
+              "host_total": 5.394734437967063,
+              "host_user": 0.4566312879565323,
+              "host_system": 4.938103150010532,
+              "remote_total": 3.838017121520781,
+              "remote_user": 0.0875976877830123,
+              "remote_system": 3.7504219335290987
+            }
+          },
+          "tunnel_cpu_cores": {
+            "client": 1.942,
+            "server": 1.863
+          },
+          "idle_wait_seconds": 0.132,
+          "pinned_lanes": 4
+        }
+      ]
+    },
+    {
+      "name": "clean-control-1",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/scripts/netns_bench.py",
+        "--binary",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-grace11",
+        "--output",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/clean-output14-equal-cpu/clean-control-1",
+        "--source-ports",
+        "39941",
+        "37475",
+        "54359",
+        "52477",
+        "--client-cpus",
+        "0,1,2,3",
+        "--server-cpus",
+        "4,5,6,7",
+        "--workload-cpus",
+        "8,9,10,11",
+        "--open-timeout",
+        "15s",
+        "--dial-timeout",
+        "5s",
+        "--sessions",
+        "4",
+        "--packet-workers",
+        "2",
+        "--conversation-listener",
+        "--path-recovery",
+        "--preserve-connections",
+        "--client-flag",
+        "S",
+        "--server-flag",
+        "PA",
+        "--block",
+        "null",
+        "--kcp-options",
+        "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "--client-procs",
+        "4",
+        "--server-procs",
+        "4",
+        "--duration",
+        "30",
+        "--warmup",
+        "10",
+        "--workers",
+        "16",
+        "--iperf",
+        "--iperf-directions",
+        "upload",
+        "download",
+        "--pinned-lanes"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 84.45268715400016,
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      },
+      "matrix": "clean-output14-equal-cpu",
+      "binary_sha256": "8ba95e5436dbee0525f62f3494e13ad981874612043e9300a03584276d11099c",
+      "benchmark_helper_sha256": "11e08c7becbdbe41b517c854244f598737a9b4ad1bc679dcc155d41b9ecb2445",
+      "parameters": {
+        "binary": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-grace11",
+        "duration": 30,
+        "open_timeout": "15s",
+        "dial_timeout": "5s",
+        "cold_read_bytes": null,
+        "workers": 16,
+        "loss": 0,
+        "delay_ms": 0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "burst_loss": null,
+        "seed": null,
+        "rate_mbit": 0,
+        "strict_rate": false,
+        "down_rate_mbit": null,
+        "sessions": 4,
+        "max_sessions": 4,
+        "path_recovery": true,
+        "preserve_connections": true,
+        "shared_source": false,
+        "client_memory_mib": 0,
+        "server_memory_mib": 0,
+        "client_procs": 4,
+        "server_procs": 4,
+        "client_cpus": "0,1,2,3",
+        "server_cpus": "4,5,6,7",
+        "workload_cpus": "8,9,10,11",
+        "packet_workers": 2,
+        "conversation_listener": true,
+        "client_flag": "S",
+        "server_flag": "PA",
+        "source_ports": [
+          39941,
+          37475,
+          54359,
+          52477
+        ],
+        "hold": 0,
+        "enterprise": true,
+        "profile": false,
+        "debug": false,
+        "flow_sample": 1000,
+        "backend": "packet",
+        "duplex_http": false,
+        "mtu": 1500,
+        "ipv6": false,
+        "warmup": 10,
+        "http_warmup": 0,
+        "duplex_http_gap_ms": 0,
+        "duplex_http_steady": false,
+        "schedule": null,
+        "mode": "both",
+        "ramp_timeout": 600,
+        "queue_packets": 0,
+        "fq_flow_limit": 0,
+        "fq_maxrate_mbit": 0,
+        "adaptive": "on",
+        "kcp_options": "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "functional": false,
+        "block": "null",
+        "fec": [
+          0,
+          0
+        ],
+        "iperf": true,
+        "iperf_rate_mbit": 0,
+        "pinned_lanes": true,
+        "iperf_directions": [
+          "upload",
+          "download"
+        ],
+        "direct_iperf": false,
+        "tcp_buffer_mib": 0,
+        "capture": false,
+        "restart": false,
+        "mixed": false,
+        "socket_buffer_mib": 0,
+        "host_backlog": 0,
+        "bridge": false,
+        "output": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/clean-output14-equal-cpu/clean-control-1"
+      },
+      "processes": {
+        "target": {
+          "peak_rss_kib": 8596,
+          "peak_fds": 6,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 8596,
+          "rss_high_water_kib": 8596,
+          "cpu_seconds": 0.0
+        },
+        "server": {
+          "peak_rss_kib": 147840,
+          "peak_fds": 29,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 147840,
+          "rss_high_water_kib": 147840,
+          "cpu_seconds": 158.26
+        },
+        "client": {
+          "peak_rss_kib": 148288,
+          "peak_fds": 50,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 148288,
+          "rss_high_water_kib": 148288,
+          "cpu_seconds": 173.21
+        }
+      },
+      "kernel": "7.2.4-arch1-2",
+      "results": [
+        {
+          "verified_bytes": 16777216,
+          "cold_transfer_seconds": 0.4911028439964866
+        },
+        {
+          "iperf": "upload",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 30.000616,
+              "seconds": 30.000616,
+              "bytes": 21267349504,
+              "bits_per_second": 5671154246.480955,
+              "retransmits": 1120,
+              "sender": true
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 30.033288,
+              "seconds": 30.033288,
+              "bytes": 21290942464,
+              "bits_per_second": 5672552244.308583,
+              "sender": true
+            },
+            "cpu_utilization_percent": {
+              "host_total": 6.3073716221896365,
+              "host_user": 0.10494896199292239,
+              "host_system": 6.202425159933804,
+              "remote_total": 7.76538675500338,
+              "remote_user": 0.6633021841310197,
+              "remote_system": 7.102089566614614
+            }
+          },
+          "tunnel_cpu_cores": {
+            "client": 2.372,
+            "server": 2.086
+          },
+          "idle_wait_seconds": 0.084,
+          "pinned_lanes": 4
+        },
+        {
+          "iperf": "download",
+          "end": {
+            "sum_sent": {
+              "start": 0,
+              "end": 30.006021,
+              "seconds": 30.006021,
+              "bytes": 15745024000,
+              "bits_per_second": 4197857400.2394886,
+              "retransmits": 839,
+              "sender": false
+            },
+            "sum_received": {
+              "start": 0,
+              "end": 29.999883,
+              "seconds": 29.999883,
+              "bytes": 15739256832,
+              "bits_per_second": 4197144311.741731,
+              "sender": false
+            },
+            "cpu_utilization_percent": {
+              "host_total": 5.2453128426104225,
+              "host_user": 0.35586682509741147,
+              "host_system": 4.889443518132295,
+              "remote_total": 3.7993850429165414,
+              "remote_user": 0.11574157104834981,
+              "remote_system": 3.6836459714701926
+            }
+          },
+          "tunnel_cpu_cores": {
+            "client": 1.938,
+            "server": 1.852
+          },
+          "idle_wait_seconds": 0.125,
+          "pinned_lanes": 4
+        }
+      ]
+    },
+    {
+      "name": "asymmetric-candidate-0",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/scripts/netns_bench.py",
+        "--binary",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "--output",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/wan-output14-regression/asymmetric-candidate-0",
+        "--source-ports",
+        "39941",
+        "37475",
+        "54359",
+        "52477",
+        "--client-cpus",
+        "0,1,2,3",
+        "--server-cpus",
+        "4,6",
+        "--workload-cpus",
+        "8,9,10,11",
+        "--open-timeout",
+        "15s",
+        "--dial-timeout",
+        "5s",
+        "--debug",
+        "--sessions",
+        "4",
+        "--packet-workers",
+        "2",
+        "--conversation-listener",
+        "--path-recovery",
+        "--preserve-connections",
+        "--client-flag",
+        "S",
+        "--server-flag",
+        "PA",
+        "--block",
+        "null",
+        "--kcp-options",
+        "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "--client-procs",
+        "4",
+        "--server-procs",
+        "2",
+        "--duration",
+        "30",
+        "--http-warmup",
+        "20",
+        "--workers",
+        "16",
+        "--mode",
+        "both",
+        "--bridge",
+        "--queue-packets",
+        "2048",
+        "--strict-rate",
+        "--delay-ms",
+        "40",
+        "--rate-mbit",
+        "50",
+        "--down-rate-mbit",
+        "10",
+        "--loss",
+        ".5",
+        "--reorder",
+        "5",
+        "--seed",
+        "804"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 105.38979257799656,
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      },
+      "matrix": "wan-output14-regression",
+      "binary_sha256": "cd693a374a9f4ae3425a43138655920184d15b632b5fe0f9f20e48c99ffd3466",
+      "benchmark_helper_sha256": "11e08c7becbdbe41b517c854244f598737a9b4ad1bc679dcc155d41b9ecb2445",
+      "parameters": {
+        "binary": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "duration": 30,
+        "open_timeout": "15s",
+        "dial_timeout": "5s",
+        "cold_read_bytes": null,
+        "workers": 16,
+        "loss": 0.5,
+        "delay_ms": 40.0,
+        "jitter_ms": 0,
+        "reorder": 5.0,
+        "burst_loss": null,
+        "seed": 804,
+        "rate_mbit": 50,
+        "strict_rate": true,
+        "down_rate_mbit": 10,
+        "sessions": 4,
+        "max_sessions": 4,
+        "path_recovery": true,
+        "preserve_connections": true,
+        "shared_source": false,
+        "client_memory_mib": 0,
+        "server_memory_mib": 0,
+        "client_procs": 4,
+        "server_procs": 2,
+        "client_cpus": "0,1,2,3",
+        "server_cpus": "4,6",
+        "workload_cpus": "8,9,10,11",
+        "packet_workers": 2,
+        "conversation_listener": true,
+        "client_flag": "S",
+        "server_flag": "PA",
+        "source_ports": [
+          39941,
+          37475,
+          54359,
+          52477
+        ],
+        "hold": 0,
+        "enterprise": true,
+        "profile": false,
+        "debug": true,
+        "flow_sample": 1000,
+        "backend": "packet",
+        "duplex_http": false,
+        "mtu": 1500,
+        "ipv6": false,
+        "warmup": 0,
+        "http_warmup": 20,
+        "duplex_http_gap_ms": 0,
+        "duplex_http_steady": false,
+        "schedule": null,
+        "mode": "both",
+        "ramp_timeout": 600,
+        "queue_packets": 2048,
+        "fq_flow_limit": 0,
+        "fq_maxrate_mbit": 0,
+        "adaptive": "on",
+        "kcp_options": "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "functional": false,
+        "block": "null",
+        "fec": [
+          0,
+          0
+        ],
+        "iperf": false,
+        "iperf_rate_mbit": 0,
+        "pinned_lanes": false,
+        "iperf_directions": [
+          "upload",
+          "download",
+          "bidirectional"
+        ],
+        "direct_iperf": false,
+        "tcp_buffer_mib": 0,
+        "capture": false,
+        "restart": false,
+        "mixed": false,
+        "socket_buffer_mib": 0,
+        "host_backlog": 0,
+        "bridge": true,
+        "output": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/wan-output14-regression/asymmetric-candidate-0"
+      },
+      "processes": {
+        "target": {
+          "peak_rss_kib": 14980,
+          "peak_fds": 22,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 14980,
+          "rss_high_water_kib": 14980,
+          "cpu_seconds": 0.64
+        },
+        "server": {
+          "peak_rss_kib": 32012,
+          "peak_fds": 25,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 32012,
+          "rss_high_water_kib": 32012,
+          "cpu_seconds": 3.4
+        },
+        "client": {
+          "peak_rss_kib": 30488,
+          "peak_fds": 38,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 30488,
+          "rss_high_water_kib": 30488,
+          "cpu_seconds": 3.6
+        }
+      },
+      "kernel": "7.2.4-arch1-2",
+      "results": [
+        {
+          "verified_bytes": 1048576,
+          "cold_transfer_seconds": 2.291252234004787
+        },
+        {
+          "bytes": 119768,
+          "canceled_requests": 16,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 3.193730943804514e-05,
+          "mean_latency_us": 87949.12307127113,
+          "mode": "http",
+          "p50_us_upper": 81000,
+          "p99_us_upper": 261000,
+          "request_gap_seconds": 0,
+          "requests": 5444,
+          "requests_per_second": 181.46198544343832,
+          "seconds": 30.000773918,
+          "successful_workers": 16,
+          "total_seconds": 50.000773872,
+          "warmup_bytes": 75042,
+          "warmup_errors": 0,
+          "warmup_requests": 3411,
+          "warmup_seconds": 20,
+          "workers": 16,
+          "tunnel_cpu_cores": {
+            "client": 0.023,
+            "server": 0.02
+          },
+          "whole_run_payload_mbit": 0.031169117581852774
+        },
+        {
+          "bytes": 23724609,
+          "canceled_requests": 16,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 0.006326324301404205,
+          "mean_latency_us": 18236141.3125,
+          "mode": "bulk",
+          "p50_us_upper": 18433000,
+          "p99_us_upper": 20590000,
+          "request_gap_seconds": 0,
+          "requests": 16,
+          "requests_per_second": 0.5333132614665392,
+          "seconds": 30.001129085,
+          "successful_workers": 16,
+          "total_seconds": 50.001129034,
+          "warmup_bytes": 18874368,
+          "warmup_errors": 0,
+          "warmup_requests": 18,
+          "warmup_seconds": 20,
+          "workers": 16,
+          "tunnel_cpu_cores": {
+            "client": 0.047,
+            "server": 0.047
+          },
+          "whole_run_payload_mbit": 6.815682417256355
+        }
+      ]
+    },
+    {
+      "name": "asymmetric-control-0",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/scripts/netns_bench.py",
+        "--binary",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-grace11",
+        "--output",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/wan-output14-regression/asymmetric-control-0",
+        "--source-ports",
+        "39941",
+        "37475",
+        "54359",
+        "52477",
+        "--client-cpus",
+        "0,1,2,3",
+        "--server-cpus",
+        "4,6",
+        "--workload-cpus",
+        "8,9,10,11",
+        "--open-timeout",
+        "15s",
+        "--dial-timeout",
+        "5s",
+        "--debug",
+        "--sessions",
+        "4",
+        "--packet-workers",
+        "2",
+        "--conversation-listener",
+        "--path-recovery",
+        "--preserve-connections",
+        "--client-flag",
+        "S",
+        "--server-flag",
+        "PA",
+        "--block",
+        "null",
+        "--kcp-options",
+        "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "--client-procs",
+        "4",
+        "--server-procs",
+        "2",
+        "--duration",
+        "30",
+        "--http-warmup",
+        "20",
+        "--workers",
+        "16",
+        "--mode",
+        "both",
+        "--bridge",
+        "--queue-packets",
+        "2048",
+        "--strict-rate",
+        "--delay-ms",
+        "40",
+        "--rate-mbit",
+        "50",
+        "--down-rate-mbit",
+        "10",
+        "--loss",
+        ".5",
+        "--reorder",
+        "5",
+        "--seed",
+        "804"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 105.39098763999937,
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      },
+      "matrix": "wan-output14-regression",
+      "binary_sha256": "8ba95e5436dbee0525f62f3494e13ad981874612043e9300a03584276d11099c",
+      "benchmark_helper_sha256": "11e08c7becbdbe41b517c854244f598737a9b4ad1bc679dcc155d41b9ecb2445",
+      "parameters": {
+        "binary": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-grace11",
+        "duration": 30,
+        "open_timeout": "15s",
+        "dial_timeout": "5s",
+        "cold_read_bytes": null,
+        "workers": 16,
+        "loss": 0.5,
+        "delay_ms": 40.0,
+        "jitter_ms": 0,
+        "reorder": 5.0,
+        "burst_loss": null,
+        "seed": 804,
+        "rate_mbit": 50,
+        "strict_rate": true,
+        "down_rate_mbit": 10,
+        "sessions": 4,
+        "max_sessions": 4,
+        "path_recovery": true,
+        "preserve_connections": true,
+        "shared_source": false,
+        "client_memory_mib": 0,
+        "server_memory_mib": 0,
+        "client_procs": 4,
+        "server_procs": 2,
+        "client_cpus": "0,1,2,3",
+        "server_cpus": "4,6",
+        "workload_cpus": "8,9,10,11",
+        "packet_workers": 2,
+        "conversation_listener": true,
+        "client_flag": "S",
+        "server_flag": "PA",
+        "source_ports": [
+          39941,
+          37475,
+          54359,
+          52477
+        ],
+        "hold": 0,
+        "enterprise": true,
+        "profile": false,
+        "debug": true,
+        "flow_sample": 1000,
+        "backend": "packet",
+        "duplex_http": false,
+        "mtu": 1500,
+        "ipv6": false,
+        "warmup": 0,
+        "http_warmup": 20,
+        "duplex_http_gap_ms": 0,
+        "duplex_http_steady": false,
+        "schedule": null,
+        "mode": "both",
+        "ramp_timeout": 600,
+        "queue_packets": 2048,
+        "fq_flow_limit": 0,
+        "fq_maxrate_mbit": 0,
+        "adaptive": "on",
+        "kcp_options": "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "functional": false,
+        "block": "null",
+        "fec": [
+          0,
+          0
+        ],
+        "iperf": false,
+        "iperf_rate_mbit": 0,
+        "pinned_lanes": false,
+        "iperf_directions": [
+          "upload",
+          "download",
+          "bidirectional"
+        ],
+        "direct_iperf": false,
+        "tcp_buffer_mib": 0,
+        "capture": false,
+        "restart": false,
+        "mixed": false,
+        "socket_buffer_mib": 0,
+        "host_backlog": 0,
+        "bridge": true,
+        "output": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/wan-output14-regression/asymmetric-control-0"
+      },
+      "processes": {
+        "target": {
+          "peak_rss_kib": 14812,
+          "peak_fds": 22,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 14812,
+          "rss_high_water_kib": 14812,
+          "cpu_seconds": 0.62
+        },
+        "server": {
+          "peak_rss_kib": 49116,
+          "peak_fds": 25,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 49116,
+          "rss_high_water_kib": 49116,
+          "cpu_seconds": 3.13
+        },
+        "client": {
+          "peak_rss_kib": 28712,
+          "peak_fds": 49,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 28712,
+          "rss_high_water_kib": 28712,
+          "cpu_seconds": 3.86
+        }
+      },
+      "kernel": "7.2.4-arch1-2",
+      "results": [
+        {
+          "verified_bytes": 1048576,
+          "cold_transfer_seconds": 2.2423257830014336
+        },
+        {
+          "bytes": 117964,
+          "canceled_requests": 16,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 3.145612823179898e-05,
+          "mean_latency_us": 89044.10406564715,
+          "mode": "http",
+          "p50_us_upper": 81000,
+          "p99_us_upper": 279000,
+          "request_gap_seconds": 0,
+          "requests": 5362,
+          "requests_per_second": 178.72800131703966,
+          "seconds": 30.000894994,
+          "successful_workers": 16,
+          "total_seconds": 50.000894944,
+          "warmup_bytes": 74514,
+          "warmup_errors": 0,
+          "warmup_requests": 3387,
+          "warmup_seconds": 20,
+          "workers": 16,
+          "tunnel_cpu_cores": {
+            "client": 0.023,
+            "server": 0.019
+          },
+          "whole_run_payload_mbit": 0.030795928787366145
+        },
+        {
+          "bytes": 19910026,
+          "canceled_requests": 16,
+          "error_kinds": {
+            "body_timeout": 11
+          },
+          "errors": 11,
+          "goodput_gbps": 0.005309218709980614,
+          "mean_latency_us": 8351332.555555556,
+          "mode": "bulk",
+          "p50_us_upper": 11240000,
+          "p99_us_upper": 12122000,
+          "request_gap_seconds": 0,
+          "requests": 9,
+          "requests_per_second": 0.2999931315372562,
+          "seconds": 30.000686862,
+          "successful_workers": 5,
+          "total_seconds": 50.000686762,
+          "warmup_bytes": 21390155,
+          "warmup_errors": 11,
+          "warmup_requests": 11,
+          "warmup_seconds": 20,
+          "workers": 16,
+          "tunnel_cpu_cores": {
+            "client": 0.052,
+            "server": 0.042
+          },
+          "whole_run_payload_mbit": 6.60793819838294
+        }
+      ]
+    },
+    {
+      "name": "loss-control-0",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/scripts/netns_bench.py",
+        "--binary",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-grace11",
+        "--output",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/wan-output14-regression/loss-control-0",
+        "--source-ports",
+        "39941",
+        "37475",
+        "54359",
+        "52477",
+        "--client-cpus",
+        "0,1,2,3",
+        "--server-cpus",
+        "4,6",
+        "--workload-cpus",
+        "8,9,10,11",
+        "--open-timeout",
+        "15s",
+        "--dial-timeout",
+        "5s",
+        "--debug",
+        "--sessions",
+        "4",
+        "--packet-workers",
+        "2",
+        "--conversation-listener",
+        "--path-recovery",
+        "--preserve-connections",
+        "--client-flag",
+        "S",
+        "--server-flag",
+        "PA",
+        "--block",
+        "null",
+        "--kcp-options",
+        "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "--client-procs",
+        "4",
+        "--server-procs",
+        "2",
+        "--duration",
+        "30",
+        "--http-warmup",
+        "20",
+        "--workers",
+        "16",
+        "--mode",
+        "both",
+        "--bridge",
+        "--queue-packets",
+        "2048",
+        "--strict-rate",
+        "--delay-ms",
+        "40",
+        "--rate-mbit",
+        "50",
+        "--loss",
+        ".5",
+        "--seed",
+        "809"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 104.80630366300466,
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      },
+      "matrix": "wan-output14-regression",
+      "binary_sha256": "8ba95e5436dbee0525f62f3494e13ad981874612043e9300a03584276d11099c",
+      "benchmark_helper_sha256": "11e08c7becbdbe41b517c854244f598737a9b4ad1bc679dcc155d41b9ecb2445",
+      "parameters": {
+        "binary": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-grace11",
+        "duration": 30,
+        "open_timeout": "15s",
+        "dial_timeout": "5s",
+        "cold_read_bytes": null,
+        "workers": 16,
+        "loss": 0.5,
+        "delay_ms": 40.0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "burst_loss": null,
+        "seed": 809,
+        "rate_mbit": 50,
+        "strict_rate": true,
+        "down_rate_mbit": null,
+        "sessions": 4,
+        "max_sessions": 4,
+        "path_recovery": true,
+        "preserve_connections": true,
+        "shared_source": false,
+        "client_memory_mib": 0,
+        "server_memory_mib": 0,
+        "client_procs": 4,
+        "server_procs": 2,
+        "client_cpus": "0,1,2,3",
+        "server_cpus": "4,6",
+        "workload_cpus": "8,9,10,11",
+        "packet_workers": 2,
+        "conversation_listener": true,
+        "client_flag": "S",
+        "server_flag": "PA",
+        "source_ports": [
+          39941,
+          37475,
+          54359,
+          52477
+        ],
+        "hold": 0,
+        "enterprise": true,
+        "profile": false,
+        "debug": true,
+        "flow_sample": 1000,
+        "backend": "packet",
+        "duplex_http": false,
+        "mtu": 1500,
+        "ipv6": false,
+        "warmup": 0,
+        "http_warmup": 20,
+        "duplex_http_gap_ms": 0,
+        "duplex_http_steady": false,
+        "schedule": null,
+        "mode": "both",
+        "ramp_timeout": 600,
+        "queue_packets": 2048,
+        "fq_flow_limit": 0,
+        "fq_maxrate_mbit": 0,
+        "adaptive": "on",
+        "kcp_options": "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "functional": false,
+        "block": "null",
+        "fec": [
+          0,
+          0
+        ],
+        "iperf": false,
+        "iperf_rate_mbit": 0,
+        "pinned_lanes": false,
+        "iperf_directions": [
+          "upload",
+          "download",
+          "bidirectional"
+        ],
+        "direct_iperf": false,
+        "tcp_buffer_mib": 0,
+        "capture": false,
+        "restart": false,
+        "mixed": false,
+        "socket_buffer_mib": 0,
+        "host_backlog": 0,
+        "bridge": true,
+        "output": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/wan-output14-regression/loss-control-0"
+      },
+      "processes": {
+        "target": {
+          "peak_rss_kib": 15084,
+          "peak_fds": 22,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 15084,
+          "rss_high_water_kib": 15084,
+          "cpu_seconds": 0.65
+        },
+        "server": {
+          "peak_rss_kib": 53224,
+          "peak_fds": 25,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 53224,
+          "rss_high_water_kib": 53224,
+          "cpu_seconds": 3.9
+        },
+        "client": {
+          "peak_rss_kib": 42560,
+          "peak_fds": 38,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 42560,
+          "rss_high_water_kib": 42560,
+          "cpu_seconds": 4.55
+        }
+      },
+      "kernel": "7.2.4-arch1-2",
+      "results": [
+        {
+          "verified_bytes": 1048576,
+          "cold_transfer_seconds": 1.7098146049975185
+        },
+        {
+          "bytes": 120582,
+          "canceled_requests": 16,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 3.215395505995259e-05,
+          "mean_latency_us": 87246.30505382229,
+          "mode": "http",
+          "p50_us_upper": 81000,
+          "p99_us_upper": 244000,
+          "request_gap_seconds": 0,
+          "requests": 5481,
+          "requests_per_second": 182.69292647700337,
+          "seconds": 30.001161543,
+          "successful_workers": 16,
+          "total_seconds": 50.001161489,
+          "warmup_bytes": 76516,
+          "warmup_errors": 0,
+          "warmup_requests": 3478,
+          "warmup_seconds": 20,
+          "workers": 16,
+          "tunnel_cpu_cores": {
+            "client": 0.021,
+            "server": 0.018
+          },
+          "whole_run_payload_mbit": 0.03153494745010842
+        },
+        {
+          "bytes": 148042451,
+          "canceled_requests": 16,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 0.03947774807058678,
+          "mean_latency_us": 3105763.1641791044,
+          "mode": "bulk",
+          "p50_us_upper": 2842000,
+          "p99_us_upper": 5841000,
+          "request_gap_seconds": 0,
+          "requests": 134,
+          "requests_per_second": 4.4666396409657425,
+          "seconds": 30.000181517,
+          "successful_workers": 16,
+          "total_seconds": 50.000181458,
+          "warmup_bytes": 113246208,
+          "warmup_errors": 0,
+          "warmup_requests": 108,
+          "warmup_seconds": 20,
+          "workers": 16,
+          "tunnel_cpu_cores": {
+            "client": 0.069,
+            "server": 0.059
+          },
+          "whole_run_payload_mbit": 41.80603371921467
+        }
+      ]
+    },
+    {
+      "name": "loss-candidate-0",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/scripts/netns_bench.py",
+        "--binary",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "--output",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/wan-output14-regression/loss-candidate-0",
+        "--source-ports",
+        "39941",
+        "37475",
+        "54359",
+        "52477",
+        "--client-cpus",
+        "0,1,2,3",
+        "--server-cpus",
+        "4,6",
+        "--workload-cpus",
+        "8,9,10,11",
+        "--open-timeout",
+        "15s",
+        "--dial-timeout",
+        "5s",
+        "--debug",
+        "--sessions",
+        "4",
+        "--packet-workers",
+        "2",
+        "--conversation-listener",
+        "--path-recovery",
+        "--preserve-connections",
+        "--client-flag",
+        "S",
+        "--server-flag",
+        "PA",
+        "--block",
+        "null",
+        "--kcp-options",
+        "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "--client-procs",
+        "4",
+        "--server-procs",
+        "2",
+        "--duration",
+        "30",
+        "--http-warmup",
+        "20",
+        "--workers",
+        "16",
+        "--mode",
+        "both",
+        "--bridge",
+        "--queue-packets",
+        "2048",
+        "--strict-rate",
+        "--delay-ms",
+        "40",
+        "--rate-mbit",
+        "50",
+        "--loss",
+        ".5",
+        "--seed",
+        "809"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 104.84000087700406,
+      "cleanup": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      },
+      "matrix": "wan-output14-regression",
+      "binary_sha256": "cd693a374a9f4ae3425a43138655920184d15b632b5fe0f9f20e48c99ffd3466",
+      "benchmark_helper_sha256": "11e08c7becbdbe41b517c854244f598737a9b4ad1bc679dcc155d41b9ecb2445",
+      "parameters": {
+        "binary": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "duration": 30,
+        "open_timeout": "15s",
+        "dial_timeout": "5s",
+        "cold_read_bytes": null,
+        "workers": 16,
+        "loss": 0.5,
+        "delay_ms": 40.0,
+        "jitter_ms": 0,
+        "reorder": 0,
+        "burst_loss": null,
+        "seed": 809,
+        "rate_mbit": 50,
+        "strict_rate": true,
+        "down_rate_mbit": null,
+        "sessions": 4,
+        "max_sessions": 4,
+        "path_recovery": true,
+        "preserve_connections": true,
+        "shared_source": false,
+        "client_memory_mib": 0,
+        "server_memory_mib": 0,
+        "client_procs": 4,
+        "server_procs": 2,
+        "client_cpus": "0,1,2,3",
+        "server_cpus": "4,6",
+        "workload_cpus": "8,9,10,11",
+        "packet_workers": 2,
+        "conversation_listener": true,
+        "client_flag": "S",
+        "server_flag": "PA",
+        "source_ports": [
+          39941,
+          37475,
+          54359,
+          52477
+        ],
+        "hold": 0,
+        "enterprise": true,
+        "profile": false,
+        "debug": true,
+        "flow_sample": 1000,
+        "backend": "packet",
+        "duplex_http": false,
+        "mtu": 1500,
+        "ipv6": false,
+        "warmup": 0,
+        "http_warmup": 20,
+        "duplex_http_gap_ms": 0,
+        "duplex_http_steady": false,
+        "schedule": null,
+        "mode": "both",
+        "ramp_timeout": 600,
+        "queue_packets": 2048,
+        "fq_flow_limit": 0,
+        "fq_maxrate_mbit": 0,
+        "adaptive": "on",
+        "kcp_options": "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "functional": false,
+        "block": "null",
+        "fec": [
+          0,
+          0
+        ],
+        "iperf": false,
+        "iperf_rate_mbit": 0,
+        "pinned_lanes": false,
+        "iperf_directions": [
+          "upload",
+          "download",
+          "bidirectional"
+        ],
+        "direct_iperf": false,
+        "tcp_buffer_mib": 0,
+        "capture": false,
+        "restart": false,
+        "mixed": false,
+        "socket_buffer_mib": 0,
+        "host_backlog": 0,
+        "bridge": true,
+        "output": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/wan-output14-regression/loss-candidate-0"
+      },
+      "processes": {
+        "target": {
+          "peak_rss_kib": 15192,
+          "peak_fds": 22,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 15192,
+          "rss_high_water_kib": 15192,
+          "cpu_seconds": 0.66
+        },
+        "server": {
+          "peak_rss_kib": 64464,
+          "peak_fds": 25,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 64464,
+          "rss_high_water_kib": 64464,
+          "cpu_seconds": 4.01
+        },
+        "client": {
+          "peak_rss_kib": 46364,
+          "peak_fds": 38,
+          "peak_swap_kib": 0,
+          "peak_rss_plus_swap_kib": 46364,
+          "rss_high_water_kib": 46364,
+          "cpu_seconds": 4.72
+        }
+      },
+      "kernel": "7.2.4-arch1-2",
+      "results": [
+        {
+          "verified_bytes": 1048576,
+          "cold_transfer_seconds": 1.7316951259999769
+        },
+        {
+          "bytes": 120076,
+          "canceled_requests": 16,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 3.201938255281218e-05,
+          "mean_latency_us": 87560.61267863687,
+          "mode": "http",
+          "p50_us_upper": 81000,
+          "p99_us_upper": 245000,
+          "request_gap_seconds": 0,
+          "requests": 5458,
+          "requests_per_second": 181.92830995916012,
+          "seconds": 30.000828355,
+          "successful_workers": 16,
+          "total_seconds": 50.000828303,
+          "warmup_bytes": 76802,
+          "warmup_errors": 0,
+          "warmup_requests": 3491,
+          "warmup_seconds": 20,
+          "workers": 16,
+          "tunnel_cpu_cores": {
+            "client": 0.022,
+            "server": 0.018
+          },
+          "whole_run_payload_mbit": 0.031499958169802965
+        },
+        {
+          "bytes": 147804487,
+          "canceled_requests": 16,
+          "error_kinds": {},
+          "errors": 0,
+          "goodput_gbps": 0.039412917080903366,
+          "mean_latency_us": 3138609.5714285714,
+          "mode": "bulk",
+          "p50_us_upper": 2992000,
+          "p99_us_upper": 5379000,
+          "request_gap_seconds": 0,
+          "requests": 133,
+          "requests_per_second": 4.433151927722049,
+          "seconds": 30.001227607,
+          "successful_workers": 16,
+          "total_seconds": 50.001227557,
+          "warmup_bytes": 111149056,
+          "warmup_errors": 0,
+          "warmup_requests": 106,
+          "warmup_seconds": 20,
+          "workers": 16,
+          "tunnel_cpu_cores": {
+            "client": 0.071,
+            "server": 0.061
+          },
+          "whole_run_payload_mbit": 41.43154968822319
+        }
+      ]
+    }
+  ],
+  "functional": [
+    {
+      "name": "repeat-established",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/scripts/path_recovery_bench.py",
+        "--binary",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "--case",
+        "repeat-established",
+        "--output",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/functional-output14/repeat-established",
+        "--preserve-connections",
+        "--sequenced-payloads",
+        "--held-payload-bytes",
+        "32768",
+        "--packet-workers",
+        "2",
+        "--stall-seconds",
+        "10"
+      ],
+      "exit_code": 0,
+      "seconds": 57.5359183890032,
+      "binary_sha256": "cd693a374a9f4ae3425a43138655920184d15b632b5fe0f9f20e48c99ffd3466",
+      "cleanup.json": {
+        "spq-rec-c-176171_owned_rules_removed": true,
+        "spq-rec-s-176171_owned_rules_removed": true,
+        "unrelated_rule_preserved": true,
+        "namespaces_removed": true
+      },
+      "results": {
+        "case": "repeat-established",
+        "recovery_grace_seconds": 0,
+        "expect_session_loss": false,
+        "probe_outage_seconds": 70,
+        "shared_source": false,
+        "preserve_connections": true,
+        "packet_workers": 2,
+        "held_payload_bytes": 32768,
+        "sequenced_payloads": true,
+        "sha256": "cd693a374a9f4ae3425a43138655920184d15b632b5fe0f9f20e48c99ffd3466",
+        "server_sha256": "cd693a374a9f4ae3425a43138655920184d15b632b5fe0f9f20e48c99ffd3466",
+        "expect_backend_preservation": false,
+        "client_pid": 176264,
+        "events": [
+          {
+            "event": "injected",
+            "at": 5.423768186999951
+          },
+          {
+            "event": "repeated_tuple_drop",
+            "port": 32958,
+            "at": 32.02991595500498
+          },
+          {
+            "event": "config_reload",
+            "at": 47.25502783000411
+          }
+        ],
+        "recovered": [
+          {
+            "time": "2026-10-12T01:11:35.026203718+03:30",
+            "level": "WARN",
+            "msg": "path.recovered",
+            "peer": "broken",
+            "session": 0,
+            "old_source_port": 29997,
+            "new_source_port": 32958,
+            "local": {
+              "IP": "198.18.0.1",
+              "Port": 32958,
+              "Zone": ""
+            },
+            "connections_preserved": true,
+            "preservation_reason": "preserved",
+            "preservation_error": null,
+            "old_close_reason": "",
+            "reason": "fresh carrier tuple verified after transport stalled"
+          },
+          {
+            "time": "2026-10-12T01:12:02.017185444+03:30",
+            "level": "WARN",
+            "msg": "path.recovered",
+            "peer": "broken",
+            "session": 0,
+            "old_source_port": 32958,
+            "new_source_port": 35858,
+            "local": {
+              "IP": "198.18.0.1",
+              "Port": 35858,
+              "Zone": ""
+            },
+            "connections_preserved": true,
+            "preservation_reason": "preserved",
+            "preservation_error": null,
+            "old_close_reason": "",
+            "reason": "fresh carrier tuple verified after transport stalled"
+          }
+        ],
+        "failed_probes": [],
+        "healthy_successes": 176,
+        "healthy_errors": [],
+        "broken_successes_after_45s": 76,
+        "broken_errors": 0,
+        "first_success_after_fault": {
+          "peer": "broken",
+          "held": 2,
+          "at": 6.157244150002953,
+          "ok": true
+        },
+        "wire": {
+          "packets": {
+            "outbound_S": 16379,
+            "return_PA": 17077,
+            "kernel_RST_without_payload": 33
+          },
+          "sources": {
+            "29996": {
+              "seq": 2,
+              "timestamp": 753516203
+            },
+            "29997": {
+              "seq": 2,
+              "timestamp": 753516358
+            },
+            "29995": {
+              "seq": 2,
+              "timestamp": 753516610
+            },
+            "29993": {
+              "seq": 2,
+              "timestamp": 753516857
+            },
+            "29991": {
+              "seq": 2,
+              "timestamp": 753517105
+            },
+            "32958": {
+              "seq": 2,
+              "timestamp": 753532221
+            },
+            "35858": {
+              "seq": 2,
+              "timestamp": 753559224
+            }
+          },
+          "backend_seed_retained": true
+        },
+        "stall_seconds": 10,
+        "established_streams_preserved": 4,
+        "source_change_at_seconds": 16.29361973900086,
+        "recovery_after_injection_seconds": 10.86985155200091,
+        "healthy_sibling_carriers_preserved": true,
+        "logical_carriers_preserved": true,
+        "live_sibling_rules_preserved": true,
+        "retired_tuple_rules_removed": true,
+        "healthy_carriers_preserved": true,
+        "fixed_four_ceiling_verified": true
+      }
+    },
+    {
+      "name": "reverse-established",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/scripts/path_recovery_bench.py",
+        "--binary",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "--case",
+        "reverse-established",
+        "--output",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/functional-output14/reverse-established",
+        "--preserve-connections",
+        "--sequenced-payloads",
+        "--held-payload-bytes",
+        "32768",
+        "--packet-workers",
+        "2",
+        "--stall-seconds",
+        "10"
+      ],
+      "exit_code": 0,
+      "seconds": 57.58458394000627,
+      "binary_sha256": "cd693a374a9f4ae3425a43138655920184d15b632b5fe0f9f20e48c99ffd3466",
+      "cleanup.json": {
+        "spq-rec-c-177029_owned_rules_removed": true,
+        "spq-rec-s-177029_owned_rules_removed": true,
+        "unrelated_rule_preserved": true,
+        "namespaces_removed": true
+      },
+      "results": {
+        "case": "reverse-established",
+        "recovery_grace_seconds": 0,
+        "expect_session_loss": false,
+        "probe_outage_seconds": 70,
+        "shared_source": false,
+        "preserve_connections": true,
+        "packet_workers": 2,
+        "held_payload_bytes": 32768,
+        "sequenced_payloads": true,
+        "sha256": "cd693a374a9f4ae3425a43138655920184d15b632b5fe0f9f20e48c99ffd3466",
+        "server_sha256": "cd693a374a9f4ae3425a43138655920184d15b632b5fe0f9f20e48c99ffd3466",
+        "expect_backend_preservation": false,
+        "client_pid": 177125,
+        "events": [
+          {
+            "event": "injected",
+            "at": 5.428738107999379
+          },
+          {
+            "event": "config_reload",
+            "at": 47.23389534599846
+          }
+        ],
+        "recovered": [
+          {
+            "time": "2026-10-12T01:12:33.672488616+03:30",
+            "level": "WARN",
+            "msg": "path.recovered",
+            "peer": "broken",
+            "session": 0,
+            "old_source_port": 29997,
+            "new_source_port": 57314,
+            "local": {
+              "IP": "198.18.0.1",
+              "Port": 57314,
+              "Zone": ""
+            },
+            "connections_preserved": true,
+            "preservation_reason": "preserved",
+            "preservation_error": null,
+            "old_close_reason": "",
+            "reason": "fresh carrier tuple verified after transport stalled"
+          }
+        ],
+        "failed_probes": [],
+        "healthy_successes": 176,
+        "healthy_errors": [],
+        "broken_successes_after_45s": 75,
+        "broken_errors": 0,
+        "first_success_after_fault": {
+          "peer": "broken",
+          "held": 3,
+          "at": 6.184686527994927,
+          "ok": true
+        },
+        "wire": {
+          "packets": {
+            "outbound_S": 16871,
+            "return_PA": 17687
+          },
+          "sources": {
+            "29996": {
+              "seq": 2,
+              "timestamp": 753573769
+            },
+            "29997": {
+              "seq": 2,
+              "timestamp": 753573921
+            },
+            "29995": {
+              "seq": 2,
+              "timestamp": 753574173
+            },
+            "29993": {
+              "seq": 2,
+              "timestamp": 753574421
+            },
+            "29991": {
+              "seq": 2,
+              "timestamp": 753574670
+            },
+            "57314": {
+              "seq": 2,
+              "timestamp": 753590791
+            }
+          },
+          "backend_seed_retained": true
+        },
+        "stall_seconds": 10,
+        "established_streams_preserved": 4,
+        "source_change_at_seconds": 17.407712031999836,
+        "recovery_after_injection_seconds": 11.978973924000456,
+        "healthy_sibling_carriers_preserved": true,
+        "logical_carriers_preserved": true,
+        "live_sibling_rules_preserved": true,
+        "retired_tuple_rules_removed": true,
+        "healthy_carriers_preserved": true,
+        "fixed_four_ceiling_verified": true
+      }
+    },
+    {
+      "name": "reload",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/scripts/live_reload_netns_test.py",
+        "--binary",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+        "--output",
+        "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/functional-output14/reload",
+        "--streams",
+        "32",
+        "--carriers",
+        "4",
+        "--packet-workers",
+        "2",
+        "--small-write-flush",
+        "256",
+        "--cycles",
+        "3"
+      ],
+      "exit_code": 0,
+      "seconds": 27.07590731899836,
+      "binary_sha256": "cd693a374a9f4ae3425a43138655920184d15b632b5fe0f9f20e48c99ffd3466",
+      "results": {
+        "binary_sha256": "cd693a374a9f4ae3425a43138655920184d15b632b5fe0f9f20e48c99ffd3466",
+        "steps": [
+          {
+            "name": "initial TCP and UDP",
+            "groups": {
+              "a": {
+                "bytes": 81920,
+                "errors": 0,
+                "responses": 160,
+                "established": 32,
+                "running": 32
+              },
+              "b": {
+                "bytes": 42496,
+                "errors": 0,
+                "responses": 83,
+                "established": 32,
+                "running": 32
+              }
+            },
+            "continuity_wait_ms": 100.256
+          },
+          {
+            "name": "invalid config retains active paths",
+            "groups": {
+              "a": {
+                "bytes": 212992,
+                "errors": 0,
+                "responses": 416,
+                "established": 32,
+                "running": 32
+              },
+              "b": {
+                "bytes": 192512,
+                "errors": 0,
+                "responses": 376,
+                "established": 32,
+                "running": 32
+              }
+            },
+            "continuity_wait_ms": 100.315
+          },
+          {
+            "name": "add peer, listener, TCP and UDP forwards",
+            "groups": {
+              "a": {
+                "bytes": 448512,
+                "errors": 0,
+                "responses": 876,
+                "established": 32,
+                "running": 32
+              },
+              "b": {
+                "bytes": 498688,
+                "errors": 0,
+                "responses": 974,
+                "established": 32,
+                "running": 32
+              },
+              "c": {
+                "bytes": 16384,
+                "errors": 0,
+                "responses": 32,
+                "established": 8,
+                "running": 8
+              }
+            },
+            "continuity_wait_ms": 100.221
+          },
+          {
+            "name": "target edits preserve established TCP",
+            "groups": {
+              "a": {
+                "bytes": 567296,
+                "errors": 0,
+                "responses": 1108,
+                "established": 32,
+                "running": 32
+              },
+              "b": {
+                "bytes": 627200,
+                "errors": 0,
+                "responses": 1225,
+                "established": 32,
+                "running": 32
+              },
+              "c": {
+                "bytes": 61440,
+                "errors": 0,
+                "responses": 120,
+                "established": 8,
+                "running": 8
+              }
+            },
+            "continuity_wait_ms": 100.298
+          },
+          {
+            "name": "live limits, logging, deadlines and profiling",
+            "groups": {
+              "a": {
+                "bytes": 718336,
+                "errors": 0,
+                "responses": 1403,
+                "established": 32,
+                "running": 32
+              },
+              "b": {
+                "bytes": 763904,
+                "errors": 0,
+                "responses": 1492,
+                "established": 32,
+                "running": 32
+              },
+              "c": {
+                "bytes": 110592,
+                "errors": 0,
+                "responses": 216,
+                "established": 8,
+                "running": 8
+              }
+            },
+            "continuity_wait_ms": 100.252
+          },
+          {
+            "name": "SIGHUP reload with polling disabled",
+            "groups": {
+              "a": {
+                "bytes": 1017856,
+                "errors": 0,
+                "responses": 1988,
+                "established": 32,
+                "running": 32
+              },
+              "b": {
+                "bytes": 1140736,
+                "errors": 0,
+                "responses": 2228,
+                "established": 32,
+                "running": 32
+              },
+              "c": {
+                "bytes": 188416,
+                "errors": 0,
+                "responses": 368,
+                "established": 8,
+                "running": 8
+              }
+            },
+            "continuity_wait_ms": 100.294
+          },
+          {
+            "name": "busy addition rolls back without interrupting paths",
+            "groups": {
+              "a": {
+                "bytes": 1205248,
+                "errors": 0,
+                "responses": 2354,
+                "established": 32,
+                "running": 32
+              },
+              "b": {
+                "bytes": 1366016,
+                "errors": 0,
+                "responses": 2668,
+                "established": 32,
+                "running": 32
+              },
+              "c": {
+                "bytes": 233472,
+                "errors": 0,
+                "responses": 456,
+                "established": 8,
+                "running": 8
+              }
+            },
+            "continuity_wait_ms": 100.255
+          },
+          {
+            "name": "unchanged config retries temporary bind failure",
+            "groups": {
+              "a": {
+                "bytes": 2716672,
+                "errors": 0,
+                "responses": 5306,
+                "established": 32,
+                "running": 32
+              },
+              "b": {
+                "bytes": 3017728,
+                "errors": 0,
+                "responses": 5894,
+                "established": 32,
+                "running": 32
+              },
+              "c": {
+                "bytes": 569344,
+                "errors": 0,
+                "responses": 1112,
+                "established": 8,
+                "running": 8
+              }
+            },
+            "continuity_wait_ms": 100.204
+          },
+          {
+            "name": "removed TCP binds retain established streams",
+            "groups": {
+              "a": {
+                "bytes": 2896896,
+                "errors": 0,
+                "responses": 5658,
+                "established": 32,
+                "running": 32
+              },
+              "b": {
+                "bytes": 3256320,
+                "errors": 0,
+                "responses": 6360,
+                "established": 32,
+                "running": 32
+              },
+              "c": {
+                "bytes": 655360,
+                "errors": 0,
+                "responses": 1280,
+                "established": 8,
+                "running": 8
+              }
+            },
+            "continuity_wait_ms": 100.329
+          },
+          {
+            "name": "remove unused peer and owned rules",
+            "groups": {
+              "a": {
+                "bytes": 3027968,
+                "errors": 0,
+                "responses": 5914,
+                "established": 32,
+                "running": 32
+              },
+              "b": {
+                "bytes": 3407872,
+                "errors": 0,
+                "responses": 6656,
+                "established": 32,
+                "running": 32
+              }
+            },
+            "continuity_wait_ms": 100.231
+          },
+          {
+            "name": "KCP retransmission settings update established carriers",
+            "groups": {
+              "a": {
+                "bytes": 3154944,
+                "errors": 0,
+                "responses": 6162,
+                "established": 32,
+                "running": 32
+              },
+              "b": {
+                "bytes": 3489792,
+                "errors": 0,
+                "responses": 6816,
+                "established": 32,
+                "running": 32
+              }
+            },
+            "continuity_wait_ms": 100.251
+          },
+          {
+            "name": "listener retransmission settings update established carriers",
+            "groups": {
+              "a": {
+                "bytes": 3372032,
+                "errors": 0,
+                "responses": 6586,
+                "established": 32,
+                "running": 32
+              },
+              "b": {
+                "bytes": 3588096,
+                "errors": 0,
+                "responses": 7008,
+                "established": 32,
+                "running": 32
+              }
+            },
+            "continuity_wait_ms": 100.219
+          },
+          {
+            "name": "structural window edit replaces only affected peer",
+            "groups": {
+              "b": {
+                "bytes": 3854336,
+                "errors": 0,
+                "responses": 7528,
+                "established": 32,
+                "running": 32
+              }
+            },
+            "continuity_wait_ms": 100.161
+          },
+          {
+            "name": "listener transport edit replaces only affected listener",
+            "groups": {
+              "b": {
+                "bytes": 4022272,
+                "errors": 0,
+                "responses": 7856,
+                "established": 32,
+                "running": 32
+              }
+            },
+            "continuity_wait_ms": 100.304
+          },
+          {
+            "name": "endpoint cipher rotation preserves unrelated peer",
+            "groups": {
+              "b": {
+                "bytes": 4446720,
+                "errors": 0,
+                "responses": 8685,
+                "established": 32,
+                "running": 32
+              }
+            },
+            "continuity_wait_ms": 100.118
+          },
+          {
+            "name": "null cipher and pcap driver replacement",
+            "groups": {
+              "b": {
+                "bytes": 4889088,
+                "errors": 0,
+                "responses": 9549,
+                "established": 32,
+                "running": 32
+              }
+            },
+            "continuity_wait_ms": 100.314
+          },
+          {
+            "name": "packet driver fanout restoration preserves unrelated peer",
+            "groups": {
+              "b": {
+                "bytes": 5396992,
+                "errors": 0,
+                "responses": 10541,
+                "established": 32,
+                "running": 32
+              }
+            },
+            "continuity_wait_ms": 100.332
+          },
+          {
+            "name": "repeated add/remove cycles preserve active traffic",
+            "groups": {
+              "b": {
+                "bytes": 7780864,
+                "errors": 0,
+                "responses": 15197,
+                "established": 32,
+                "running": 32
+              }
+            },
+            "continuity_wait_ms": 100.46
+          },
+          {
+            "name": "metrics bind move preserves data plane",
+            "groups": {
+              "b": {
+                "bytes": 7866880,
+                "errors": 0,
+                "responses": 15365,
+                "established": 32,
+                "running": 32
+              }
+            },
+            "continuity_wait_ms": 100.327
+          }
+        ],
+        "listener_packet_workers": 2,
+        "streams_per_original_peer": 32,
+        "one_way_delay_ms": 0,
+        "reverse_delay_ms": null,
+        "loss_percent": 0,
+        "rate_mbit": 0,
+        "reverse_rate_mbit": 0,
+        "reorder_percent": 0,
+        "carriers_per_original_peer": 4,
+        "shared_source": false,
+        "validation_prestart": {
+          "client": {
+            "forwards": 4,
+            "listeners": 0,
+            "path": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/functional-output14/reload/client.yaml",
+            "peers": 2,
+            "valid": true
+          },
+          "server": {
+            "forwards": 0,
+            "listeners": 2,
+            "path": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/functional-output14/reload/server.yaml",
+            "peers": 0,
+            "valid": true
+          }
+        },
+        "initial_capture_worker_packets_by_listener": [
+          [
+            0,
+            0,
+            138
+          ],
+          [
+            0,
+            1,
+            126
+          ],
+          [
+            1,
+            0,
+            149
+          ],
+          [
+            1,
+            1,
+            176
+          ]
+        ],
+        "all_workers_exercised_on_a_listener": true,
+        "validation_while_running": {
+          "forwards": 4,
+          "listeners": 0,
+          "path": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/functional-output14/reload/client.yaml",
+          "peers": 2,
+          "valid": true
+        },
+        "affected_peer_closed": {
+          "bytes": 3568640,
+          "errors": 32,
+          "responses": 6970,
+          "established": 32,
+          "running": 0
+        },
+        "half_closed_relays_released": true,
+        "cycle_fd_counts": {
+          "before": 55,
+          "after": 55,
+          "cycles": 3
+        },
+        "client_revision": 23,
+        "server_revision": 7,
+        "final_groups": {
+          "b": {
+            "bytes": 7895552,
+            "errors": 0,
+            "responses": 15421,
+            "established": 32,
+            "running": 32
+          }
+        },
+        "same_processes": true,
+        "passed": true,
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      }
+    }
+  ],
+  "native_library": {
+    "source": "3d4387f036036a2157f387795626401857f0bfc9",
+    "command": [
+      "go",
+      "test",
+      "-C",
+      "third_party/kcp-go",
+      "./..."
+    ],
+    "exit_code": 0,
+    "seconds": 137.51849553799548
+  },
+  "build": {
+    "source": "3d4387f036036a2157f387795626401857f0bfc9",
+    "command": [
+      "go",
+      "build",
+      "-trimpath",
+      "-ldflags",
+      "-X paqet/cmd/version.Version=enterprise-2026.10.11-opening.7 -X paqet/cmd/version.GitCommit=3d4387f036036a2157f387795626401857f0bfc9",
+      "-o",
+      "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14-committed",
+      "./cmd"
+    ],
+    "exit_code": 0,
+    "worktree_clean": true,
+    "binary_sha256": "cd693a374a9f4ae3425a43138655920184d15b632b5fe0f9f20e48c99ffd3466"
+  },
+  "race_vet": {
+    "source": "7a42c0c2779d9dd233c18c440c541af6541cf147",
+    "checks": [
+      {
+        "command": [
+          "go",
+          "test",
+          "-race",
+          "-run",
+          "Test(LocalDrops|OutputDropCounters|LowRTTQueuePacing|QueuedControlTraffic|SmallACKsWithBulk|LegacyRTTJitter)",
+          "-count=5",
+          "./internal/engine"
+        ],
+        "exit_code": 0,
+        "seconds": 2.3773107410015655
+      },
+      {
+        "command": [
+          "go",
+          "test",
+          "-race",
+          "./..."
+        ],
+        "exit_code": 0,
+        "seconds": 7.726068670999666
+      },
+      {
+        "command": [
+          "go",
+          "vet",
+          "./..."
+        ],
+        "exit_code": 0,
+        "seconds": 0.43538234299921896
+      },
+      {
+        "command": [
+          "go",
+          "test",
+          "-C",
+          "third_party/kcp-go",
+          "-race",
+          "-run",
+          "Test(Migration|SharedOutputLoss)",
+          "-count=3",
+          "./..."
+        ],
+        "exit_code": 0,
+        "seconds": 1.8562263200001325
+      },
+      {
+        "command": [
+          "go",
+          "vet",
+          "-C",
+          "third_party/kcp-go",
+          "./..."
+        ],
+        "exit_code": 0,
+        "seconds": 0.05794676599907689
+      },
+      {
+        "command": [
+          "go",
+          "build",
+          "-trimpath",
+          "-ldflags",
+          "-X paqet/cmd/version.Version=enterprise-2026.10.11-opening.7 -X paqet/cmd/version.GitCommit=7a42c0c2779d9dd233c18c440c541af6541cf147",
+          "-o",
+          "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009/binaries/opening-output14",
+          "./cmd"
+        ],
+        "exit_code": 0,
+        "seconds": 1.17280694800138
+      }
+    ],
+    "binary_sha256": "30bf712db52af124e641d1b7357ddc2d4faa14ae603d206dea122948a0ec0095",
+    "worktree_patch_sha256": "d0ab4d49d00e812a644ce80e35bea3afce63f55812f33b732e20c181f8cc2fe7",
+    "source_note": "tests ran on parent plus preserved implementation patch, committed as candidate source above; full native library ran on the committed source"
+  }
+}

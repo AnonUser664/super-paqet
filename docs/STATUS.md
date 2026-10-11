@@ -1,5 +1,29 @@
 # Current deployment status
 
+Latest local checkpoint: source `3d4387f`, executable SHA-256
+`cd693a374a9f4ae3425a43138655920184d15b632b5fe0f9f20e48c99ffd3466`.
+The [per-carrier output-pressure qualification](output-pressure-carrier-qualification-2026-10-12.json)
+records two pooled-pressure pairs against the exact production executable:
+combined bulk median **213.24 → 347.07 Mbit/s**, small-request mean
+**1923.91 → 118.65 ms**, and p99 **3671 → 204.5 ms**, with zero errors.
+Two clean pairs against the preceding local controller retain median upload
+**5.54 → 5.66 Gbit/s** and download **4.21 → 4.23 Gbit/s**.
+Asymmetric/reordered and symmetric-loss comparisons, repeated/reverse carrier
+recovery, and two-worker live reload pass for the candidate. Its asymmetric
+control has body timeouts, retained in the receipt; conditional body-latency
+quantiles are consequently not an uncensored latency comparison.
+Root race/vet, targeted library races and the full native library suite pass.
+Direct production WAN comparisons and the exact-artifact 100,000-connection hold
+remain pending. This candidate is **local and not deployed or release-qualified**.
+
+The [latest read-only production refresh](production-followup-2026-10-12.json)
+through approximately 21:42 UTC on 11 October finds healthy services, unchanged
+tunnel/config/Xray identities, zero automatic restarts, no selected journal
+warnings or opening-error/retry counter increases since 20:30 UTC. Finland's
+worker-0 transmit-drop count rises by 2,714; shared-worker totals cannot identify
+the affected carrier. The candidate uses precisely attributed batch losses
+rather than propagating that worker's pressure to other clients.
+
 All five hosts run **enterprise-2026.10.09-latency.1** under enabled
 `super-paqet.service`. Runtime source `276c43a70873670a7e1665283620aba38594b1ab`,
 SHA-256 `256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958`.
@@ -51,7 +75,7 @@ original handshake. Earlier candidate hold/migration/reload controls pass, and
 new clean bulk/legacy-client compatibility controls pass. Two ordinary pooled
 pressure pairs fail throughput/latency limits; a longer warmed reordering run also
 reports eight response-body timeouts. These failed gates remain in the record.
-Current candidate source `a348c5c`, SHA-256
+At that earlier checkpoint, candidate source `a348c5c`, SHA-256
 `076cbd29ca7c6eec46bf1e1c6001d3194eea9a5f875ee45b18c22bbd10f506a3`, is
 **unqualified for production rollout**. Queue experiments were rejected and are
 absent from this runtime. No candidate binary/configuration has been promoted to
@@ -83,7 +107,8 @@ the two large echo workloads pass. Two matched asymmetric download pairs improve
 median throughput by 18.44%; a loss-only pair shows similar delivery without
 errors. The pooled-pressure gate still fails throughput/latency limits. A further
 local low-RTT congestion-pacing candidate passes corrected model/race/vet checks,
-but its performance comparisons are pending.
+but fails its standalone pooled latency comparison. The subsequent per-carrier
+output-feedback candidate and its current coverage are summarized above.
 The first full library race attempt hit its ten-minute deadline and remains a
 failed receipt. Test fixtures now explicitly release their accepted carriers.
 No new candidate has been deployed; see the

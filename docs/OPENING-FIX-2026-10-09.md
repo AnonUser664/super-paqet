@@ -776,3 +776,55 @@ Application race/vet and repeated migration/attribution races pass. Debug logs
 add exact `carrier_output_drop_delta`/`carrier_output_drops_total`, keeping these
 separate from socket-scoped `tx_queue_drops`. Corrected-policy benchmarks remain
 pending; the earlier shared-worker executable is not promoted.
+
+### Precisely attributed feedback: current qualification checkpoint
+
+Source `3d4387f`, exact executable `cd693a37…`, passes the full native KCP suite
+including the large echo workloads. The preserved pre-commit implementation patch
+also passes root race/vet, five focused controller race repetitions, and three
+library migration/shared-output-attribution race repetitions. No candidate binary
+is installed on production.
+
+The [candidate receipts](output-pressure-carrier-qualification-2026-10-12.json)
+retain complete commands, hashes, configurations, placements, resource peaks,
+cleanup and comparison limits. In two ordinary four-slot pooled pressure pairs
+against the exact production executable, median combined bulk changes from
+213.24 to 347.07 Mbit/s (+62.76%); small-request mean changes from 1923.91 to
+118.65 ms and p99 from 3671 to 204.5 ms. All request errors are zero. The 50 Mbit/s
+fq setting limits individual kernel flows, not aggregate physical link capacity.
+Placement varies, so these are finite paired medians, not per-run guarantees.
+Debug samples confirm actual per-carrier local-output-pressure observations in
+both endpoint roles. Shared worker counters are excluded from controller inputs.
+
+Two clean pairs retain four fixed one-carrier peers, null crypto, two capture
+workers, pinned equal four-thread endpoint CPU budgets, and 16 streams. Median
+upload changes from 5.535 to 5.658 Gbit/s (+2.21%) and download from 4.211 to
+4.226 Gbit/s (+0.36%), within the 5% bulk limit. These comparisons use preceding
+controller `8ef31b9`; they do not explain the remaining directional rate gap.
+
+On the independently capped 50/10 Mbit/s link with 80 ms RTT, 0.5% loss and 5%
+reordering, the candidate has zero request errors; its predecessor has 11 body
+timeouts (the same 11 included as warmup errors). Whole-run body payload rates
+are 6.816 versus 6.608 Mbit/s. Small HTTP mean/p99 are 87.95/261 ms versus
+89.04/279 ms. Candidate body p99 is 20.59 seconds versus a conditional 12.122
+seconds in the failing control; censoring prevents calling this an uncensored
+latency regression or improvement. On the symmetric 50 Mbit/s, 80 ms RTT,
+0.5%-loss link, both versions have zero errors: body rates are 41.432 versus
+41.806 Mbit/s, means 3.139 versus 3.106 seconds, and p99 5.379 versus 5.841
+seconds. The previous executable's single-pair body-tail regression is not
+reproduced here; its adverse receipt remains intact.
+
+Repeated outbound and reverse-path tuple failures retain all four established
+streams exchanging sequenced 32 KiB payloads. Healthy peers report zero errors;
+only the affected carrier changes source tuple. Capture verifies S outbound/PA
+return and retained backend sequence seed. Two-worker live reload with 32 streams
+per original peer, four carriers and three remove/re-add cycles passes, exercises
+both workers, keeps process identities and releases half-closed relays. Client
+file descriptors return to 55 after starting at 55. Owned namespaces/rules are
+removed and unrelated sentinel rules remain.
+
+Direct comparisons against production on the two WAN shapes and a longer
+100,000-connection hold of this exact artifact remain pending. Production refresh
+through 21:42 UTC finds no new selected warnings or opening-error increments;
+Finland adds 2,714 transmit drops, a concrete reason to finish the feedback
+qualification. Production binaries, configs and Xray identities remain unchanged.

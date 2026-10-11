@@ -1,0 +1,597 @@
+{
+  "production_changed": false,
+  "interval_start_utc": "2026-10-11T20:30:00Z",
+  "hosts": [
+    {
+      "host": "116.202.177.233",
+      "observed_utc": "2026-10-11T21:42:14.782991+00:00",
+      "unit": {
+        "rc": 0,
+        "out": "MainPID=960629\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 21:49:14 UTC\nMemoryCurrent=117018624\nTasksCurrent=20\nActiveState=active\nUnitFileState=enabled\n",
+        "err": ""
+      },
+      "health": "ok\n",
+      "running_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+      "same_running_hash": true,
+      "same_config_hash": true,
+      "same_xray_process_identities": true,
+      "bounded_journal": {
+        "rc": 0,
+        "out": "",
+        "err": ""
+      },
+      "observer": {
+        "completed": false,
+        "until": "2026-10-12T16:38:30.972406+00:00",
+        "journal_recorder": {
+          "records": 1,
+          "cursor_resume": false,
+          "last_realtime_usec": "1791744090926586"
+        },
+        "first_utc": "2026-10-11T16:38:45.551255+00:00",
+        "last_utc": "2026-10-11T21:42:12.810370+00:00",
+        "samples": 1813,
+        "triggers": {
+          "errors_total_increased": 1
+        },
+        "peak_active": 2587.0,
+        "peak_rss_kib": 114260,
+        "peak_fds": 2599,
+        "runs": {
+          "960629": {
+            "first_utc": "2026-10-11T16:38:45.551255+00:00",
+            "last_counters": {
+              "errors_total": 3251.0,
+              "rejected_total": 0.0,
+              "opening_transport_retries_total": 0.0,
+              "config_reload_rejected_total": 0.0,
+              "path_recovery_attempts_total": 0.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 0.0,
+              "log_dropped_total": 0.0
+            },
+            "last_utc": "2026-10-11T21:42:12.810370+00:00"
+          }
+        },
+        "observed_processes": 1,
+        "counter_deltas": {
+          "errors_total": 1734.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        },
+        "captures": 1
+      },
+      "metrics_before": {
+        "super_paqet_active_connections": 2071.0,
+        "super_paqet_errors_total": 3251.0,
+        "super_paqet_opening_transport_retries_total": 0.0,
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"0\"}": 0.0,
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"1\"}": 0.0,
+        "super_paqet_listener_tx_queue_drops{listener=\"1\",worker=\"0\"}": 0.0,
+        "super_paqet_listener_tx_queue_drops{listener=\"1\",worker=\"1\"}": 0.0
+      },
+      "metrics_after": {
+        "super_paqet_active_connections": 1473.0,
+        "super_paqet_errors_total": 3251.0,
+        "super_paqet_opening_transport_retries_total": 0.0,
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"0\"}": 0.0,
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"1\"}": 0.0,
+        "super_paqet_listener_tx_queue_drops{listener=\"1\",worker=\"0\"}": 0.0,
+        "super_paqet_listener_tx_queue_drops{listener=\"1\",worker=\"1\"}": 0.0
+      }
+    },
+    {
+      "host": "171.22.132.226",
+      "observed_utc": "2026-10-11T21:42:12.384237+00:00",
+      "unit": {
+        "rc": 0,
+        "out": "ActiveState=active\nUnitFileState=enabled\nMainPID=3151995\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 21:58:28 UTC\nMemoryCurrent=72589312\nTasksCurrent=12\n",
+        "err": ""
+      },
+      "health": "ok\n",
+      "running_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+      "same_running_hash": true,
+      "same_config_hash": true,
+      "same_xray_process_identities": true,
+      "bounded_journal": {
+        "rc": 0,
+        "out": "",
+        "err": ""
+      },
+      "observer": {
+        "completed": false,
+        "until": "2026-10-12T16:38:30.972406+00:00",
+        "journal_recorder": {
+          "records": 3,
+          "cursor_resume": false,
+          "last_realtime_usec": "1791744097625393"
+        },
+        "first_utc": "2026-10-11T16:38:42.975514+00:00",
+        "last_utc": "2026-10-11T21:42:03.210195+00:00",
+        "samples": 1821,
+        "triggers": {
+          "errors_total_increased": 3
+        },
+        "peak_active": 1430.0,
+        "peak_rss_kib": 94428,
+        "peak_fds": 1440,
+        "runs": {
+          "3151995": {
+            "first_utc": "2026-10-11T16:38:42.975514+00:00",
+            "last_counters": {
+              "errors_total": 2880.0,
+              "rejected_total": 0.0,
+              "opening_transport_retries_total": 0.0,
+              "config_reload_rejected_total": 0.0,
+              "path_recovery_attempts_total": 0.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 0.0,
+              "log_dropped_total": 0.0
+            },
+            "last_utc": "2026-10-11T21:42:03.210195+00:00"
+          }
+        },
+        "observed_processes": 1,
+        "counter_deltas": {
+          "errors_total": 1529.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        },
+        "captures": 1
+      },
+      "metrics_before": {
+        "super_paqet_active_connections": 924.0,
+        "super_paqet_errors_total": 2880.0,
+        "super_paqet_opening_transport_retries_total": 0.0,
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"0\"}": 36.0,
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"1\"}": 41.0
+      },
+      "metrics_after": {
+        "super_paqet_active_connections": 672.0,
+        "super_paqet_errors_total": 2880.0,
+        "super_paqet_opening_transport_retries_total": 0.0,
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"0\"}": 36.0,
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"1\"}": 41.0
+      }
+    },
+    {
+      "host": "65.109.249.222",
+      "observed_utc": "2026-10-11T21:42:13.198474+00:00",
+      "unit": {
+        "rc": 0,
+        "out": "MainPID=250828\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 21:59:20 UTC\nMemoryCurrent=75022336\nTasksCurrent=15\nActiveState=active\nUnitFileState=enabled\n",
+        "err": ""
+      },
+      "health": "ok\n",
+      "running_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+      "same_running_hash": true,
+      "same_config_hash": true,
+      "same_xray_process_identities": true,
+      "bounded_journal": {
+        "rc": 0,
+        "out": "",
+        "err": ""
+      },
+      "observer": {
+        "completed": false,
+        "until": "2026-10-12T16:38:30.972406+00:00",
+        "journal_recorder": {
+          "records": 1,
+          "cursor_resume": false,
+          "last_realtime_usec": "1791744088968973"
+        },
+        "first_utc": "2026-10-11T16:38:57.152447+00:00",
+        "last_utc": "2026-10-11T21:42:04.396518+00:00",
+        "samples": 1811,
+        "triggers": {
+          "packet_drops_increased": 45,
+          "errors_total_increased": 1
+        },
+        "peak_active": 2217.0,
+        "peak_rss_kib": 110116,
+        "peak_fds": 2223,
+        "runs": {
+          "250828": {
+            "first_utc": "2026-10-11T16:38:57.152447+00:00",
+            "last_counters": {
+              "errors_total": 864.0,
+              "rejected_total": 0.0,
+              "opening_transport_retries_total": 0.0,
+              "config_reload_rejected_total": 0.0,
+              "path_recovery_attempts_total": 0.0,
+              "path_recovery_succeeded_total": 0.0,
+              "path_recovery_rejected_total": 0.0,
+              "log_dropped_total": 0.0
+            },
+            "last_utc": "2026-10-11T21:42:04.396518+00:00"
+          }
+        },
+        "observed_processes": 1,
+        "counter_deltas": {
+          "errors_total": 515.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        },
+        "captures": 11
+      },
+      "metrics_before": {
+        "super_paqet_active_connections": 2032.0,
+        "super_paqet_errors_total": 864.0,
+        "super_paqet_opening_transport_retries_total": 0.0,
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"0\"}": 38432.0,
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"1\"}": 106745.0
+      },
+      "metrics_after": {
+        "super_paqet_active_connections": 920.0,
+        "super_paqet_errors_total": 864.0,
+        "super_paqet_opening_transport_retries_total": 0.0,
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"0\"}": 41146.0,
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"1\"}": 106745.0
+      }
+    },
+    {
+      "host": "89.45.68.118",
+      "observed_utc": "2026-10-11T21:42:14.227473+00:00",
+      "unit": {
+        "rc": 0,
+        "out": "MainPID=1058941\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 21:59:41 UTC\nMemoryCurrent=167456768\nTasksCurrent=19\nActiveState=active\nUnitFileState=enabled\n",
+        "err": ""
+      },
+      "health": "ok\n",
+      "running_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256": "ab844772497e4cc4c1de64a78f7d82a6d71d5d59ad72cd122181721e352bb718",
+      "same_running_hash": true,
+      "same_config_hash": true,
+      "same_xray_process_identities": true,
+      "bounded_journal": {
+        "rc": 0,
+        "out": "",
+        "err": ""
+      },
+      "observer": {
+        "completed": false,
+        "until": "2026-10-12T16:38:30.972406+00:00",
+        "journal_recorder": {
+          "records": 3,
+          "cursor_resume": false,
+          "last_realtime_usec": "1791744099017615"
+        },
+        "first_utc": "2026-10-11T16:38:42.940756+00:00",
+        "last_utc": "2026-10-11T21:42:10.530447+00:00",
+        "samples": 1813,
+        "triggers": {
+          "opening_transport_retries_total_increased": 21,
+          "errors_total_increased": 3
+        },
+        "peak_active": 3511.0,
+        "peak_rss_kib": 191780,
+        "peak_fds": 3548,
+        "runs": {
+          "1058941": {
+            "first_utc": "2026-10-11T16:38:42.940756+00:00",
+            "last_counters": {
+              "errors_total": 31324.0,
+              "rejected_total": 0.0,
+              "opening_transport_retries_total": 124543.0,
+              "config_reload_rejected_total": 0.0,
+              "path_recovery_attempts_total": 56.0,
+              "path_recovery_succeeded_total": 27.0,
+              "path_recovery_rejected_total": 29.0,
+              "log_dropped_total": 0.0
+            },
+            "last_utc": "2026-10-11T21:42:10.530447+00:00"
+          }
+        },
+        "observed_processes": 1,
+        "counter_deltas": {
+          "errors_total": 1784.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 260.0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        },
+        "captures": 3
+      },
+      "metrics_before": {
+        "super_paqet_active_connections": 3163.0,
+        "super_paqet_errors_total": 31324.0,
+        "super_paqet_opening_transport_retries_total": 124543.0,
+        "super_paqet_peer_carrier_suspect{peer=\"finland\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"finland\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"0\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"finland\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"finland\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"1\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"finland\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"finland\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"2\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"finland\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"finland\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"3\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"france\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"0\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"france\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"1\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"france\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"2\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"france\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"3\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"germany\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"germany\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"0\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"germany\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"germany\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"1\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"germany\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"germany\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"2\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"germany\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"germany\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"3\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"3\"}": 0.0
+      },
+      "metrics_after": {
+        "super_paqet_active_connections": 1999.0,
+        "super_paqet_errors_total": 31324.0,
+        "super_paqet_opening_transport_retries_total": 124543.0,
+        "super_paqet_peer_carrier_suspect{peer=\"finland\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"finland\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"0\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"finland\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"finland\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"1\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"finland\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"finland\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"2\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"finland\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"finland\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"3\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"france\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"0\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"france\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"1\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"france\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"2\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"france\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"3\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"germany\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"germany\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"0\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"germany\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"germany\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"1\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"germany\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"germany\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"2\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"germany\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"germany\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"3\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"3\"}": 0.0
+      }
+    },
+    {
+      "host": "89.45.68.14",
+      "observed_utc": "2026-10-11T21:42:13.592044+00:00",
+      "unit": {
+        "rc": 0,
+        "out": "MainPID=376268\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 21:59:32 UTC\nMemoryCurrent=107233280\nTasksCurrent=18\nActiveState=active\nUnitFileState=enabled\n",
+        "err": ""
+      },
+      "health": "ok\n",
+      "running_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256": "0e0c6aaea2a232251774434dbb16bc764ca703dc5eac2a12cbd90b707ad5ab2f",
+      "same_running_hash": true,
+      "same_config_hash": true,
+      "same_xray_process_identities": true,
+      "bounded_journal": {
+        "rc": 0,
+        "out": "",
+        "err": ""
+      },
+      "observer": {
+        "completed": false,
+        "until": "2026-10-12T16:38:30.972406+00:00",
+        "journal_recorder": {
+          "records": 3,
+          "cursor_resume": false,
+          "last_realtime_usec": "1791744099323785"
+        },
+        "first_utc": "2026-10-11T16:38:43.793733+00:00",
+        "last_utc": "2026-10-11T21:42:11.021411+00:00",
+        "samples": 1813,
+        "triggers": {
+          "opening_transport_retries_total_increased": 2,
+          "errors_total_increased": 3
+        },
+        "peak_active": 2700.0,
+        "peak_rss_kib": 152804,
+        "peak_fds": 2738,
+        "runs": {
+          "376268": {
+            "first_utc": "2026-10-11T16:38:43.793733+00:00",
+            "last_counters": {
+              "errors_total": 11233.0,
+              "rejected_total": 0.0,
+              "opening_transport_retries_total": 33037.0,
+              "config_reload_rejected_total": 0.0,
+              "path_recovery_attempts_total": 18.0,
+              "path_recovery_succeeded_total": 4.0,
+              "path_recovery_rejected_total": 14.0,
+              "log_dropped_total": 0.0
+            },
+            "last_utc": "2026-10-11T21:42:11.021411+00:00"
+          }
+        },
+        "observed_processes": 1,
+        "counter_deltas": {
+          "errors_total": 1994.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 9.0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        },
+        "captures": 3
+      },
+      "metrics_before": {
+        "super_paqet_active_connections": 1999.0,
+        "super_paqet_errors_total": 11233.0,
+        "super_paqet_opening_transport_retries_total": 33037.0,
+        "super_paqet_peer_carrier_suspect{peer=\"germany\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"germany\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"0\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"germany\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"germany\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"1\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"germany\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"germany\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"2\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"germany\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"germany\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"3\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"finland\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"finland\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"0\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"finland\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"finland\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"1\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"finland\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"finland\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"2\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"finland\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"finland\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"3\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"france\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"0\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"france\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"1\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"france\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"2\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"france\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"3\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"3\"}": 0.0
+      },
+      "metrics_after": {
+        "super_paqet_active_connections": 1166.0,
+        "super_paqet_errors_total": 11233.0,
+        "super_paqet_opening_transport_retries_total": 33037.0,
+        "super_paqet_peer_carrier_suspect{peer=\"germany\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"germany\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"0\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"germany\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"germany\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"1\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"germany\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"germany\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"2\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"germany\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"germany\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"germany\",session=\"3\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"germany\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"finland\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"finland\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"0\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"finland\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"finland\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"1\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"finland\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"finland\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"2\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"finland\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"finland\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"finland\",session=\"3\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"finland\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"france\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"0\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"0\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"france\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"1\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"1\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"france\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"2\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"2\"}": 0.0,
+        "super_paqet_peer_carrier_suspect{peer=\"france\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_recovery_pending{peer=\"france\",session=\"3\"}": 0.0,
+        "super_paqet_peer_carrier_opening_blocked{peer=\"france\",session=\"3\"}": 0.0,
+        "super_paqet_peer_tx_queue_drops{peer=\"france\",session=\"3\"}": 0.0
+      }
+    }
+  ]
+}
