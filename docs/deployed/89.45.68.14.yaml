@@ -136,6 +136,15 @@ forwards:
 - listen: 0.0.0.0:9003
   peer: france
   target: 171.22.132.226:2096
+- listen: 0.0.0.0:8001
+  peer: germany
+  target: 116.202.177.233:8880
+- listen: 0.0.0.0:8002
+  peer: finland
+  target: 65.109.249.222:8880
+- listen: 0.0.0.0:8003
+  peer: france
+  target: 171.22.132.226:8880
 metrics: 127.0.0.1:29090
 log:
   level: warn

@@ -1,0 +1,156 @@
+{
+  "recorded_utc": "2026-10-11T18:46:43.557398+00:00",
+  "change": "Add TCP 8001/germany, 8002/finland, 8003/france targeting corresponding backend public IP port 8880, retaining TCP 9001/9002/9003 to 2096",
+  "method": "deployed binary configuration validation, backed-up atomic file replacement, automatic live reload; no process restart or binary deployment",
+  "verification_limits": "Six HTTP GET / response checks verify application bytes across each new route; backend returns HTTP 404. These are connectivity checks, not authenticated proxy or load acceptance tests. Existing route definitions retained, not separately traffic-tested in this change.",
+  "test_coordination": "entire controller and probes held scripts/with_test_lock.py machine-wide reservation",
+  "private_receipts": "/home/shayan/Codes/super-paqet-fixes-20261009/build/forward-8880-20261011",
+  "hosts": {
+    "116.202.177.233": {
+      "unit": {
+        "MainPID": "960629",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Thu 2026-10-08 21:49:14 UTC",
+        "ActiveState": "active"
+      },
+      "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256_before": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+      "config_sha256_after": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+      "health": "ok",
+      "same_process": true
+    },
+    "171.22.132.226": {
+      "unit": {
+        "ActiveState": "active",
+        "MainPID": "3151995",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Thu 2026-10-08 21:58:28 UTC"
+      },
+      "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256_before": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+      "config_sha256_after": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+      "health": "ok",
+      "same_process": true
+    },
+    "65.109.249.222": {
+      "unit": {
+        "MainPID": "250828",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Thu 2026-10-08 21:59:20 UTC",
+        "ActiveState": "active"
+      },
+      "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256_before": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+      "config_sha256_after": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+      "health": "ok",
+      "same_process": true
+    },
+    "89.45.68.14": {
+      "unit": {
+        "MainPID": "376268",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Thu 2026-10-08 21:59:32 UTC",
+        "ActiveState": "active"
+      },
+      "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256_before": "61b976bbe69887aa95aea8779e188826bb8136f4ffd0a5647dfd49fdaa2eacef",
+      "config_sha256_after": "0e0c6aaea2a232251774434dbb16bc764ca703dc5eac2a12cbd90b707ad5ab2f",
+      "health": "ok",
+      "same_process": true,
+      "reload": {
+        "validation": {
+          "forwards": 6,
+          "listeners": 0,
+          "path": "/root/super-paqet/.forward-8880-20261011T184502Z.yaml",
+          "peers": 3,
+          "valid": true
+        },
+        "revision_before": 1.0,
+        "revision_after": 2.0,
+        "rejected_before": 0.0,
+        "rejected_after": 0.0,
+        "backup": "/root/super-paqet/rollback/forward-8880-20261011T184502Z",
+        "config_sha256": "0e0c6aaea2a232251774434dbb16bc764ca703dc5eac2a12cbd90b707ad5ab2f"
+      },
+      "http_route_probes": [
+        {
+          "port": 8001,
+          "bytes": 101,
+          "first_line": "HTTP/1.1 404 Not Found",
+          "seconds": 0.31591607304289937
+        },
+        {
+          "port": 8002,
+          "bytes": 101,
+          "first_line": "HTTP/1.1 404 Not Found",
+          "seconds": 0.4005481409840286
+        },
+        {
+          "port": 8003,
+          "bytes": 101,
+          "first_line": "HTTP/1.1 404 Not Found",
+          "seconds": 0.42003417504020035
+        }
+      ]
+    },
+    "89.45.68.118": {
+      "unit": {
+        "MainPID": "1058941",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Thu 2026-10-08 21:59:41 UTC",
+        "ActiveState": "active"
+      },
+      "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256_before": "5f788d4490d39b66753f64b4f50f65a132aeafeb81a7ff881fe823061ee23e9d",
+      "config_sha256_after": "ab844772497e4cc4c1de64a78f7d82a6d71d5d59ad72cd122181721e352bb718",
+      "health": "ok",
+      "same_process": true,
+      "reload": {
+        "validation": {
+          "forwards": 6,
+          "listeners": 0,
+          "path": "/root/super-paqet/.forward-8880-20261011T184502Z.yaml",
+          "peers": 3,
+          "valid": true
+        },
+        "revision_before": 1.0,
+        "revision_after": 2.0,
+        "rejected_before": 0.0,
+        "rejected_after": 0.0,
+        "backup": "/root/super-paqet/rollback/forward-8880-20261011T184502Z",
+        "config_sha256": "ab844772497e4cc4c1de64a78f7d82a6d71d5d59ad72cd122181721e352bb718"
+      },
+      "http_route_probes": [
+        {
+          "port": 8001,
+          "bytes": 101,
+          "first_line": "HTTP/1.1 404 Not Found",
+          "seconds": 0.26266939751803875
+        },
+        {
+          "port": 8002,
+          "bytes": 101,
+          "first_line": "HTTP/1.1 404 Not Found",
+          "seconds": 0.17367042880505323
+        },
+        {
+          "port": 8003,
+          "bytes": 101,
+          "first_line": "HTTP/1.1 404 Not Found",
+          "seconds": 0.4125023689121008
+        }
+      ]
+    }
+  },
+  "launcher_attempts": [
+    {
+      "interpreter": "system python3",
+      "exit_code": 1,
+      "failure": "paramiko unavailable before authentication or remote access"
+    },
+    {
+      "interpreter": "build/deploy-venv/bin/python",
+      "exit_code": 0
+    }
+  ]
+}

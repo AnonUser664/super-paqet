@@ -4,9 +4,11 @@ All five hosts run `enterprise-2026.10.09-latency.1`, runtime source
 `276c43a70873670a7e1665283620aba38594b1ab`, SHA-256:
 `256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958`.
 These YAML files remain byte-for-byte identical to the accepted live configs;
-their migration.4 comments describe configuration provenance. Exact config hashes
-and unchanged tunnel unit/drop-in checks are recorded in the
-[latest deployment receipts](../latency-deployment-evidence-2026-10-09.json).
+their migration.4 comments describe configuration provenance. The binary rollout and unit/drop-in checks are recorded in the
+[latency deployment receipts](../latency-deployment-evidence-2026-10-09.json).
+On 11 October, both client configs added port-8880 routes by live reload;
+[current config hashes and six route checks](../forward-8880-deployment-2026-10-11.json)
+record that change. All five tunnel PIDs and binaries remained unchanged.
 
 Both clients have country peers `germany`, `finland`, `france`, with four slots
 per country, separate automatically reserved source ports, negotiated live-session
@@ -18,7 +20,11 @@ during the latest acceptance. Recovery/restart can rotate ports. Identical reloa
 Backend listeners use two capture workers, matching their two-vCPU hosts.
 Germany retains both 116.202.177.233 and 91.107.251.85 listeners; clients use the
 latter. France is 171.22.132.226; Finland is 65.109.249.222. Customer forwarding
-ports remain 9001/9002/9003 and targets remain the respective server's 2096.
+ports 9001/9002/9003 retain the respective server's 2096 target. Both clients
+also bind TCP 8001/8002/8003 on all IPv4 interfaces, targeting Germany/Finland/France
+port 8880 respectively. Backend listener configs were unchanged; their existing
+Xray services already listened on 8880. HTTP responses passed through all six new
+routes; authenticated Xray proxy sessions were not tested for this addition.
 All endpoints retain S outbound / PA return and quoted null encryption.
 
 Manual KCP base 0/30/2/nc=1, 4096-segment ceilings, MTU1350, small-write threshold
