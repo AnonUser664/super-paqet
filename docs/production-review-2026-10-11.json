@@ -1,0 +1,217 @@
+{
+  "production_changed": false,
+  "review_utc": "2026-10-11",
+  "hosts": {
+    "116.202.177.233": {
+      "collected_utc": "2026-10-11T16:35:29.202584+00:00",
+      "service": {
+        "rc": 0,
+        "out": "MainPID=960629\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 21:49:14 UTC\nMemoryCurrent=102518784\nTasksCurrent=20\nActiveState=active\nUnitFileState=enabled\n",
+        "err": ""
+      },
+      "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+      "same_binary": true,
+      "same_config": true,
+      "health": "ok\n",
+      "window": {
+        "first_utc": "2026-10-10T15:53:12.213684+00:00",
+        "last_utc": "2026-10-11T15:52:45.406401+00:00",
+        "samples": 8597,
+        "peak_active": 2819.0,
+        "peak_rss_kib": 135624,
+        "peak_fds": 2831,
+        "counter_deltas": {
+          "errors_total": 1486.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        },
+        "captures": 2,
+        "triggers": {
+          "errors_total_increased": 3
+        }
+      },
+      "xray_identity_changed": true
+    },
+    "171.22.132.226": {
+      "collected_utc": "2026-10-11T16:35:28.255966+00:00",
+      "service": {
+        "rc": 0,
+        "out": "ActiveState=active\nUnitFileState=enabled\nMainPID=3151995\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 21:58:28 UTC\nMemoryCurrent=82243584\nTasksCurrent=12\n",
+        "err": ""
+      },
+      "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+      "same_binary": true,
+      "same_config": true,
+      "health": "ok\n",
+      "window": {
+        "first_utc": "2026-10-10T15:53:10.541364+00:00",
+        "last_utc": "2026-10-11T15:52:51.494091+00:00",
+        "samples": 8639,
+        "peak_active": 7617.0,
+        "peak_rss_kib": 157352,
+        "peak_fds": 2284,
+        "counter_deltas": {
+          "errors_total": 1320.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        },
+        "captures": 6,
+        "triggers": {
+          "errors_total_increased": 9,
+          "packet_drops_increased": 1
+        }
+      },
+      "xray_identity_changed": true
+    },
+    "65.109.249.222": {
+      "collected_utc": "2026-10-11T16:38:21.854370+00:00",
+      "service": {
+        "rc": 0,
+        "out": "MainPID=250828\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 21:59:20 UTC\nMemoryCurrent=88465408\nTasksCurrent=14\nActiveState=active\nUnitFileState=enabled\n",
+        "err": ""
+      },
+      "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+      "same_binary": true,
+      "same_config": true,
+      "health": "ok\n",
+      "window": {
+        "first_utc": "2026-10-10T15:53:11.515478+00:00",
+        "last_utc": "2026-10-11T15:52:52.144223+00:00",
+        "samples": 8598,
+        "peak_active": 1914.0,
+        "peak_rss_kib": 99564,
+        "peak_fds": 1923,
+        "counter_deltas": {
+          "errors_total": 349.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        },
+        "captures": 79,
+        "triggers": {
+          "packet_drops_increased": 195,
+          "errors_total_increased": 2
+        }
+      },
+      "xray_identity_changed": true
+    },
+    "89.45.68.118": {
+      "collected_utc": "2026-10-11T16:35:27.699361+00:00",
+      "service": {
+        "rc": 0,
+        "out": "MainPID=1058941\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 21:59:41 UTC\nMemoryCurrent=163205120\nTasksCurrent=19\nActiveState=active\nUnitFileState=enabled\n",
+        "err": ""
+      },
+      "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256": "5f788d4490d39b66753f64b4f50f65a132aeafeb81a7ff881fe823061ee23e9d",
+      "same_binary": true,
+      "same_config": true,
+      "health": "ok\n",
+      "window": {
+        "first_utc": "2026-10-10T15:53:14.335991+00:00",
+        "last_utc": "2026-10-11T16:15:31.053255+00:00",
+        "samples": 8579,
+        "peak_active": 5632.0,
+        "peak_rss_kib": 237152,
+        "peak_fds": 5665,
+        "counter_deltas": {
+          "errors_total": 29528.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 113138.0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 52.0,
+          "path_recovery_succeeded_total": 24.0,
+          "path_recovery_rejected_total": 28.0,
+          "log_dropped_total": 0
+        },
+        "captures": 34,
+        "triggers": {
+          "opening_transport_retries_total_increased": 229,
+          "carrier_became_suspect": 16,
+          "errors_total_increased": 79,
+          "path_recovery_attempts_total_increased": 21,
+          "path_recovery_succeeded_total_increased": 10,
+          "path_recovery_rejected_total_increased": 14,
+          "source_port_changed": 9,
+          "packet_drops_increased": 1,
+          "carrier_recovery_started": 7
+        }
+      },
+      "xray_identity_changed": false
+    },
+    "89.45.68.14": {
+      "collected_utc": "2026-10-11T16:35:27.767793+00:00",
+      "service": {
+        "rc": 0,
+        "out": "MainPID=376268\nResult=success\nNRestarts=0\nExecMainStartTimestamp=Thu 2026-10-08 21:59:32 UTC\nMemoryCurrent=114655232\nTasksCurrent=17\nActiveState=active\nUnitFileState=enabled\n",
+        "err": ""
+      },
+      "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958",
+      "config_sha256": "61b976bbe69887aa95aea8779e188826bb8136f4ffd0a5647dfd49fdaa2eacef",
+      "same_binary": true,
+      "same_config": true,
+      "health": "ok\n",
+      "window": {
+        "first_utc": "2026-10-10T15:53:10.256665+00:00",
+        "last_utc": "2026-10-11T15:52:53.539742+00:00",
+        "samples": 8601,
+        "peak_active": 2400.0,
+        "peak_rss_kib": 147236,
+        "peak_fds": 2435,
+        "counter_deltas": {
+          "errors_total": 9239.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 32799.0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 15.0,
+          "path_recovery_succeeded_total": 3.0,
+          "path_recovery_rejected_total": 12.0,
+          "log_dropped_total": 0
+        },
+        "captures": 11,
+        "triggers": {
+          "opening_transport_retries_total_increased": 117,
+          "carrier_became_suspect": 5,
+          "path_recovery_attempts_total_increased": 5,
+          "path_recovery_succeeded_total_increased": 2,
+          "source_port_changed": 2,
+          "path_recovery_rejected_total_increased": 4,
+          "errors_total_increased": 47,
+          "carrier_recovery_started": 2
+        }
+      },
+      "xray_identity_changed": false
+    }
+  },
+  "observer_renewal": {
+    "start_utc": "2026-10-11T16:38:30.972406+00:00",
+    "until_utc": "2026-10-12T16:38:30.972406+00:00",
+    "directory": "/var/log/super-paqet-watch/latency1-review-20261011T163830Z",
+    "observer_sha256": "f2179b3921341e112d3aa24e0db3f3912f74a88d967b48774709b36cecda6692",
+    "sample_interval_seconds": 10,
+    "sample_max_bytes": 536870912,
+    "journal_max_bytes": 67108864,
+    "profiling": false,
+    "log_level": "warn",
+    "journal_since": "2026-10-11 15:52:54 UTC",
+    "runtime_source": "276c43a70873670a7e1665283620aba38594b1ab",
+    "binary_sha256": "256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958"
+  }
+}

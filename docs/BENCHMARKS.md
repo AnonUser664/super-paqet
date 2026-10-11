@@ -99,14 +99,14 @@ current reachability and incident work are recorded in STATUS.md.
 ## Reproduction
 
 ```sh
-make build bench-build
-make vet test
-sudo python3 scripts/netns_bench.py --enterprise --binary build/super-paqet \
+python3 scripts/with_test_lock.py -- make build bench-build
+python3 scripts/with_test_lock.py -- make vet test
+python3 scripts/with_test_lock.py -- sudo python3 scripts/netns_bench.py --enterprise --binary build/super-paqet \
   --block null --shared-source --sessions 8 --workers 8 \
   --duration 30 --warmup 5 --iperf --output build/clean-bulk
-sudo python3 scripts/stress_links.py --binary build/super-paqet \
+python3 scripts/with_test_lock.py -- sudo python3 scripts/stress_links.py --binary build/super-paqet \
   --duration 20 --profile --output build/wan-matrix
-sudo python3 scripts/live_reload_netns_test.py --binary build/super-paqet \
+python3 scripts/with_test_lock.py -- sudo python3 scripts/live_reload_netns_test.py --binary build/super-paqet \
   --streams 128 --cycles 12
 ```
 
@@ -117,6 +117,35 @@ Tests need Linux root access, iproute2, iptables, libpcap and the built workload
 utility. Each run writes new evidence under its chosen ignored build directory.
 For the exact retained deployment executable, use the command in the clean-link
 report and its compatibility-library environment where needed.
+
+### Reordering with a bandwidth ceiling
+
+`netns_bench.py --strict-rate` and `compare_receive_paths.py --strict-rate`
+install an independent parent TBF token bucket and a child netem impairment
+queue. Netem's immediate reordering path can bypass its own rate-delay
+calculation; a single `netem rate ... reorder ...` queue therefore does not
+establish a strict link ceiling. See the
+[kernel implementation](https://github.com/torvalds/linux/blob/master/net/sched/sch_netem.c).
+Earlier such receipts remain valid named fault experiments, but must not be
+presented as proof of throughput within a physical bandwidth cap.
+
+Strict mode requires positive rates in both directions, including scheduled
+epochs. Omitted reverse rates inherit the forward rate. The parent permits a
+bounded burst of at least 16 KiB or one millisecond of configured traffic;
+the child retains the packet-queue limit and all delay/loss/reordering settings.
+Scheduled changes update both layers and retain the hierarchy. All shaping is
+inside the disposable namespaces; production and host qdiscs are unchanged.
+Receipts identify `strict_rate` and preserve final qdisc counters. Compare both
+executables with the same shaping mode; older and strict receipts describe
+different link models and cannot be pooled into one performance median.
+
+```sh
+python3 scripts/with_test_lock.py -- sudo python3 scripts/netns_bench.py \
+  --binary build/super-paqet --bridge --strict-rate --rate-mbit 100 \
+  --delay-ms 40 --jitter-ms 20 --reorder 50 --queue-packets 4096 \
+  --sessions 4 --packet-workers 2 --duration 30 --seed 806 \
+  --output build/reorder-strict-unique
+```
 
 ## Netherlands repaired-path check
 

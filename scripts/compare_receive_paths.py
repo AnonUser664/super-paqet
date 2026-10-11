@@ -117,6 +117,7 @@ def main():
     parser.add_argument('--workload-cpus', default='')
     parser.add_argument('--profile', action='store_true', help='collect CPU profiles on the first repetition')
     parser.add_argument('--debug', action='store_true', help='sample structured transport diagnostics each second on both versions')
+    parser.add_argument('--strict-rate', action='store_true', help='enforce bandwidth with an independent token bucket; choose rate-shaped cases only')
     parser.add_argument('--duplex-http-steady', action='store_true', help='measure mixed HTTP after the configured warmup, retaining legacy cases otherwise')
     parser.add_argument('--pinned-lanes', action='store_true', help='pin equal iperf streams to each carrier, leaving non-iperf tests unchanged')
     args = parser.parse_args()
@@ -126,6 +127,8 @@ def main():
         parser.error('duration must be >=12 and repetitions/core budgets positive')
     if len(set(args.cases)) != len(args.cases):
         parser.error('cases must be unique so each receipt has one workload identity')
+    if args.strict_rate and any('--rate-mbit' not in CASES[case] for case in args.cases):
+        parser.error('strict-rate requires rate-shaped cases')
     if 'delay-step' in args.cases and args.duration < 25:
         parser.error('delay-step needs at least 25 seconds to observe both transitions and recovery')
     binaries = {name: (ROOT / path).resolve() for name, path in [('baseline', args.baseline), ('candidate', args.candidate)]}
@@ -153,6 +156,8 @@ def main():
                     command.append('--profile')
                 if args.debug:
                     command.append('--debug')
+                if args.strict_rate:
+                    command.append('--strict-rate')
                 if args.duplex_http_steady and '--duplex-http' in CASES[case]:
                     command.append('--duplex-http-steady')
                 if args.warmup and '--iperf' in CASES[case]:

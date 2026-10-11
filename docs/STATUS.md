@@ -34,6 +34,13 @@ Successful metrics samples, active journal followers and unchanged tunnel/config
 binary/Xray identities were verified. Client .14 had no warnings in the selected
 journal interval, a valid empty record rather than an observer failure.
 
+That window has now completed. The [11 October review](PRODUCTION-REVIEW-2026-10-11.md)
+finds substantial failed-opening bursts, France multi-carrier keepalive incidents,
+and separate destination-port refusals. Tunnel PIDs/configuration/binary hashes
+remain unchanged with zero automatic restarts. Xray identities changed outside
+this investigation. New finite observers on all five hosts run through
+**2026-10-12 16:38:30 UTC**, retaining separate archives and verified fresh samples.
+
 The [opening investigation](OPENING-FIX-2026-10-09.md) remains a local candidate
 on `fix/production-backpressure-20261009`. Its safe same-identity retry passes
 race, delayed-backpressure and ownership tests; fixed one-carrier peers retain the
@@ -46,6 +53,14 @@ Current candidate source `a348c5c`, SHA-256
 **unqualified for production rollout**. Queue experiments were rejected and are
 absent from this runtime. No candidate binary/configuration has been promoted to
 the five hosts; adaptive established delivery is now a separate investigation.
+
+Source `8e7140e` adds untimestamped RTT-variation handling and controller sample
+epoch diagnostics. Its rebuilt local executable SHA-256 is
+`70239e4684f9d276d0a653bfd11517e13c07b55ca42f930ebcdd1b883ae1d8c0`.
+Race/vet/model regressions pass. Six warmed reordering comparisons finish without
+workload errors; independent rate-cap, bottleneck and mixed-load qualification
+remains incomplete. The earlier failed gates remain explicit; this executable
+is also **not accepted for deployment**.
 
 The [9 October production log review](PRODUCTION-REVIEW-2026-10-09.md) covers about
 17.6 hours. Original PIDs, executable/config hashes and Xray identities remain;

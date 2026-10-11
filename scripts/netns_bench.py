@@ -39,6 +39,7 @@ def main():
     p.add_argument('--burst-loss', type=float, nargs=4, metavar=('P','R','BAD_LOSS','GOOD_LOSS'), help='netem Gilbert-Elliott percentages')
     p.add_argument('--seed', type=int)
     p.add_argument('--rate-mbit', type=int, default=0)
+    p.add_argument('--strict-rate', action='store_true', help='independent TBF rate ceiling outside netem; rates must remain positive in both directions')
     p.add_argument('--down-rate-mbit', type=int, help='reverse direction bandwidth cap')
     p.add_argument('--sessions', type=int, default=4)
     p.add_argument('--max-sessions', type=int, help='carrier ceiling; defaults to --sessions so qualification uses a fixed pool')
@@ -127,6 +128,12 @@ def main():
         if any(event.get(k,0)>100 for k in ('loss','reorder')): p.error('epoch percentages must be 0..100')
         if event['at']>=a.duration+a.warmup+a.http_warmup:p.error('epoch must occur within the workload interval')
     epochs.sort(key=lambda event:event['at'])
+    if a.strict_rate:
+        rates={'rate_mbit':a.rate_mbit, 'down_rate_mbit':a.down_rate_mbit}
+        for event in [{}]+epochs:
+            rates.update({k:v for k,v in event.items() if k in rates})
+            if rates['rate_mbit'] <= 0 or (rates['down_rate_mbit'] is not None and rates['down_rate_mbit'] <= 0):
+                p.error('strict-rate requires positive directional rates in every epoch')
     if a.fq_flow_limit < 0 or a.fq_maxrate_mbit < 0: p.error('fq limits cannot be negative')
     if a.fq_maxrate_mbit and not a.fq_flow_limit: p.error('fq-maxrate-mbit requires fq-flow-limit')
     if a.fq_flow_limit and (a.loss or a.burst_loss or a.delay_ms or a.jitter_ms or a.rate_mbit or a.down_rate_mbit or a.reorder or epochs or a.bridge): p.error('isolated fq fixture excludes other shaping and schedules')
@@ -281,13 +288,19 @@ def main():
                 queue = a.queue_packets or (max(32,int(rate*1e6/8*((a.delay_ms+4*a.jitter_ms)/1000+.025)/64)) if rate else 10000)
                 shaping_ns=n;shaping_if=iface
                 if a.bridge: shaping_ns=router;shaping_if='spq-rc' if n==c else 'spq-rs'
-                args = ['tc','qdisc','add','dev',shaping_if,'root','netem','limit',str(queue)]
+                parent = ['root']
+                if a.strict_rate:
+                    # Rate is enforced by a parent token bucket, including
+                    # packets netem reorders onto its immediate-release path.
+                    ns(shaping_ns,'tc','qdisc','add','dev',shaping_if,'root','handle','1:','tbf','rate',f'{rate}mbit','burst',str(max(16384,int(rate*1e6/8000))),'limit',str(max(65536,queue*a.mtu)))
+                    parent = ['parent','1:1','handle','10:']
+                args = ['tc','qdisc','add','dev',shaping_if,*parent,'netem','limit',str(queue)]
                 if a.delay_ms: args += ['delay',f'{a.delay_ms}ms']
                 if a.jitter_ms: args += [f'{a.jitter_ms}ms','distribution','normal']
                 if a.loss: args += ['loss','random',f'{a.loss}%']
                 if a.burst_loss: args += ['loss','gemodel',*[f'{x}%' for x in a.burst_loss]]
                 if a.reorder: args += ['reorder',f'{a.reorder}%']
-                if rate: args += ['rate',f'{rate}mbit']
+                if rate and not a.strict_rate: args += ['rate',f'{rate}mbit']
                 if a.seed is not None: args += ['seed',str(a.seed)]
                 ns(shaping_ns,*args)
                 shaping.append((shaping_ns,shaping_if,down))
@@ -307,12 +320,16 @@ def main():
                         for n,iface,down in shaping:
                             rate=values['down_rate_mbit'] if down and values['down_rate_mbit'] is not None else values['rate_mbit']
                             queue=int(values['queue_packets'] or (max(32,int(rate*1e6/8*((values['delay_ms']+4*values['jitter_ms'])/1000+.025)/64)) if rate else 10000))
-                            args=['tc','qdisc','change','dev',iface,'root','netem','limit',str(queue)]
+                            parent = ['root']
+                            if a.strict_rate:
+                                ns(n,'tc','qdisc','change','dev',iface,'root','handle','1:','tbf','rate',f'{rate}mbit','burst',str(max(16384,int(rate*1e6/8000))),'limit',str(max(65536,queue*a.mtu)))
+                                parent = ['parent','1:1','handle','10:']
+                            args=['tc','qdisc','change','dev',iface,*parent,'netem','limit',str(queue)]
                             if values['delay_ms']:args+=['delay',f"{values['delay_ms']}ms"]
                             if values['jitter_ms']:args+=[f"{values['jitter_ms']}ms",'distribution','normal']
                             if values['loss']:args+=['loss','random',f"{values['loss']}%"]
                             if values['reorder']:args+=['reorder',f"{values['reorder']}%"]
-                            if rate:args+=['rate',f'{rate}mbit']
+                            if rate and not a.strict_rate:args+=['rate',f'{rate}mbit']
                             if a.seed is not None:args+=['seed',str(a.seed)]
                             ns(n,*args)
                         with (out/(workload+'-epochs.jsonl')).open('a') as log: log.write(json.dumps({'elapsed':time.monotonic()-started,'parameters':dict(values)})+'\n')

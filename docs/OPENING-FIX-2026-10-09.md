@@ -475,3 +475,42 @@ upload difference is not attributed to a causal optimization; the overall
 candidate remains unqualified because of its failed pooled/reordering gates.
 The next rebuilt artifact must test the new controller under the same failure
 profile and under stable bottlenecks before any promotion.
+
+## 11 October checkpoint: production and independently capped links
+
+The [fresh production review](PRODUCTION-REVIEW-2026-10-11.md) separates repeated
+France transport failures from destination-service refusals. The operator
+confirmed Xray/nginx restarts in the reviewed interval. No tunnel candidate was
+deployed; finite observers were renewed on all five hosts without changing
+their tunnel/configuration/binary/Xray identities across the renewal.
+
+Source `8e7140e` was rebuilt as `enterprise-2026.10.11-opening.2`, SHA-256
+`70239e4684f9d276d0a653bfd11517e13c07b55ca42f930ebcdd1b883ae1d8c0`.
+Six warmed reordering experiments compare production, the pre-correction
+candidate and the RTT-corrected candidate in alternating order. All six have
+zero workload/warmup errors and clean teardown. Bulk payload rates are
+75.09 / 78.24 Mbit/s for production, 90.04 / 92.04 for the previous candidate,
+and 114.13 / 101.43 for the correction. Small HTTP means stay around 88 ms.
+These are results of the historical **combined netem rate/reorder model**;
+they do not establish delivery below a physical 100 Mbit/s bandwidth ceiling.
+Private receipts: `comparison-jitter9-reorder/receipt.json`.
+
+An independent fixture check exposes the model limitation directly. With
+`netem rate 20mbit reorder 50%`, tunnel upload reaches 25.57 Mbit/s, direct TCP
+24.87 / 27.47 Mbit/s, and offered-load UDP 38.87 Mbit/s. Netem can release
+reordered packets without applying its rate-delay calculation. Adding a
+separate parent TBF bounds every packet: direct TCP 18.08 / 18.18 Mbit/s,
+UDP 19.41 Mbit/s and this candidate's tunnel upload 12.98 Mbit/s. The latter
+still needs a same-model control before judging adaptive efficiency. All
+processes exit cleanly; unrelated firewall rules are preserved. Private
+receipts: `strict-rate-fixture9/receipt.json`.
+
+The optional `--strict-rate` fixture retains historical behavior by default;
+positive directional rates are required across schedules. Its separate rate
+limiter, bounded burst and impairment queue are documented in BENCHMARKS.md.
+This is a local harness correction, not a production qdisc change. A queued
+WAN matrix was canceled before launch to qualify the limiter first. The first
+replacement launcher then failed on an unused module-level `case` reference,
+before creating an output directory or starting workloads. Both attempts are
+retained separately; the corrected launcher now compares identical strict
+profiles. Its results and the earlier pooled-pressure gate remain pending.
