@@ -63,6 +63,10 @@ type controller struct {
 	// Hysteretic queue classification used to avoid reacting permanently to reorder/jitter
 	// noise.
 	congested bool
+	// Low propagation delay normally skips byte pacing for the fast LAN path.
+	// After actual queue growth, retain pacing briefly across queue relief so
+	// the next tick cannot immediately refill the same bottleneck unpaced.
+	pacingUntil time.Time
 	// Optional outgoing pool member receiving cached pressure scores from this controller.
 	slot *slot
 	// Keeps a carrier's cached busy score alive briefly after a bulk observation.
@@ -146,6 +150,9 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 				c.congested = c.queueSignal > c.minRTT*.25+5
 			}
 		}
+	}
+	if c.minRTT < 10 && c.congested {
+		c.pacingUntil = now.Add(max(time.Second, min(8*time.Second, time.Duration(s.SRTT)*4*time.Millisecond)))
 	}
 	if acked == 0 {
 		return c.window
@@ -254,7 +261,7 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 // pacingRate chooses a bounded send rate from delivery and queue pressure; exempt controls can
 // still release backpressure.
 func (c *controller) pacingRate() uint64 {
-	if c.minRTT < 10 || c.rate <= 0 || !c.bulkSeen || c.smallMessages {
+	if (c.minRTT < 10 && !c.last.Before(c.pacingUntil)) || c.rate <= 0 || !c.bulkSeen || c.smallMessages {
 		return 0
 	}
 	gain := 1.05 * (1 + c.lossRatio)

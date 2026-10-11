@@ -4,7 +4,10 @@ All five hosts run **enterprise-2026.10.09-latency.1** under enabled
 `super-paqet.service`. Runtime source `276c43a70873670a7e1665283620aba38594b1ab`,
 SHA-256 `256cfc65daaa6596ff2b31e2863296a3182975faa71b1a746295cc6172231958`.
 The release includes the selectively reviewed integration and direct-read latency
-fix. Existing config and tunnel unit/drop-in bytes remain unchanged: four
+fix. The binary and tunnel unit/drop-ins retain the accepted deployment. On 11 October,
+client configs added TCP ports 8001/8002/8003 to backend 8880 by live reload;
+[six HTTP route checks](forward-8880-deployment-2026-10-11.json) pass with unchanged
+process PIDs. Existing port-900x definitions remain. Transport configuration: four
 independent automatic source slots per country, negotiated connection preservation,
 **10s stall / 15s retry / 5s probe**, two backend capture workers, S outbound / PA
 return, quoted null encryption, adaptation enabled, warning logs and profiling off.
@@ -75,8 +78,12 @@ clean owned teardown in all twenty attempts. Quiet-window debug runs expose
 thousands of possible spurious retries on a busy carrier. A local follow-up
 adds those existing counters to debug samples, prevents timer-only ACKs from
 inventing gap-delay evidence, and experiments with a finite 200 ms adaptive
-reordering ceiling. Root race/vet and the full native KCP suite pass; remaining
-library race coverage and matched performance comparisons are pending.
+reordering ceiling. Root race/vet, the full native KCP suite, and library race coverage excluding only
+the two large echo workloads pass. Two matched asymmetric download pairs improve
+median throughput by 18.44%; a loss-only pair shows similar delivery without
+errors. The pooled-pressure gate still fails throughput/latency limits. A further
+local low-RTT congestion-pacing candidate passes corrected model/race/vet checks,
+but its performance comparisons are pending.
 The first full library race attempt hit its ten-minute deadline and remains a
 failed receipt. Test fixtures now explicitly release their accepted carriers.
 No new candidate has been deployed; see the

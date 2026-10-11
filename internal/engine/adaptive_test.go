@@ -380,6 +380,48 @@ func TestLargeQueueBackoffDrainsFasterThanSmallQueue(t *testing.T) {
 	}
 }
 
+// TestLowRTTQueuePacingRecoversFastPath models a LAN with a real transmit
+// bottleneck. Its initial fast RTT must not disable queue draining forever;
+// brief queue relief must not immediately release another unpaced burst.
+// After a quiet interval, the cheap unconstrained fast path must return.
+func TestLowRTTQueuePacingRecoversFastPath(t *testing.T) {
+	c := newController(4096, 4096)
+	c.window, c.rate, c.bulkSeen, c.startup = 64, 1000000, true, false
+	c.ackScheduleBudget = 50
+	now := time.Unix(100, 0)
+	s := kcp.TransportStats{SRTT: 1, MSS: 1326, Pending: 100, PendingBytes: 132600}
+	c.update(s, now)
+	// The first observation only initializes counter deltas. A second fast
+	// observation establishes the propagation floor before the queue grows.
+	now = now.Add(250 * time.Millisecond)
+	c.update(s, now)
+	if c.minRTT != 1 {
+		t.Fatalf("propagation floor was not learned: %v", c.minRTT)
+	}
+	now = now.Add(250 * time.Millisecond)
+	s.SRTT = 100
+	s.AckedBytes += 80000
+	s.AckedSegments += 60
+	c.update(s, now)
+	if !c.congested || c.pacingRate() == 0 {
+		t.Fatal("low RTT disabled pacing despite real queue growth")
+	}
+	now = now.Add(250 * time.Millisecond)
+	s.SRTT = 1
+	s.AckedBytes += 80000
+	s.AckedSegments += 60
+	c.update(s, now)
+	if c.congested || c.pacingRate() == 0 {
+		t.Fatal("brief queue relief released another unpaced burst")
+	}
+	s.Pending, s.PendingBytes = 0, 0
+	now = now.Add(2 * time.Second)
+	c.update(s, now)
+	if c.pacingRate() != 0 {
+		t.Fatal("quiet LAN did not recover its unconstrained fast path")
+	}
+}
+
 // TestLegacyRTTJitterRetainsProgress models an ACK-timestamp-disabled path whose
 // reordered packets create a low RTT floor and large measured variation. Jitter
 // must not trap a saturated sender at its tiny initial credit; a later stable

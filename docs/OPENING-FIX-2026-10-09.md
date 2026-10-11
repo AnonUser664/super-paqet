@@ -626,3 +626,53 @@ in `grace11-timer-old/`; three race-instrumented repetitions of the new gap,
 timer, finite-ceiling and real fixture-ownership tests pass. Whole application
 race and vet checks also pass at this checkpoint. Full native/library race
 qualification and matched real-link comparisons remain pending.
+
+
+### Completed reorder experiment and low-RTT pacing follow-up, 11 October
+
+The corrected KCP fixture qualification completes: the full native library suite
+passes, as does the race suite excluding only the 1 GiB and 6 GiB echo workloads.
+Those large integrity workloads passed in the native suite; the original full-race
+timeout remains preserved. Root race/vet also pass. Scope and timing are recorded
+in `checks11-v2/receipt.json`; this is not a full vendored race-suite pass.
+
+The [matched reorder experiment](reorder-grace-diagnostics-2026-10-11.json)
+compares candidate `8ef31b9` with the log-only executable, using fixed CPU roles,
+four pooled carriers, two capture workers, null encryption, and independently
+capped 50/10 Mbit/s directions with 80 ms RTT, 0.5% loss and 5% reordering.
+Two raw download pairs improve their median from 5.592 to 6.623 Mbit/s (+18.44%).
+All four raw workloads finish successfully. The candidate HTTP comparison has
+zero errors; its control has two response-body timeouts (also counted in its
+warmup subset). Conditional successful-request latency is not comparable when
+the control loses its slow responses. A single 50/50 Mbit/s loss-only pair without
+reordering completes with zero errors and similar whole-run body rates
+(42.50 versus 41.97 Mbit/s). These finite positives do not prove universal safety.
+
+The original pooled-pressure acceptance gate still fails. Two alternating pairs
+against the deployed executable combine sixteen bidirectional bulk workers with
+four HTTP churn workers under per-kernel-flow FQ pressure. Candidate median
+combined throughput is about 8% lower; small-request mean and p99 are worse.
+All workloads complete and their owned cleanup passes, but successful runner
+exit codes are not performance acceptance. The FQ cap is per kernel flow, not a
+strict physical-link aggregate cap. Receipts remain in `pressure-loss-grace11/`.
+The candidate and deployment differ in opening and controller logic too, so this
+comparison cannot assign that regression exclusively to the reordering ceiling.
+
+The next local candidate addresses a separate controller policy: a lifetime
+minimum RTT below 10 ms unconditionally disables byte pacing even when later
+observations classify real queue congestion. Retain pacing for a bounded quiet
+interval after such congestion (one second to four current RTTs, capped at eight
+seconds); ordinary low-RTT operation remains unpaced after that interval. Existing
+small-message/control exceptions and window/rate estimators are unchanged.
+This policy needs matched pooled-pressure and clean-link comparisons before use.
+
+The first regression fixture failed to establish the propagation floor: its
+initial sample only initialized counter deltas. This was a fixture error, and
+both the original and revised first attempts are preserved. The corrected
+fixture adds a second fast observation before queue growth. Running that exact
+corrected fixture with a Go overlay of the committed prior controller fails the
+congestion-pacing assertion; the new controller passes congestion, brief queue
+relief, and return-to-unpaced checks. Five focused race repetitions, full root
+race tests, and vet pass (`checks-build12-v2/`). Its initial executable records a
+dirty source patch explicitly; performance comparisons use a rebuilt committed
+artifact. No performance acceptance or production deployment is claimed.

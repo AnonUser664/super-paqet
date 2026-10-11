@@ -1,0 +1,178 @@
+{
+  "scope": "Quiet-window diagnostic comparison; original failed gates retained; no production deployment",
+  "source": "8ef31b96a558384b2c0d8e19240b658cfd9c0e49",
+  "candidate_sha256": "8ba95e5436dbee0525f62f3494e13ad981874612043e9300a03584276d11099c",
+  "control_sha256": "1095ea78df13f88577da68b35414246c47f223dc5d8fb0ca9299ff8385ae889b",
+  "profile": {
+    "up_mbit": 50,
+    "down_mbit": 10,
+    "delay_ms_each_direction": 40,
+    "loss_percent": 0.5,
+    "reorder_percent": 5,
+    "strict_rate": true,
+    "seed": 804,
+    "queue_packets": 2048,
+    "slots": 4,
+    "capture_workers": 2,
+    "client_procs": 4,
+    "server_procs": 2,
+    "client_cpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "server_cpus": [
+      4,
+      6
+    ],
+    "workload_cpus": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "measurement_seconds": 30,
+    "warmup_seconds": 20,
+    "recovery_grace_seconds": 0
+  },
+  "private_evidence": "build/opening-fix-20261009/comparison-grace11-asymmetric/receipt.json",
+  "runs": [
+    {
+      "name": "raw-candidate-0",
+      "exit_code": 0,
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "iperf": "download",
+          "receiver_mbit": 6.536098896157529,
+          "tunnel_cpu_cores": {
+            "client": 0.049,
+            "server": 0.043
+          }
+        }
+      ]
+    },
+    {
+      "name": "raw-control-0",
+      "exit_code": 0,
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "iperf": "download",
+          "receiver_mbit": 5.592406265401045,
+          "tunnel_cpu_cores": {
+            "client": 0.05,
+            "server": 0.042
+          }
+        }
+      ]
+    },
+    {
+      "name": "raw-control-1",
+      "exit_code": 0,
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "iperf": "download",
+          "receiver_mbit": 5.592415026852713,
+          "tunnel_cpu_cores": {
+            "client": 0.049,
+            "server": 0.041
+          }
+        }
+      ]
+    },
+    {
+      "name": "raw-candidate-1",
+      "exit_code": 0,
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "iperf": "download",
+          "receiver_mbit": 6.710899150708386,
+          "tunnel_cpu_cores": {
+            "client": 0.051,
+            "server": 0.042
+          }
+        }
+      ]
+    },
+    {
+      "name": "http-candidate-0",
+      "exit_code": 0,
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "mode": "http",
+          "requests": 5329,
+          "successful_workers": 16,
+          "errors": 0,
+          "warmup_errors": 0,
+          "error_kinds": {},
+          "mean_latency_us": 89873.10170763746,
+          "p99_us_upper": 276000,
+          "goodput_gbps": 3.126199843753145e-05,
+          "bytes": 117238,
+          "warmup_bytes": 74558,
+          "total_seconds": 50.001408907,
+          "seconds": 30.001408959
+        },
+        {
+          "mode": "bulk",
+          "requests": 13,
+          "successful_workers": 13,
+          "errors": 0,
+          "warmup_errors": 0,
+          "error_kinds": {},
+          "mean_latency_us": 19916178.692307692,
+          "p99_us_upper": 21843000,
+          "goodput_gbps": 0.005108743397634232,
+          "bytes": 19158564,
+          "warmup_bytes": 20971520,
+          "total_seconds": 50.001215525,
+          "seconds": 30.001215577
+        }
+      ]
+    },
+    {
+      "name": "http-control-0",
+      "exit_code": 1,
+      "firewall_clean": true,
+      "workloads": [
+        {
+          "mode": "http",
+          "requests": 5444,
+          "successful_workers": 16,
+          "errors": 0,
+          "warmup_errors": 0,
+          "error_kinds": {},
+          "mean_latency_us": 87810.39658339457,
+          "p99_us_upper": 260000,
+          "goodput_gbps": 3.193757236477895e-05,
+          "bytes": 119768,
+          "warmup_bytes": 77220,
+          "total_seconds": 50.000526885,
+          "seconds": 30.000526936
+        },
+        {
+          "mode": "bulk",
+          "requests": 7,
+          "successful_workers": 2,
+          "errors": 2,
+          "warmup_errors": 2,
+          "error_kinds": {
+            "body_timeout": 2
+          },
+          "mean_latency_us": 5015475,
+          "p99_us_upper": 6171000,
+          "goodput_gbps": 0.004190421723260074,
+          "bytes": 15714249,
+          "warmup_bytes": 17747446,
+          "total_seconds": 50.000319794,
+          "seconds": 30.000319849
+        }
+      ]
+    }
+  ]
+}
