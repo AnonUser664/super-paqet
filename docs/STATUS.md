@@ -30,6 +30,10 @@ fails: median throughput is 29.12 versus the prior candidate's 35.15 Mbit/s,
 and mean/p99 worsen. The ramp and its runtime-only regression fixture have been
 removed; the attempted source, failed gates and model receipts remain preserved.
 
+A narrower [queue-probe pause](queue-probe-models-2026-10-12.json) passes model,
+race and vet checks, retaining ordinary sending while briefly suppressing only
+extra probes. Its performance qualification is pending; production is unchanged.
+
 The warning-level visibility follow-up exports each carrier's existing soft-loss
 counter on `/metrics` and includes it in finite observer incident detection.
 The [observer/race/vet checks](output-loss-observer-checks-2026-10-12.json) pass;

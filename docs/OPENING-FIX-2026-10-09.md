@@ -927,3 +927,18 @@ universal claim. Earlier adverse paired results remain in their original report.
 The next limited trial will preserve ordinary sending and suppress only the
 extra capacity probe briefly after proven RTT congestion, using existing
 per-carrier quiet state. It remains local until measured; production is unchanged.
+
+### Queue probe pause: model checkpoint
+
+The next trial retains ordinary post-queue pacing and credit growth caused by
+increasing delivered capacity. Only speculative periodic/startup probes wait
+500 ms to 2 seconds after higher-RTT congestion (two regular samples or two RTTs,
+bounded). It reuses the existing pacing deadline for this higher-RTT purpose;
+low-RTT retention and host-output-loss quiet behavior remain. No new state,
+allocation, timer, packet format, source-port logic or stream ownership is added.
+
+The [model/race/vet receipt](queue-probe-models-2026-10-12.json) verifies draining,
+immediate ordinary sending after relief, suppressed extra probes, finite expiry
+and small-message exemption. Five focused race repetitions, full root race and
+vet pass. Exact-executable comparisons remain pending. This trial is distinct
+from the rejected gain ramp and does not throttle normal recovery sending.

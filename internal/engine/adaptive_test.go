@@ -12,6 +12,47 @@ import (
 	"time"
 )
 
+// TestQueueReliefSuppressesOnlyExtraProbes keeps normal delivery moving after
+// a known queue drains; only the speculative doubled-rate probe pauses.
+func TestQueueReliefSuppressesOnlyExtraProbes(t *testing.T) {
+	c := newController(4096, 4096)
+	c.startup = false
+	c.ackScheduleBudget = 50
+	now := time.Unix(100, 0)
+	s := kcp.TransportStats{MSS: 1300, SRTT: 20, Pending: 512, PendingBytes: 512 * 1300}
+	c.update(s, now)
+	advance := func(rtt, variation int32) {
+		now = now.Add(250 * time.Millisecond)
+		s.AckedBytes += 100000
+		s.AckedSegments += 80
+		s.SentSegments += 80
+		s.SRTT, s.SRTTVar = rtt, variation
+		c.update(s, now)
+	}
+	advance(20, 0)
+	advance(220, 20)
+	if !c.congested || c.pacingRate() > uint64(c.rate*.26) {
+		t.Fatal("fixture did not establish a draining queue")
+	}
+	c.samples = 7
+	advance(20, 0)
+	if c.congested {
+		t.Fatal("fixture did not relieve the queue")
+	}
+	if rate := c.pacingRate(); rate < uint64(c.rate) || rate > uint64(c.rate*1.1) {
+		t.Fatalf("queue relief changed ordinary sending or permitted an extra probe: %d estimate=%f", rate, c.rate)
+	}
+	c.samples = 7
+	advance(20, 0)
+	if rate := c.pacingRate(); rate != uint64(c.rate*2) {
+		t.Fatalf("finite quiet interval prevented healthy probing: %d estimate=%f", rate, c.rate)
+	}
+	c.smallMessages = true
+	if rate := c.pacingRate(); rate != 0 {
+		t.Fatalf("small controls were paced: %d", rate)
+	}
+}
+
 // TestLocalDropsDrainAnACKMaskedQueue keeps RTT inside the known ACK budget.
 // Direct local queue loss must still stop growth, while quiet recovery retains
 // the surviving flight credit rather than repeatedly shrinking it to zero.

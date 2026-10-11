@@ -1,0 +1,41 @@
+{
+  "source": "102c031039d8353201c1dc775e705d11fe35d9f4",
+  "checks": [
+    {
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "-run",
+        "Test(QueueRelief|LocalDrops|OutputDropCounters|LowRTTQueuePacing|LegacyRTTJitter)",
+        "-count=5",
+        "./internal/engine"
+      ],
+      "exit_code": 0,
+      "seconds": 2.319589029997587
+    },
+    {
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "./..."
+      ],
+      "exit_code": 0,
+      "seconds": 7.708167616998253
+    },
+    {
+      "command": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "exit_code": 0,
+      "seconds": 0.4332280050002737
+    }
+  ],
+  "worktree_patch_sha256": "3450c576e91cdbdb25b943abdde7463a0a8cc009b158267b1d38adae633288d6",
+  "production_changed": false,
+  "acceptance": "models/race/vet pass; exact executable performance comparisons pending",
+  "policy": "retain ordinary sending and measured-rate growth; pause speculative window/rate probes for 500ms..2s after known RTT queueing using the existing per-carrier timestamp"
+}
