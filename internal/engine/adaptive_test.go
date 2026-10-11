@@ -12,62 +12,6 @@ import (
 	"time"
 )
 
-// TestQueueReliefDoesNotInstantlyRefill models a bandwidth-change queue drain.
-// The measured delivery rate survives, but a quiet sample cannot immediately
-// quadruple pacing. Healthy probes resume after the finite recovery interval.
-func TestQueueReliefDoesNotInstantlyRefill(t *testing.T) {
-	c := newController(4096, 4096)
-	c.startup = false
-	c.ackScheduleBudget = 50
-	now := time.Unix(100, 0)
-	s := kcp.TransportStats{MSS: 1300, SRTT: 20, Pending: 512, PendingBytes: 512 * 1300}
-	c.update(s, now)
-	advance := func(after time.Duration, rtt int32, variation int32) {
-		now = now.Add(after)
-		s.AckedBytes += 100000
-		s.AckedSegments += 80
-		s.SentSegments += 80
-		s.SRTT, s.SRTTVar = rtt, variation
-		c.update(s, now)
-	}
-	advance(250*time.Millisecond, 20, 0)
-	c.pacingRate()
-	advance(250*time.Millisecond, 220, 20)
-	if !c.congested {
-		t.Fatal("fixture did not establish queue pressure")
-	}
-	if rate := c.pacingRate(); rate > uint64(c.rate*.26) {
-		t.Fatalf("queue did not drain: rate=%d estimate=%f", rate, c.rate)
-	}
-	advance(250*time.Millisecond, 20, 0)
-	if c.congested {
-		t.Fatal("fixture did not relieve the queue")
-	}
-	first := c.pacingRate()
-	if first > uint64(c.rate*.51) || first < uint64(c.rate*.49) {
-		t.Fatalf("queue relief refilled too quickly: rate=%d estimate=%f", first, c.rate)
-	}
-	if second := c.pacingRate(); second != first {
-		t.Fatalf("same epoch accelerated recovery: %d -> %d", first, second)
-	}
-	advance(250*time.Millisecond, 20, 0)
-	if rate := c.pacingRate(); rate > uint64(c.rate*.76) || rate <= first {
-		t.Fatalf("recovery ramp lost its bound or progress: %d -> %d", first, rate)
-	}
-	advance(500*time.Millisecond, 20, 0)
-	if rate := c.pacingRate(); rate < uint64(c.rate) {
-		t.Fatalf("quiet carrier retained a stale ceiling: %d estimate=%f", rate, c.rate)
-	}
-	c.samples = 8
-	if rate := c.pacingRate(); rate != uint64(c.rate*2) {
-		t.Fatalf("healthy probing did not resume: %d estimate=%f", rate, c.rate)
-	}
-	c.smallMessages = true
-	if rate := c.pacingRate(); rate != 0 {
-		t.Fatalf("small controls were paced: %d", rate)
-	}
-}
-
 // TestLocalDropsDrainAnACKMaskedQueue keeps RTT inside the known ACK budget.
 // Direct local queue loss must still stop growth, while quiet recovery retains
 // the surviving flight credit rather than repeatedly shrinking it to zero.

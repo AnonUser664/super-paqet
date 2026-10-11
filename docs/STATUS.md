@@ -23,9 +23,12 @@ completes without errors but leaves two-pair bulk p99 at **3.127 versus 2.531
 seconds** (+23.55%); this adverse result blocks a nonregression claim.
 This candidate is **local and not deployed or release-qualified**.
 
-A [local queue-relief pacing ramp](pacing-recovery-models-2026-10-12.json) passes
-deterministic temporal models and full root race/vet checks. It limits upward gain
-only after recent pressure; its exact-binary performance qualification is pending.
+The [queue-relief pacing ramp](pacing-recovery-models-2026-10-12.json) passes
+deterministic temporal models and full root race/vet, but its
+[three-way performance comparison](pacing-recovery-performance-2026-10-12.json)
+fails: median throughput is 29.12 versus the prior candidate's 35.15 Mbit/s,
+and mean/p99 worsen. The ramp and its runtime-only regression fixture have been
+removed; the attempted source, failed gates and model receipts remain preserved.
 
 The warning-level visibility follow-up exports each carrier's existing soft-loss
 counter on `/metrics` and includes it in finite observer incident detection.

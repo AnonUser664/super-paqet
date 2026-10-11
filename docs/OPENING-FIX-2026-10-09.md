@@ -852,9 +852,11 @@ are 76.887/76.685 versus control 80.527/75.800 Mbit/s: medians retain 98.24% of
 control, within the 5% allowance. The first pair was near that limit and prompted
 the reverse-order repeat rather than a per-run speedup claim.
 
-The 50 → 5 → 50 Mbit/s body workload completes without errors, increases measured
+The 50 → 5 → 50 Mbit/s body workload completes without errors, improves measured
 payload/mean, but has adverse p99 of 3.263 versus 2.319 seconds. Its transitions
-occur in the 20-second warmup; warmed completions can still span earlier queueing.
+occur in the 20-second warmup. Latency classifies requests by start time; in-flight
+warmup responses do not enter measured quantiles. These quantiles characterize
+post-transition behavior, rather than latency during the bandwidth reduction.
 The full schedule, warmup statistics and subsequent quantiles remain in the
 receipt. A reverse-order repeat is pending before acceptance. Exact samples show
 no local-output-pressure events on either version; the local-drop feedback is
@@ -905,3 +907,23 @@ that owned text is retained as `.go.txt`. Engine race checks pass in that failed
 attempt, and the corrected full root race/vet command passes. This is a harness
 correction, not an erased failure. Exact-binary performance comparisons remain
 pending, so the pacing ramp is not accepted or deployed at this checkpoint.
+
+### Pacing ramp rejected after native comparisons
+
+The [six-run, alternating three-way comparison](pacing-recovery-performance-2026-10-12.json)
+uses exact production, preceding candidate `cd693a37…`, and ramp `c766e873…`, with
+identical placement/configuration. All workloads and cleanup pass correctness.
+Ramp medians are 29.12 Mbit/s payload, 1824.59 ms mean and 3059.5 ms body p99,
+versus preceding candidate 35.15 Mbit/s, 1571.39 ms and 2686 ms. Throughput falls
+17.14%, mean rises 16.11% and p99 rises 13.90%, failing the finite limits.
+The normal recovery ramp restricts useful sending along with probes; deterministic
+desirability does not establish real link performance. The runtime edit and its
+specific model fixture are removed, retaining all attempted source/receipts.
+
+The production medians in this matrix are 32.68 Mbit/s, 1640.31 ms and 2905.5 ms.
+The preceding candidate's earlier body-tail regression does not reproduce here,
+illustrating why neither a single favorable pair nor a sparse p99 establishes a
+universal claim. Earlier adverse paired results remain in their original report.
+The next limited trial will preserve ordinary sending and suppress only the
+extra capacity probe briefly after proven RTT congestion, using existing
+per-carrier quiet state. It remains local until measured; production is unchanged.

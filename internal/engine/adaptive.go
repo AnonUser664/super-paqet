@@ -63,14 +63,10 @@ type controller struct {
 	// Hysteretic queue classification used to avoid reacting permanently to reorder/jitter
 	// noise.
 	congested bool
-	// Recent pressure retains pacing on low-RTT links and bounds recovery gain
-	// on every link. Expiry restores the quiet LAN bypass and ordinary probes.
+	// Low propagation delay normally skips byte pacing for the fast LAN path.
+	// After actual queue growth, retain pacing briefly across queue relief so
+	// the next tick cannot immediately refill the same bottleneck unpaced.
 	pacingUntil time.Time
-	// Last applied pacing gain/epoch let a draining bulk carrier recover
-	// gradually instead of refilling its queue on the next quiet sample.
-	// Healthy startup probes and small-message traffic remain exempt.
-	pacingGain float64
-	pacingAt   time.Time
 	// Local output loss is direct evidence of an overfilled host queue, even
 	// when ACK scheduling or RTT variation masks growth in the network RTT.
 	outputPressure bool
@@ -179,7 +175,7 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 			}
 		}
 	}
-	if c.congested || c.outputPressure {
+	if c.minRTT < 10 && (c.congested || c.outputPressure) {
 		c.pacingUntil = now.Add(max(time.Second, min(8*time.Second, time.Duration(s.SRTT)*4*time.Millisecond)))
 	}
 	if acked == 0 {
@@ -290,7 +286,6 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 // still release backpressure.
 func (c *controller) pacingRate() uint64 {
 	if (c.minRTT < 10 && !c.last.Before(c.pacingUntil)) || c.rate <= 0 || !c.bulkSeen || c.smallMessages {
-		c.pacingGain, c.pacingAt = 0, time.Time{}
 		return 0
 	}
 	gain := 1.05 * (1 + c.lossRatio)
@@ -305,14 +300,6 @@ func (c *controller) pacingRate() uint64 {
 	} else if !c.last.Before(c.outputQuietUntil) && (c.startup || c.samples%8 == 0) {
 		gain = 2
 	}
-	if c.pacingGain > 0 && gain > c.pacingGain && c.last.Before(c.pacingUntil) {
-		// Raise gain by at most one per second during recent queue relief.
-		// This bounds the 0.25 -> 1.05 jump without retaining a stale byte
-		// ceiling as delivery improves. Reductions remain immediate; repeated
-		// observations of the same epoch cannot accelerate the ramp.
-		gain = min(gain, c.pacingGain+max(0, c.last.Sub(c.pacingAt).Seconds()))
-	}
-	c.pacingGain, c.pacingAt = gain, c.last
 	return uint64(max(1024, c.rate*gain))
 }
 
