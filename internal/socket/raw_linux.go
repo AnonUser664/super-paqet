@@ -166,24 +166,31 @@ func newRawPacket(cfg *conf.Network) (*rawPacket, error) {
 // WriteBatch injects bounded scatter/gather frames and treats ENOBUFS as datagram loss for KCP
 // recovery.
 func (p *rawPacket) WriteBatch(ms []ipv4.Message, flags int) (int, error) {
+	n, _, err := p.writeBatchWithDrops(ms, flags)
+	return n, err
+}
+
+// writeBatchWithDrops retains injection/retry semantics and returns losses from
+// this exact batch. Shared socket totals cannot attribute loss to a carrier.
+func (p *rawPacket) writeBatchWithDrops(ms []ipv4.Message, flags int) (int, int, error) {
 	p.txMu.Lock()
 	defer p.txMu.Unlock()
 	n := min(len(ms), rawBatchSize)
 	if n == 0 {
-		return 0, nil
+		return 0, 0, nil
 	}
 	for i := 0; i < n; i++ {
 		addr, ok := ms[i].Addr.(*net.UDPAddr)
 		if !ok {
-			return 0, net.InvalidAddrError("raw transport needs UDPAddr endpoints")
+			return 0, 0, net.InvalidAddrError("raw transport needs UDPAddr endpoints")
 		}
 		if len(ms[i].Buffers) != 1 {
-			return 0, fmt.Errorf("expected one KCP payload buffer")
+			return 0, 0, fmt.Errorf("expected one KCP payload buffer")
 		}
 		payload := ms[i].Buffers[0]
 		length, err := p.send.encodeHeader(p.txHeaders[i][:], payload, addr, p.mac, &p.encoder)
 		if err != nil {
-			return 0, err
+			return 0, 0, err
 		}
 		p.txVec[i][0].Base = &p.txHeaders[i][0]
 		p.txVec[i][0].SetLen(length)
@@ -196,7 +203,7 @@ func (p *rawPacket) WriteBatch(ms []ipv4.Message, flags int) (int, error) {
 		p.txHdr[i].Hdr.Iov = &p.txVec[i][0]
 		p.txHdr[i].Hdr.SetIovlen(2)
 	}
-	var sent int
+	var sent, dropped int
 	var opErr error
 	err := p.raw.Write(func(fd uintptr) bool {
 		r, errno, retries := sendWithQueueRetry(func() (int, unix.Errno) {
@@ -214,6 +221,7 @@ func (p *rawPacket) WriteBatch(ms []ipv4.Message, flags int) (int, error) {
 		// every application stream sharing the session.
 		if errno == unix.ENOBUFS {
 			p.txDrops.Add(uint64(n))
+			dropped = n
 			sent = n
 			return true
 		}
@@ -231,9 +239,9 @@ func (p *rawPacket) WriteBatch(ms []ipv4.Message, flags int) (int, error) {
 		p.txVec[i][1].Base = nil
 	}
 	if err != nil {
-		return sent, err
+		return sent, dropped, err
 	}
-	return sent, opErr
+	return sent, dropped, opErr
 }
 
 // ReadBatch receives into reusable frame slots, validates envelopes and returns only

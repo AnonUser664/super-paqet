@@ -61,6 +61,8 @@ type observedState struct {
 	stats kcplib.TransportStats
 	// Prior mux wait time and local output-drop counts used to calculate sample deltas.
 	flowWait, pipelineDrops uint64
+	// Exact soft output loss belonging to this logical carrier across moves.
+	localOutputDrops uint64
 	// Timestamp for delta/rate expiry calculations.
 	at time.Time
 }
@@ -133,6 +135,7 @@ func (e *Engine) observe() {
 				muxCanceled, muxResetDrops := conn.Session.WriteCancellationStats()
 				minWindow, maxWindow := conn.Session.ReceiveWindowStats()
 				drops := conn.UDPSession.PostProcessingDrops()
+				localOutputDrops := conn.UDPSession.LocalOutputDrops()
 				old := previous[conn]
 				var txDrops any
 				if packet, ok := conn.UDPSession.OutputPacketConn().(*socket.PacketConn); ok {
@@ -144,7 +147,7 @@ func (e *Engine) observe() {
 				if old.at.IsZero() {
 					seconds = e.current().Log.duration.Seconds()
 				}
-				previous[conn] = observedState{s, flowWait, drops, now}
+				previous[conn] = observedState{stats: s, flowWait: flowWait, pipelineDrops: drops, localOutputDrops: localOutputDrops, at: now}
 				// A queued observer tick can precede the most recent tuner update.
 				// Use wall monotonic age at formatting, not the stale tick time.
 				var controllerAge int64 = -1
@@ -164,6 +167,7 @@ func (e *Engine) observe() {
 					// Keep these separate from total retransmissions: random
 					// loss, reorder and local queue drops need different fixes.
 					"spurious_retransmit_delta", s.SpuriousRetransmissions-old.stats.SpuriousRetransmissions, "spurious_retransmit_total", s.SpuriousRetransmissions, "reorder_delay_ms", s.ReorderDelay,
+					"carrier_output_drop_delta", localOutputDrops-old.localOutputDrops, "carrier_output_drops_total", localOutputDrops,
 					"controller_sample_age_ms", controllerAge, "controller_rtt_ms", v.sampledRTT, "controller_rttvar_ms", v.sampledRTTVar, "controller_ack_budget_ms", v.ackBudget, "controller_window", v.window,
 					"forward_queue_ms", s.ForwardQueue, "reverse_queue_ms", s.ReverseQueue, "transit_samples", s.TransitSamples, "congested", v.congested, "small_messages", v.smallMessages,
 					"queue_signal_ms", v.queueSignal, "local_output_pressure", v.outputPressure, "peer_ack_delay_ms", s.PeerACKDelay,

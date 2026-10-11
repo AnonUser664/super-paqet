@@ -151,6 +151,8 @@ type (
 		batchACK atomic.Bool
 		// Counts locally rejected queued output separately from network loss.
 		postProcessingDrops atomic.Uint64
+		// Soft output loss attributed by the driver to this session's batches.
+		localOutputDrops atomic.Uint64
 		// Counts waits for reliable send capacity rather than busy-loop attempts.
 		writeWaitCount atomic.Uint64
 		// Cumulative blocked write duration used by diagnostics/control.

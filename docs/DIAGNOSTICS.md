@@ -366,3 +366,21 @@ means no controller sample yet; other ages use monotonic time at formatting.
 Comparing an old decision directly with the newer RTT can otherwise manufacture
 an apparent contradiction. Warning-level production skips this debug snapshot.
 The fields pass local race/vet verification and are not yet deployed.
+
+
+## Local candidate: precise host output pressure
+
+The opening/performance branch adds `local_output_pressure` to debug samples.
+This records the controller's exact sampled host-loss classification, separately
+from RTT-derived `congested`. `carrier_output_drop_delta` and
+`carrier_output_drops_total` report soft output losses attributed to that KCP
+session's own batches, retaining totals across physical migration. These are
+reported local output failures, not distinct user packets or all network loss.
+`pipeline_drop_delta` is separate session-local queue overflow.
+
+Accepted carriers also expose their current worker's socket-wide `tx_queue_drops`
+for diagnosis. Several carriers can show the same worker total; never sum those
+fields as independent losses. The controller does not use shared worker totals.
+The AF_PACKET driver reports precise per-batch soft loss. Pcap currently retains
+legacy soft-loss behavior and does not provide this precise per-call signal.
+These fields/policy are local candidates; production still runs latency.1.

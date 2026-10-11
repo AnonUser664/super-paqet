@@ -53,7 +53,17 @@ func (s *UDPSession) tx(txqueue []ipv4.Message) {
 	nbytes := 0
 	npkts := 0
 	for len(txqueue) > 0 {
-		n, err := route.platform.batchConn.WriteBatch(txqueue, 0)
+		var n int
+		var err error
+		if route.platform.batchWithDrops != nil {
+			var dropped int
+			n, dropped, err = route.platform.batchWithDrops.WriteBatchWithDrops(txqueue, 0)
+			if dropped > 0 {
+				s.localOutputDrops.Add(uint64(dropped))
+			}
+		} else {
+			n, err = route.platform.batchConn.WriteBatch(txqueue, 0)
+		}
 		if err != nil {
 			s.notifyWriteError(errors.WithStack(err))
 			break

@@ -9,7 +9,6 @@ import (
 	kcplib "github.com/xtaci/kcp-go/v5"
 	"math"
 	"paqet/internal/conf"
-	"paqet/internal/socket"
 	"paqet/internal/tnet/kcp"
 	"sync/atomic"
 	"time"
@@ -71,10 +70,9 @@ type controller struct {
 	// Local output loss is direct evidence of an overfilled host queue, even
 	// when ACK scheduling or RTT variation masks growth in the network RTT.
 	outputPressure bool
-	// Socket identity separates counters after a physical carrier move. Shared
-	// server sockets report pressure on that worker, not per-user network loss.
-	outputPacket               *socket.PacketConn
-	outputDrops, pipelineDrops uint64
+	// Previous per-session soft output/pipeline loss count. Shared socket
+	// totals are diagnostic only; these counts follow the logical carrier.
+	outputDrops uint64
 	// Suppress immediate probing briefly after local drops; only a fresh drop
 	// sample requests a window reduction, so quiet recovery cannot shrink it.
 	outputQuietUntil time.Time
@@ -84,21 +82,16 @@ type controller struct {
 	hotUntil time.Time
 }
 
-// observeOutput samples existing atomic drop counters at the controller cadence.
-// Ignore isolated drops and socket changes, which otherwise turn a fresh shared
-// socket's lifetime counter into fictitious loss on the migrated conversation.
-func (c *controller) observeOutput(packet *socket.PacketConn, drops, pipelineDrops uint64, s kcplib.TransportStats, now time.Time) {
+// observeOutput samples per-session batch/pipeline loss at the controller cadence.
+// Ignore isolated drops and decreasing counters. A carrier must never inherit
+// another client's shared-worker losses or a new socket's lifetime counter.
+func (c *controller) observeOutput(drops uint64, s kcplib.TransportStats, now time.Time) {
 	c.outputPressure = false
-	if !c.last.IsZero() && s.OutputPackets >= c.previous.OutputPackets {
+	if !c.last.IsZero() && drops >= c.outputDrops && s.OutputPackets >= c.previous.OutputPackets {
 		threshold := max(uint64(4), (s.OutputPackets-c.previous.OutputPackets)/100)
-		if packet != nil && packet == c.outputPacket && drops >= c.outputDrops && drops-c.outputDrops > threshold {
-			c.outputPressure = true
-		}
-		if pipelineDrops >= c.pipelineDrops && pipelineDrops-c.pipelineDrops > threshold {
-			c.outputPressure = true
-		}
+		c.outputPressure = drops-c.outputDrops > threshold
 	}
-	c.outputPacket, c.outputDrops, c.pipelineDrops = packet, drops, pipelineDrops
+	c.outputDrops = drops
 	if c.outputPressure {
 		c.outputQuietUntil = now.Add(time.Second)
 	}
@@ -418,12 +411,9 @@ func (e *Engine) tune() {
 				// on a lossless high-delay path. Fast retransmission still handles
 				// explicit gaps; the timer floor avoids racing the normal ACKs.
 				conn.UDPSession.SetMinRTO(uint32(max(30, int(s.SRTT)*2+int(s.SRTTVar)*4)))
-				packet, _ := conn.UDPSession.OutputPacketConn().(*socket.PacketConn)
-				var drops uint64
-				if packet != nil {
-					drops = packet.TXDrops()
-				}
-				c.observeOutput(packet, drops, conn.UDPSession.PostProcessingDrops(), s, now)
+				// Per-session batch loss remains attributable on shared workers
+				// and monotonic across physical moves. Socket totals stay diagnostic.
+				c.observeOutput(conn.UDPSession.PostProcessingDrops()+conn.UDPSession.LocalOutputDrops(), s, now)
 				window := c.update(s, now)
 				conn.UDPSession.SetPacingRate(c.pacingRate())
 				if s.SendWindow != window {

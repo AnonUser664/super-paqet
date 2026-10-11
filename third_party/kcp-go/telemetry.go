@@ -15,6 +15,10 @@ func (s *UDPSession) OutputPacketConn() net.PacketConn {
 	return nil
 }
 
+// LocalOutputDrops counts soft loss from this session's output batches, across
+// physical migration. Shared socket counters must not be used as carrier loss.
+func (s *UDPSession) LocalOutputDrops() uint64 { return s.localOutputDrops.Load() }
+
 // PostProcessingDrops counts local pipeline overflow, distinct from network loss.
 func (s *UDPSession) PostProcessingDrops() uint64 { return s.postProcessingDrops.Load() }
 

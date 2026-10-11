@@ -716,3 +716,63 @@ Bounded warning records report backend 2096 refusals around 18:38/18:41 UTC and
 matching client target rejections. Xray identities changed outside this work;
 these messages show destination refusals rather than establish path filtering.
 Observers remain active. No candidate binary or transport policy was deployed.
+
+
+### Output-pressure experiment and attribution correction
+
+The [twelve output-pressure runs](output-pressure-diagnostics-2026-10-11.json)
+retain all successes and failures. Against `8ef31b9`, candidate `7a42c0c`
+improves the two-pair pooled-pressure medians from 180.71 to 273.65 Mbit/s
+combined bulk, from 1266.61 to 64.70 ms small-request mean, and from 2457.5 to
+136 ms small-request p99. Its first pair also reduces summed independent client
+socket drop attempts from about 2.4 million to 3,500. Carrier placement varies;
+one control gives small requests spare lanes and averages 0.60 ms, whereas the
+candidate averages 1.33 ms with more bulk throughput. The medians pass the local
+comparison limits, not a comparison against the production binary or a proof of
+per-run nonregression.
+
+Two clean pairs use four fixed one-carrier peers, two capture workers, null
+crypto, and equal four-thread CPU budgets at each end. Median upload changes
+from 5.64096 to 5.66244 Gbit/s (+0.38%) and download from 4.21199 to 4.20023
+Gbit/s (-0.28%), within the 5% bulk limit. The unequal direction rates remain
+in this equal-budget experiment; increasing Go budgets alone does not establish
+its cause. No structural packet-format or protocol framing change was made.
+
+The asymmetric HTTP/body candidate finishes without errors; its control has
+eight warmup body timeouts (included in eight total errors). Whole-run body
+payload is 6.257 versus 6.388 Mbit/s; small means are 89.73 versus 88.04 ms.
+Candidate small p99 is 305 versus 272 ms, outside a strict 10% tail limit in
+this single pair. Loss-only body means are 3.317 versus 3.168 seconds and rates
+40.906 versus 41.395 Mbit/s, with zero errors in both versions, but candidate
+bulk p99 is 7.395 versus 3.831 seconds. This tail regression is preserved and
+requires further investigation/repeats. It is not described as a universal pass.
+
+Review identifies a correctness limitation in the feedback policy before any
+promotion: backend output sockets are shared between independent clients.
+Applying the socket's drop increment to every carrier can throttle a good link
+because another client's tuple has a full queue. The queued comparison against
+production is canceled at its sudo prompt, before authentication or workload
+launch. Its canceled receipt remains in `production-control13-canceled/`.
+
+The next revision reports soft loss from the exact driver batch back to its
+own KCP session. The AF_PACKET injection path returns an additional loss count
+without changing attempted-frame construction, bounded queue retry, partial
+send semantics or permanent errors. A cached optional batch interface reports
+this count to KCP; only reported failed batches increment one per-session atomic
+counter. No payload parsing, tuple map, per-packet healthy-path counter or new
+connection-tracking state is added. This works with opaque encryption/FEC output
+and retains the logical counter across migration. The adaptive controller now
+samples only that carrier's reported loss plus its own pipeline overflow.
+Shared worker totals remain diagnostic. The pcap adapter retains its existing
+behavior and reports no precise per-call soft losses; only pipeline/RTT signals
+apply there. That limitation is explicit rather than inferring carrier loss from
+shared totals.
+
+A deterministic concurrent test shares one output socket between a permanently
+lossy tuple and a healthy tuple. All 256 reported losses belong to the affected
+session and none to its healthy neighbor; a physical move retains the logical
+count. Existing native migration integrity cases verify actual AES/null moves.
+Application race/vet and repeated migration/attribution races pass. Debug logs
+add exact `carrier_output_drop_delta`/`carrier_output_drops_total`, keeping these
+separate from socket-scoped `tx_queue_drops`. Corrected-policy benchmarks remain
+pending; the earlier shared-worker executable is not promoted.

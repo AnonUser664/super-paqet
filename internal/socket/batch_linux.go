@@ -52,6 +52,19 @@ func (c *PacketConn) WriteBatch(ms []ipv4.Message, flags int) (int, error) {
 	return len(ms), nil
 }
 
+// WriteBatchWithDrops is optional KCP feedback for this batch only. Report
+// wholly rejected datagrams as consumed loss, preserving reliable retry rather
+// than turning transient queue pressure into a fatal socket error.
+func (c *PacketConn) WriteBatchWithDrops(ms []ipv4.Message, flags int) (int, int, error) {
+	if c.raw != nil {
+		return c.raw.(*rawPacket).writeBatchWithDrops(ms, flags)
+	}
+	// The pcap path retains legacy injection behavior. Its driver cannot yet
+	// supply per-call soft-loss attribution, so never substitute shared totals.
+	n, err := c.WriteBatch(ms, flags)
+	return n, 0, err
+}
+
 // ReadBatch delegates raw receive batches or fills one pcap message through the same packet
 // interface.
 func (c *PacketConn) ReadBatch(ms []ipv4.Message, flags int) (int, error) {

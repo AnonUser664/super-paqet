@@ -41,6 +41,8 @@ type (
 	platform struct {
 		// Optional platform/custom batch adapter retaining the same packet transport.
 		batchConn batchConn
+		// Optional precise soft-loss feedback; resolved once per physical route.
+		batchWithDrops batchWithDrops
 	}
 
 	// udpConn is an interface implemented by net.UDPConn.
@@ -60,6 +62,12 @@ type (
 		ReadBatch(ms []ipv4.Message, flags int) (int, error)
 	}
 )
+
+// batchWithDrops reports consumed soft losses on the same batch invocation.
+// A socket-wide counter cannot distinguish concurrent carriers on a worker.
+type batchWithDrops interface {
+	WriteBatchWithDrops(ms []ipv4.Message, flags int) (int, int, error)
+}
 
 // newBatchConn creates a batchConn based on the IP version of the provided net.PacketConn.
 func newBatchConn(conn net.PacketConn) batchConn {
@@ -88,8 +96,11 @@ func newBatchConn(conn net.PacketConn) batchConn {
 // initPlatform selects platform batch support; custom PacketConn implementations keep raw
 // framing rather than UDP substitution.
 func (sess *UDPSession) initPlatform() {
-	sess.platform.batchConn = newBatchConn(sess.conn)
+	sess.platform = makePlatform(sess.conn)
 }
 
 // makePlatform builds one batch adapter per physical move, never per packet.
-func makePlatform(conn net.PacketConn) platform { return platform{batchConn: newBatchConn(conn)} }
+func makePlatform(conn net.PacketConn) platform {
+	tracked, _ := conn.(batchWithDrops)
+	return platform{batchConn: newBatchConn(conn), batchWithDrops: tracked}
+}
