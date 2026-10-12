@@ -64,6 +64,8 @@ def main():
     fixture.add_argument('--legacy', dest='enterprise', action='store_false', help='role-based upstream fixture; select its binary explicitly')
     p.set_defaults(enterprise=True)
     p.add_argument('--profile', action='store_true')
+    p.add_argument('--metrics-interval', type=float, default=0,
+                   help='diagnostic per-endpoint metrics timeline, 1..60 seconds; zero disables observer load')
     p.add_argument('--trace-seconds', type=float, default=0, help='bounded diagnostic trace during iperf warmup; requires profile, at most two seconds')
     p.add_argument('--debug', action='store_true', help='structured transport diagnostics, sampled flow events')
     p.add_argument('--flow-sample',type=int,default=1000)
@@ -109,6 +111,9 @@ def main():
     if a.cold_read_bytes is not None and not 1 <= a.cold_read_bytes <= 16777216:
         p.error('cold read size must be 1..16777216 bytes')
     if a.flow_sample<1:p.error('flow sample must be positive')
+    if not math.isfinite(a.metrics_interval) or (a.metrics_interval and not 1 <= a.metrics_interval <= 60):
+        p.error('metrics-interval must be zero or finite 1..60 seconds')
+    if a.metrics_interval and not a.enterprise:p.error('metrics timeline requires enterprise')
     if a.host_backlog<0 or a.host_backlog>1000000:p.error('host backlog must be 0..1000000')
     if a.duplex_http and (not a.enterprise or not a.iperf or 'bidirectional' not in a.iperf_directions):p.error('duplex HTTP requires enterprise bidirectional iperf')
     if a.duplex_http_steady and not a.duplex_http:p.error('duplex HTTP steady measurement requires duplex HTTP')
@@ -440,6 +445,26 @@ def main():
         cp = spawn(c,'client',binary,'run','-c',str(out/'client.yaml'))
         time.sleep(2)
         if sp.poll() is not None or cp.poll() is not None: raise RuntimeError('tunnel exited; see logs')
+        if a.metrics_interval:
+            # An opt-in observer retains intermediate carrier state that final
+            # scrapes lose after tuple recovery. It is diagnostic load, never
+            # silently enabled for an acceptance comparison. Owned children
+            # share the matrix reservation and normal bounded teardown.
+            observer = '''import json,time,urllib.request,signal,threading
+stop=threading.Event()
+signal.signal(signal.SIGTERM,lambda *_:stop.set())
+start=time.monotonic()
+while not stop.is_set():
+    sample={"elapsed_seconds":time.monotonic()-start,"unix_seconds":time.time()}
+    try:
+        sample["metrics"]=urllib.request.urlopen("http://127.0.0.1:29090/metrics",timeout=2).read().decode()
+    except Exception as error:
+        sample["error"]=str(error)
+    print(json.dumps(sample),flush=True)
+    stop.wait(INTERVAL)
+'''.replace('INTERVAL', repr(a.metrics_interval))
+            for label, namespace in (('client', c), ('server', s)):
+                spawn(namespace, label+'-metrics-timeline', sys.executable, '-u', '-c', observer)
         running_sha = hashlib.sha256(Path(f'/proc/{sp.pid}/exe').read_bytes()).hexdigest()
         if running_sha!=hashlib.sha256(Path(f'/proc/{cp.pid}/exe').read_bytes()).hexdigest(): raise RuntimeError('server/client binaries changed during startup')
         if a.capture:

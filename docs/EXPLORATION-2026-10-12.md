@@ -304,3 +304,92 @@ Production remains opening.10 on .109. The 15:38 UTC read-only review covers
 PID/config/executable and zero new tunnel errors, opening retries, recoveries
 or log drops. This is real customer traffic; it is not proof of universal link
 performance or of resistance to future upstream blocking.
+
+## Completed shared-output screens; asymmetric qualification blocked
+
+The [combined exact-command receipt](shared-output-qualification-2026-10-12.json)
+retains all four bounded mixed-load runs, the invalid first WAN CLI attempt,
+twelve corrected WAN runs, four uncapped bulk runs and the stopped long ablation.
+Clean null-encryption pinned-lane medians are 5.728 → 5.961 Gbit/s upload and
+4.374 → 4.392 Gbit/s download. Reordering and upload ACK-bottleneck finite gates
+pass. Saturation CPU is not compared as equal-work CPU acceptance.
+
+The 50/10 Mbit/s asymmetric link (40 ms delay each way, 0.5% loss and 5%
+reordering) has an adverse bulk p99: 11.8535 → 13.8565 seconds (+16.90%).
+Mean body time and throughput improve slightly, but that does not clear the tail
+gate. Only 16–23 bodies complete in each short run, so longer investigation is
+required rather than dismissing the failure or claiming causation.
+
+The supplementary 120-second body-only ablation retains its first baseline run
+(86 successes, zero errors, 29.015-second p99), and callback-only run (82
+successes, **four body_timeout errors**, 26.945-second successful-body p99).
+The unchanged 30-second request deadline catches the failures. Its client log
+shows one carrier replaced after stalled transport; application requests had
+already timed out and closed, hence `no_live_carrier` at that later recovery.
+No process crashed; owned processes, firewall rules and namespaces were cleaned.
+The matrix stopped before testing the ordinary executable. This is an unresolved
+failed gate, not proof that caching the syscall callback caused a stall.
+
+A fresh diagnostic matrix repeats production / ordinary / production with
+sampled structured debug events and an explicit five-second per-endpoint metrics
+timeline. These observer costs are opt-in (`--metrics-interval`) and distinguish
+this diagnosis from the earlier acceptance runs. Intermediate state survives
+carrier replacement. Observer children stop under normal owned teardown and the
+same global machine reservation. Neither request deadlines nor error gates were
+relaxed. Investigation remains incomplete.
+
+The machine-wide workload guard now recognizes archived `iperf-local`,
+`fixes-iperf-local` and `fixes-spq-bench` names too. A guarded test uses harmless
+owned sleep processes with custom argv[0] to exercise real /proc detection of all
+five iperf/bench aliases and retires only those children. It passes; no network
+load or nested reservation is involved.
+
+## Production follow-up at 17:14 UTC
+
+The [read-only receipt](emergency-client109-health-2026-10-12-1714.json) covers
+984 ten-second samples since the corrected replacement deployment. Same
+opening.10 executable/config/PID, zero restarts, zero new tunnel errors or rejected
+forwards, peak 11,492 active forwards and 282,068 KiB RSS. No swap/OOM is observed
+in the latest sample. Aborted forwards include application closures and are not
+classified as outages merely from that cumulative counter.
+
+Finland session 1 records 28 opening retries and one successful physical tuple
+recovery at 15:44 UTC, source 53492 → 50467, with established connections
+preserved. The cause of that tuple's interruption is not established by warning
+logs alone. The observer's capture marker contains no profiling artifacts
+because production profiling is disabled; the persisted ten-second samples are
+being inspected. No production mutation or diagnostic traffic was introduced.
+
+The [Finland incident samples](finland-recovery-2026-10-12-1544.json) retain
+18 existing samples around the event. The conversation ID remains 136939470
+across the source-port change, corroborating logical-carrier preservation;
+slot stream counts remain in the hundreds. No local TX/capture drop increment is
+visible. Those observations do not prove where packets were blocked. Existing
+metrics lack accepted-carrier ACKed/received byte progress and per-session RTO,
+so a local observability edit now exports those existing snapshot fields plus
+pending bytes, retransmission totals, RTT variation and queue occupancy. It
+reuses the metrics handler snapshot and adds no per-packet work. It is not yet
+deployed or included in the measured shared-output.1 executable.
+
+The [completed diagnostic replication](asymmetric-diagnostic-2026-10-12.json)
+returns: first production control 89 successes / zero errors / 17.753 s p99;
+ordinary candidate 86 / zero / 23.540 s; second production control 85 / **two
+body timeouts** / 28.897 s. All observers scrape without error and all six owned
+processes exit zero, with clean firewall/namespace teardown. This demonstrates
+an existing production-baseline weakness under this synthetic link. It does
+not clear the earlier candidate tail gate or prove universal equivalence.
+Across the backend's retained one-second diagnostic deltas, the three runs show
+25,520 / 27,357 / 27,763 retries and 9,584 / 10,661 / 12,552 retries later
+classified as spurious. Maximum RTO is 2.690 / 3.480 / 4.084 seconds. There are
+no per-carrier local output drops or recovery warnings in these three runs.
+Those sums include cold verification/startup and must not be mistaken for a
+pure steady measured interval. The next isolated hypothesis is whether the
+200 ms reordering ceiling races late originals under burst queues; raising a
+ceiling is an experiment requiring real-loss latency and clean/mixed gates,
+not an accepted production parameter change.
+
+The observability edit passes five race repetitions of a real accepted-carrier
+mux payload/ACK export check, the full root race suite (engine 6.679 s), engine
+vet, diagnostic CLI preflight and archived workload detection tests. See
+[validation](observability-native-2026-10-12.json). These checks qualify the
+observability code, not the unresolved WAN performance candidate.

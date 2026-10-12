@@ -13,7 +13,8 @@ import subprocess
 import sys
 
 LOCK = Path('/home/shayan/.cache/super-paqet-tests/test.lock')
-LOADS = {'iperf3', 'spq-bench', 'pytest', 'wrk', 'wrk2', 'ab', 'hey',
+LOADS = {'iperf3', 'iperf-local', 'fixes-iperf-local', 'spq-bench',
+         'fixes-spq-bench', 'pytest', 'wrk', 'wrk2', 'ab', 'hey',
          'vegeta', 'stress', 'stress-ng', 'tcpkali'}
 RUNNERS = {'netns_bench.py', 'compare_receive_paths.py', 'path_recovery_bench.py',
            'stress_links.py', 'qualify_wan.py', 'live_reload_netns_test.py',

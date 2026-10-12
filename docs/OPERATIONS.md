@@ -84,6 +84,18 @@ output bytes are different; output counts include attempts/retransmissions and
 are not unique delivered goodput. No-encryption changes neither the need for
 Reality authentication nor the need to complete the actual body.
 
+The 12 October exploration adds per-session `acked_bytes_total`,
+`received_bytes_total`, `pending_bytes`, `retransmitted_segments_total` and
+`spurious_retransmissions_total`, plus RTO, RTT variation and queue occupancies.
+These are available on accepted backend carriers as well as outgoing clients,
+without debug logging. They belong to a conversation, so use deltas only while
+its identity survives; a process/conversation replacement resets its counters.
+ACKed KCP bytes prove reliable transport delivery, not destination application
+authentication. Compare their progress with pending bytes and remote-window
+backpressure before calling a pause an outage. Spurious-retry observations are
+diagnostic evidence of late original ACKs, not proof of censorship. This local
+observability candidate has not replaced the deployed opening.10 binary.
+
 The deployed release counts transient ENOBUFS on both pcap and AF_PACKET as
 datagram loss, letting KCP retransmit. Permanent device/injection errors still
 abort the affected carrier. See [DIAGNOSTICS.md](DIAGNOSTICS.md) for counters.

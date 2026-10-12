@@ -1,0 +1,67 @@
+{
+  "utc": "2026-10-12T17:23:46.601772+00:00",
+  "status": "passed",
+  "production_mutated": false,
+  "serialization": "scripts/with_test_lock.py; machine process check before each reservation",
+  "commands": [
+    "python3 scripts/test_with_test_lock.py",
+    "go test -race ./internal/engine -run TestMetricsAcceptedCarrierDelivery -count=5",
+    "go vet ./internal/engine",
+    "python3 scripts/test_netns_bench_cli.py",
+    "go test -race ./..."
+  ],
+  "logs": {
+    "cli.log": {
+      "sha256": "3c0f856d0b082f08906426e171198d2aa35e39fc5ae65fa5377821a29783d84f",
+      "last_lines": [
+        "..",
+        "----------------------------------------------------------------------",
+        "Ran 2 tests in 0.264s",
+        "",
+        "OK"
+      ]
+    },
+    "metrics.log": {
+      "sha256": "bfcf5b6bc595e10f931a7e67169a1a1ab900e51c6b27d79ed37f686602c6a3ed",
+      "last_lines": [
+        "ok  \tpaqet/internal/engine\t1.130s"
+      ]
+    },
+    "root-race.log": {
+      "sha256": "6049fe202de10e61d716d7fc5054534741288aba7a59204cfe5b81468ff11549",
+      "last_lines": [
+        "?   \tpaqet/cmd\t[no test files]",
+        "ok  \tpaqet/cmd/bench\t(cached)",
+        "ok  \tpaqet/cmd/config\t1.285s",
+        "?   \tpaqet/cmd/dump\t[no test files]",
+        "?   \tpaqet/cmd/firewall\t[no test files]",
+        "?   \tpaqet/cmd/ping\t[no test files]",
+        "?   \tpaqet/cmd/run\t[no test files]",
+        "?   \tpaqet/cmd/secret\t[no test files]",
+        "?   \tpaqet/cmd/version\t[no test files]",
+        "ok  \tpaqet/internal/conf\t(cached)",
+        "ok  \tpaqet/internal/engine\t6.679s",
+        "?   \tpaqet/internal/pkg/iterator\t[no test files]",
+        "ok  \tpaqet/internal/protocol\t(cached)",
+        "ok  \tpaqet/internal/socket\t(cached)",
+        "?   \tpaqet/internal/tnet\t[no test files]",
+        "?   \tpaqet/internal/tnet/kcp\t[no test files]"
+      ]
+    },
+    "vet.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "last_lines": []
+    },
+    "guard.log": {
+      "sha256": "20f07600223b8fe9057d561239cc10f6baa6ac50c34daceeab97c28b080b8a20",
+      "last_lines": [
+        ".",
+        "----------------------------------------------------------------------",
+        "Ran 1 test in 0.033s",
+        "",
+        "OK"
+      ]
+    }
+  },
+  "diagnostic_matrix": "docs/asymmetric-diagnostic-2026-10-12.json; both timeline observers, 3x120 seconds, zero scrape errors, graceful owned cleanup"
+}

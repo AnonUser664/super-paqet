@@ -64,6 +64,20 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 		state := c.UDPSession.TransportStats()
 		graceActive, graceStarts := c.Session.RecoveryGraceStats()
 		labels := fmt.Sprintf("conv=\"%d\",remote=%s", c.UDPSession.GetConv(), strconv.Quote(c.RemoteAddr().String()))
+		// Warn-level production observers need actual delivery and retry evidence
+		// for each logical carrier. Injection attempts and shared-worker counters
+		// cannot distinguish a broken direction from ordinary application closure.
+		// Reuse the snapshot already taken here; add no work to packet processing.
+		for _, v := range []struct {
+			name  string
+			value uint64
+		}{
+			{"acked_bytes_total", state.AckedBytes}, {"received_bytes_total", state.ReceivedBytes},
+			{"pending_bytes", state.PendingBytes}, {"retransmitted_segments_total", state.RetransmittedSegments},
+			{"spurious_retransmissions_total", state.SpuriousRetransmissions},
+		} {
+			fmt.Fprintf(w, "super_paqet_session_%s{%s} %d\n", v.name, labels, v.value)
+		}
 		grace := 0
 		if graceActive {
 			grace = 1
@@ -95,6 +109,9 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 		}{
 			{"send_window", state.SendWindow}, {"remote_window", state.RemoteWindow},
 			{"pending", state.Pending}, {"rtt_ms", int(state.SRTT)},
+			{"rto_ms", int(state.RTO)}, {"rttvar_ms", int(state.SRTTVar)},
+			{"send_queued", state.SendQueued}, {"receive_queued", state.ReceiveQueued},
+			{"receive_reordered", state.ReceiveReordered}, {"pipeline_queued", state.PipelineQueued},
 			{"forward_queue_ms", int(state.ForwardQueue)}, {"reverse_queue_ms", int(state.ReverseQueue)},
 		} {
 			fmt.Fprintf(w, "super_paqet_session_%s{%s} %d\n", v.name, labels, v.value)
