@@ -460,3 +460,23 @@ A fresh two-reversed-pair body screen now measures only the pacing change with
 the existing 200 ms ceiling. The combined prototype is built/native-checked
 but not link-qualified. Passing a modeled controller trace is not evidence
 that either executable is an end-to-end improvement.
+
+The first two pacing-only body runs return zero / three timeouts; their
+goodput remains near 6.05–6.09 Mbit/s. They do not establish a safe end-to-end
+fix despite the causal model passing. The unchanged 200 ms tolerance still
+allows considerable retry traffic. The matrix's second control is completing;
+all attempts remain separate. Next is the already-native-checked combined
+pacing/ceiling hypothesis. No controller or tolerance edit has been applied
+to tracked production source or deployed hosts.
+
+The [completed pacing-only screen](pacing-feedback-screen-2026-10-12.json)
+retains both controls (four / six body timeouts) and both candidates (zero /
+three). The candidate is **not accepted**. Its median goodput remains near
+6.068 Mbit/s versus control 6.186 Mbit/s; median successful-body p99 is
+25.632 versus 17.5745 seconds. Timeout bodies are censored from that successful
+latency histogram, so controls' shorter displayed p99 must not be interpreted
+as universal superiority or pooled with earlier baseline runs. Zero-error
+acceptance is unmet. All four attempts clean their owned processes/rules and
+namespaces. The combined 750 ms/pacing overlay is built/native-checked but its
+prepared local link matrix has not been launched. Source and production retain
+the existing adaptive behavior while investigation continues.
