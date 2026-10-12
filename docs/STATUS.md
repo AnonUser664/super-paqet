@@ -1,5 +1,24 @@
 # Current deployment status
 
+**12 October emergency replacement:** the active client is `94.139.180.109`.
+`89.45.68.14` and `89.45.68.118` have been intentionally stopped following
+external-connectivity failures. All three backend tunnel instances remain on
+opening.10; no experimental private-writer executable was deployed.
+
+The replacement client runs opening.10 with four independent source slots per
+country and the existing adaptive/S-outbound/PA-return profile. Reality forwards
+9001/9002/9003 now target backend **443**, confirmed by the user; Shadowsocks
+forwards 8001/8002/8003 target **8880**. All six routes passed authenticated
+1 MiB downloads. The new service is enabled, and warning/metrics collection
+is active until 19 October 2026, 14:30 UTC. See the
+[emergency deployment](EMERGENCY-CLIENT109-DEPLOYMENT-2026-10-12.md)
+and [receipt](emergency-client109-deployment-2026-10-12.json).
+
+The old clients remain stopped pending the user's instruction; their previous
+configuration and morning qualification below are historical records.
+
+# Morning deployment record (superseded client topology)
+
 All five hosts now run **enterprise-2026.10.12-opening.10** under enabled
 `super-paqet.service`, runtime source `2d0e8d1`, SHA-256
 `22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c`.

@@ -1,4 +1,13 @@
-# Recorded production configuration
+# Current emergency client configuration
+
+The current client is **94.139.180.109**. Its exact YAML and host-specific unit
+are `94.139.180.109.yaml` and `94.139.180.109.service`. Backend listeners and
+executables remain unchanged. Both old clients `.14` and `.118` are stopped;
+their YAML files below retain historical configuration, including obsolete
+Reality target 2096. The replacement uses Reality 443 and Shadowsocks 8880.
+See the [emergency deployment](../EMERGENCY-CLIENT109-DEPLOYMENT-2026-10-12.md).
+
+# Morning production configuration record
 
 All five hosts run **enterprise-2026.10.12-opening.10**, runtime source
 `2d0e8d10c13a79a6b71668fc91aa8fb6a94af7b1`, executable SHA-256
