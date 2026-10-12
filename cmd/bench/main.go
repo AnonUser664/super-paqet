@@ -350,12 +350,7 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 		failureMu.Unlock()
 	}
 	var successfulWorkers atomic.Int64
-	var buckets [32]atomic.Int64
-	// Millisecond buckets cover the HTTP client's complete 30-second timeout.
-	// A two-second fine range made multi-second queue stalls share a coarse
-	// logarithmic upper bound, obscuring differences without capping latency.
-	// The logarithmic histogram remains a fallback beyond the fine range.
-	var millisecondBuckets [30001]atomic.Int64
+	var latencies latencyHistogram
 	var latencySum atomic.Int64
 	var wg sync.WaitGroup
 	start := time.Now()
@@ -430,13 +425,7 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 				completed = true
 				us := time.Since(t0).Microseconds()
 				latencySum.Add(us)
-				millisecondBuckets[min(int(us/1000), len(millisecondBuckets)-1)].Add(1)
-				bucket := 0
-				for us > 1 && bucket < len(buckets)-1 {
-					us >>= 1
-					bucket++
-				}
-				buckets[bucket].Add(1)
+				latencies.record(us)
 			}
 		}()
 	}
@@ -445,24 +434,9 @@ func load(parent context.Context, mode, addr string, workers int, duration time.
 	elapsed := max(0, time.Since(measureFrom).Seconds())
 	rateSeconds := max(1e-9, elapsed)
 	percentile := func(p float64) int64 {
-		threshold := int64(float64(requests.Load()) * p)
-		var n int64
-		for i := 0; i < len(millisecondBuckets)-1; i++ {
-			n += millisecondBuckets[i].Load()
-			if n > threshold {
-				return int64(i+1) * 1000
-			}
-		}
-		n = 0
-		for i := range buckets {
-			n += buckets[i].Load()
-			if n > threshold {
-				return 1 << (i + 1)
-			}
-		}
-		return 0
+		return latencies.percentile(requests.Load(), p)
 	}
-	emit(map[string]any{"mode": mode, "workers": workers, "successful_workers": successfulWorkers.Load(), "request_gap_seconds": gap.Seconds(), "seconds": elapsed, "total_seconds": totalElapsed, "warmup_seconds": warmup.Seconds(), "warmup_requests": warmupRequests.Load(), "warmup_bytes": warmupBytes.Load(), "warmup_errors": warmupFailed.Load(), "requests": requests.Load(), "errors": failed.Load(), "error_kinds": failureKinds, "canceled_requests": canceled.Load(), "bytes": bytes.Load(), "goodput_gbps": float64(bytes.Load()) * 8 / rateSeconds / 1e9, "requests_per_second": float64(requests.Load()) / rateSeconds, "mean_latency_us": float64(latencySum.Load()) / float64(max(1, requests.Load())), "p50_us_upper": percentile(.50), "p99_us_upper": percentile(.99)})
+	emit(map[string]any{"mode": mode, "workers": workers, "successful_workers": successfulWorkers.Load(), "request_gap_seconds": gap.Seconds(), "seconds": elapsed, "total_seconds": totalElapsed, "warmup_seconds": warmup.Seconds(), "warmup_requests": warmupRequests.Load(), "warmup_bytes": warmupBytes.Load(), "warmup_errors": warmupFailed.Load(), "requests": requests.Load(), "errors": failed.Load(), "error_kinds": failureKinds, "canceled_requests": canceled.Load(), "bytes": bytes.Load(), "goodput_gbps": float64(bytes.Load()) * 8 / rateSeconds / 1e9, "requests_per_second": float64(requests.Load()) / rateSeconds, "mean_latency_us": float64(latencySum.Load()) / float64(max(1, requests.Load())), "p50_us_upper": percentile(.50), "p99_us_upper": percentile(.99), "latency_fine_bucket_us": latencyFineStepUS, "latency_fine_range_us": latencyFineMaxUS})
 }
 
 // loadErrorKind distinguishes stalled requests from truncation/reset without

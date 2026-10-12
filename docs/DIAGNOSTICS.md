@@ -129,6 +129,21 @@ Optional `--client-cpus`, `--server-cpus` and `--workload-cpus` pin only owned
 fixture processes. These are benchmark options, not application YAML settings.
 Record actual capture-worker distribution even with fixed source ports.
 
+The benchmark helper reports 125-microsecond upper bounds below 32 ms,
+one-millisecond bounds from 32 ms through 30 seconds, and the existing
+logarithmic fallback beyond that. JSON fields `latency_fine_bucket_us` and
+`latency_fine_range_us` identify the low-latency tier. Quantile rank and exclusion
+of failed/warmup requests are unchanged; latency distributions remain censored
+when requests fail. Earlier receipts use their recorded helper executable and
+must not be silently recomputed or treated as passing because resolution changed.
+
+`netns_bench.py --benchmark-helper /absolute/path/to/spq-bench` selects all
+fixture targets and generators from that executable, recording its resolved
+path and hash. This permits matched control/candidate tests with a new helper
+without replacing another worktree's helper or an archived comparison binary.
+The default remains `build/spq-bench`. Build a new helper into a unique path and
+use the same helper hash for both sides of a comparison.
+
 ```sh
 make build bench-build
 sudo python3 scripts/stress_links.py --duration 20 --profile

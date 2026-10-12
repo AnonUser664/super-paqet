@@ -27,6 +27,7 @@ def run(*args, **kwargs):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--binary', default='build/super-paqet')
+    p.add_argument('--benchmark-helper', default='build/spq-bench', help='explicit fixture executable; preserve archived helpers for matched comparisons')
     p.add_argument('--duration', type=int, default=10)
     p.add_argument('--open-timeout', help='optional enterprise opening budget, e.g. 15s; application validation enforces duration bounds')
     p.add_argument('--dial-timeout', help='optional enterprise target dial budget, e.g. 5s; must be shorter than opening budget')
@@ -175,6 +176,11 @@ def main():
     if (a.restart or a.functional or a.mixed) and not a.enterprise: p.error('these workloads require --enterprise')
     if os.geteuid() != 0:
         p.error('run as root; host backlog changes require the explicit --host-backlog option')
+    # Keep helper candidates separate from shared/archived executables. Resolve
+    # once so every target, generator and receipt names the selected helper.
+    bench = (ROOT / a.benchmark_helper).resolve()
+    if not bench.is_file() or not os.access(bench, os.X_OK):
+        p.error('benchmark-helper must name an executable file')
     resource.setrlimit(resource.RLIMIT_NOFILE, (500000, 500000))
     out = ROOT / a.output
     out.mkdir(parents=True, exist_ok=True)
@@ -435,7 +441,7 @@ def main():
             (out/'client.yaml').write_text(client); (out/'server.yaml').write_text(server)
         if not a.enterprise:
             for args in (['-t','raw','-A','PREROUTING','-p','tcp','--dport','29999','-j','NOTRACK'], ['-t','raw','-A','OUTPUT','-p','tcp','--sport','29999','-j','NOTRACK'], ['-t','mangle','-A','OUTPUT','-p','tcp','--sport','29999','--tcp-flags','RST','RST','-j','DROP']): ns(s,'iptables',*args)
-        spawn(s,'target',str(ROOT/'build/spq-bench'),'-mode','hold-serve' if a.hold else 'serve','-addr',':18080')
+        spawn(s,'target',str(bench),'-mode','hold-serve' if a.hold else 'serve','-addr',':18080')
         binary = str((ROOT/a.binary).resolve())
         if a.enterprise:
             for namespace,label in ((c,'client'),(s,'server')):
@@ -478,7 +484,7 @@ while not stop.is_set():
         # Capture the first transfer before any performance warm-up. A good
         # steady-state rate must not conceal slow startup on new carriers.
         verify_started = time.monotonic()
-        result = ns(c,str(ROOT/'build/spq-bench'),'-mode','verify','-addr','127.0.0.1:28080','-verify-size',str(verify_size))
+        result = ns(c,str(bench),'-mode','verify','-addr','127.0.0.1:28080','-verify-size',str(verify_size))
         first_transfer = json.loads(result.stdout)
         first_transfer['cold_transfer_seconds'] = time.monotonic() - verify_started
         reports = [first_transfer]
@@ -491,21 +497,21 @@ while not stop.is_set():
             while True:
                 attempts+=1
                 try:
-                    result=ns(c,str(ROOT/'build/spq-bench'),'-mode','verify','-addr','127.0.0.1:28080')
+                    result=ns(c,str(bench),'-mode','verify','-addr','127.0.0.1:28080')
                     reports.append({'server_crash_recovered_seconds':time.monotonic()-started,'attempts':attempts,'verification':json.loads(result.stdout)})
                     break
                 except subprocess.CalledProcessError:
                     if time.monotonic()-started>90: raise RuntimeError('server restart did not recover')
                     time.sleep(.25)
         if a.functional:
-            spawn(s,'udp-target',str(ROOT/'build/spq-bench'),'-mode','udp-serve','-addr',':18081')
-            spawn(s,'half-target',str(ROOT/'build/spq-bench'),'-mode','half-serve','-addr',':18082')
+            spawn(s,'udp-target',str(bench),'-mode','udp-serve','-addr',':18081')
+            spawn(s,'half-target',str(bench),'-mode','half-serve','-addr',':18082')
             second = client.replace('2808','3808').replace('2809','3809').replace('29090','39090')
             (out/'second-client.yaml').write_text(second)
             spawn(c,'second-client',binary,'run','-c',str(out/'second-client.yaml'))
             time.sleep(2)
             for mode, address in [('verify','127.0.0.1:28088'),('verify','127.0.0.1:38080'),('udp-verify','127.0.0.1:28090'),('half-verify','127.0.0.1:28091')]:
-                result = ns(c,str(ROOT/'build/spq-bench'),'-mode',mode,'-addr',address)
+                result = ns(c,str(bench),'-mode',mode,'-addr',address)
                 reports.append(json.loads(result.stdout))
             result = ns(c,binary,'ping','-c',str(out/'client.yaml'),'--peer','remote')
             reports.append({'ping':result.stdout.strip()})
@@ -514,7 +520,7 @@ while not stop.is_set():
         for mode in modes:
             sample()
             cpu_before = {name:v.get('cpu_seconds',0) for name,v in peaks.items()}
-            args = [str(ROOT/'build/spq-bench'),'-mode',mode,'-duration',f'{a.duration}s','-workers',str(a.workers),'-addr','127.0.0.1:28080']
+            args = [str(bench),'-mode',mode,'-duration',f'{a.duration}s','-workers',str(a.workers),'-addr','127.0.0.1:28080']
             if a.http_warmup: args += ['-warmup',f'{a.http_warmup}s']
             if a.hold: args[-1] = ','.join(f'127.0.0.1:{28080+i}' for i in range(8)); args += ['-connections',str(a.hold)]
             proc = spawn(c,'load-'+mode,*args)
@@ -536,7 +542,7 @@ while not stop.is_set():
                     hold_sampled = True
                     if a.mixed:
                         for workload in ('http','bulk'):
-                            mixed_procs.append(spawn(c,'mixed-'+workload,str(ROOT/'build/spq-bench'),'-mode',workload,'-addr','127.0.0.1:28080','-workers','8','-duration',f'{max(1,a.duration-2)}s'))
+                            mixed_procs.append(spawn(c,'mixed-'+workload,str(bench),'-mode',workload,'-addr','127.0.0.1:28080','-workers','8','-duration',f'{max(1,a.duration-2)}s'))
                 if time.monotonic() > deadline: raise TimeoutError('benchmark timed out')
                 time.sleep(.25)
             if proc.returncode: raise RuntimeError('load generator failed')
@@ -604,7 +610,7 @@ while not stop.is_set():
                 http_churn=None
                 if name=='bidirectional' and a.duplex_http:
                     http_timing=['-duration',f'{a.duration}s','-warmup',f'{a.warmup}s'] if a.duplex_http_steady else ['-duration',f'{a.duration+a.warmup}s']
-                    http_churn=spawn(c,'duplex-http',str(ROOT/'build/spq-bench'),'-mode','http-churn','-addr','127.0.0.1:28080','-workers','4','-request-gap',f'{a.duplex_http_gap_ms}ms',*http_timing)
+                    http_churn=spawn(c,'duplex-http',str(bench),'-mode','http-churn','-addr','127.0.0.1:28080','-workers','4','-request-gap',f'{a.duplex_http_gap_ms}ms',*http_timing)
                 start_epochs(name)
                 profiles = []
                 if a.profile and a.enterprise and not direct:
@@ -682,7 +688,7 @@ while not stop.is_set():
             rules = ns(s,'iptables-save','-c').stdout
             (out/'firewall-during.txt').write_text(rules)
         if schedule_errors:raise RuntimeError('link schedule failed: '+str(schedule_errors))
-        report = {'parameters':vars(a),'results':reports,'processes':peaks,'kernel':os.uname().release,'binary_sha256':running_sha,'benchmark_helper_sha256':hashlib.sha256((ROOT/'build/spq-bench').read_bytes()).hexdigest()}
+        report = {'parameters':vars(a),'results':reports,'processes':peaks,'kernel':os.uname().release,'binary_sha256':running_sha,'benchmark_helper_sha256':hashlib.sha256(bench.read_bytes()).hexdigest(), 'benchmark_helper_path':str(bench)}
         for n in namespaces:
             (out/(n.split('-')[1]+'-qdisc.json')).write_text(ns(n,'tc','-s','-j','qdisc','show').stdout)
         (out/'results.json').write_text(json.dumps(report,indent=2)+'\n')

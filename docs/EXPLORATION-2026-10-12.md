@@ -676,3 +676,50 @@ removed and unrelated sentinel rules survive. It retains the existing pacing
 policy, 200 ms ceiling, shared output and S/PA/null envelope. Clean/mixed/WAN
 performance checks are running; this executable remains a local candidate and
 has not been deployed.
+
+The [completed batch candidate clean/mixed receipt](ack-batch-remaining-2026-10-12.json)
+passes clean upload 5.716 → 5.991 Gbit/s (+4.82%) and download 4.382 →
+4.398 Gbit/s (+0.37%). Mixed rate stays about 2.000 Gbit/s, CPU changes
+client +0.51%/server +6.24%, and mean request latency 933.307 → 943.982
+microseconds (+1.14%); those limits pass. P99 5 → 6 ms (+20%) fails again.
+All eight commands have zero workload errors and clean up their resources.
+Capacity-step testing is not launched. This result does not clear acceptance
+of the callback/scaffold/core changes, even with a negligible isolated scan cost.
+
+The [completed batch candidate WAN diagnosis](ack-batch-wan-2026-10-12.json)
+also fails: body throughput 6.163 → 3.655 Mbit/s (-40.70%), successful mean
+9.368 → 13.563 s (+44.77%), control errors 0/0 and candidate errors 0/4.
+Small requests have zero errors and similar 84 ms means. Lower successful-only
+body p99 is censored by the candidate's timeouts and is not called improvement.
+Mobile-loss testing is not launched. ACK batching correctness is demonstrated
+independently; these paired measurements do not isolate which source changes
+cause the runtime regression. The executable is **unaccepted and undeployed**.
+
+The [benchmark resolution receipt](latency-histogram-qualification-2026-10-12.json)
+adds 125-microsecond bins below 32 ms, retaining the existing wide ranges and
+quantile rank. It uses two KiB of additional bounded counters; no individual
+samples are retained. Ten race repetitions cover actual HTTP load fixtures,
+fine/wide boundaries, long tails and concurrent updates; vet passes. The new
+helper SHA-256 is `0b2acc786e32c791f58610561fb0b9518932359dbe09bea1244db93919a08769`.
+An explicit `--benchmark-helper` fixture selection passes real TCP/UDP/half-close
+integrity with this helper, exports the resolution metadata, records its exact
+path/hash and preserves unrelated rules. Existing archived helpers, failed gates
+and old measurements remain intact. This changes measurement precision, not
+the running tunnel or retrospective acceptance. A finer-resolution matched
+mixed-load comparison remains unperformed.
+
+At the [20:00 UTC production review](emergency-client109-health-2026-10-12-2000.json),
+the same client binary/PID/config retains zero restarts and no new terminal
+errors/rejections/log drops. Admissions reach 1,073,832; opening retries remain
+749, unchanged since 19:26, and the same single preserving recovery is recorded.
+The observer resumes its journal cursor and durable summary after the refresh.
+This does not establish that the earlier 17:47 interruption is solved.
+
+Next unresolved experiments are a source-layer ablation based on the production
+transport plus only ACK/diagnostic edits (the callback-only ablation retains
+private-writer scaffolding), a matched ordinary-pool mixed test with the finer
+helper and measured placement, and renewed adaptive capacity/pacing diagnostics
+against the corrected RTT evidence. Earlier rejected feedback/750 ms edits are
+not enabled. Busy UDP, encrypted WAN and latest-executable 100,000 busy forwards
+remain unqualified. Production incident attribution still needs a new captured
+event; the new kernel evidence supplies timing previously missing.
