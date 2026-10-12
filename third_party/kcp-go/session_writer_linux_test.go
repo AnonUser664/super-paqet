@@ -155,3 +155,18 @@ func TestSessionWriterMigrationRetiresOnlyOldGeneration(t *testing.T) {
 		t.Fatal("moved output descriptor leaked")
 	}
 }
+
+// TestSessionWriterDialOnlyKeepsOriginalOutput protects independent client
+// source slots from receiving redundant output descriptors during migration.
+func TestSessionWriterDialOnlyKeepsOriginalOutput(t *testing.T) {
+	pc, err := net.ListenPacket("udp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer pc.Close()
+	provider := &writerSocket{PacketConn: pc}
+	p := makeListenerPlatform(provider, false)
+	if p.hasSessionWriter() || len(provider.writers) != 0 {
+		t.Fatal("outgoing route allocated an incoming-only writer")
+	}
+}

@@ -104,16 +104,15 @@ func newBatchConn(conn net.PacketConn) batchConn {
 // initPlatform selects platform batch support; custom PacketConn implementations keep raw
 // framing rather than UDP substitution.
 func (sess *UDPSession) initPlatform() {
-	if sess.l != nil {
-		sess.platform = makeListenerPlatform(sess.conn)
-	} else {
-		sess.platform = makePlatform(sess.conn)
-	}
+	sess.platform = makeListenerPlatform(sess.conn, sess.l != nil && !sess.l.dialOnly)
 }
 
 // makeListenerPlatform resolves one optional output writer per physical route.
-func makeListenerPlatform(conn net.PacketConn) platform {
+func makeListenerPlatform(conn net.PacketConn, incoming bool) platform {
 	p := makePlatform(conn)
+	if !incoming {
+		return p
+	}
 	if provider, ok := conn.(sessionWriterProvider); ok {
 		if writer, err := provider.NewSessionWriter(); err == nil && writer != nil {
 			p.batchConn, p.batchWithDrops, p.sessionWriter = writer, writer, writer

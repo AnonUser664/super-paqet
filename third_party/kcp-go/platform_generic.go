@@ -44,7 +44,7 @@ func (sess *UDPSession) initPlatform() {}
 func makePlatform(conn net.PacketConn) platform { return platform{} }
 
 // Generic transports retain their original shared descriptor and ownership.
-func makeListenerPlatform(conn net.PacketConn) platform { return makePlatform(conn) }
-func (platform) retireSessionWriter(time.Time)          {}
-func (platform) closeSessionWriter()                    {}
-func (platform) hasSessionWriter() bool                 { return false }
+func makeListenerPlatform(conn net.PacketConn, incoming bool) platform { return makePlatform(conn) }
+func (platform) retireSessionWriter(time.Time)                         {}
+func (platform) closeSessionWriter()                                   {}
+func (platform) hasSessionWriter() bool                                { return false }

@@ -79,7 +79,7 @@ func (l *Listener) MoveSession(s *UDPSession, remote net.Addr) error {
 	old.listener.clearOutgoing(s)
 	delete(old.listener.sessions, oldKey)
 	l.sessions[key] = s
-	s.route.Store(&sessionRoute{conn: l.conn, remote: remote, listener: l, platform: makeListenerPlatform(l.conn)})
+	s.route.Store(&sessionRoute{conn: l.conn, remote: remote, listener: l, platform: makeListenerPlatform(l.conn, !l.dialOnly)})
 	old.platform.closeSessionWriter()
 	l.hintOutgoing(s, remote)
 	s.routeMu.Unlock()
