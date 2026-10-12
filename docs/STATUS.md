@@ -1,6 +1,32 @@
 # Current deployment status
 
-Latest local checkpoint: source `3d4387f`, executable SHA-256
+Latest source candidate: `2d0e8d1`, executable SHA-256
+`22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c`.
+The [exact-artifact qualification](raw-batch-qualification-2026-10-12.json) passes
+two clean/pressure pairs, repeated/reverse recovery, two-worker live reload and
+a 120-second 100,000-connection hold, all with zero errors and clean owned teardown.
+Median upload/download is **5.768/4.201 Gbit/s**; pooled bulk is **347.18 Mbit/s**,
+small-request mean/p99 **113.17/183.5 ms**, within control limits. The eight-byte
+raw batch allocation saving does not establish that it caused these finite rate
+differences. The controller retains the preceding per-carrier policy; both pacing
+experiments are rejected and absent. Warning-level metrics expose carrier losses.
+
+50% reordering finishes without errors and within rate/small-latency allowances.
+The short 2 Mbit/s, 5%-loss HTTP comparison has adverse p99 **579 versus 401 ms**.
+A longer three-way control does not reproduce that difference: production and
+candidate both measure **565 ms**, preceding candidate **554 ms**, with zero
+errors. Preserve both, without pooling unequal-duration quantiles or claiming
+universal latency equivalence. This is a **local candidate, not a production
+rollout or unconditional release qualification**.
+
+The [latest production refresh](production-followup-2026-10-12-late.json) through
+23:50 UTC on 11 October verifies unchanged tunnel/config/Xray identities, healthy
+services and zero automatic restarts. Selected journals have no new warnings or
+failure-counter increments since 21:42 UTC. Client .118 adds 66 opening retries;
+Finland adds 948 transmit-drop attempts and reaches 5,061 sampled active forwards.
+These are retained signals, not an incident-free guarantee. Production is unchanged.
+
+Preceding local feedback checkpoint: source `3d4387f`, executable SHA-256
 `cd693a374a9f4ae3425a43138655920184d15b632b5fe0f9f20e48c99ffd3466`.
 The [per-carrier output-pressure qualification](output-pressure-carrier-qualification-2026-10-12.json)
 records two pooled-pressure pairs against the exact production executable:
@@ -39,7 +65,8 @@ A [raw batch allocation follow-up](raw-batch-allocation-2026-10-12.json) reduces
 single-packet allocation traffic from 80 to 72 bytes per call, with unchanged
 reported allocation count and effectively unchanged follow-up syscall timing.
 Real owned-socket payload/permanent-error checks, root race/vet and compiler
-diagnostics pass; exact-executable whole-tunnel qualification remains pending.
+diagnostics pass; its exact-executable results and remaining interpretation limits
+are recorded above.
 No production binary, configuration, observer or Xray service changes were made.
 
 The warning-level visibility follow-up exports each carrier's existing soft-loss

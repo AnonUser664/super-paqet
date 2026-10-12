@@ -976,3 +976,53 @@ packet and -0.82% for 32 packets, within 1% in a separate three-repeat compariso
 Partial batches account for small byte variations in the 32-packet case. These
 are unpinned syscall/encoder microbenchmarks, not tunnel throughput or a universal
 CPU speedup. Exact-binary clean/pressure/recovery comparisons remain pending.
+
+### Raw allocation checkpoint: native qualification and remaining limits
+
+Source `2d0e8d1`, executable `22b2f1ab…`, completes the
+[exact-artifact comparisons](raw-batch-qualification-2026-10-12.json). Two pooled
+pressure pairs against `cd693a37…` retain all errors at zero. Bulk medians are
+325.57 → 347.18 Mbit/s, small means 114.66 → 113.17 ms and p99 214 → 183.5 ms,
+passing the finite limits. Client debug counters match distinct owning-socket
+loss totals under actual kernel pressure, verifying translated soft-loss counts.
+Backend shared-worker totals are not summed per carrier. Native clean two-pair
+upload medians are 5.502 → 5.768 Gbit/s; download 4.214 → 4.201 Gbit/s (-0.31%).
+The first control upload is lower than its second; run variation and placement
+prevent assigning the finite rate change entirely to eight fewer allocated bytes.
+
+Repeated outbound and reverse tuple failures preserve all sequenced held streams,
+retain backend seeds and S outbound/PA return, with no healthy-peer errors.
+Two-worker reload exercises both workers, releases half-closed relays and returns
+FD counts 55 → 55 over three cycles. The exact executable establishes 100,000
+forwards in 5.942 seconds, holds them for 120 seconds, verifies all payloads and
+closes all with zero errors. Client/server peak RSS is 1,737,988/1,734,980 KiB;
+peak swap is 255,452/310,116 KiB. This remains a swapped laptop resource result,
+not a simultaneous full-rate/100,000-flow or small-VPS RAM-only qualification.
+All fixture processes, namespaces and owned rules are removed; sentinels remain.
+
+The final high-reorder shape uses 80 ms RTT, 20 ms one-way jitter, 50% reordering
+and a strict 100 Mbit/s aggregate cap. Candidate/control body payload is
+61.609/60.068 Mbit/s, means 2.148/2.227 seconds, and p99 2.425/2.759 seconds.
+Small means are 76.585/75.966 ms and p99 147/146 ms. All errors remain zero.
+These finite controls cover an earlier adverse scenario without erasing its
+historical receipts or claiming every reorder pattern behaves identically.
+
+On the strict 2 Mbit/s, 100 ms RTT, 5%-loss HTTP shape, a 30-second measurement
+has candidate/control p99 579/401 ms (failed 10% tail allowance), despite means
+140.225/137.650 ms and zero errors. Debug samples show small-message mode, no
+local output pressure and no learned reorder delay on active lanes. It does not
+establish the soft-loss representation as the cause. A longer 60-second,
+20-second-warmup three-way control gives production/prior/current means
+142.160/138.905/139.621 ms and p99 565/554/565 ms, all error-free with safe cleanup.
+The short tail difference does not reproduce; longer data is not pooled with
+unequal-duration short quantiles to manufacture a passing median. The adverse
+gate stays explicit; more deployment-specific confidence may still be needed.
+
+The [23:50 UTC production refresh](production-followup-2026-10-12-late.json)
+verifies the same tunnel/config/Xray identities, healthy services, zero automatic
+restarts and no selected new journal warnings/failure-counter increments since
+21:42 UTC. .118 adds 66 opening retries and Finland adds 948 transmit-drop
+attempts, while sampled Finland activity reaches 5,061 forwards. These are
+recoverable pressure signals to retain, not proof of a process crash or filtering.
+No candidate/observer is promoted and no production configuration/service is
+changed. Source and local results are checkpointed separately from deployment.
