@@ -1,0 +1,37 @@
+{
+  "build": {
+    "source_commit": "057bb4759bcd9e53d6b57ccd1037b02e956b9416",
+    "version": "enterprise-2026.10.12-ack-batch.1",
+    "binary_sha256": "05c99b8d35603a81b80b89118e625bb8c99103e6c67cc322dcb0174432538c7e",
+    "source_dirty": false,
+    "build_command": "CGO_LDFLAGS=-L/home/shayan/Codes/super-paqet/build/deploy-libs go build -trimpath -ldflags=\"-s -w -X paqet/cmd/version.Version=enterprise-2026.10.12-ack-batch.1 -X paqet/cmd/version.GitCommit=057bb47\" -o build/ack-batch-20261012/super-paqet ./cmd",
+    "private_writers": false,
+    "reorder_ceiling_ms": 200,
+    "pacing_policy": "existing policy",
+    "production_mutated": false
+  },
+  "native": {
+    "kcp_race": {
+      "exit_code": 0,
+      "seconds": 691.104,
+      "large_integrity": [
+        "1 GiB",
+        "6 GiB"
+      ],
+      "private_log": "build/ack-batch-20261012/full-native/kcp-race.log"
+    },
+    "kcp_vet": "pass",
+    "root_race": "pass",
+    "root_vet": "pass"
+  },
+  "scan_microbenchmark": {
+    "five_repetitions_median_ns": {
+      "single": 3.506,
+      "batch48": 140.7
+    },
+    "bytes_per_op": 0,
+    "allocations_per_op": 0,
+    "limitation": "isolated eligibility scan; not end-to-end throughput or deployment acceptance"
+  },
+  "functional_and_performance": "not yet completed"
+}

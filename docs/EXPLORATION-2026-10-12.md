@@ -657,3 +657,22 @@ the client. These counters include other host traffic and do not date the
 earlier interruption or attribute loss to the tunnel. No queue policy is tuned
 from cumulative/drop-rate evidence alone. All four services retain their PIDs
 and zero systemd restarts during the comparison.
+
+The batch follow-up [full native receipt](ack-batch-native-2026-10-12.json)
+passes the complete KCP owning-module race suite in 691.104 s, including
+1 GiB/6 GiB integrity, 1,024-client concurrency, socket ownership, migration,
+FEC and deterministic link coverage. Owning/root vet and root race checks pass.
+Five isolated scan measurements have medians 3.506 ns for one ACK and 140.7 ns
+for 48 ACKs, with zero allocations. These are scan costs, not whole-runtime
+throughput measurements.
+
+Clean source `057bb47` builds `enterprise-2026.10.12-ack-batch.1`, SHA-256
+`05c99b8d35603a81b80b89118e625bb8c99103e6c67cc322dcb0174432538c7e`.
+Its [functional receipt](ack-batch-functional-2026-10-12.json) passes payload,
+UDP and half-close integrity, repeated established-stream source recovery and
+reverse-direction recovery. Four 32 KiB sequenced held streams survive movement
+with 10 s stall detection and two backend capture workers. Owned resources are
+removed and unrelated sentinel rules survive. It retains the existing pacing
+policy, 200 ms ceiling, shared output and S/PA/null envelope. Clean/mixed/WAN
+performance checks are running; this executable remains a local candidate and
+has not been deployed.
