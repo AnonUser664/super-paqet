@@ -63,6 +63,22 @@ def workloads():
     return sorted(found)
 
 
+def wait_for_owned_child(child):
+    """Keep the reservation until interrupted children finish their cleanup.
+
+    Terminal interrupts reach both processes in the foreground group. Killing
+    the child again (as subprocess.call does on KeyboardInterrupt) prevents its
+    finally blocks from cleaning namespaces and remote sidecars. Repeated
+    interrupts may reach the child, but must not release its reservation early.
+    """
+    while True:
+        try:
+            return child.wait()
+        except KeyboardInterrupt:
+            print('Interrupted; retaining test reservation while the owned child exits.',
+                  file=sys.stderr, flush=True)
+
+
 def main():
     """Reserve the machine before authentication, children and cleanup begin."""
     command = sys.argv[1:]
@@ -96,7 +112,7 @@ def main():
             return 75
         print('Exclusive test reservation acquired.', flush=True)
         try:
-            status = subprocess.call(command)
+            status = wait_for_owned_child(subprocess.Popen(command))
             return status if status >= 0 else 128 - status
         except OSError as error:
             print('Could not start command: ' + str(error), file=sys.stderr)

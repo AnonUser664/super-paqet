@@ -6,12 +6,24 @@ The dummy sleeps belong to this test and are stopped before its reservation ends
 """
 import subprocess
 import unittest
+from unittest import mock
 
 import with_test_lock
 
 
 class ArchivedWorkloadDetection(unittest.TestCase):
     """Archived helper aliases must not evade the manual-workload guard."""
+
+
+    def test_interrupt_keeps_waiting_for_owned_cleanup(self):
+        """A terminal interrupt must not kill a child's finally block."""
+        child = mock.Mock()
+        child.wait.side_effect = [KeyboardInterrupt(), KeyboardInterrupt(), 130]
+        with mock.patch.object(with_test_lock.sys, 'stderr'):
+            self.assertEqual(with_test_lock.wait_for_owned_child(child), 130)
+        self.assertEqual(child.wait.call_count, 3)
+        child.kill.assert_not_called()
+        child.terminate.assert_not_called()
 
     def test_known_helpers_with_custom_argv(self):
         """Observe argv[0] independently of comm using harmless owned sleeps."""

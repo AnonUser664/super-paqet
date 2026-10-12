@@ -738,12 +738,13 @@ func (kcp *KCP) drainReceiveBuffer() {
 // ackRTTEvidence examines transmission state before any header in this datagram
 // advances UNA. A leading duplicate can retire a later fresh ACK's segment;
 // examining each header only after earlier UNA processing loses that evidence.
-// This bounded scan allocates nothing and samples only the newest eligible
-// echo, so reordered/duplicate ACKs cannot replace it with an older timestamp.
+// This bounded scan allocates nothing and retains the last eligible echo in
+// datagram order, preserving the deployed sampler without retired-ACK evidence.
+// Choosing the newest timestamp instead biases timing on queued/reordered links.
 // A live old-attempt echo still bootstraps RTT on paths longer than the initial
 // retry timer. The normal parser retains all validation and delivery decisions;
 // malformed datagrams return before any estimated timing is applied.
-func (kcp *KCP) ackRTTEvidence(data []byte, pktType PacketType) (latest uint32, eligible int) {
+func (kcp *KCP) ackRTTEvidence(data []byte, pktType PacketType) (echo uint32, eligible int) {
 	if pktType != IKCP_PACKET_REGULAR || kcp.snd_buf.Len() == 0 {
 		return
 	}
@@ -759,9 +760,7 @@ func (kcp *KCP) ackRTTEvidence(data []byte, pktType PacketType) (latest uint32, 
 			ts := binary.LittleEndian.Uint32(header[8:])
 			if _itimediff(sn, kcp.snd_una) >= 0 && _itimediff(sn, kcp.snd_nxt) < 0 {
 				if seg, ok := kcp.snd_buf.At(int(sn - kcp.snd_una)); ok && seg.xmit > 0 && seg.acked == 0 && _itimediff(ts, seg.ts) <= 0 {
-					if eligible == 0 || _itimediff(ts, latest) > 0 {
-						latest, eligible = ts, 1
-					}
+					echo, eligible = ts, 1
 				}
 			}
 		}
@@ -782,7 +781,7 @@ func (kcp *KCP) Input(data []byte, pktType PacketType, ackNoDelay bool) int {
 		return -1
 	}
 
-	latest, updateRTT := kcp.ackRTTEvidence(data, pktType)
+	echo, updateRTT := kcp.ackRTTEvidence(data, pktType)
 	var inSegs uint64
 	var flushSegments int // signal to flush segments
 	var fastFlush int
@@ -898,12 +897,12 @@ func (kcp *KCP) Input(data []byte, pktType PacketType, ackNoDelay bool) int {
 	}
 	atomic.AddUint64(&DefaultSnmp.InSegs, inSegs)
 
-	// update rtt with the latest ts
+	// Apply the last eligible echo only after the complete datagram validates.
 	// ignore the FEC packet
 	if updateRTT != 0 && pktType == IKCP_PACKET_REGULAR {
 		current := kcp.now()
-		if _itimediff(current, latest) >= 0 {
-			kcp.update_ack(_itimediff(current, latest))
+		if _itimediff(current, echo) >= 0 {
+			kcp.update_ack(_itimediff(current, echo))
 		}
 	}
 

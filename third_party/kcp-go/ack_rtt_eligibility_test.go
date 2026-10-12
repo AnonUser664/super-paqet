@@ -120,9 +120,9 @@ func TestACKRTTBatchCumulativeProgressRetainsFreshEcho(t *testing.T) {
 	}
 }
 
-// ACK arrival order does not choose an older timestamp over a newer eligible
-// echo. Echo length extensions and wraparound use the same bounded scan.
-func TestACKRTTBatchNewestEchoAndClockWrap(t *testing.T) {
+// Preserve the last eligible echo in packet order while ignoring retired
+// entries. Echo extensions and clock wraparound must not shift the scan.
+func TestACKRTTBatchArrivalEchoAndClockWrap(t *testing.T) {
 	for _, wrap := range []bool{false, true} {
 		k, now := ackRTTFixture(t)
 		seg, _ := k.snd_buf.Peek()
@@ -147,8 +147,12 @@ func TestACKRTTBatchNewestEchoAndClockWrap(t *testing.T) {
 		if ret := k.Input(raw, IKCP_PACKET_REGULAR, false); ret != 0 {
 			t.Fatalf("ACK rejected: %d", ret)
 		}
-		if k.rx_srtt != 100 || k.WaitSnd() != 0 {
-			t.Fatalf("wrap=%t newest echo lost: RTT=%d pending=%d", wrap, k.rx_srtt, k.WaitSnd())
+		expected := int32(110)
+		if wrap {
+			expected = 111
+		}
+		if k.rx_srtt != expected || k.WaitSnd() != 0 {
+			t.Fatalf("wrap=%t last eligible echo lost: RTT=%d pending=%d", wrap, k.rx_srtt, k.WaitSnd())
 		}
 	}
 }

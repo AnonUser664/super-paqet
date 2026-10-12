@@ -142,6 +142,9 @@ func TestBusyOpeningRetriesHealthyCarrier(t *testing.T) {
 	if e.stats.OpenRetries.Load() != 1 {
 		t.Fatalf("retry counter: %d", e.stats.OpenRetries.Load())
 	}
+	if e.stats.OpenReceiptTimeouts.Load() != 1 || e.stats.OpenSYNTimeouts.Load() != 0 || e.stats.OpenResultTimeouts.Load() != 0 || e.stats.OpenClosed.Load() != 0 {
+		t.Fatal("silent carrier recovery lost its receipt-timeout phase")
+	}
 	if stalled.conn.Load() == nil || stalled.conn.Load().Session.IsClosed() {
 		t.Fatal("retry destroyed a busy carrier")
 	}
@@ -268,6 +271,9 @@ func TestSYNSubmissionRetriesWithoutClosingBusyCarrier(t *testing.T) {
 	}
 	if time.Since(started) > time.Second || e.stats.OpenRetries.Load() != 1 {
 		t.Fatalf("recovery budget/retries: elapsed=%s retries=%d", time.Since(started), e.stats.OpenRetries.Load())
+	}
+	if e.stats.OpenSYNTimeouts.Load() != 1 || e.stats.OpenReceiptTimeouts.Load() != 0 || e.stats.OpenResultTimeouts.Load() != 0 || e.stats.OpenClosed.Load() != 0 {
+		t.Fatal("blocked SYN recovery was classified as a reply timeout")
 	}
 	if err := <-ack; err != nil {
 		t.Fatal(err)

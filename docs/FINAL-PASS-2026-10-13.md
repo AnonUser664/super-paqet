@@ -21,6 +21,15 @@ null encryption, MTU 1350 and the deployed adaptive/manual 0/30/2/nc1 profile.
 Customer binary/configuration identities are checked around isolated sidecars
 on raw port 29998; primary raw port 29999 remains unchanged.
 
+## Selected implementation, pending final qualification
+
+Retain arrival-order ACK timing, the existing adaptive pacing controller and
+the 200 ms learned reordering ceiling. The aggressive alternative remains an
+experiment: its Germany gain does not justify its weaker Finland result, and
+the conservative correction is competitive on France. The final trailing
+control and exact-build correctness/load checks remain required. Diagnostics
+and observer improvements do not change carrier selection or packet layout.
+
 ## ACK timing alternatives
 
 A retired duplicate ACK does not represent a new round trip. Previously it
