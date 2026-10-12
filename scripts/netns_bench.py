@@ -64,6 +64,7 @@ def main():
     fixture.add_argument('--legacy', dest='enterprise', action='store_false', help='role-based upstream fixture; select its binary explicitly')
     p.set_defaults(enterprise=True)
     p.add_argument('--profile', action='store_true')
+    p.add_argument('--trace-seconds', type=float, default=0, help='bounded diagnostic trace during iperf warmup; requires profile, at most two seconds')
     p.add_argument('--debug', action='store_true', help='structured transport diagnostics, sampled flow events')
     p.add_argument('--flow-sample',type=int,default=1000)
     p.add_argument('--backend',choices=['packet','pcap'],default='packet')
@@ -150,6 +151,8 @@ def main():
             if len(set(cpus)) != len(cpus) or not set(cpus) <= os.sched_getaffinity(0):
                 p.error('CPU affinity must contain distinct currently available CPU IDs')
     if a.packet_workers is not None and not 1<=a.packet_workers<=64:p.error('packet workers must be 1..64')
+    if not math.isfinite(a.trace_seconds) or not 0<=a.trace_seconds<=2:p.error('trace-seconds must be finite and in 0..2')
+    if a.trace_seconds and (not a.enterprise or not a.profile or not a.iperf or a.warmup<a.trace_seconds+1):p.error('tracing requires enterprise profile/iperf with enough omitted warmup')
     if a.duration < 1 or a.workers < 1 or a.sessions < 1: p.error('duration, workers and sessions must be positive')
     if a.max_sessions is None: a.max_sessions = a.sessions
     if not a.sessions <= a.max_sessions <= 256: p.error('max-sessions must be sessions..256')
@@ -583,6 +586,13 @@ def main():
                     for side, namespace in (('client',c),('server',s)):
                         profile_path = str(out/(side+'-iperf-'+name+'.pprof'))
                         profiles.append(spawn(namespace, 'profile-'+side, sys.executable, '-c', f'import urllib.request; data=urllib.request.urlopen("http://127.0.0.1:29090/debug/pprof/profile?seconds={max(1,min(10,a.duration-1))}",timeout=30).read(); open({profile_path!r},"wb").write(data)'))
+                        if a.trace_seconds:
+                            # Keep expensive trace instrumentation inside the
+                            # omitted warmup. This is diagnostic evidence, not
+                            # a substitute for an uninstrumented acceptance run.
+                            trace_path = str(out/(side+'-iperf-'+name+'.trace'))
+                            delay = min(5, a.warmup-a.trace_seconds-1)
+                            profiles.append(spawn(namespace, 'trace-'+side, sys.executable, '-c', f'import urllib.request,time; time.sleep({delay}); data=urllib.request.urlopen("http://127.0.0.1:29090/debug/pprof/trace?seconds={a.trace_seconds}",timeout=15).read(67108865); assert len(data)<=67108864 and data.startswith(b"go "); open({trace_path!r},"wb").write(data)'))
                 deadline = time.monotonic()+a.duration+a.warmup+60
                 snapshot_at = time.monotonic()+a.warmup+a.duration/2
                 sampled = False

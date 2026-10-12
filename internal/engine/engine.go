@@ -474,9 +474,15 @@ func (e *Engine) serveMetrics(ctx context.Context, listener net.Listener) {
 			http.NotFound(w, r)
 			return
 		}
-		if r.URL.Path == "/debug/pprof/profile" {
+		switch r.URL.Path {
+		case "/debug/pprof/profile":
 			pprof.Profile(w, r)
-		} else {
+		case "/debug/pprof/trace":
+			// Execution traces expose scheduling and lock waits that CPU
+			// profiles miss. The same explicit profiling guard applies; the
+			// ordinary profile index does not serve this special endpoint.
+			pprof.Trace(w, r)
+		default:
 			pprof.Index(w, r)
 		}
 	})
