@@ -1,0 +1,85 @@
+{
+  "utc": "2026-10-12T07:42:49.331469+00:00",
+  "retention": "Full tar archives preserve originals, ignored evidence and unfinished work; rejected experiments are not active code.",
+  "sources": [
+    {
+      "original_path": "/home/shayan/Codes/super-paqet-exp1",
+      "archive": "/home/shayan/Codes/super-paqet/build/consolidation-20261012/super-paqet-exp1.tar.zst",
+      "status": "",
+      "git_error": "",
+      "head": "2be348d7899fc315665f7eed45a8e000e5a5267b",
+      "archive_sha256": "a6f3f8889cb8708bda0ba025de1f206059c7fe832e9b0cdb8b18ff34b0d0f1fa",
+      "archive_verified": true,
+      "original_removed": true
+    },
+    {
+      "original_path": "/home/shayan/Codes/super-paqet-exp2",
+      "archive": "/home/shayan/Codes/super-paqet/build/consolidation-20261012/super-paqet-exp2.tar.zst",
+      "status": "",
+      "git_error": "",
+      "head": "24b772c75511349fbbf54a1c47888126c6c13b31",
+      "archive_sha256": "0bef92045e626f7d2a3da7c3f06b7a6835be58bebb7077f33e42b3c92e2b310a",
+      "archive_verified": true,
+      "original_removed": true
+    },
+    {
+      "original_path": "/home/shayan/Codes/super-paqet-exploration-20261008",
+      "archive": "/home/shayan/Codes/super-paqet/build/consolidation-20261012/super-paqet-exploration-20261008-complete.tar.zst",
+      "status": "",
+      "git_error": "fatal: not a git repository: (null)\n",
+      "interrupted_archive": "/home/shayan/Codes/super-paqet/build/consolidation-20261012/super-paqet-exploration-20261008.tar.zst",
+      "note": "First archive could not read root-owned YAML artifacts; complete archive made with sudo. Failed attempt retained.",
+      "archive_sha256": "d79e3d2b57ac383d24e3913bb86dd913df302f8260f320778b8bf878c91f0fd6",
+      "archive_verified": true,
+      "original_removed": true
+    },
+    {
+      "original_path": "/home/shayan/Codes/super-paqet-opt-explore-20261008",
+      "archive": "/home/shayan/Codes/super-paqet/build/consolidation-20261012/super-paqet-opt-explore-20261008.tar.zst",
+      "status": " M third_party/kcp-go/kcp.go\n M third_party/kcp-go/ringbuffer.go\n M third_party/kcp-go/sess.go\n",
+      "git_error": "",
+      "head": "2be348d7899fc315665f7eed45a8e000e5a5267b",
+      "archive_sha256": "e485fab609a3f777e0247fc98aaec804bffec2ca47b99379054e6f8a0c1aa7b3",
+      "archive_verified": true,
+      "original_removed": true
+    }
+  ],
+  "main_bundle_sha256": "0b494252fa32e97b2a4b08f98431a8760d69cb776b815e196a65d93b03a11ca6",
+  "final_active_repository": "/home/shayan/Codes/super-paqet",
+  "final_branch": "master",
+  "branches_removed": [
+    "2bb7dd26c0d556f05ef681a26cac859dc69a38d2 refs/heads/archive/adaptive-startup-prototype-20261006",
+    "2481b9d9977b06aa5188769f47216a96e81f3141 refs/heads/archive/latency-relay-ablation-20261008",
+    "db4e1001f4185b69432c663c23146a936a8c5a5e refs/heads/archive/latency-tx-ablation-20261008",
+    "55ef43abf284474f50058cd84b2f48b323db0a4f refs/heads/archive/pre-final-wire-experiments",
+    "67ac59d89cbcc8d1c5987a14925fd05b5e44161c refs/heads/docs/code-comments",
+    "4c7aa6a7867587fad71d53c7c204aa1ee9b3a96f refs/heads/experiment/wan-sequence-tracking",
+    "f775cbebb095c33e0709a3c7912d8f5bec41df79 refs/heads/feature/live-config",
+    "d4205c19ea14c87b09b352ea7a7d300b88260701 refs/heads/fix/pcap-tx-backpressure",
+    "6b4a9dc22bd1c49afba7bd56f128d51af4712cea refs/heads/fix/production-backpressure-20261009",
+    "6b4a9dc22bd1c49afba7bd56f128d51af4712cea refs/heads/master",
+    "250f7c83151c1f9233568a3cfb13ee0ce6e72566 refs/heads/release/final-production",
+    "24b772c75511349fbbf54a1c47888126c6c13b31 refs/heads/review/exp2-20261008",
+    "b1a970ea833d0dd1885b2b0176b8676075f75df3 refs/remotes/origin/HEAD",
+    "b1a970ea833d0dd1885b2b0176b8676075f75df3 refs/remotes/origin/master",
+    "1a466556f5b849399bb11861b6e241b56ff9d1d3 refs/stash"
+  ],
+  "artifact_relocation": [
+    {
+      "old": "/home/shayan/Codes/super-paqet-fixes-20261009/build/spq-bench",
+      "new": "/home/shayan/Codes/super-paqet/build/consolidation-20261012/fixes-spq-bench"
+    },
+    {
+      "old": "/home/shayan/Codes/super-paqet-fixes-20261009/build/forward-8880-20261011",
+      "new": "/home/shayan/Codes/super-paqet/build/forward-8880-20261011"
+    },
+    {
+      "old": "/home/shayan/Codes/super-paqet-fixes-20261009/build/iperf-local",
+      "new": "/home/shayan/Codes/super-paqet/build/consolidation-20261012/fixes-iperf-local"
+    },
+    {
+      "old": "/home/shayan/Codes/super-paqet-fixes-20261009/build/opening-fix-20261009",
+      "new": "/home/shayan/Codes/super-paqet/build/opening-fix-20261009"
+    }
+  ]
+}

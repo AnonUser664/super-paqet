@@ -1,0 +1,597 @@
+{
+  "version": "enterprise-2026.10.12-opening.10",
+  "source": "2d0e8d10c13a79a6b71668fc91aa8fb6a94af7b1",
+  "sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+  "authorization": "User explicitly requested deployment of this checkpoint with its retained local qualification limits.",
+  "qualification_limits": [
+    "30-second lossy mobile p99 failed allowance; 60-second comparison did not reproduce edit-specific regression.",
+    "100000 hold used swap; not RAM-only VPS capacity qualification.",
+    "Observed direction gap remains; no sustained production capacity guarantee."
+  ],
+  "rollout_order": "backends first; clients last; client-first rollback timers disarmed after all probes",
+  "attempts": [
+    {
+      "directory": "build/opening-deploy-20261012/attempt",
+      "result": "German SSH acknowledgment lost; rollback confirmed running previous binary; other four unchanged."
+    },
+    {
+      "directory": "build/opening-deploy-20261012/attempt2",
+      "result": "All five promoted, verified and timers disarmed. German restart SSH acknowledgment lost again; fresh snapshot confirmed exact new executable before proceeding."
+    }
+  ],
+  "hosts": [
+    {
+      "host": "116.202.177.233",
+      "main_pid": "1192114",
+      "unit": {
+        "MainPID": "1192114",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Mon 2026-10-12 07:49:37 UTC",
+        "MemoryCurrent": "78393344",
+        "TasksCurrent": "12",
+        "CPUQuotaPerSecUSec": "infinity",
+        "TasksMax": "65536",
+        "LimitNOFILE": "524288",
+        "ActiveState": "active",
+        "SubState": "running",
+        "UnitFileState": "enabled"
+      },
+      "version": "Version:    enterprise-2026.10.12-opening.10\nGit Tag:    unknown\nGit Commit: 2d0e8d10c13a79a6b71668fc91aa8fb6a94af7b1\nBuild Time: unknown\nGo Version: go1.27.0-X:nodwarf5\nPlatform:   linux/amd64\n",
+      "disk_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "running_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "health": "ok",
+      "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+      "config_bytes_unchanged": true,
+      "unit_bytes_unchanged": true,
+      "xray_identities_unchanged": true,
+      "source_ports": {},
+      "config_summary": {
+        "log_level": "warn",
+        "profiling": false,
+        "adaptive": [
+          true,
+          true
+        ],
+        "sessions": [
+          4,
+          4
+        ],
+        "max_sessions": [
+          4,
+          4
+        ],
+        "smux_recovery_grace": [
+          0,
+          0
+        ]
+      },
+      "metrics_snapshot": {
+        "super_paqet_log_dropped_total": 0.0,
+        "super_paqet_active_connections": 1342.0,
+        "super_paqet_errors_total": 0.0,
+        "super_paqet_opening_transport_retries_total": 0.0,
+        "super_paqet_aborted_connections_total": 1658.0
+      },
+      "rollback_archive": "/root/super-paqet/rollback/20261012T074131Z-opening"
+    },
+    {
+      "host": "171.22.132.226",
+      "main_pid": "3334731",
+      "unit": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "UnitFileState": "enabled",
+        "MainPID": "3334731",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Mon 2026-10-12 07:50:56 UTC",
+        "MemoryCurrent": "54480896",
+        "TasksCurrent": "9",
+        "CPUQuotaPerSecUSec": "infinity",
+        "TasksMax": "65536",
+        "LimitNOFILE": "524288"
+      },
+      "version": "Version:    enterprise-2026.10.12-opening.10\nGit Tag:    unknown\nGit Commit: 2d0e8d10c13a79a6b71668fc91aa8fb6a94af7b1\nBuild Time: unknown\nGo Version: go1.27.0-X:nodwarf5\nPlatform:   linux/amd64\n",
+      "disk_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "running_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "health": "ok",
+      "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+      "config_bytes_unchanged": true,
+      "unit_bytes_unchanged": true,
+      "xray_identities_unchanged": true,
+      "source_ports": {},
+      "config_summary": {
+        "log_level": "warn",
+        "profiling": false,
+        "adaptive": [
+          true
+        ],
+        "sessions": [
+          4
+        ],
+        "max_sessions": [
+          4
+        ],
+        "smux_recovery_grace": [
+          0
+        ]
+      },
+      "metrics_snapshot": {
+        "super_paqet_log_dropped_total": 0.0,
+        "super_paqet_active_connections": 778.0,
+        "super_paqet_errors_total": 0.0,
+        "super_paqet_opening_transport_retries_total": 0.0,
+        "super_paqet_aborted_connections_total": 1002.0
+      },
+      "rollback_archive": "/root/super-paqet/rollback/20261012T074131Z-opening"
+    },
+    {
+      "host": "65.109.249.222",
+      "main_pid": "459547",
+      "unit": {
+        "MainPID": "459547",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Mon 2026-10-12 07:51:31 UTC",
+        "MemoryCurrent": "59973632",
+        "TasksCurrent": "10",
+        "CPUQuotaPerSecUSec": "infinity",
+        "TasksMax": "65536",
+        "LimitNOFILE": "524288",
+        "ActiveState": "active",
+        "SubState": "running",
+        "UnitFileState": "enabled"
+      },
+      "version": "Version:    enterprise-2026.10.12-opening.10\nGit Tag:    unknown\nGit Commit: 2d0e8d10c13a79a6b71668fc91aa8fb6a94af7b1\nBuild Time: unknown\nGo Version: go1.27.0-X:nodwarf5\nPlatform:   linux/amd64\n",
+      "disk_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "running_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "health": "ok",
+      "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+      "config_bytes_unchanged": true,
+      "unit_bytes_unchanged": true,
+      "xray_identities_unchanged": true,
+      "source_ports": {},
+      "config_summary": {
+        "log_level": "warn",
+        "profiling": false,
+        "adaptive": [
+          true
+        ],
+        "sessions": [
+          4
+        ],
+        "max_sessions": [
+          4
+        ],
+        "smux_recovery_grace": [
+          0
+        ]
+      },
+      "metrics_snapshot": {
+        "super_paqet_log_dropped_total": 0.0,
+        "super_paqet_active_connections": 754.0,
+        "super_paqet_errors_total": 0.0,
+        "super_paqet_opening_transport_retries_total": 0.0,
+        "super_paqet_aborted_connections_total": 934.0
+      },
+      "rollback_archive": "/root/super-paqet/rollback/20261012T074131Z-opening"
+    },
+    {
+      "host": "89.45.68.14",
+      "main_pid": "478756",
+      "unit": {
+        "MainPID": "478756",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Mon 2026-10-12 07:52:26 UTC",
+        "MemoryCurrent": "56852480",
+        "TasksCurrent": "13",
+        "CPUQuotaPerSecUSec": "infinity",
+        "TasksMax": "65536",
+        "LimitNOFILE": "524288",
+        "ActiveState": "active",
+        "SubState": "running",
+        "UnitFileState": "enabled"
+      },
+      "version": "Version:    enterprise-2026.10.12-opening.10\nGit Tag:    unknown\nGit Commit: 2d0e8d10c13a79a6b71668fc91aa8fb6a94af7b1\nBuild Time: unknown\nGo Version: go1.27.0-X:nodwarf5\nPlatform:   linux/amd64\n",
+      "disk_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "running_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "health": "ok",
+      "config_sha256": "0e0c6aaea2a232251774434dbb16bc764ca703dc5eac2a12cbd90b707ad5ab2f",
+      "config_bytes_unchanged": true,
+      "unit_bytes_unchanged": true,
+      "xray_identities_unchanged": true,
+      "source_ports": {
+        "germany": [
+          32888,
+          48429,
+          57372,
+          50255
+        ],
+        "finland": [
+          49155,
+          53738,
+          55703,
+          39448
+        ],
+        "france": [
+          54141,
+          43041,
+          44457,
+          43610
+        ]
+      },
+      "config_summary": {
+        "log_level": "warn",
+        "profiling": false,
+        "adaptive": [
+          true,
+          true,
+          true
+        ],
+        "sessions": [
+          4,
+          4,
+          4
+        ],
+        "max_sessions": [
+          4,
+          4,
+          4
+        ],
+        "smux_recovery_grace": [
+          0,
+          0,
+          0
+        ]
+      },
+      "metrics_snapshot": {
+        "super_paqet_log_dropped_total": 0.0,
+        "super_paqet_active_connections": 660.0,
+        "super_paqet_errors_total": 0.0,
+        "super_paqet_opening_transport_retries_total": 0.0,
+        "super_paqet_aborted_connections_total": 3124.0
+      },
+      "rollback_archive": "/root/super-paqet/rollback/20261012T074131Z-opening"
+    },
+    {
+      "host": "89.45.68.118",
+      "main_pid": "1175580",
+      "unit": {
+        "MainPID": "1175580",
+        "Result": "success",
+        "NRestarts": "0",
+        "ExecMainStartTimestamp": "Mon 2026-10-12 07:53:02 UTC",
+        "MemoryCurrent": "102215680",
+        "TasksCurrent": "16",
+        "CPUQuotaPerSecUSec": "infinity",
+        "TasksMax": "65536",
+        "LimitNOFILE": "524288",
+        "ActiveState": "active",
+        "SubState": "running",
+        "UnitFileState": "enabled"
+      },
+      "version": "Version:    enterprise-2026.10.12-opening.10\nGit Tag:    unknown\nGit Commit: 2d0e8d10c13a79a6b71668fc91aa8fb6a94af7b1\nBuild Time: unknown\nGo Version: go1.27.0-X:nodwarf5\nPlatform:   linux/amd64\n",
+      "disk_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "running_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "health": "ok",
+      "config_sha256": "ab844772497e4cc4c1de64a78f7d82a6d71d5d59ad72cd122181721e352bb718",
+      "config_bytes_unchanged": true,
+      "unit_bytes_unchanged": true,
+      "xray_identities_unchanged": true,
+      "source_ports": {
+        "germany": [
+          52416,
+          50108,
+          61676,
+          44428
+        ],
+        "finland": [
+          35055,
+          39462,
+          41319,
+          62982
+        ],
+        "france": [
+          58011,
+          39569,
+          51642,
+          49842
+        ]
+      },
+      "config_summary": {
+        "log_level": "warn",
+        "profiling": false,
+        "adaptive": [
+          true,
+          true,
+          true
+        ],
+        "sessions": [
+          4,
+          4,
+          4
+        ],
+        "max_sessions": [
+          4,
+          4,
+          4
+        ],
+        "smux_recovery_grace": [
+          0,
+          0,
+          0
+        ]
+      },
+      "metrics_snapshot": {
+        "super_paqet_log_dropped_total": 0.0,
+        "super_paqet_active_connections": 2317.0,
+        "super_paqet_errors_total": 0.0,
+        "super_paqet_opening_transport_retries_total": 0.0,
+        "super_paqet_aborted_connections_total": 8592.0
+      },
+      "rollback_archive": "/root/super-paqet/rollback/20261012T074131Z-opening"
+    }
+  ],
+  "authenticated_reality": {
+    "89.45.68.14": {
+      "germany": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.564644 2.105546",
+          "error": "",
+          "passed": true
+        },
+        {
+          "exit": 0,
+          "response": "200 1048576 0.583044 1.756220",
+          "error": "",
+          "passed": true
+        }
+      ],
+      "finland": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.611717 0.807190",
+          "error": "",
+          "passed": true
+        },
+        {
+          "exit": 0,
+          "response": "200 1048576 0.644864 0.720389",
+          "error": "",
+          "passed": true
+        }
+      ],
+      "france": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.638311 0.854334",
+          "error": "",
+          "passed": true
+        },
+        {
+          "exit": 0,
+          "response": "200 1048576 0.649944 0.953801",
+          "error": "",
+          "passed": true
+        }
+      ]
+    },
+    "89.45.68.118": {
+      "germany": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.549956 1.947436",
+          "error": "",
+          "passed": true
+        },
+        {
+          "exit": 0,
+          "response": "200 1048576 0.671133 0.896908",
+          "error": "",
+          "passed": true
+        }
+      ],
+      "finland": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.624180 0.920291",
+          "error": "",
+          "passed": true
+        },
+        {
+          "exit": 0,
+          "response": "200 1048576 0.658857 0.825634",
+          "error": "",
+          "passed": true
+        }
+      ],
+      "france": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.601892 0.717404",
+          "error": "",
+          "passed": true
+        },
+        {
+          "exit": 0,
+          "response": "200 1048576 0.646488 3.023281",
+          "error": "",
+          "passed": true
+        }
+      ]
+    }
+  },
+  "logging": {
+    "hosts": [
+      {
+        "host": "89.45.68.118",
+        "directory": "/var/log/super-paqet-watch/opening10-20261012T080128Z",
+        "until_utc": "2026-10-19T08:01:28.597860+00:00",
+        "script_sha256": "d501ec1ee7d2dfc0bbf3086d0c7179667f0ab4351439b59eb43f2f5b6b140d6e",
+        "unit": "[Unit]\nDescription=Bounded seven-day super-paqet production incident observer\nAfter=super-paqet.service\n[Service]\nType=exec\nExecStart=/usr/bin/python3 /var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py --directory /var/log/super-paqet-watch/opening10-20261012T080128Z --interval 10 --sample-file-mib 64 --sample-backups 15 --duration 604800 --until 2026-10-19T08:01:28.597860+00:00 --journal-since @1791790288\nRuntimeMaxSec=604900\nRestart=on-failure\nRestartSec=10\nNice=10\nIOSchedulingClass=idle\nMemoryMax=128M\nTasksMax=16\nUMask=0077\nNoNewPrivileges=yes\nProtectSystem=strict\nProtectHome=yes\nReadWritePaths=/var/log/super-paqet-watch\nPrivateTmp=yes\n[Install]\nWantedBy=multi-user.target\n",
+        "watch_state": "MainPID=1176475\nActiveState=active\nUnitFileState=enabled\n",
+        "tunnel_pid_and_restart_count_unchanged": true,
+        "config_unchanged": true,
+        "journal_recorder": {
+          "records": 51,
+          "cursor_resume": false,
+          "last_realtime_usec": "1791791582463285"
+        },
+        "initial_sample_utc": "2026-10-12T08:02:52.568892+00:00",
+        "old_journal_timestamp_check": {
+          "rc": 1,
+          "stderr": "Failed to parse timestamp: '2026-10-11\n",
+          "original_unit_since_argument": "2026-10-11 15:52:54 UTC",
+          "scope": "The diagnostic split a quoted date at whitespace; this is a diagnostic fixture error, not evidence that the previous observer was broken. Corrected new reader has actual records."
+        },
+        "http_8880_forward_reachability": [
+          {
+            "port": 8001,
+            "status": 404,
+            "bytes": 0,
+            "seconds": 0.3518620505928993,
+            "error": null
+          },
+          {
+            "port": 8002,
+            "status": 404,
+            "bytes": 0,
+            "seconds": 0.2041406026110053,
+            "error": null
+          },
+          {
+            "port": 8003,
+            "status": 404,
+            "bytes": 0,
+            "seconds": 0.2097564972937107,
+            "error": null
+          }
+        ]
+      },
+      {
+        "host": "116.202.177.233",
+        "directory": "/var/log/super-paqet-watch/opening10-20261012T080128Z",
+        "until_utc": "2026-10-19T08:01:28.597860+00:00",
+        "script_sha256": "d501ec1ee7d2dfc0bbf3086d0c7179667f0ab4351439b59eb43f2f5b6b140d6e",
+        "unit": "[Unit]\nDescription=Bounded seven-day super-paqet production incident observer\nAfter=super-paqet.service\n[Service]\nType=exec\nExecStart=/usr/bin/python3 /var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py --directory /var/log/super-paqet-watch/opening10-20261012T080128Z --interval 10 --sample-file-mib 64 --sample-backups 15 --duration 604800 --until 2026-10-19T08:01:28.597860+00:00 --journal-since @1791790288\nRuntimeMaxSec=604900\nRestart=on-failure\nRestartSec=10\nNice=10\nIOSchedulingClass=idle\nMemoryMax=128M\nTasksMax=16\nUMask=0077\nNoNewPrivileges=yes\nProtectSystem=strict\nProtectHome=yes\nReadWritePaths=/var/log/super-paqet-watch\nPrivateTmp=yes\n[Install]\nWantedBy=multi-user.target\n",
+        "watch_state": "MainPID=1194296\nActiveState=active\nUnitFileState=enabled\n",
+        "tunnel_pid_and_restart_count_unchanged": true,
+        "config_unchanged": true,
+        "journal_recorder": {
+          "records": 28,
+          "cursor_resume": false,
+          "last_realtime_usec": "1791791629993562"
+        },
+        "initial_sample_utc": "2026-10-12T08:01:59.600341+00:00",
+        "old_journal_timestamp_check": {
+          "rc": 1,
+          "stderr": "Failed to parse timestamp: 2026-10-12T07:57:22Z\n",
+          "original_unit_since_argument": "2026-10-12T07:57:22Z",
+          "scope": "German first-install ISO-Z timestamp rejected by journalctl; corrected epoch reader verified."
+        },
+        "http_8880_forward_reachability": []
+      },
+      {
+        "host": "89.45.68.14",
+        "directory": "/var/log/super-paqet-watch/opening10-20261012T080128Z",
+        "until_utc": "2026-10-19T08:01:28.597860+00:00",
+        "script_sha256": "d501ec1ee7d2dfc0bbf3086d0c7179667f0ab4351439b59eb43f2f5b6b140d6e",
+        "unit": "[Unit]\nDescription=Bounded seven-day super-paqet production incident observer\nAfter=super-paqet.service\n[Service]\nType=exec\nExecStart=/usr/bin/python3 /var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py --directory /var/log/super-paqet-watch/opening10-20261012T080128Z --interval 10 --sample-file-mib 64 --sample-backups 15 --duration 604800 --until 2026-10-19T08:01:28.597860+00:00 --journal-since @1791790288\nRuntimeMaxSec=604900\nRestart=on-failure\nRestartSec=10\nNice=10\nIOSchedulingClass=idle\nMemoryMax=128M\nTasksMax=16\nUMask=0077\nNoNewPrivileges=yes\nProtectSystem=strict\nProtectHome=yes\nReadWritePaths=/var/log/super-paqet-watch\nPrivateTmp=yes\n[Install]\nWantedBy=multi-user.target\n",
+        "watch_state": "MainPID=479597\nActiveState=active\nUnitFileState=enabled\n",
+        "tunnel_pid_and_restart_count_unchanged": true,
+        "config_unchanged": true,
+        "journal_recorder": {
+          "records": 50,
+          "cursor_resume": false,
+          "last_realtime_usec": "1791791546076421"
+        },
+        "initial_sample_utc": "2026-10-12T08:02:30.860044+00:00",
+        "old_journal_timestamp_check": {
+          "rc": 1,
+          "stderr": "Failed to parse timestamp: '2026-10-11\n",
+          "original_unit_since_argument": "2026-10-11 15:52:54 UTC",
+          "scope": "The diagnostic split a quoted date at whitespace; this is a diagnostic fixture error, not evidence that the previous observer was broken. Corrected new reader has actual records."
+        },
+        "http_8880_forward_reachability": [
+          {
+            "port": 8001,
+            "status": 404,
+            "bytes": 0,
+            "seconds": 0.16813148092478514,
+            "error": null
+          },
+          {
+            "port": 8002,
+            "status": 404,
+            "bytes": 0,
+            "seconds": 0.19294891506433487,
+            "error": null
+          },
+          {
+            "port": 8003,
+            "status": 404,
+            "bytes": 0,
+            "seconds": 0.18010155716910958,
+            "error": null
+          }
+        ]
+      },
+      {
+        "host": "171.22.132.226",
+        "directory": "/var/log/super-paqet-watch/opening10-20261012T080128Z",
+        "until_utc": "2026-10-19T08:01:28.597860+00:00",
+        "script_sha256": "d501ec1ee7d2dfc0bbf3086d0c7179667f0ab4351439b59eb43f2f5b6b140d6e",
+        "unit": "[Unit]\nDescription=Bounded seven-day super-paqet production incident observer\nAfter=super-paqet.service\n[Service]\nType=exec\nExecStart=/usr/bin/python3 /var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py --directory /var/log/super-paqet-watch/opening10-20261012T080128Z --interval 10 --sample-file-mib 64 --sample-backups 15 --duration 604800 --until 2026-10-19T08:01:28.597860+00:00 --journal-since @1791790288\nRuntimeMaxSec=604900\nRestart=on-failure\nRestartSec=10\nNice=10\nIOSchedulingClass=idle\nMemoryMax=128M\nTasksMax=16\nUMask=0077\nNoNewPrivileges=yes\nProtectSystem=strict\nProtectHome=yes\nReadWritePaths=/var/log/super-paqet-watch\nPrivateTmp=yes\n[Install]\nWantedBy=multi-user.target\n",
+        "watch_state": "ActiveState=active\nUnitFileState=enabled\nMainPID=3335691\n",
+        "tunnel_pid_and_restart_count_unchanged": true,
+        "config_unchanged": true,
+        "journal_recorder": {
+          "records": 13,
+          "cursor_resume": false,
+          "last_realtime_usec": "1791791618046837"
+        },
+        "initial_sample_utc": "2026-10-12T08:02:16.326902+00:00",
+        "old_journal_timestamp_check": {
+          "rc": 1,
+          "stderr": "Failed to parse timestamp: '2026-10-11\n",
+          "original_unit_since_argument": "2026-10-11 15:52:54 UTC",
+          "scope": "The diagnostic split a quoted date at whitespace; this is a diagnostic fixture error, not evidence that the previous observer was broken. Corrected new reader has actual records."
+        },
+        "http_8880_forward_reachability": []
+      },
+      {
+        "host": "65.109.249.222",
+        "directory": "/var/log/super-paqet-watch/opening10-20261012T080128Z",
+        "until_utc": "2026-10-19T08:01:28.597860+00:00",
+        "script_sha256": "d501ec1ee7d2dfc0bbf3086d0c7179667f0ab4351439b59eb43f2f5b6b140d6e",
+        "unit": "[Unit]\nDescription=Bounded seven-day super-paqet production incident observer\nAfter=super-paqet.service\n[Service]\nType=exec\nExecStart=/usr/bin/python3 /var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py --directory /var/log/super-paqet-watch/opening10-20261012T080128Z --interval 10 --sample-file-mib 64 --sample-backups 15 --duration 604800 --until 2026-10-19T08:01:28.597860+00:00 --journal-since @1791790288\nRuntimeMaxSec=604900\nRestart=on-failure\nRestartSec=10\nNice=10\nIOSchedulingClass=idle\nMemoryMax=128M\nTasksMax=16\nUMask=0077\nNoNewPrivileges=yes\nProtectSystem=strict\nProtectHome=yes\nReadWritePaths=/var/log/super-paqet-watch\nPrivateTmp=yes\n[Install]\nWantedBy=multi-user.target\n",
+        "watch_state": "MainPID=460151\nActiveState=active\nUnitFileState=enabled\n",
+        "tunnel_pid_and_restart_count_unchanged": true,
+        "config_unchanged": true,
+        "journal_recorder": {
+          "records": 14,
+          "cursor_resume": false,
+          "last_realtime_usec": "1791791622983625"
+        },
+        "initial_sample_utc": "2026-10-12T08:02:23.296527+00:00",
+        "old_journal_timestamp_check": {
+          "rc": 1,
+          "stderr": "Failed to parse timestamp: '2026-10-11\n",
+          "original_unit_since_argument": "2026-10-11 15:52:54 UTC",
+          "scope": "The diagnostic split a quoted date at whitespace; this is a diagnostic fixture error, not evidence that the previous observer was broken. Corrected new reader has actual records."
+        },
+        "http_8880_forward_reachability": []
+      }
+    ],
+    "interval_seconds": 10,
+    "level": "warn",
+    "profiling": false,
+    "metrics_rotation_max_bytes": 1073741824,
+    "journal_rotation_max_bytes": 67108864,
+    "summary_retention": "full observation window peaks and counter deltas; raw files rotate",
+    "first_install_failure": "German journalctl rejected ISO UTC Z timestamp; failed archive/diagnosis retained. Corrected unit uses an epoch @timestamp and actual journal records were verified."
+  }
+}

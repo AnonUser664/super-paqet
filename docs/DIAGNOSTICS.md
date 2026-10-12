@@ -46,8 +46,8 @@ interpreting incomplete traces.
 | `session.invalidated`, `session.idle_invalidated` | Carrier replacement |
 | `opening.syn_timeout` | SYN submission exceeded this carrier's receipt budget; identity, attempts and remaining opening time |
 | `opening.transport_timeout` | Deployed latency.1 receipt timeout; carrier identity, attempt, remaining deadline and surviving streams |
-| `opening.transport_retry` | Local opening candidate: sibling retry, receipt stage and local receive-blocked state, including carrier identity and remaining deadline |
-| `opening.identity_rejected` | Local opening candidate: conflicting, committed/expired or capacity-rejected identity; no identity secret is logged |
+| `opening.transport_retry` | Opening.10: sibling retry, receipt stage and local receive-blocked state, including carrier identity and remaining deadline |
+| `opening.identity_rejected` | Opening.10: conflicting, committed/expired or capacity-rejected identity; no identity secret is logged |
 | `flow.open`, `flow.control`, `flow.relay`, `flow.closed` | Sampled lifecycle, correlated by flow ID within the process |
 | `packet.tx_queue` | New transmit queue drops on a shared listener socket, with cumulative and interval counts |
 | `transport.sample` | Delivery estimate, RTT/variance, pacing, windows, queues and wait time |
@@ -394,3 +394,26 @@ fields as independent losses. The controller does not use shared worker totals.
 The AF_PACKET driver reports precise per-batch soft loss. Pcap currently retains
 legacy soft-loss behavior and does not provide this precise per-call signal.
 These fields/policy are local candidates; production still runs latency.1.
+
+## Production observation after the 12 October promotion
+
+The opening/backpressure checkpoint is now deployed; see the
+[rollout receipt](opening-deployment-evidence-2026-10-12.json) for exact hashes,
+archive paths and observer expiry. Logging remains `warn` and profiling remains
+disabled. `super-paqet-watch.service` stores ten-second metrics, including the new
+per-carrier output-loss counter, and a rotating warning-level service journal.
+Use the private `latest.json`, `summary.json`, `samples.jsonl*` and
+`tunnel.journal.jsonl*` beneath the recorded directory.
+
+Useful correlations are a rising local-output-drop counter with queue/pending
+bytes and RTT; source-port changes with recovery attempt/success/rejection
+counters; opening retries with mux receive blockage; and process/FD/CPU/memory
+pressure with errors and cgroup events. Worker losses and precise carrier losses
+can describe the same attempts: do not add them together as unique lost packets.
+PID and label resets must be separated from counter growth.
+
+The observer has a fixed seven-day deadline and bounded file rotation. Its unit
+is enabled for reboot recovery within that window; a restart cannot extend the
+deadline. Raw sample rotation may retain less than the full week; summary peaks
+and counter deltas cover the observation window. Existing archives are retained.
+To continue observation after expiry, create a new dated window.

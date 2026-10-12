@@ -1026,3 +1026,14 @@ attempts, while sampled Finland activity reaches 5,061 forwards. These are
 recoverable pressure signals to retain, not proof of a process crash or filtering.
 No candidate/observer is promoted and no production configuration/service is
 changed. Source and local results are checkpointed separately from deployment.
+
+## 12 October production promotion and repository consolidation
+
+The user authorized promotion of exact checkpoint `2d0e8d1` with the recorded
+qualification limits. All five hosts now run SHA-256
+`22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c`.
+See the [rollout and observer record](OPENING-DEPLOYMENT-2026-10-12.md).
+All accepted source is on master; old branches and independent checkouts are
+preserved as archives, including incomplete/rejected work. The original absolute
+paths in these attempt receipts remain historical; artifact relocation is
+recorded in the [consolidation manifest](consolidation-evidence-2026-10-12.json).

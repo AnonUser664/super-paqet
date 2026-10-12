@@ -1,5 +1,37 @@
 # Current deployment status
 
+All five hosts now run **enterprise-2026.10.12-opening.10** under enabled
+`super-paqet.service`, runtime source `2d0e8d1`, SHA-256
+`22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c`.
+The existing configuration and tunnel unit bytes are preserved: adaptation on,
+four independent source-port carriers per country, 10s stall / 15s retry / 5s
+probe, S outbound / PA return, null encryption, warning logs and profiling off.
+Existing 900x→2096 and 800x→8880 forwards remain. Both clients were observed
+with all four distinct active source ports for every country.
+
+All six Reality routes passed two authenticated 1 MiB downloads after promotion.
+Running/disk hashes, healthy active/enabled services, unchanged Xray identities
+and zero automatic restarts were verified. Rollback timers are disarmed and
+previous binary/config archives remain. See the
+[12 October rollout](OPENING-DEPLOYMENT-2026-10-12.md) and
+[exact deployment/monitoring receipt](opening-deployment-evidence-2026-10-12.json).
+
+The updated observer is enabled on all five hosts, collecting ten-second
+metrics and warning journals until **19 October 2026, 08:01:28 UTC**, beneath
+`/var/log/super-paqet-watch/opening10-20261012T080128Z/`. Actual journal records
+and samples were verified. Files rotate within bounded storage; full-window
+summary peaks/counter deltas persist. Earlier observation archives remain.
+No completed seven-day stability result is claimed.
+
+This is a user-authorized promotion of the measured checkpoint, with the
+recorded lossy-link tail uncertainty and laptop swap/capacity limits retained.
+Both rejected pacing experiments remain excluded. Consolidated source is on
+`master` in `/home/shayan/Codes/super-paqet`; historical branches/worktrees are
+preserved in private archives described by the
+[consolidation record](CONSOLIDATION-2026-10-12.md).
+
+# Pre-promotion qualification and deployment history
+
 Latest source candidate: `2d0e8d1`, executable SHA-256
 `22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c`.
 The [exact-artifact qualification](raw-batch-qualification-2026-10-12.json) passes
