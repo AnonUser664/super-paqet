@@ -13,7 +13,10 @@ import (
 // NewSessionWriter is resolved by a Linux listener once per carrier/generation.
 // Pcap and ordinary client paths retain their existing descriptor ownership.
 func (c *PacketConn) NewSessionWriter() (kcplib.SessionWriter, error) {
-	if c.raw == nil {
+	// The private-output prototype failed its mixed-load CPU/latency gates.
+	// Ordinary release builds retain the shared physical writer; experiments
+	// must request the explicit build tag and qualify their exact executable.
+	if !privateOutputEnabled || c.raw == nil {
 		return nil, nil
 	}
 	return c.raw.(*rawPacket).newSessionWriter()

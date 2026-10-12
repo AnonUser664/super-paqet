@@ -228,3 +228,21 @@ that the OOB test hangs. The exact failed log and exit status remain under
 `build/private-writer-20261012/native-full-20261012T1440/`. A larger-budget rerun
 is needed. The queued matched performance matrix then acquires the reservation;
 the tests do not overlap.
+
+## Equal offered traffic: reject private writers as a default
+
+With a two-core backend budget and 1 Gbit/s offered in each direction, all four
+ordinary-pool runs deliver approximately 2.00 Gbit/s combined without errors.
+Median client/backend CPU changes 0.839/0.558 → 0.9065/0.630 CPU cores
+(+8.05%/+12.90%). Mean request latency changes 927.54 → 951.32 microseconds
+(+2.56%); p99 changes 5 → 6 ms (+20%). The backend CPU and p99 gates fail.
+These are two pairs, not a universal estimate, but do not support a default
+architecture change. The pinned-pressure half of the matrix remains running.
+
+Ordinary source builds now return no private writer from the optional raw factory.
+The retained prototype requires the explicit `spq_private_writers` build tag;
+it remains unaccepted and must not be deployed merely because clean-link download
+improved. This separates a local experiment from normal release construction.
+The measured executable remains the earlier explicitly identified private-output.2
+artifact; the build-selection change does not retroactively alter its receipts.
+The new default executable still needs its own build/native/end-to-end gates.
