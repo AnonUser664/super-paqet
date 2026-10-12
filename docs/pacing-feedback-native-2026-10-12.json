@@ -1,0 +1,118 @@
+{
+  "commands": [
+    {
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "-overlay",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/pacing-feedback-20261012/overlay-red.json",
+        "-run",
+        "TestPacingDrainRetainsEstimateAndCapacityDropConverges",
+        "./internal/engine"
+      ],
+      "exit_code": 1,
+      "expected_failure": true
+    },
+    {
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "-overlay",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/pacing-feedback-20261012/overlay200.json",
+        "./internal/engine"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "-overlay",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/pacing-feedback-20261012/overlay750.json",
+        "./internal/engine"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "binaries": [
+    {
+      "ceiling": 200,
+      "binary": "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/pacing-feedback-20261012/paced200",
+      "sha256": "5c677bff0bd2b4da03de01a9865c3503cd5c20a8f8cde9cc825d7eaf8607f142",
+      "command": [
+        "go",
+        "build",
+        "-trimpath",
+        "-overlay",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/pacing-feedback-20261012/overlay200.json",
+        "-ldflags",
+        "-s -w -X paqet/cmd/version.Version=enterprise-2026.10.12-pacing-feedback.200 -X paqet/cmd/version.GitCommit=701dc7415655073eaf9e6af6de85c04be99e6ae9",
+        "-o",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/pacing-feedback-20261012/paced200",
+        "./cmd"
+      ],
+      "source_commit": "701dc7415655073eaf9e6af6de85c04be99e6ae9",
+      "version": "enterprise-2026.10.12-pacing-feedback.200",
+      "overlay_sha256": "e02f7e7407dd98f8746d10851f0e218753ed32bfbe17bf8e6cd5f7d5ebfdcd0b"
+    },
+    {
+      "ceiling": 750,
+      "binary": "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/pacing-feedback-20261012/paced750",
+      "sha256": "da3f673dc7d8fec3da4517bb0d8fdaf02901ba7286bf40fe705a6c29ba4adb8b",
+      "command": [
+        "go",
+        "build",
+        "-trimpath",
+        "-overlay",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/pacing-feedback-20261012/overlay750.json",
+        "-ldflags",
+        "-s -w -X paqet/cmd/version.Version=enterprise-2026.10.12-pacing-feedback.750 -X paqet/cmd/version.GitCommit=701dc7415655073eaf9e6af6de85c04be99e6ae9",
+        "-o",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/pacing-feedback-20261012/paced750",
+        "./cmd"
+      ],
+      "source_commit": "701dc7415655073eaf9e6af6de85c04be99e6ae9",
+      "version": "enterprise-2026.10.12-pacing-feedback.750",
+      "overlay_sha256": "656bfa46ab206869fb09add37190dc7288c78cad628fd36926e76ca96481ab67"
+    }
+  ],
+  "adaptive_overlay_sha256": "f2c6fa94b842dfc8eaa5367cd544988e4e769e921f728e3f32bf3c090fe38789",
+  "prototype_only": true,
+  "production_mutated": false,
+  "native_logs": {
+    "build750.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "last_lines": []
+    },
+    "green200.log": {
+      "sha256": "538e9c9dd94eecc40dc65c13c46446c29e2a2bb900bfc3994c803214098edccd",
+      "last_lines": [
+        "ok  \tpaqet/internal/engine\t6.663s"
+      ]
+    },
+    "green750.log": {
+      "sha256": "c7d103acb93bb72a2f7cb8ace4237813ed1d03deb5d852337bdcb3b5785d3940",
+      "last_lines": [
+        "ok  \tpaqet/internal/engine\t6.657s"
+      ]
+    },
+    "red.log": {
+      "sha256": "017bcbaae93f0208b02b6be35cd54679f1918a55b89707949d40bbbcfb188810",
+      "last_lines": [
+        "--- FAIL: TestPacingDrainRetainsEstimateAndCapacityDropConverges (0.00s)",
+        "    pacing_feedback_experiment_test.go:16: self pacing collapsed learned bandwidth: 210790.942094",
+        "FAIL",
+        "FAIL\tpaqet/internal/engine\t0.008s",
+        "FAIL"
+      ]
+    },
+    "build200.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "last_lines": []
+    }
+  },
+  "status": "native causal trace passes; link screens incomplete; prototype not deployed"
+}

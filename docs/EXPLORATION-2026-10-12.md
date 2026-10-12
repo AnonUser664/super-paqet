@@ -393,3 +393,70 @@ mux payload/ACK export check, the full root race suite (engine 6.679 s), engine
 vet, diagnostic CLI preflight and archived workload detection tests. See
 [validation](observability-native-2026-10-12.json). These checks qualify the
 observability code, not the unresolved WAN performance candidate.
+
+## Isolated reordering-ceiling experiment (not a production change)
+
+Source remains committed `701dc74`; the working tree's protocol code is unchanged.
+A Go build overlay replaces only `MaxReorderGraceMS = 200` with `750`. The
+controller still chooses a bounded allowance from RTT variation/observed late
+ACKs; this does not force a 750 ms delay on every link. Timer retries remain
+independent. A larger ceiling could reduce redundant retransmissions under
+long burst queues, but might worsen real-loss recovery; both outcomes require
+measurement. Packet encoding, shared flag-cycle state and outer S/PA behavior
+are unchanged.
+
+The first build launch incorrectly selected the repository root instead of its
+`./cmd` entry point and failed before producing a binary or namespace. Its log
+and failed receipt remain in `build/reorder-ceiling-20261012/`. Corrected builds
+use a fresh `build/reorder-ceiling-20261012-v2/` directory and correct exported
+version linker fields. Matched instrumented control SHA-256 is
+`140ccd02e77d0b4cf9b924bc118f952d898865a1a6410ab887fd97d009eb70fc`;
+overlay candidate SHA-256 is
+`018732d63264dc299dfeb537c050c598e4001a3875442dc60b9f513ad81c44b1`.
+Ten race repetitions of the library's gap, finite-bound, late-ACK and timer-
+independence cases pass on that overlay. The body screen is still in progress.
+
+The [17:28 UTC read-only backend review](backend-health-2026-10-12-1728.json)
+verifies all three expected hashes and active services with zero restarts.
+Germany/France have no selected warning records since 14:30. Finland has one
+keepalive-timeout warning at 15:45:04 for conversation 4244184183 on the new
+source port, whereas preserved customer conversation 136939470 continues in
+the retained client samples. That timing/tuple is consistent with the temporary probe's retirement, an
+inference rather than a role recorded in the warning. The record does not
+show that the preserved customer conversation failed. Finland SSH needed its existing jump fallback;
+SSH accessibility and tunnel health must not be conflated. No backend was
+modified or load-tested during this read-only review.
+
+The [completed ceiling screen](reorder-ceiling-screen-2026-10-12.json) is
+**rejected for deployment**: both matched 200 ms controls have zero errors; the
+750 ms runs have four / zero body timeouts. The successful-body throughput and
+latency improve and retry totals fall, but they cannot compensate for failures.
+All timeouts in the failing candidate run belong to the same four-stream
+carrier. Its pacing/delivery estimate drops while siblings continue, which
+points to a separate controller feedback hypothesis. Raising the ceiling alone
+is not an adequate fix. It remains solely a preserved build overlay.
+
+A second overlay experiments with bandwidth estimation during queue draining:
+when delivered bytes track a deliberately reduced pacing budget (within a 10%
+framing/loss allowance), do not treat that self-imposed rate as a fresh physical
+capacity reduction. Delivery well below the pacing budget still reduces the
+estimate after recent-peak expiry. The paired ceiling-200 and ceiling-750 builds
+separate this controller edit from the earlier tolerance edit. Neither is
+accepted or deployed. An injected controller trace must fail on the original
+code, retain discovered capacity during self-limited draining with the edit,
+and still converge its actual pacing budget after a sustained real bottleneck
+reduction. Full engine race checks precede link testing.
+
+The [pacing feedback native receipt](pacing-feedback-native-2026-10-12.json)
+retains the intended original failure: its learned estimate falls from
+1,000,000 to 210,790.94 bytes/s while the modeled delivery follows the
+controller's own draining budget. Both modified engine race suites pass
+(6.663 / 6.657 s), including retention and a subsequent real-capacity drop.
+The pacing-only ceiling-200 executable SHA-256 is
+`5c677bff0bd2b4da03de01a9865c3503cd5c20a8f8cde9cc825d7eaf8607f142`;
+the combined ceiling-750/pacing prototype is
+`da3f673dc7d8fec3da4517bb0d8fdaf02901ba7286bf40fe705a6c29ba4adb8b`.
+A fresh two-reversed-pair body screen now measures only the pacing change with
+the existing 200 ms ceiling. The combined prototype is built/native-checked
+but not link-qualified. Passing a modeled controller trace is not evidence
+that either executable is an end-to-end improvement.
