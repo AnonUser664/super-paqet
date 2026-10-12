@@ -1,0 +1,38 @@
+{
+  "production_mutated": false,
+  "scope": "One new ownership cancellation regression and full KCP-module race attempt; complete suite timed out, no full acceptance claim.",
+  "tests": [
+    {
+      "name": "limiter-close",
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "-run",
+        "TestSessionWriterCloseCancelsLimiterReservation",
+        "-count=10",
+        "."
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.7517515680083307
+    },
+    {
+      "name": "kcp-full",
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "./..."
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 600.3781489490066
+    }
+  ],
+  "logs": {
+    "limiter-close.log": "03b94f96b42e5b416eef93dc418056002c74bd33d6b835124610f4db63778b4f",
+    "kcp-full.log": "164c793aae1a9fc2b924654f21582b31a5a0e2a69cc4feed21e8bb1a4b0c63d2"
+  },
+  "timeout": "Package deadline 600 seconds; TestOOB had run only eight seconds. Complete test -race suite requires a larger budget.",
+  "current_candidate_runtime_source": "300af79",
+  "candidate_sha256": "9f1b19fecd3043092175c8dbd5ce7381e9c319f4538b0e05ae3f53b7b176ea70"
+}

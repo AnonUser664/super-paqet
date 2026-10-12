@@ -160,3 +160,71 @@ correction, root race/vet and three library migration/writer-ownership race
 repetitions pass. The prototype is not deployed or performance-qualified; raw
 wire integrity, whole-tunnel rates, actual socket cleanup and multiworker reload
 remain required.
+
+## Scope correction, whole-tunnel screen and production interruption
+
+The first functional run exercised 16 MiB TCP integrity, UDP datagrams through
+65507 bytes and half-close, but its metrics exposed a scope error: movable
+`dialOnly` client dispatchers were also receiving a private output descriptor.
+Source `300af79` restricts ownership to accepted backend carriers. Client source
+slots keep their original sockets; the corrected local artifact SHA-256 is
+`9f1b19fecd3043092175c8dbd5ce7381e9c319f4538b0e05ae3f53b7b176ea70`.
+Both compilation failures and the earlier wrong-scope executable remain retained.
+
+The corrected artifact passes repeated established-stream recovery, reverse-path
+recovery and three two-capture-worker live reload cycles. Recovery uses sequenced
+32 KiB payloads and a 10-second stall budget; reload holds 32 TCP streams per
+original peer with four carriers and also exercises UDP. All commands and owned
+cleanup checks pass. Full TCP/UDP boundary qualification and the complete native
+library suite remain separately tracked rather than inferred from a successful
+performance run.
+
+The [private-writer screen](private-writer-screen-2026-10-12.json) retains two
+clean and two pooled-pressure pairs against the exact production executable.
+Clean download medians increase 4.3993 → 5.1831 Gbit/s (+17.82%); upload changes
+5.8215 → 5.9897 Gbit/s (+2.89%). The first control upload is again lower than the
+second, so an unconditional upload gain is not established. Saturated server CPU
+use rises with download throughput; matched offered-load CPU costs remain needed.
+
+Ordinary pooled pressure **fails** its declared gates: combined bulk medians
+283.054 → 262.623 Mbit/s (-7.22%), mean request latency
+52.366 → 63.867 ms (+21.96%) and p99 85 → 108 ms (+27.06%). All runs have zero
+request/warmup errors and clean teardown. Control-0 and candidate-1 place HTTP on
+nearly idle carriers, with mid-run stream counts 1/18/8/8 and 1/9/20/9; the other
+runs share bulk lanes. This placement variability complicates attribution; it
+does not invalidate or erase the failed gate. No carrier admission policy was
+changed by this prototype. The next comparison uses both an ordinary pool at
+equal offered traffic and pinned lanes under equal fq pressure.
+
+Production investigation then interrupted local work. Client .118 suffered broad
+external IPv4 failure reproduced with independent PA/SYN/ACK, ordinary TCP and
+ICMP probes; see the [incident record](CLIENT118-INCIDENT-2026-10-12.md).
+After the user also reported .14 failing, both old tunnel services were stopped
+and the exact **opening.10** production artifact was deployed on .109. The
+private-writer prototype was not used. Reality targets were corrected to 443
+after the user confirmed a destination-service change; Shadowsocks uses 8880.
+All six authenticated tunnel routes and the three public nginx Shadowsocks paths
+passed. The [deployment](EMERGENCY-CLIENT109-DEPLOYMENT-2026-10-12.md) is separate
+from this candidate's qualification.
+
+The [first .109 health review](emergency-client109-health-2026-10-12.json) covers
+19 minutes after the corrected deployment, with 1,918 peak active forwards,
+84,600 KiB peak RSS, unchanged executable/config/PID and zero new tunnel errors,
+opening retries, recovery events or log drops. Application/client aborts are not
+automatically path failures. This is a finite real-traffic observation, not a
+sustained capacity or future-filtering guarantee.
+
+A new native test exhausts a one-byte-per-second limiter, observes a real
+pending output reservation, closes the carrier and requires prompt writer
+retirement while the shared receiver stays usable. Ten race repetitions pass.
+The entire KCP module race suite and equal-offered-load matrix are queued under
+the shared reservation; no overlapping benchmark has been started.
+
+The full `go test -race ./...` KCP run reaches the default 600-second package
+deadline. Its dump shows `TestOOB` had run for only eight seconds; preceding
+library cases include 1 GiB and 6 GiB byte-verification loops. No race report is
+present in that log. This is an incomplete full-suite check, not a pass or proof
+that the OOB test hangs. The exact failed log and exit status remain under
+`build/private-writer-20261012/native-full-20261012T1440/`. A larger-budget rerun
+is needed. The queued matched performance matrix then acquires the reservation;
+the tests do not overlap.

@@ -12,6 +12,8 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"golang.org/x/time/rate"
 )
 
 // writerSocket records created output objects; input remains the shared socket.
@@ -168,5 +170,46 @@ func TestSessionWriterDialOnlyKeepsOriginalOutput(t *testing.T) {
 	p := makeListenerPlatform(provider, false)
 	if p.hasSessionWriter() || len(provider.writers) != 0 {
 		t.Fatal("outgoing route allocated an incoming-only writer")
+	}
+}
+
+// TestSessionWriterCloseCancelsLimiterReservation puts actual output behind a
+// minutes-long rate reservation. Closing the carrier must release its writer
+// promptly, without closing the shared receive socket or adding a waiter goroutine.
+func TestSessionWriterCloseCancelsLimiterReservation(t *testing.T) {
+	client, _ := migrationListener(t, nil, true)
+	server, packet := ownedWriterListener(t)
+	c, s := migrationPair(t, client, server)
+	defer c.Close()
+	defer s.Close()
+	writer := packet.newest()
+	limiter := rate.NewLimiter(1, maxBatchSize*mtuLimit)
+	if !limiter.AllowN(time.Now(), limiter.Burst()) {
+		t.Fatal("could not exhaust initial token allowance")
+	}
+	s.rateLimiter.Store(limiter)
+	if _, err := s.Write(bytes.Repeat([]byte{42}, 256)); err != nil {
+		t.Fatal(err)
+	}
+	deadline := time.Now().Add(2 * time.Second)
+	for limiter.Tokens() >= 0 && time.Now().Before(deadline) {
+		time.Sleep(time.Millisecond)
+	}
+	if limiter.Tokens() >= 0 {
+		t.Fatal("output did not enter its rate reservation")
+	}
+	select {
+	case <-writer.done:
+		t.Fatal("writer closed before its carrier")
+	default:
+	}
+	s.Close()
+	select {
+	case <-writer.done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("rate reservation kept the output writer alive after close")
+	}
+	if err := server.SetReadDeadline(time.Now().Add(time.Second)); err != nil {
+		t.Fatalf("shared receiver lost after output cancellation: %v", err)
 	}
 }

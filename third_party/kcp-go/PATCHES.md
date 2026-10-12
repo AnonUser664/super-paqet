@@ -68,3 +68,27 @@ impairment regression tests. The full upstream suites remain required.
 These integrated candidates and their end-to-end qualification decisions are
 tracked in `docs/INTEGRATION-REVIEW-2026-10-08.md` in the parent application.
 They are not a production deployment.
+
+## Local private-writer exploration (12 October 2026)
+
+An optional `SessionWriter` factory can provide a Linux batch-only output
+descriptor for an accepted carrier. Input remains owned by the listener's
+original batch reader; generic UDP/pcap and outgoing `dialOnly` routes keep their
+existing output path. A failed or absent factory safely falls back to the shared
+writer. The enclosing raw transport records construction failures.
+
+Physical migration installs the new route's output object and retires only the
+old output object. Listener ownership, conversation IDs, KCP sequence state,
+encryption and receive dispatch remain unchanged. Session close gives final
+output an RTO-sized write deadline; the existing output worker closes its writer
+after draining. Its rate-limiter context uses the existing session close signal
+so a long outstanding reservation cannot keep the descriptor alive. This adds
+no waiter goroutine or per-packet queue.
+
+Tests cover ordinary close, movement between real receive sockets, preservation
+of the shared listener, exclusion of outgoing routes, and cancellation of a
+minutes-long limiter reservation. The parent app's raw implementation shares
+the original packet encoder/flag state and closes all child outputs when the
+capture socket is replaced. End-to-end evidence and failed acceptance limits
+remain in `docs/EXPLORATION-2026-10-12.md`. The ordinary pooled-pressure screen
+failed; this implementation has not been accepted or deployed to production.
