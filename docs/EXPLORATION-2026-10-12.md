@@ -101,3 +101,62 @@ The public whole-tunnel receipt now summarizes iperf and HTTP results rather
 than retaining thousands of empty histogram bins/per-stream intervals in the
 current document. Complete original receipts remain in the private output
 directories and the earlier checkpoint history. No failed gate was removed.
+
+## Matched pressure and short execution tracing
+
+The four pinned pressure runs all finish with zero errors/warmup errors and
+clean owned teardown. Median combined bulk changes 346.570 → 346.671 Mbit/s
+(+0.029%), HTTP mean 136.374 → 138.543 ms (+1.59%) and p99
+231.5 → 217.5 ms (-6.05%). All finite matched-placement gates pass. The
+[receipts](raw-callback-pinned-pressure-2026-10-12.json) are supplementary;
+they do not erase the ordinary-pool latency failure or establish a general
+admission improvement.
+
+Inspection found that the custom metrics mux served CPU profiling specially
+but delegated `/debug/pprof/trace` to the ordinary profile index, which cannot
+serve an execution trace. The candidate now routes it explicitly to the trace
+handler behind the unchanged explicit profiling guard. Production remains
+profiling-off and unchanged. The isolated harness accepts only 0..2 seconds
+of trace with enterprise iperf profiling and enough omitted warmup, bounds
+response size at 64 MiB, and keeps traces separate from acceptance claims.
+
+Two diagnostic executables support the same tracing: the control overlays the
+exact original raw writer, and the candidate retains the cached callback.
+Short client/server traces during upload/download will identify blocking
+locations without assuming that the previous CPU profiles proved mutex costs.
+No independent transmit sockets, duplicated descriptors, queue coalescer or
+traffic-class isolation has been implemented.
+
+## Trace result and private-transmit prototype
+
+In 250 ms traces, the control and cached-callback backend download accumulate
+330.663/331.328 ms of synchronization delay in `rawPacket.writeBatchWithDrops`
+across sender goroutines. Client upload has no matching writer-lock delay. This
+is evidence of physical writer serialization, not proof that removing it explains
+every direction difference. Send syscall durations are still dominant.
+
+The next local prototype gives each accepted Linux raw KCP carrier its own
+protocol-zero AF_PACKET output socket: it has no receive subscription, keeps
+the existing interface/ETH_P_ALL send metadata, and shares the original encoder
+so timestamp/sequence seed and per-client flag ownership are retained. Capture
+workers and tuples remain unchanged. It has no additional output worker/timer
+or packet queue. Receive arrays are now separately allocated only on capture
+sockets, avoiding approximately 128 KiB of unused receive storage per writer.
+
+Writer lifetime is separate from the shared listener: physical moves retire
+only the old writer; output queue shutdown gives the current writer a measured
+RTO-sized final-drain deadline and closes it on post-processing completion.
+Rate-limiter waits use the existing close signal without an extra goroutine.
+Listener shutdown closes all its child descriptors, preventing stale-generation
+output after replacement. Constructor failures retain the original shared path
+and increment a visible failure counter; session metrics show whether the
+private writer is installed. Packet retries and precise per-carrier loss are
+retained; shared worker totals also accumulate child losses without double-counting
+them as independent incidents.
+
+The first two compilation attempts caught an incomplete read/write interface
+split and a missing exported soft-loss method. Their logs are retained. After
+correction, root race/vet and three library migration/writer-ownership race
+repetitions pass. The prototype is not deployed or performance-qualified; raw
+wire integrity, whole-tunnel rates, actual socket cleanup and multiworker reload
+remain required.

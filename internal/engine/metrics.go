@@ -74,6 +74,11 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 		// Export the existing atomic counter at scrape time so warning-level
 		// production monitoring does not need expensive debug sampling.
 		fmt.Fprintf(w, "super_paqet_session_local_output_drops_total{%s} %d\n", labels, c.UDPSession.LocalOutputDrops())
+		isolated := 0
+		if c.UDPSession.HasSessionWriter() {
+			isolated = 1
+		}
+		fmt.Fprintf(w, "super_paqet_session_isolated_output_socket{%s} %d\n", labels, isolated)
 		fmt.Fprintf(w, "super_paqet_session_output_packets_total{%s} %d\nsuper_paqet_session_output_kcp_bytes_total{%s} %d\nsuper_paqet_session_control_packets_total{%s} %d\nsuper_paqet_session_ack_segments_total{%s} %d\nsuper_paqet_session_pending_credits{%s} %d\n", labels, state.OutputPackets, labels, state.OutputBytes, labels, state.ACKPackets, labels, state.ACKSegments, labels, c.Session.PendingCredits())
 		capacity, buffered, blocked := c.Session.ReceiveBufferStats()
 		waiting := 0
@@ -144,6 +149,7 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 		i, worker, packet := observed.index, observed.worker, observed.packet
 		packets, drops := packet.PacketStats()
 		fmt.Fprintf(w, "super_paqet_listener_tx_queue_retries_total{listener=\"%d\",worker=\"%d\"} %d\n", i, worker, packet.TXQueueRetries())
+		fmt.Fprintf(w, "super_paqet_listener_output_writer_failures_total{listener=\"%d\",worker=\"%d\"} %d\n", i, worker, packet.SessionWriterFailures())
 		fmt.Fprintf(w, "super_paqet_listener_tx_queue_drops{listener=\"%d\",worker=\"%d\"} %d\nsuper_paqet_listener_capture_packets{listener=\"%d\",worker=\"%d\"} %d\nsuper_paqet_listener_capture_drops{listener=\"%d\",worker=\"%d\"} %d\n", i, worker, packet.TXDrops(), i, worker, packets, i, worker, drops)
 	}
 }

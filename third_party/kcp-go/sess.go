@@ -49,7 +49,6 @@
 package kcp
 
 import (
-	"context"
 	"crypto/rand"
 	"encoding/binary"
 	"hash/crc32"
@@ -553,10 +552,12 @@ func (s *UDPSession) Close() error {
 	s.mu.Lock()
 	s.kcp.flush((IKCP_FLUSH_FULL))
 	s.postQueue.close()
+	drainBudget := time.Duration(max(100, s.kcp.rx_rto)) * time.Millisecond
 	s.mu.Unlock()
 
 	migrationMu.Lock()
 	route := s.route.Load()
+	route.platform.retireSessionWriter(time.Now().Add(drainBudget))
 	if route.listener != nil { // remove from its current dispatcher, not its original socket
 		route.listener.closeSession(route.remote, s.kcp.conv)
 		migrationMu.Unlock()
@@ -772,11 +773,18 @@ func (s *UDPSession) Control(f func(conn net.PacketConn) error) error {
 //
 // Pipeline: KCP output -> chPostProcessing -> [FEC] -> [Encrypt] -> TxQueue -> Network
 func (s *UDPSession) postProcess() {
+	// Serialize final descriptor retirement with physical moves. A move cannot
+	// install a new writer after this cleanup has inspected the old route.
+	defer func() {
+		migrationMu.Lock()
+		s.route.Load().platform.closeSessionWriter()
+		migrationMu.Unlock()
+	}()
 	txqueue := make([]ipv4.Message, 0, maxBatchSize)
 	var txBuffers [maxBatchSize][1][]byte
 	var reqBuf [maxBatchSize]sendRequest
 
-	ctx := context.Background()
+	ctx := sessionOutputContext{done: s.die}
 	bytesToSend := 0
 	for {
 		space := maxBatchSize - len(txqueue)

@@ -27,7 +27,10 @@
 
 package kcp
 
-import "net"
+import (
+	"net"
+	"time"
+)
 
 // platform retains optional platform batch state; generic builds can have no additional
 // platform data.
@@ -39,3 +42,9 @@ func (sess *UDPSession) initPlatform() {}
 
 // makePlatform keeps generic routing ownership without a batch adapter.
 func makePlatform(conn net.PacketConn) platform { return platform{} }
+
+// Generic transports retain their original shared descriptor and ownership.
+func makeListenerPlatform(conn net.PacketConn) platform { return makePlatform(conn) }
+func (platform) retireSessionWriter(time.Time)          {}
+func (platform) closeSessionWriter()                    {}
+func (platform) hasSessionWriter() bool                 { return false }

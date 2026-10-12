@@ -43,7 +43,7 @@ const (
 // to batch-receive multiple UDP packets in a single system call.
 func (s *UDPSession) readLoop() {
 	// default version
-	if s.platform.batchConn == nil {
+	if s.platform.batchReader == nil {
 		s.defaultReadLoop()
 		return
 	}
@@ -64,7 +64,7 @@ func (s *UDPSession) readLoop() {
 	}
 
 	for {
-		count, err := s.platform.batchConn.ReadBatch(msgs, 0)
+		count, err := s.platform.batchReader.ReadBatch(msgs, 0)
 		if err != nil {
 			s.notifyReadError(errors.WithStack(err))
 			return

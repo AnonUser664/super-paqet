@@ -30,6 +30,7 @@ package kcp
 import (
 	"net"
 	"syscall"
+	"time"
 
 	"golang.org/x/net/ipv4"
 	"golang.org/x/net/ipv6"
@@ -40,9 +41,16 @@ type (
 	// platform data.
 	platform struct {
 		// Optional platform/custom batch adapter retaining the same packet transport.
-		batchConn batchConn
+		batchConn interface {
+			WriteBatch([]ipv4.Message, int) (int, error)
+		}
+		// Input stays attached to the original dispatcher/socket, even when
+		// a listener resolves a private write-only output descriptor.
+		batchReader batchConn
 		// Optional precise soft-loss feedback; resolved once per physical route.
 		batchWithDrops batchWithDrops
+		// Owned only by this logical carrier, never by its shared listener.
+		sessionWriter SessionWriter
 	}
 
 	// udpConn is an interface implemented by net.UDPConn.
@@ -96,11 +104,41 @@ func newBatchConn(conn net.PacketConn) batchConn {
 // initPlatform selects platform batch support; custom PacketConn implementations keep raw
 // framing rather than UDP substitution.
 func (sess *UDPSession) initPlatform() {
-	sess.platform = makePlatform(sess.conn)
+	if sess.l != nil {
+		sess.platform = makeListenerPlatform(sess.conn)
+	} else {
+		sess.platform = makePlatform(sess.conn)
+	}
 }
+
+// makeListenerPlatform resolves one optional output writer per physical route.
+func makeListenerPlatform(conn net.PacketConn) platform {
+	p := makePlatform(conn)
+	if provider, ok := conn.(sessionWriterProvider); ok {
+		if writer, err := provider.NewSessionWriter(); err == nil && writer != nil {
+			p.batchConn, p.batchWithDrops, p.sessionWriter = writer, writer, writer
+		}
+	}
+	return p
+}
+
+// Retirement cancels blocked final output after an adaptive RTO-sized drain
+// budget; actual closure belongs to the output worker after its queue is drained.
+func (p platform) retireSessionWriter(deadline time.Time) {
+	if p.sessionWriter != nil {
+		p.sessionWriter.SetWriteDeadline(deadline)
+	}
+}
+func (p platform) closeSessionWriter() {
+	if p.sessionWriter != nil {
+		p.sessionWriter.Close()
+	}
+}
+func (p platform) hasSessionWriter() bool { return p.sessionWriter != nil }
 
 // makePlatform builds one batch adapter per physical move, never per packet.
 func makePlatform(conn net.PacketConn) platform {
 	tracked, _ := conn.(batchWithDrops)
-	return platform{batchConn: newBatchConn(conn), batchWithDrops: tracked}
+	reader := newBatchConn(conn)
+	return platform{batchConn: reader, batchReader: reader, batchWithDrops: tracked}
 }

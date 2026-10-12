@@ -5,7 +5,28 @@
 
 package socket
 
-import "golang.org/x/net/ipv4"
+import (
+	kcplib "github.com/xtaci/kcp-go/v5"
+	"golang.org/x/net/ipv4"
+)
+
+// NewSessionWriter is resolved by a Linux listener once per carrier/generation.
+// Pcap and ordinary client paths retain their existing descriptor ownership.
+func (c *PacketConn) NewSessionWriter() (kcplib.SessionWriter, error) {
+	if c.raw == nil {
+		return nil, nil
+	}
+	return c.raw.(*rawPacket).newSessionWriter()
+}
+
+// SessionWriterFailures exposes safe output-factory fallbacks without treating
+// construction failure as loss of an existing carrier or shared receive socket.
+func (c *PacketConn) SessionWriterFailures() uint64 {
+	if c.raw == nil {
+		return 0
+	}
+	return c.raw.(*rawPacket).writerFailures.Load()
+}
 
 // TXDrops reports socket-scoped transmit queue loss for either driver rather than treating
 // attempted bytes as delivered bytes.

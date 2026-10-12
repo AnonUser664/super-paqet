@@ -50,6 +50,17 @@ type rawPacket struct {
 	txRetries atomic.Uint64
 	// Serializes destructive kernel packet-stat reads while retaining cumulative counters.
 	statsMu sync.Mutex
+	// Interface/send budget survive source migration. Private transmit sockets
+	// have no capture subscription and use this parent's encoder/accounting.
+	ifindex, sockbuf int
+	txAddress        *unix.RawSockaddrLinklayer
+	txAccounting     *rawPacket
+	// Parent shutdown must also close child transmit descriptors, preventing
+	// stale header generations from sending after a listener is replaced.
+	writerMu       sync.Mutex
+	writers        map[*rawPacket]struct{}
+	writersClosed  bool
+	writerFailures atomic.Uint64
 	// Owned packet socket file whose close wakes netpoll operations.
 	file *os.File
 	// Netpoll-aware packet file access; this is not an outer kernel TCP connection.
@@ -69,11 +80,11 @@ type rawPacket struct {
 	txCount, txResult int
 	txError           error
 	// Fixed capture slots; decode checks prevent truncated/oversized frames from being accepted.
-	rxFrames [rawBatchSize][2048]byte
+	rxFrames *[rawBatchSize][2048]byte
 	// Reusable receive syscall descriptors pointing into rxFrames.
-	rxHdr [rawBatchSize]mmsg
+	rxHdr *[rawBatchSize]mmsg
 	// Reusable receive iovecs, avoiding descriptor allocation per packet.
-	rxVec [rawBatchSize]unix.Iovec
+	rxVec *[rawBatchSize]unix.Iovec
 	// Reusable encoded Ethernet/IP/TCP headers separate from already-owned KCP payload slices.
 	txHeaders [rawBatchSize][96]byte
 	// Reusable transmit syscall descriptors for scatter/gather output.
@@ -159,7 +170,8 @@ func newRawPacket(cfg *conf.Network) (*rawPacket, error) {
 	if local == nil {
 		local = cfg.IPv6.Addr
 	}
-	p := &rawPacket{file: f, raw: raw, send: send, mac: cfg.Interface.HardwareAddr, local: local, cache: make(map[netip.AddrPort]*net.UDPAddr)}
+	p := &rawPacket{file: f, raw: raw, send: send, mac: cfg.Interface.HardwareAddr, local: local, cache: make(map[netip.AddrPort]*net.UDPAddr), ifindex: cfg.Interface.Index, sockbuf: cfg.PCAP.Sockbuf,
+		rxFrames: new([rawBatchSize][2048]byte), rxHdr: new([rawBatchSize]mmsg), rxVec: new([rawBatchSize]unix.Iovec)}
 	p.txCallback = p.writeRawBatch
 	for i := range p.rxHdr {
 		p.rxVec[i].Base = &p.rxFrames[i][0]
@@ -175,6 +187,11 @@ func newRawPacket(cfg *conf.Network) (*rawPacket, error) {
 func (p *rawPacket) WriteBatch(ms []ipv4.Message, flags int) (int, error) {
 	n, _, err := p.writeBatchWithDrops(ms, flags)
 	return n, err
+}
+
+// WriteBatchWithDrops is the private output writer's precise KCP batch contract.
+func (p *rawPacket) WriteBatchWithDrops(ms []ipv4.Message, flags int) (int, int, error) {
+	return p.writeBatchWithDrops(ms, flags)
 }
 
 // writeBatchWithDrops retains injection/retry semantics and returns losses from
@@ -209,6 +226,12 @@ func (p *rawPacket) writeBatchWithDrops(ms []ipv4.Message, flags int) (int, int,
 		p.txHdr[i] = mmsg{}
 		p.txHdr[i].Hdr.Iov = &p.txVec[i][0]
 		p.txHdr[i].Hdr.SetIovlen(2)
+		if p.txAddress != nil {
+			// A protocol-zero socket never subscribes to incoming packets.
+			// Supply the original interface/ETH_P_ALL send metadata explicitly.
+			p.txHdr[i].Hdr.Name = (*byte)(unsafe.Pointer(p.txAddress))
+			p.txHdr[i].Hdr.Namelen = unix.SizeofSockaddrLinklayer
+		}
 	}
 	// Tests and adapters may construct a packet without the normal initializer.
 	// The existing writer lock also makes this one-time fallback safe.
@@ -249,6 +272,9 @@ func (p *rawPacket) writeRawBatch(fd uintptr) bool {
 	}, waitTXQueue)
 	if retries > 0 {
 		p.txRetries.Add(uint64(retries))
+		if p.txAccounting != nil {
+			p.txAccounting.txRetries.Add(uint64(retries))
+		}
 	}
 	if errno == unix.EAGAIN || errno == unix.EINTR {
 		return false
@@ -258,6 +284,9 @@ func (p *rawPacket) writeRawBatch(fd uintptr) bool {
 	// every application stream sharing the session.
 	if errno == unix.ENOBUFS {
 		p.txDrops.Add(uint64(n))
+		if p.txAccounting != nil {
+			p.txAccounting.txDrops.Add(uint64(n))
+		}
 		// A negative count is private callback state marking this wholly
 		// rejected batch. Translate it before returning to callers; sharing
 		// the existing count avoids another captured allocation per batch.
@@ -357,7 +386,59 @@ func (p *rawPacket) WriteTo(b []byte, a net.Addr) (int, error) {
 
 // Close releases this object's owned resources or signals its lifecycle once; shared listener
 // ownership is handled by its wrapper.
-func (p *rawPacket) Close() error { return p.file.Close() }
+func (p *rawPacket) Close() error {
+	if p.txAccounting != nil {
+		parent := p.txAccounting
+		parent.writerMu.Lock()
+		delete(parent.writers, p)
+		parent.writerMu.Unlock()
+		return p.file.Close()
+	}
+	p.writerMu.Lock()
+	p.writersClosed = true
+	for writer := range p.writers {
+		writer.file.Close()
+	}
+	clear(p.writers)
+	p.writerMu.Unlock()
+	return p.file.Close()
+}
+
+// newSessionWriter isolates one server carrier's send lock/descriptor while
+// retaining the exact source tuple, shared flag/sequence state and retry policy.
+// Receive storage is allocated only by capture sockets, not these transmitters.
+func (p *rawPacket) newSessionWriter() (*rawPacket, error) {
+	p.writerMu.Lock()
+	defer p.writerMu.Unlock()
+	if p.writersClosed {
+		return nil, net.ErrClosed
+	}
+	fd, err := unix.Socket(unix.AF_PACKET, unix.SOCK_RAW|unix.SOCK_NONBLOCK|unix.SOCK_CLOEXEC, 0)
+	if err != nil {
+		p.writerFailures.Add(1)
+		return nil, err
+	}
+	f := os.NewFile(uintptr(fd), "super-paqet-session-output")
+	fail := func(err error) (*rawPacket, error) { f.Close(); p.writerFailures.Add(1); return nil, err }
+	if err := unix.SetsockoptInt(fd, unix.SOL_SOCKET, unix.SO_SNDBUF, p.sockbuf); err != nil {
+		return fail(err)
+	}
+	_ = unix.SetsockoptInt(fd, unix.SOL_SOCKET, unix.SO_SNDBUFFORCE, p.sockbuf)
+	raw, err := f.SyscallConn()
+	if err != nil {
+		return fail(err)
+	}
+	var protocol [2]byte
+	binary.BigEndian.PutUint16(protocol[:], unix.ETH_P_ALL)
+	writer := &rawPacket{file: f, raw: raw, send: p.send, mac: p.mac, local: p.local, txAccounting: p,
+		txAddress: &unix.RawSockaddrLinklayer{Family: unix.AF_PACKET, Protocol: binary.NativeEndian.Uint16(protocol[:]), Ifindex: int32(p.ifindex)}}
+	writer.txCallback = writer.writeRawBatch
+	if p.writers == nil {
+		p.writers = make(map[*rawPacket]struct{})
+	}
+	p.writers[writer] = struct{}{}
+	return writer, nil
+}
 
 // LocalAddr reports this object's local endpoint without transferring packet socket ownership.
 func (p *rawPacket) LocalAddr() net.Addr { return p.local }
