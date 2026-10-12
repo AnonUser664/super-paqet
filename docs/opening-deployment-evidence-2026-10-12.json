@@ -593,5 +593,174 @@
     "journal_rotation_max_bytes": 67108864,
     "summary_retention": "full observation window peaks and counter deltas; raw files rotate",
     "first_install_failure": "German journalctl rejected ISO UTC Z timestamp; failed archive/diagnosis retained. Corrected unit uses an epoch @timestamp and actual journal records were verified."
-  }
+  },
+  "post_observer_handoff": [
+    {
+      "host": "116.202.177.233",
+      "utc": "2026-10-12T08:11:06.267393+00:00",
+      "unit": {
+        "MainPID": "1192114",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "health": "ok",
+      "sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+      "observer": "MainPID=1194296\nActiveState=active\nUnitFileState=enabled\n",
+      "samples": 55,
+      "triggers": {},
+      "counter_deltas": {
+        "errors_total": 0,
+        "rejected_total": 0,
+        "opening_transport_retries_total": 0,
+        "opening_capacity_retries_total": 0,
+        "opening_reused_targets_total": 0,
+        "config_reload_rejected_total": 0,
+        "path_recovery_attempts_total": 0,
+        "path_recovery_succeeded_total": 0,
+        "path_recovery_rejected_total": 0,
+        "log_dropped_total": 0
+      },
+      "journal_recorder": {
+        "records": 28,
+        "cursor_resume": false,
+        "last_realtime_usec": "1791791629993562"
+      }
+    },
+    {
+      "host": "171.22.132.226",
+      "utc": "2026-10-12T08:11:04.807006+00:00",
+      "unit": {
+        "ActiveState": "active",
+        "UnitFileState": "enabled",
+        "MainPID": "3334731",
+        "NRestarts": "0"
+      },
+      "health": "ok",
+      "sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+      "observer": "ActiveState=active\nUnitFileState=enabled\nMainPID=3335691\n",
+      "samples": 54,
+      "triggers": {},
+      "counter_deltas": {
+        "errors_total": 0,
+        "rejected_total": 0,
+        "opening_transport_retries_total": 0,
+        "opening_capacity_retries_total": 0,
+        "opening_reused_targets_total": 0,
+        "config_reload_rejected_total": 0,
+        "path_recovery_attempts_total": 0,
+        "path_recovery_succeeded_total": 0,
+        "path_recovery_rejected_total": 0,
+        "log_dropped_total": 0
+      },
+      "journal_recorder": {
+        "records": 13,
+        "cursor_resume": false,
+        "last_realtime_usec": "1791791618046837"
+      }
+    },
+    {
+      "host": "65.109.249.222",
+      "utc": "2026-10-12T08:11:05.324685+00:00",
+      "unit": {
+        "MainPID": "459547",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "health": "ok",
+      "sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+      "observer": "MainPID=460151\nActiveState=active\nUnitFileState=enabled\n",
+      "samples": 52,
+      "triggers": {
+        "packet_drops_increased": 3
+      },
+      "counter_deltas": {
+        "errors_total": 0,
+        "rejected_total": 0,
+        "opening_transport_retries_total": 0,
+        "opening_capacity_retries_total": 0,
+        "opening_reused_targets_total": 0,
+        "config_reload_rejected_total": 0,
+        "path_recovery_attempts_total": 0,
+        "path_recovery_succeeded_total": 0,
+        "path_recovery_rejected_total": 0,
+        "log_dropped_total": 0
+      },
+      "journal_recorder": {
+        "records": 14,
+        "cursor_resume": false,
+        "last_realtime_usec": "1791791622983625"
+      }
+    },
+    {
+      "host": "89.45.68.118",
+      "utc": "2026-10-12T08:11:05.023483+00:00",
+      "unit": {
+        "MainPID": "1175580",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "health": "ok",
+      "sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "config_sha256": "ab844772497e4cc4c1de64a78f7d82a6d71d5d59ad72cd122181721e352bb718",
+      "observer": "MainPID=1176475\nActiveState=active\nUnitFileState=enabled\n",
+      "samples": 51,
+      "triggers": {},
+      "counter_deltas": {
+        "errors_total": 0,
+        "rejected_total": 0,
+        "opening_transport_retries_total": 0,
+        "opening_capacity_retries_total": 0,
+        "opening_reused_targets_total": 0,
+        "config_reload_rejected_total": 0,
+        "path_recovery_attempts_total": 0,
+        "path_recovery_succeeded_total": 0,
+        "path_recovery_rejected_total": 0,
+        "log_dropped_total": 0
+      },
+      "journal_recorder": {
+        "records": 51,
+        "cursor_resume": false,
+        "last_realtime_usec": "1791791582463285"
+      }
+    },
+    {
+      "host": "89.45.68.14",
+      "utc": "2026-10-12T08:11:05.803099+00:00",
+      "unit": {
+        "MainPID": "478756",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "health": "ok",
+      "sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "config_sha256": "0e0c6aaea2a232251774434dbb16bc764ca703dc5eac2a12cbd90b707ad5ab2f",
+      "observer": "MainPID=479597\nActiveState=active\nUnitFileState=enabled\n",
+      "samples": 52,
+      "triggers": {},
+      "counter_deltas": {
+        "errors_total": 0,
+        "rejected_total": 0,
+        "opening_transport_retries_total": 0,
+        "opening_capacity_retries_total": 0,
+        "opening_reused_targets_total": 0,
+        "config_reload_rejected_total": 0,
+        "path_recovery_attempts_total": 0,
+        "path_recovery_succeeded_total": 0,
+        "path_recovery_rejected_total": 0,
+        "log_dropped_total": 0
+      },
+      "journal_recorder": {
+        "records": 50,
+        "cursor_resume": false,
+        "last_realtime_usec": "1791791546076421"
+      }
+    }
+  ]
 }

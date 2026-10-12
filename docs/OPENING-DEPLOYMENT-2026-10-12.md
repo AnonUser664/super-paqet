@@ -58,3 +58,10 @@ not prior observer failures. Failed archives and diagnostic receipts are retaine
 
 The 800x checks returned HTTP 404 responses, proving forwarded HTTP reachability;
 they do not qualify an authenticated application session on port 8880.
+
+The final read-only handoff sample verified the same five new PIDs/hashes and
+healthy services after observer installation, with 51–55 samples per host and
+no automatic restarts. Finland's observer captured three packet-drop-growth
+incidents; these remain diagnostic signals, not an incident-free assertion.
+The other observers had no incident triggers in this short window. This is
+initial observation only, not a completed seven-day stability result.
