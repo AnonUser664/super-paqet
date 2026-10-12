@@ -1,0 +1,201 @@
+{
+  "production_mutated": false,
+  "scope": "Approximately 95 minutes after promotion; rollout warning records separately excluded. Read-only observer aggregation.",
+  "hosts": [
+    {
+      "host": "116.202.177.233",
+      "observed_utc": "2026-10-12T09:38:12.663959+00:00",
+      "unit": {
+        "MainPID": "1192114",
+        "NRestarts": "0",
+        "MemoryCurrent": "107835392",
+        "TasksCurrent": "12",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "health": "ok",
+      "running_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+      "observer_window_start": "2026-10-12T08:01:59.600341+00:00",
+      "observer_window_end": "2026-10-12T09:38:07.226631+00:00",
+      "samples": 575,
+      "peak_active": 2200.0,
+      "peak_rss_kib": 103728,
+      "triggers": {},
+      "counter_deltas": {
+        "errors_total": 0,
+        "rejected_total": 0,
+        "opening_transport_retries_total": 0,
+        "opening_capacity_retries_total": 0,
+        "opening_reused_targets_total": 0,
+        "config_reload_rejected_total": 0,
+        "path_recovery_attempts_total": 0,
+        "path_recovery_succeeded_total": 0,
+        "path_recovery_rejected_total": 0,
+        "log_dropped_total": 0
+      },
+      "warning_events_after_observer_start": [],
+      "loss_growth_by_label": {},
+      "qdisc": null
+    },
+    {
+      "host": "171.22.132.226",
+      "observed_utc": "2026-10-12T09:38:10.812022+00:00",
+      "unit": {
+        "ActiveState": "active",
+        "UnitFileState": "enabled",
+        "MainPID": "3334731",
+        "NRestarts": "0",
+        "MemoryCurrent": "66867200",
+        "TasksCurrent": "10"
+      },
+      "health": "ok",
+      "running_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+      "observer_window_start": "2026-10-12T08:02:06.326818+00:00",
+      "observer_window_end": "2026-10-12T09:38:06.387398+00:00",
+      "samples": 577,
+      "peak_active": 1313.0,
+      "peak_rss_kib": 77080,
+      "triggers": {},
+      "counter_deltas": {
+        "errors_total": 0,
+        "rejected_total": 0,
+        "opening_transport_retries_total": 0,
+        "opening_capacity_retries_total": 0,
+        "opening_reused_targets_total": 0,
+        "config_reload_rejected_total": 0,
+        "path_recovery_attempts_total": 0,
+        "path_recovery_succeeded_total": 0,
+        "path_recovery_rejected_total": 0,
+        "log_dropped_total": 0
+      },
+      "warning_events_after_observer_start": [],
+      "loss_growth_by_label": {},
+      "qdisc": null
+    },
+    {
+      "host": "65.109.249.222",
+      "observed_utc": "2026-10-12T09:38:10.864295+00:00",
+      "unit": {
+        "MainPID": "459547",
+        "NRestarts": "0",
+        "MemoryCurrent": "69005312",
+        "TasksCurrent": "12",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "health": "ok",
+      "running_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+      "observer_window_start": "2026-10-12T08:02:23.296527+00:00",
+      "observer_window_end": "2026-10-12T09:38:10.816784+00:00",
+      "samples": 573,
+      "peak_active": 1349.0,
+      "peak_rss_kib": 72756,
+      "triggers": {
+        "packet_drops_increased": 18
+      },
+      "counter_deltas": {
+        "errors_total": 0,
+        "rejected_total": 0,
+        "opening_transport_retries_total": 0,
+        "opening_capacity_retries_total": 0,
+        "opening_reused_targets_total": 0,
+        "config_reload_rejected_total": 0,
+        "path_recovery_attempts_total": 0,
+        "path_recovery_succeeded_total": 0,
+        "path_recovery_rejected_total": 0,
+        "log_dropped_total": 0
+      },
+      "warning_events_after_observer_start": [],
+      "loss_growth_by_label": {
+        "super_paqet_session_local_output_drops_total{conv=\"3534805334\",remote=\"89.45.68.118:35055\"}": 1390.0,
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"0\"}": 1807.0,
+        "super_paqet_session_local_output_drops_total{conv=\"3193452465\",remote=\"89.45.68.14:55703\"}": 96.0,
+        "super_paqet_listener_tx_queue_drops{listener=\"0\",worker=\"1\"}": 123.0,
+        "super_paqet_session_local_output_drops_total{conv=\"3775529146\",remote=\"89.45.68.14:53738\"}": 151.0,
+        "super_paqet_session_local_output_drops_total{conv=\"3362353787\",remote=\"89.45.68.118:62982\"}": 27.0,
+        "super_paqet_session_local_output_drops_total{conv=\"1986231291\",remote=\"89.45.68.118:41319\"}": 226.0,
+        "super_paqet_session_local_output_drops_total{conv=\"415090947\",remote=\"89.45.68.118:39462\"}": 40.0
+      },
+      "qdisc": {
+        "rc": 0,
+        "out": "qdisc noqueue 0: dev lo root refcnt 2 \n Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\nqdisc fq 0: dev eth0 root refcnt 2 limit 10000p flow_limit 100p buckets 1024 orphan_mask 1023 quantum 3028b initial_quantum 15140b low_rate_threshold 550Kbit refill_delay 40ms timer_slack 10us horizon 10s horizon_drop \n Sent 2203654476498 bytes 2547719075 pkt (dropped 90896, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\n  flows 2048 (inactive 2047 throttled 0)\n  gc 13652256 highprio 6 throttled 79274352 latency 19.5us flows_plimit 90896\nqdisc mq 0: dev CloudflareWARP root \n Sent 153232172047 bytes 663984469 pkt (dropped 0, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\nqdisc fq 0: dev CloudflareWARP parent :1 limit 10000p flow_limit 100p buckets 1024 orphan_mask 1023 quantum 2560b initial_quantum 12800b low_rate_threshold 550Kbit refill_delay 40ms timer_slack 10us horizon 10s horizon_drop \n Sent 153232172047 bytes 663984469 pkt (dropped 0, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\n  flows 2047 (inactive 2044 throttled 0)\n  gc 5500892 highprio 0 throttled 4114140 latency 31.6us\n",
+        "err": ""
+      }
+    },
+    {
+      "host": "89.45.68.118",
+      "observed_utc": "2026-10-12T09:38:09.659832+00:00",
+      "unit": {
+        "MainPID": "1175580",
+        "NRestarts": "0",
+        "MemoryCurrent": "111796224",
+        "TasksCurrent": "16",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "health": "ok",
+      "running_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "config_sha256": "ab844772497e4cc4c1de64a78f7d82a6d71d5d59ad72cd122181721e352bb718",
+      "observer_window_start": "2026-10-12T08:02:42.522911+00:00",
+      "observer_window_end": "2026-10-12T09:37:59.892749+00:00",
+      "samples": 570,
+      "peak_active": 2986.0,
+      "peak_rss_kib": 119656,
+      "triggers": {},
+      "counter_deltas": {
+        "errors_total": 0,
+        "rejected_total": 0,
+        "opening_transport_retries_total": 0,
+        "opening_capacity_retries_total": 0,
+        "opening_reused_targets_total": 0,
+        "config_reload_rejected_total": 0,
+        "path_recovery_attempts_total": 0,
+        "path_recovery_succeeded_total": 0,
+        "path_recovery_rejected_total": 0,
+        "log_dropped_total": 0
+      },
+      "warning_events_after_observer_start": [],
+      "loss_growth_by_label": {},
+      "qdisc": null
+    },
+    {
+      "host": "89.45.68.14",
+      "observed_utc": "2026-10-12T09:38:10.362697+00:00",
+      "unit": {
+        "MainPID": "478756",
+        "NRestarts": "0",
+        "MemoryCurrent": "113164288",
+        "TasksCurrent": "17",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "health": "ok",
+      "running_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "config_sha256": "0e0c6aaea2a232251774434dbb16bc764ca703dc5eac2a12cbd90b707ad5ab2f",
+      "observer_window_start": "2026-10-12T08:02:30.860044+00:00",
+      "observer_window_end": "2026-10-12T09:38:07.782003+00:00",
+      "samples": 572,
+      "peak_active": 2076.0,
+      "peak_rss_kib": 101688,
+      "triggers": {},
+      "counter_deltas": {
+        "errors_total": 0,
+        "rejected_total": 0,
+        "opening_transport_retries_total": 0,
+        "opening_capacity_retries_total": 0,
+        "opening_reused_targets_total": 0,
+        "config_reload_rejected_total": 0,
+        "path_recovery_attempts_total": 0,
+        "path_recovery_succeeded_total": 0,
+        "path_recovery_rejected_total": 0,
+        "log_dropped_total": 0
+      },
+      "warning_events_after_observer_start": [],
+      "loss_growth_by_label": {},
+      "qdisc": null
+    }
+  ]
+}

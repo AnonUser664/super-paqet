@@ -62,6 +62,12 @@ type rawPacket struct {
 	local *net.UDPAddr
 	// Protect reusable receive/send batch arrays independently so full duplex can progress.
 	rxMu, txMu sync.Mutex
+	// Reuse the netpoll callback and its result storage under txMu. RawConn.Write
+	// completes all callback invocations before returning, so only this batch can
+	// own these fields. This avoids three escaping allocations per send batch.
+	txCallback        func(uintptr) bool
+	txCount, txResult int
+	txError           error
 	// Fixed capture slots; decode checks prevent truncated/oversized frames from being accepted.
 	rxFrames [rawBatchSize][2048]byte
 	// Reusable receive syscall descriptors pointing into rxFrames.
@@ -154,6 +160,7 @@ func newRawPacket(cfg *conf.Network) (*rawPacket, error) {
 		local = cfg.IPv6.Addr
 	}
 	p := &rawPacket{file: f, raw: raw, send: send, mac: cfg.Interface.HardwareAddr, local: local, cache: make(map[netip.AddrPort]*net.UDPAddr)}
+	p.txCallback = p.writeRawBatch
 	for i := range p.rxHdr {
 		p.rxVec[i].Base = &p.rxFrames[i][0]
 		p.rxVec[i].SetLen(len(p.rxFrames[i]))
@@ -203,37 +210,15 @@ func (p *rawPacket) writeBatchWithDrops(ms []ipv4.Message, flags int) (int, int,
 		p.txHdr[i].Hdr.Iov = &p.txVec[i][0]
 		p.txHdr[i].Hdr.SetIovlen(2)
 	}
-	var sent int
-	var opErr error
-	err := p.raw.Write(func(fd uintptr) bool {
-		r, errno, retries := sendWithQueueRetry(func() (int, unix.Errno) {
-			r, _, errno := unix.Syscall6(unix.SYS_SENDMMSG, fd, uintptr(unsafe.Pointer(&p.txHdr[0])), uintptr(n), uintptr(unix.MSG_DONTWAIT), 0, 0)
-			return int(r), errno
-		}, waitTXQueue)
-		if retries > 0 {
-			p.txRetries.Add(uint64(retries))
-		}
-		if errno == unix.EAGAIN || errno == unix.EINTR {
-			return false
-		}
-		// AF_PACKET reports full qdisc queues as ENOBUFS. This is datagram
-		// loss, not a broken socket: KCP must retransmit rather than abort
-		// every application stream sharing the session.
-		if errno == unix.ENOBUFS {
-			p.txDrops.Add(uint64(n))
-			// A negative count is private callback state marking this wholly
-			// rejected batch. Translate it before returning to callers; sharing
-			// the existing count avoids another captured allocation per batch.
-			sent = -n
-			return true
-		}
-		if errno != 0 {
-			opErr = errno
-		} else {
-			sent = int(r)
-		}
-		return true
-	})
+	// Tests and adapters may construct a packet without the normal initializer.
+	// The existing writer lock also makes this one-time fallback safe.
+	if p.txCallback == nil {
+		p.txCallback = p.writeRawBatch
+	}
+	p.txCount, p.txResult, p.txError = n, 0, nil
+	err := p.raw.Write(p.txCallback)
+	sent, opErr := p.txResult, p.txError
+	p.txCount, p.txResult, p.txError = 0, 0, nil
 	runtime.KeepAlive(ms)
 	runtime.KeepAlive(p)
 	// Do not retain KCP buffer pointers after the caller recycles them.
@@ -251,6 +236,40 @@ func (p *rawPacket) writeBatchWithDrops(ms []ipv4.Message, flags int) (int, int,
 		return sent, dropped, err
 	}
 	return sent, dropped, opErr
+}
+
+// writeRawBatch submits the current encoded batch while writeBatchWithDrops
+// owns txMu. Repeated netpoll callbacks retain the same headers, payloads and
+// bounded retry policy; a later caller cannot replace their state.
+func (p *rawPacket) writeRawBatch(fd uintptr) bool {
+	n := p.txCount
+	r, errno, retries := sendWithQueueRetry(func() (int, unix.Errno) {
+		r, _, errno := unix.Syscall6(unix.SYS_SENDMMSG, fd, uintptr(unsafe.Pointer(&p.txHdr[0])), uintptr(n), uintptr(unix.MSG_DONTWAIT), 0, 0)
+		return int(r), errno
+	}, waitTXQueue)
+	if retries > 0 {
+		p.txRetries.Add(uint64(retries))
+	}
+	if errno == unix.EAGAIN || errno == unix.EINTR {
+		return false
+	}
+	// AF_PACKET reports full qdisc queues as ENOBUFS. This is datagram
+	// loss, not a broken socket: KCP must retransmit rather than abort
+	// every application stream sharing the session.
+	if errno == unix.ENOBUFS {
+		p.txDrops.Add(uint64(n))
+		// A negative count is private callback state marking this wholly
+		// rejected batch. Translate it before returning to callers; sharing
+		// the existing count avoids another captured allocation per batch.
+		p.txResult = -n
+		return true
+	}
+	if errno != 0 {
+		p.txError = errno
+	} else {
+		p.txResult = int(r)
+	}
+	return true
 }
 
 // ReadBatch receives into reusable frame slots, validates envelopes and returns only
