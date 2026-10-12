@@ -620,3 +620,40 @@ archives, journal record counts and fixed deadlines are preserved. The first
 SFTP attempt uses nonwritable exclusive mode and stops before replacement or any
 restart. Its empty owned stage/receipt remain; the fresh `wx` retry succeeds.
 No tunnel binary or kernel queue policy is deployed in this update.
+
+## Further ACK batching and callback isolation
+
+The [callback ablation](tx-callback-ablation-2026-10-12.json) holds the ACK
+eligibility/warning/controller source constant and restores only per-batch raw
+callback submission. Its native socket race check passes. Four diagnostic mixed
+runs retain five-second metric timelines and sampled debug flow placement; they
+are instrumented and cannot clear an unprofiled release gate. Equal-work rate
+stays about 2.000 Gbit/s. Restoring the old callback changes mean 895.860 →
+836.588 microseconds, p99 5.5 → 5 ms, client CPU +4.28% and server CPU +10.64%.
+The server CPU gate fails. HTTP/source-carrier and capture-worker distributions
+vary across attempts, including substantial capture imbalance. This evidence
+does not establish a universal callback-caused latency regression or justify
+replacing the default callback. Both hypotheses and failed limits remain retained.
+
+A [deterministic batch regression](ack-batch-regression-2026-10-12.json)
+finds a gap in the independent ACK correctness fix: a leading retired ACK can
+advance cumulative UNA, freeing a fresh later ACK's entry before its per-header
+eligibility check. Ten race repetitions leave the old 100 ms SRTT unchanged
+instead of incorporating a new 190 ms sample (111 ms smoothed). A bounded,
+allocation-free scan against arrival-time send state runs before delivery
+processing, choosing the newest eligible echoed timestamp with wrap-aware
+ordering. It passes ten repetitions of ACK, gap-grace and deterministic link
+checks. Added tracked fixtures cover reversed echoes, timestamp wrap, extension
+payloads, malformed trailing headers and FEC exclusion. Reliable ACK/UNA
+delivery and wire flags/shape remain unchanged. This is a **local candidate**;
+full owning-module checks are running, and earlier executable performance gates
+do not transfer to this source. It is not attributed to the 17:47 incident.
+
+The [19:11–19:42 UTC kernel comparison](kernel-queue-deltas-2026-10-12.json)
+records two client root drops over 22.75 million packets, no Germany/France
+root drop increments and 24 Finland root drops over 13.08 million packets.
+Softnet drop deltas are zero; time-budget reschedules increase, principally on
+the client. These counters include other host traffic and do not date the
+earlier interruption or attribute loss to the tunnel. No queue policy is tuned
+from cumulative/drop-rate evidence alone. All four services retain their PIDs
+and zero systemd restarts during the comparison.

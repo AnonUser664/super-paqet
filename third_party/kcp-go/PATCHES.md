@@ -105,3 +105,14 @@ regressions cover duplicate retirement, unsent sequences, late-original delivery
 and newest-retry timing. This exploration edit is not a production deployment;
 full owning-module and end-to-end qualification remain required. Optional ACK
 transit timestamp attribution is unchanged.
+
+The follow-up batch regression exposes a leading retired ACK whose UNA retires
+a fresh ACK later in the same datagram before per-header eligibility sees it.
+Timing evidence is now scanned against arrival-time send state before delivery
+processing frees any entry. A wrap-aware newest eligible echo wins over an
+older later header. The scan has no allocations, I/O or changes to reliable
+delivery, timestamp extension encoding, FEC or outer packet flags. Deterministic
+coverage includes cumulative batching, reversed echoes, timestamp wrap,
+extensions, malformed trailing headers and reconstructed FEC exclusion. Native
+and performance qualification of this follow-up remains separate from the
+earlier committed executable; no production deployment is implied.

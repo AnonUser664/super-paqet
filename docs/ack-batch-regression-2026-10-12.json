@@ -1,0 +1,28 @@
+{
+  "production_mutated": false,
+  "base_source": "6fdf3d7",
+  "bug": "A leading retired ACK advances UNA and erases a fresh later ACK timing sample in the same datagram.",
+  "red": {
+    "command": "go test -race -count=10 -run TestACKRTTBatchCumulativeProgressRetainsFreshEcho .",
+    "exit_code": 1,
+    "reproductions": 10,
+    "observed_srtt_ms": 100,
+    "expected_srtt_ms": 111,
+    "private_log": "build/ack-batch-20261012/red.log"
+  },
+  "green_overlay": {
+    "command": "go test -overlay=../../build/ack-batch-20261012/overlay.json -race -count=10 -run \"TestACKRTT|TestGapGrace|TestVirtualLink\" .",
+    "exit_code": 0,
+    "seconds": 62.672,
+    "private_log": "build/ack-batch-20261012/green.log"
+  },
+  "fix": "Allocation-free arrival-state evidence scan before ACK/UNA processing, selecting newest eligible echoed transmission timestamp with wrap-aware ordering. Reliable delivery parser unchanged.",
+  "additional_tracked_cases": [
+    "newest echo first and timestamp wrap",
+    "ACK timestamp extension lengths",
+    "invalid trailing conversation header",
+    "FEC timing exclusion"
+  ],
+  "full_native": "in progress",
+  "performance": "not qualified; prior artifact gates are not transferred to this new source"
+}
