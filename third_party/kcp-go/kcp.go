@@ -735,6 +735,41 @@ func (kcp *KCP) drainReceiveBuffer() {
 	}
 }
 
+// ackRTTEvidence examines transmission state before any header in this datagram
+// advances UNA. A leading duplicate can retire a later fresh ACK's segment;
+// examining each header only after earlier UNA processing loses that evidence.
+// This bounded scan allocates nothing and samples only the newest eligible
+// echo, so reordered/duplicate ACKs cannot replace it with an older timestamp.
+// A live old-attempt echo still bootstraps RTT on paths longer than the initial
+// retry timer. The normal parser retains all validation and delivery decisions;
+// malformed datagrams return before any estimated timing is applied.
+func (kcp *KCP) ackRTTEvidence(data []byte, pktType PacketType) (latest uint32, eligible int) {
+	if pktType != IKCP_PACKET_REGULAR || kcp.snd_buf.Len() == 0 {
+		return
+	}
+	for len(data) >= IKCP_OVERHEAD {
+		header := data[:IKCP_OVERHEAD]
+		length := binary.LittleEndian.Uint32(header[20:])
+		data = data[IKCP_OVERHEAD:]
+		if uint64(length) > uint64(len(data)) {
+			break
+		}
+		if header[4] == IKCP_CMD_ACK && binary.LittleEndian.Uint32(header) == kcp.conv {
+			sn := binary.LittleEndian.Uint32(header[12:])
+			ts := binary.LittleEndian.Uint32(header[8:])
+			if _itimediff(sn, kcp.snd_una) >= 0 && _itimediff(sn, kcp.snd_nxt) < 0 {
+				if seg, ok := kcp.snd_buf.At(int(sn - kcp.snd_una)); ok && seg.xmit > 0 && seg.acked == 0 && _itimediff(ts, seg.ts) <= 0 {
+					if eligible == 0 || _itimediff(ts, latest) > 0 {
+						latest, eligible = ts, 1
+					}
+				}
+			}
+		}
+		data = data[length:]
+	}
+	return
+}
+
 // Input a packet into kcp state machine.
 //
 // 'regular' indicates it's a real data packet from remote, and it means it's not generated from ReedSolomon
@@ -747,8 +782,7 @@ func (kcp *KCP) Input(data []byte, pktType PacketType, ackNoDelay bool) int {
 		return -1
 	}
 
-	var latest uint32 // the latest ack packet
-	var updateRTT int
+	latest, updateRTT := kcp.ackRTTEvidence(data, pktType)
 	var inSegs uint64
 	var flushSegments int // signal to flush segments
 	var fastFlush int
@@ -784,22 +818,24 @@ func (kcp *KCP) Input(data []byte, pktType PacketType, ackNoDelay bool) int {
 			return -3
 		}
 
-		// only trust window updates from regular packets. i.e: latest update
-		// An ACK echoing an older transmission timestamp proves the original
-		// arrived after gap recovery had already resent it. Observe before UNA
+		// An ACK echoing an older transmission timestamp identifies an earlier
+		// attempt acknowledged after a retry. Observe before UNA
 		// removes the send-ring entry.
 		if cmd == IKCP_CMD_ACK && _itimediff(sn, kcp.snd_una) >= 0 && _itimediff(sn, kcp.snd_nxt) < 0 {
-			if seg, ok := kcp.snd_buf.At(int(sn - kcp.snd_una)); ok && seg.xmit > 1 && seg.acked == 0 && _itimediff(ts, seg.ts) < 0 {
-				kcp.spuriousRetransmissions++
-				// A timer-only retry has no current gap evidence. Its zero
-				// gapAt would measure clock age, not reordering, and pin the
-				// learned allowance to the ceiling. Fast retries retain a
-				// nonzero fastack marker until their timer recovers.
-				if delay := _itimediff(kcp.now(), seg.gapAt); seg.fastack != 0 && delay > 0 {
-					kcp.observedReorderDelay = max(kcp.observedReorderDelay, min(MaxReorderGraceMS, uint32(delay)))
+			if seg, ok := kcp.snd_buf.At(int(sn - kcp.snd_una)); ok {
+				if seg.xmit > 1 && seg.acked == 0 && _itimediff(ts, seg.ts) < 0 {
+					kcp.spuriousRetransmissions++
+					// A timer-only retry has no current gap evidence. Its zero
+					// gapAt would measure clock age, not reordering, and pin the
+					// learned allowance to the ceiling. Fast retries retain a
+					// nonzero fastack marker until their timer recovers.
+					if delay := _itimediff(kcp.now(), seg.gapAt); seg.fastack != 0 && delay > 0 {
+						kcp.observedReorderDelay = max(kcp.observedReorderDelay, min(MaxReorderGraceMS, uint32(delay)))
+					}
 				}
 			}
 		}
+		// Only direct packets supply current peer window evidence.
 		if pktType == IKCP_PACKET_REGULAR {
 			kcp.rmt_wnd = uint32(wnd)
 		}
@@ -824,8 +860,6 @@ func (kcp *KCP) Input(data []byte, pktType PacketType, ackNoDelay bool) int {
 			fast := kcp.parse_fastack(sn, ts)
 			fastFlush |= fast
 			flushSegments |= fast
-			updateRTT |= 1
-			latest = ts
 		case IKCP_CMD_PUSH:
 			repeat := true
 			if _itimediff(sn, kcp.rcv_nxt+kcp.rcv_wnd) < 0 {

@@ -27,6 +27,7 @@ def run(*args, **kwargs):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--binary', default='build/super-paqet')
+    p.add_argument('--benchmark-helper', default='build/spq-bench', help='explicit fixture executable; preserve archived helpers for matched comparisons')
     p.add_argument('--duration', type=int, default=10)
     p.add_argument('--open-timeout', help='optional enterprise opening budget, e.g. 15s; application validation enforces duration bounds')
     p.add_argument('--dial-timeout', help='optional enterprise target dial budget, e.g. 5s; must be shorter than opening budget')
@@ -64,6 +65,9 @@ def main():
     fixture.add_argument('--legacy', dest='enterprise', action='store_false', help='role-based upstream fixture; select its binary explicitly')
     p.set_defaults(enterprise=True)
     p.add_argument('--profile', action='store_true')
+    p.add_argument('--metrics-interval', type=float, default=0,
+                   help='diagnostic per-endpoint metrics timeline, 1..60 seconds; zero disables observer load')
+    p.add_argument('--trace-seconds', type=float, default=0, help='bounded diagnostic trace during iperf warmup; requires profile, at most two seconds')
     p.add_argument('--debug', action='store_true', help='structured transport diagnostics, sampled flow events')
     p.add_argument('--flow-sample',type=int,default=1000)
     p.add_argument('--backend',choices=['packet','pcap'],default='packet')
@@ -108,6 +112,9 @@ def main():
     if a.cold_read_bytes is not None and not 1 <= a.cold_read_bytes <= 16777216:
         p.error('cold read size must be 1..16777216 bytes')
     if a.flow_sample<1:p.error('flow sample must be positive')
+    if not math.isfinite(a.metrics_interval) or (a.metrics_interval and not 1 <= a.metrics_interval <= 60):
+        p.error('metrics-interval must be zero or finite 1..60 seconds')
+    if a.metrics_interval and not a.enterprise:p.error('metrics timeline requires enterprise')
     if a.host_backlog<0 or a.host_backlog>1000000:p.error('host backlog must be 0..1000000')
     if a.duplex_http and (not a.enterprise or not a.iperf or 'bidirectional' not in a.iperf_directions):p.error('duplex HTTP requires enterprise bidirectional iperf')
     if a.duplex_http_steady and not a.duplex_http:p.error('duplex HTTP steady measurement requires duplex HTTP')
@@ -150,6 +157,8 @@ def main():
             if len(set(cpus)) != len(cpus) or not set(cpus) <= os.sched_getaffinity(0):
                 p.error('CPU affinity must contain distinct currently available CPU IDs')
     if a.packet_workers is not None and not 1<=a.packet_workers<=64:p.error('packet workers must be 1..64')
+    if not math.isfinite(a.trace_seconds) or not 0<=a.trace_seconds<=2:p.error('trace-seconds must be finite and in 0..2')
+    if a.trace_seconds and (not a.enterprise or not a.profile or not a.iperf or a.warmup<a.trace_seconds+1):p.error('tracing requires enterprise profile/iperf with enough omitted warmup')
     if a.duration < 1 or a.workers < 1 or a.sessions < 1: p.error('duration, workers and sessions must be positive')
     if a.max_sessions is None: a.max_sessions = a.sessions
     if not a.sessions <= a.max_sessions <= 256: p.error('max-sessions must be sessions..256')
@@ -167,6 +176,11 @@ def main():
     if (a.restart or a.functional or a.mixed) and not a.enterprise: p.error('these workloads require --enterprise')
     if os.geteuid() != 0:
         p.error('run as root; host backlog changes require the explicit --host-backlog option')
+    # Keep helper candidates separate from shared/archived executables. Resolve
+    # once so every target, generator and receipt names the selected helper.
+    bench = (ROOT / a.benchmark_helper).resolve()
+    if not bench.is_file() or not os.access(bench, os.X_OK):
+        p.error('benchmark-helper must name an executable file')
     resource.setrlimit(resource.RLIMIT_NOFILE, (500000, 500000))
     out = ROOT / a.output
     out.mkdir(parents=True, exist_ok=True)
@@ -427,7 +441,7 @@ def main():
             (out/'client.yaml').write_text(client); (out/'server.yaml').write_text(server)
         if not a.enterprise:
             for args in (['-t','raw','-A','PREROUTING','-p','tcp','--dport','29999','-j','NOTRACK'], ['-t','raw','-A','OUTPUT','-p','tcp','--sport','29999','-j','NOTRACK'], ['-t','mangle','-A','OUTPUT','-p','tcp','--sport','29999','--tcp-flags','RST','RST','-j','DROP']): ns(s,'iptables',*args)
-        spawn(s,'target',str(ROOT/'build/spq-bench'),'-mode','hold-serve' if a.hold else 'serve','-addr',':18080')
+        spawn(s,'target',str(bench),'-mode','hold-serve' if a.hold else 'serve','-addr',':18080')
         binary = str((ROOT/a.binary).resolve())
         if a.enterprise:
             for namespace,label in ((c,'client'),(s,'server')):
@@ -437,6 +451,26 @@ def main():
         cp = spawn(c,'client',binary,'run','-c',str(out/'client.yaml'))
         time.sleep(2)
         if sp.poll() is not None or cp.poll() is not None: raise RuntimeError('tunnel exited; see logs')
+        if a.metrics_interval:
+            # An opt-in observer retains intermediate carrier state that final
+            # scrapes lose after tuple recovery. It is diagnostic load, never
+            # silently enabled for an acceptance comparison. Owned children
+            # share the matrix reservation and normal bounded teardown.
+            observer = '''import json,time,urllib.request,signal,threading
+stop=threading.Event()
+signal.signal(signal.SIGTERM,lambda *_:stop.set())
+start=time.monotonic()
+while not stop.is_set():
+    sample={"elapsed_seconds":time.monotonic()-start,"unix_seconds":time.time()}
+    try:
+        sample["metrics"]=urllib.request.urlopen("http://127.0.0.1:29090/metrics",timeout=2).read().decode()
+    except Exception as error:
+        sample["error"]=str(error)
+    print(json.dumps(sample),flush=True)
+    stop.wait(INTERVAL)
+'''.replace('INTERVAL', repr(a.metrics_interval))
+            for label, namespace in (('client', c), ('server', s)):
+                spawn(namespace, label+'-metrics-timeline', sys.executable, '-u', '-c', observer)
         running_sha = hashlib.sha256(Path(f'/proc/{sp.pid}/exe').read_bytes()).hexdigest()
         if running_sha!=hashlib.sha256(Path(f'/proc/{cp.pid}/exe').read_bytes()).hexdigest(): raise RuntimeError('server/client binaries changed during startup')
         if a.capture:
@@ -450,7 +484,7 @@ def main():
         # Capture the first transfer before any performance warm-up. A good
         # steady-state rate must not conceal slow startup on new carriers.
         verify_started = time.monotonic()
-        result = ns(c,str(ROOT/'build/spq-bench'),'-mode','verify','-addr','127.0.0.1:28080','-verify-size',str(verify_size))
+        result = ns(c,str(bench),'-mode','verify','-addr','127.0.0.1:28080','-verify-size',str(verify_size))
         first_transfer = json.loads(result.stdout)
         first_transfer['cold_transfer_seconds'] = time.monotonic() - verify_started
         reports = [first_transfer]
@@ -463,21 +497,21 @@ def main():
             while True:
                 attempts+=1
                 try:
-                    result=ns(c,str(ROOT/'build/spq-bench'),'-mode','verify','-addr','127.0.0.1:28080')
+                    result=ns(c,str(bench),'-mode','verify','-addr','127.0.0.1:28080')
                     reports.append({'server_crash_recovered_seconds':time.monotonic()-started,'attempts':attempts,'verification':json.loads(result.stdout)})
                     break
                 except subprocess.CalledProcessError:
                     if time.monotonic()-started>90: raise RuntimeError('server restart did not recover')
                     time.sleep(.25)
         if a.functional:
-            spawn(s,'udp-target',str(ROOT/'build/spq-bench'),'-mode','udp-serve','-addr',':18081')
-            spawn(s,'half-target',str(ROOT/'build/spq-bench'),'-mode','half-serve','-addr',':18082')
+            spawn(s,'udp-target',str(bench),'-mode','udp-serve','-addr',':18081')
+            spawn(s,'half-target',str(bench),'-mode','half-serve','-addr',':18082')
             second = client.replace('2808','3808').replace('2809','3809').replace('29090','39090')
             (out/'second-client.yaml').write_text(second)
             spawn(c,'second-client',binary,'run','-c',str(out/'second-client.yaml'))
             time.sleep(2)
             for mode, address in [('verify','127.0.0.1:28088'),('verify','127.0.0.1:38080'),('udp-verify','127.0.0.1:28090'),('half-verify','127.0.0.1:28091')]:
-                result = ns(c,str(ROOT/'build/spq-bench'),'-mode',mode,'-addr',address)
+                result = ns(c,str(bench),'-mode',mode,'-addr',address)
                 reports.append(json.loads(result.stdout))
             result = ns(c,binary,'ping','-c',str(out/'client.yaml'),'--peer','remote')
             reports.append({'ping':result.stdout.strip()})
@@ -486,7 +520,7 @@ def main():
         for mode in modes:
             sample()
             cpu_before = {name:v.get('cpu_seconds',0) for name,v in peaks.items()}
-            args = [str(ROOT/'build/spq-bench'),'-mode',mode,'-duration',f'{a.duration}s','-workers',str(a.workers),'-addr','127.0.0.1:28080']
+            args = [str(bench),'-mode',mode,'-duration',f'{a.duration}s','-workers',str(a.workers),'-addr','127.0.0.1:28080']
             if a.http_warmup: args += ['-warmup',f'{a.http_warmup}s']
             if a.hold: args[-1] = ','.join(f'127.0.0.1:{28080+i}' for i in range(8)); args += ['-connections',str(a.hold)]
             proc = spawn(c,'load-'+mode,*args)
@@ -508,7 +542,7 @@ def main():
                     hold_sampled = True
                     if a.mixed:
                         for workload in ('http','bulk'):
-                            mixed_procs.append(spawn(c,'mixed-'+workload,str(ROOT/'build/spq-bench'),'-mode',workload,'-addr','127.0.0.1:28080','-workers','8','-duration',f'{max(1,a.duration-2)}s'))
+                            mixed_procs.append(spawn(c,'mixed-'+workload,str(bench),'-mode',workload,'-addr','127.0.0.1:28080','-workers','8','-duration',f'{max(1,a.duration-2)}s'))
                 if time.monotonic() > deadline: raise TimeoutError('benchmark timed out')
                 time.sleep(.25)
             if proc.returncode: raise RuntimeError('load generator failed')
@@ -576,13 +610,20 @@ def main():
                 http_churn=None
                 if name=='bidirectional' and a.duplex_http:
                     http_timing=['-duration',f'{a.duration}s','-warmup',f'{a.warmup}s'] if a.duplex_http_steady else ['-duration',f'{a.duration+a.warmup}s']
-                    http_churn=spawn(c,'duplex-http',str(ROOT/'build/spq-bench'),'-mode','http-churn','-addr','127.0.0.1:28080','-workers','4','-request-gap',f'{a.duplex_http_gap_ms}ms',*http_timing)
+                    http_churn=spawn(c,'duplex-http',str(bench),'-mode','http-churn','-addr','127.0.0.1:28080','-workers','4','-request-gap',f'{a.duplex_http_gap_ms}ms',*http_timing)
                 start_epochs(name)
                 profiles = []
                 if a.profile and a.enterprise and not direct:
                     for side, namespace in (('client',c),('server',s)):
                         profile_path = str(out/(side+'-iperf-'+name+'.pprof'))
                         profiles.append(spawn(namespace, 'profile-'+side, sys.executable, '-c', f'import urllib.request; data=urllib.request.urlopen("http://127.0.0.1:29090/debug/pprof/profile?seconds={max(1,min(10,a.duration-1))}",timeout=30).read(); open({profile_path!r},"wb").write(data)'))
+                        if a.trace_seconds:
+                            # Keep expensive trace instrumentation inside the
+                            # omitted warmup. This is diagnostic evidence, not
+                            # a substitute for an uninstrumented acceptance run.
+                            trace_path = str(out/(side+'-iperf-'+name+'.trace'))
+                            delay = min(5, a.warmup-a.trace_seconds-1)
+                            profiles.append(spawn(namespace, 'trace-'+side, sys.executable, '-c', f'import urllib.request,time; time.sleep({delay}); data=urllib.request.urlopen("http://127.0.0.1:29090/debug/pprof/trace?seconds={a.trace_seconds}",timeout=15).read(67108865); assert len(data)<=67108864 and data.startswith(b"go "); open({trace_path!r},"wb").write(data)'))
                 deadline = time.monotonic()+a.duration+a.warmup+60
                 snapshot_at = time.monotonic()+a.warmup+a.duration/2
                 sampled = False
@@ -647,7 +688,7 @@ def main():
             rules = ns(s,'iptables-save','-c').stdout
             (out/'firewall-during.txt').write_text(rules)
         if schedule_errors:raise RuntimeError('link schedule failed: '+str(schedule_errors))
-        report = {'parameters':vars(a),'results':reports,'processes':peaks,'kernel':os.uname().release,'binary_sha256':running_sha,'benchmark_helper_sha256':hashlib.sha256((ROOT/'build/spq-bench').read_bytes()).hexdigest()}
+        report = {'parameters':vars(a),'results':reports,'processes':peaks,'kernel':os.uname().release,'binary_sha256':running_sha,'benchmark_helper_sha256':hashlib.sha256(bench.read_bytes()).hexdigest(), 'benchmark_helper_path':str(bench)}
         for n in namespaces:
             (out/(n.split('-')[1]+'-qdisc.json')).write_text(ns(n,'tc','-s','-j','qdisc','show').stdout)
         (out/'results.json').write_text(json.dumps(report,indent=2)+'\n')
