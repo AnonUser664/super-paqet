@@ -561,3 +561,62 @@ capabilities are logged. Opening/retry/recovery decisions remain unchanged.
 Actual silent-receipt recovery and deterministic cohort/noise/reset fixtures
 verify classification. These logging additions are not in the earlier measured
 combined or standalone ACK binaries and have not been deployed.
+
+## Committed ACK eligibility and warning-evidence executable
+
+Source `6fdf3d7` builds `enterprise-2026.10.12-ack-evidence.1`, SHA-256
+`eca7bd3aad4ec9406d1074f276a3eb9c12ce364d655d1fb7b4a2880079301cf9`.
+It retains the existing 200 ms ceiling and pacing policy; the unaccepted
+combined experiment is absent. The [exact-artifact functional receipt](ack-evidence-functional-2026-10-12.json)
+passes manual-production-profile TCP/UDP integrity and half-close, repeated
+32 KiB sequenced established-stream migration and reverse-direction migration
+with the 10 s deployed stall timeout and two backend capture workers. Owned
+processes, rules and namespaces are removed; unrelated sentinel rules survive.
+This is local qualification, not a deployment. Clean/mixed/capacity-step and
+WAN performance checks remain in progress.
+
+The local observer now retains all four opening-phase counters in bounded
+durable summaries and incident triggers. Older runtimes may omit those fields;
+new fields/process resets are quiet, and raw-log rotation does not erase phase
+deltas. Its existing optional-metric/reset regression now covers these fields.
+The observer update has not been installed on any host.
+
+The [completed clean/mixed gate](ack-evidence-remaining-2026-10-12.json)
+retains upload/download medians 5.740/4.367 → 5.979/4.406 Gbit/s. Equal-work
+mixed rate stays about 2.000 Gbit/s and CPU changes +4.08%/+2.82% pass.
+Request mean 916.086 → 949.202 microseconds (+3.61%) passes; p99 5 → 6 ms
+(+20%) fails. All eight commands complete without workload errors and clean
+up their owned resources. Capacity-step qualification is not launched after
+that failure. This candidate remains unaccepted; the finite tail gate is not
+dismissed as scheduling noise. A separate WAN diagnosis starts, and a callback
+ablation is prepared to change only cached versus per-batch callback submission,
+retaining ACK eligibility, warning counters and the existing controller.
+
+The [19:26 UTC production review](emergency-client109-health-2026-10-12-1926.json)
+retains the same client PID, executable and configuration, zero restarts and
+zero new terminal errors/rejections/log drops since the corrected deployment.
+There are 948,782 new admissions and 749 opening retries, with the same one
+preserving recovery. Peak active count remains 11,492. The retry increments
+remain an investigation signal; no terminal error is not an outage-free claim.
+The [queue baseline](kernel-queue-baseline-2026-10-12.json) finds cumulative
+root drops on France/Finland and no current backlog. It cannot date the 17:47
+event. New sample-level kernel evidence is prepared; no qdisc policy is changed.
+
+The [completed WAN diagnosis](ack-evidence-wan-2026-10-12.json) fails the
+zero-error gate: asymmetric body timeouts are control 0/1 and candidate 6/2.
+The candidate's median body rate is 4.970 versus control 6.185 Mbit/s.
+All small-request workloads complete without errors. Successful-only body
+latency distributions are censored by timeouts; they do not establish improvement.
+The mobile-loss case is not launched after this gate fails. The production
+weakness is reproduced again, and the candidate has no acceptance clearance.
+
+The [observer deployment receipt](observer-queue-deployment-2026-10-12.json)
+verifies queue/stat/softnet fields on client 94.139.180.109 and all three backends.
+Fifteen native observer tests pass, including missing-tc/vanished-process handling
+and optional phase-counter resets. Existing observer script paths are replaced
+atomically with unique backups; only `super-paqet-watch` restarts. Tunnel PID,
+binary, config and restart count are unchanged on every host; watch units,
+archives, journal record counts and fixed deadlines are preserved. The first
+SFTP attempt uses nonwritable exclusive mode and stops before replacement or any
+restart. Its empty owned stage/receipt remain; the fresh `wx` retry succeeds.
+No tunnel binary or kernel queue policy is deployed in this update.

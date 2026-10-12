@@ -1,0 +1,264 @@
+{
+  "production_mutated": false,
+  "limitation": "cumulative current queue counts do not identify drops during the earlier 17:47 incident; compare future deltas, do not sum parent/child duplicates",
+  "hosts": [
+    {
+      "host": "94.139.180.109",
+      "utc": "2026-10-12T19:11:50.940873+00:00",
+      "qdiscs": [
+        {
+          "kind": "mq",
+          "handle": "0:",
+          "dev": "ens160",
+          "root": true,
+          "options": {},
+          "bytes": 175637038681,
+          "packets": 158873311,
+          "drops": 2,
+          "overlimits": 0,
+          "requeues": 90,
+          "backlog": 0,
+          "qlen": 0
+        },
+        {
+          "kind": "fq_codel",
+          "handle": "0:",
+          "dev": "ens160",
+          "parent": ":4",
+          "options": {
+            "limit": 10240,
+            "flows": 1024,
+            "quantum": 1514,
+            "target": 4999,
+            "interval": 99999,
+            "memory_limit": 33554432,
+            "ecn": true,
+            "drop_batch": 64
+          },
+          "bytes": 45463244206,
+          "packets": 42098112,
+          "drops": 0,
+          "overlimits": 0,
+          "requeues": 32,
+          "backlog": 0,
+          "qlen": 0,
+          "maxpacket": 67872,
+          "drop_overlimit": 0,
+          "new_flow_count": 860821,
+          "ecn_mark": 0,
+          "new_flows_len": 0,
+          "old_flows_len": 0
+        },
+        {
+          "kind": "fq_codel",
+          "handle": "0:",
+          "dev": "ens160",
+          "parent": ":3",
+          "options": {
+            "limit": 10240,
+            "flows": 1024,
+            "quantum": 1514,
+            "target": 4999,
+            "interval": 99999,
+            "memory_limit": 33554432,
+            "ecn": true,
+            "drop_batch": 64
+          },
+          "bytes": 42286867596,
+          "packets": 37767724,
+          "drops": 0,
+          "overlimits": 0,
+          "requeues": 18,
+          "backlog": 0,
+          "qlen": 0,
+          "maxpacket": 66884,
+          "drop_overlimit": 0,
+          "new_flow_count": 580579,
+          "ecn_mark": 0,
+          "new_flows_len": 0,
+          "old_flows_len": 0
+        },
+        {
+          "kind": "fq_codel",
+          "handle": "0:",
+          "dev": "ens160",
+          "parent": ":2",
+          "options": {
+            "limit": 10240,
+            "flows": 1024,
+            "quantum": 1514,
+            "target": 4999,
+            "interval": 99999,
+            "memory_limit": 33554432,
+            "ecn": true,
+            "drop_batch": 64
+          },
+          "bytes": 45417864270,
+          "packets": 41292942,
+          "drops": 0,
+          "overlimits": 0,
+          "requeues": 21,
+          "backlog": 0,
+          "qlen": 0,
+          "maxpacket": 67068,
+          "drop_overlimit": 0,
+          "new_flow_count": 780362,
+          "ecn_mark": 0,
+          "new_flows_len": 0,
+          "old_flows_len": 0
+        },
+        {
+          "kind": "fq_codel",
+          "handle": "0:",
+          "dev": "ens160",
+          "parent": ":1",
+          "options": {
+            "limit": 10240,
+            "flows": 1024,
+            "quantum": 1514,
+            "target": 4999,
+            "interval": 99999,
+            "memory_limit": 33554432,
+            "ecn": true,
+            "drop_batch": 64
+          },
+          "bytes": 42469062609,
+          "packets": 37714533,
+          "drops": 2,
+          "overlimits": 0,
+          "requeues": 19,
+          "backlog": 0,
+          "qlen": 0,
+          "maxpacket": 67068,
+          "drop_overlimit": 0,
+          "new_flow_count": 598864,
+          "ecn_mark": 0,
+          "new_flows_len": 0,
+          "old_flows_len": 0
+        }
+      ],
+      "unit": "MainPID=246452\nNRestarts=0\nActiveState=active\n"
+    },
+    {
+      "host": "116.202.177.233",
+      "utc": "2026-10-12T19:11:51.246341+00:00",
+      "qdiscs": [
+        {
+          "kind": "fq_codel",
+          "handle": "0:",
+          "dev": "eth0",
+          "root": true,
+          "refcnt": 2,
+          "options": {
+            "limit": 10240,
+            "flows": 1024,
+            "quantum": 1514,
+            "target": 4999,
+            "interval": 99999,
+            "memory_limit": 33554432,
+            "ecn": true,
+            "drop_batch": 64
+          },
+          "bytes": 13253770619679,
+          "packets": 15943877464,
+          "drops": 73,
+          "overlimits": 0,
+          "requeues": 6175,
+          "backlog": 0,
+          "qlen": 0,
+          "maxpacket": 68130,
+          "drop_overlimit": 0,
+          "new_flow_count": 403211316,
+          "ecn_mark": 0,
+          "new_flows_len": 0,
+          "old_flows_len": 0
+        }
+      ],
+      "unit": "MainPID=1192114\nNRestarts=0\nActiveState=active\n"
+    },
+    {
+      "host": "171.22.132.226",
+      "utc": "2026-10-12T19:11:49.875484+00:00",
+      "qdiscs": [
+        {
+          "kind": "pfifo_fast",
+          "handle": "0:",
+          "dev": "net0",
+          "root": true,
+          "refcnt": 2,
+          "options": {
+            "bands": 3,
+            "priomap": [
+              1,
+              2,
+              2,
+              2,
+              1,
+              2,
+              0,
+              0,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "multiqueue": false
+          },
+          "bytes": 14398446358332,
+          "packets": 18535131023,
+          "drops": 163009,
+          "overlimits": 0,
+          "requeues": 3336831,
+          "backlog": 0,
+          "qlen": 0
+        }
+      ],
+      "unit": "ActiveState=active\nMainPID=3334731\nNRestarts=0\n"
+    },
+    {
+      "host": "65.109.249.222",
+      "utc": "2026-10-12T19:12:04.694471+00:00",
+      "qdiscs": [
+        {
+          "kind": "fq",
+          "handle": "0:",
+          "dev": "eth0",
+          "root": true,
+          "refcnt": 2,
+          "options": {
+            "limit": 10000,
+            "flow_limit": 100,
+            "buckets": 1024,
+            "orphan_mask": 1023,
+            "quantum": 3028,
+            "initial_quantum": 15140,
+            "low_rate_threshold": 68750,
+            "refill_delay": 40000,
+            "timer_slack": 10000,
+            "horizon": 10000000,
+            "horizon_drop": null
+          },
+          "bytes": 2379229806578,
+          "packets": 2753378786,
+          "drops": 97820,
+          "overlimits": 0,
+          "requeues": 0,
+          "backlog": 0,
+          "qlen": 0,
+          "flows": 2048,
+          "inactive": 2047,
+          "throttled": 89619324,
+          "gc": 15392100,
+          "highprio": 6,
+          "latency": 46695,
+          "flows_plimit": 97820
+        }
+      ],
+      "unit": "MainPID=459547\nNRestarts=0\nActiveState=active\n"
+    }
+  ]
+}

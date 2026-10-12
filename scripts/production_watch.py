@@ -20,6 +20,8 @@ import urllib.error
 import urllib.request
 
 SUMMARY_COUNTERS = ["errors_total", "rejected_total", "opening_transport_retries_total",
+                    "opening_syn_timeouts_total", "opening_receipt_timeouts_total",
+                    "opening_result_timeouts_total", "opening_closed_attempts_total",
                     "opening_capacity_retries_total", "opening_reused_targets_total",
                     "config_reload_rejected_total", "path_recovery_attempts_total",
                     "path_recovery_succeeded_total", "path_recovery_rejected_total",
@@ -57,7 +59,10 @@ def snapshot():
         row["fds"] = None
     group = pathlib.Path("/sys/fs/cgroup") / row["unit"].get("ControlGroup", "").lstrip("/")
     row["cgroup"] = {name: read(group / name) for name in ["memory.events", "memory.current", "cpu.stat", "pids.events"]}
-    row["host"] = {name: read("/proc/" + name) for name in ["loadavg", "meminfo", "net/dev", "pressure/cpu", "pressure/memory"]}
+    row["host"] = {name: read("/proc/" + name) for name in ["loadavg", "meminfo", "stat", "net/dev", "net/softnet_stat", "pressure/cpu", "pressure/memory"]}
+    # Injection success does not exclude a later qdisc drop. Keep the bounded
+    # kernel receipt beside capture/TX counters; unavailable tc stays explicit.
+    row["host"]["qdisc"] = command(["tc", "-s", "-j", "qdisc", "show"])
     try:
         with urllib.request.urlopen("http://127.0.0.1:29090/metrics", timeout=3) as response:
             row["metrics"] = response.read(262144).decode()

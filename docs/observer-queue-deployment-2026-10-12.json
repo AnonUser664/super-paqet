@@ -1,0 +1,208 @@
+{
+  "observer_sha256": "d28f4f9b0dea6dd475cba301fc6f1c6a57b2b3d57d190315bc6474b76779b2a6",
+  "tunnel_mutated": false,
+  "tests": {
+    "command": "python3 scripts/with_test_lock.py --wait -- python3 scripts/test_production_watch.py",
+    "result": "15 tests pass",
+    "private_log": "build/ack-evidence-20261012/observer-native-v2/tests.log"
+  },
+  "previous_attempt": {
+    "path": "build/observer-queues-20261012/refresh-20261012T193334Z/receipt.json",
+    "failure": "SFTP x mode was not writable; first stage failed before any script replacement or restart",
+    "observer_mutated": false
+  },
+  "hosts": [
+    {
+      "host": "94.139.180.109",
+      "before": {
+        "utc": "2026-10-12T19:35:30.917841+00:00",
+        "watch_unit": "# /etc/systemd/system/super-paqet-watch.service\n[Unit]\nDescription=Bounded super-paqet client incident observer\nAfter=super-paqet.service\n[Service]\nType=exec\nExecStart=/usr/bin/python3 /var/lib/super-paqet-watch/production_watch-20261012T142945Z.py --directory /var/log/super-paqet-watch/emergency109-20261012T142945Z --interval 10 --sample-file-mib 64 --sample-backups 15 --duration 604800 --until 2026-10-19T14:30:12.731676+00:00 --journal-since @1791814812\nRuntimeMaxSec=604900\nRestart=on-failure\nRestartSec=10\nNice=10\nIOSchedulingClass=idle\nMemoryMax=128M\nTasksMax=16\nUMask=0077\nNoNewPrivileges=yes\nProtectSystem=strict\nProtectHome=yes\nReadWritePaths=/var/log/super-paqet-watch\nPrivateTmp=yes\n[Install]\nWantedBy=multi-user.target\n",
+        "script": "/var/lib/super-paqet-watch/production_watch-20261012T142945Z.py",
+        "script_sha256": "d501ec1ee7d2dfc0bbf3086d0c7179667f0ab4351439b59eb43f2f5b6b140d6e",
+        "directory": "/var/log/super-paqet-watch/emergency109-20261012T142945Z",
+        "until": "2026-10-19T14:30:12.731676+00:00",
+        "identity": {
+          "unit": "MainPID=246452\nNRestarts=0\nActiveState=active\n",
+          "binary_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+          "config_sha256": "dbf05d1e4e7030861ff87902fd876711f5708418a4381c96b0d9ff05cff8f639"
+        },
+        "samples": 1823,
+        "journal_records": 8,
+        "latest_utc": "2026-10-12T19:35:23.184576+00:00",
+        "queue": null,
+        "softnet": false,
+        "host_stat": false
+      },
+      "status": "verified",
+      "backup": "/var/lib/super-paqet-watch/production_watch-20261012T142945Z.py.queues-20261012T193515Z.backup",
+      "stage": "/var/lib/super-paqet-watch/production_watch-20261012T142945Z.py.queues-20261012T193515Z.new",
+      "after": {
+        "utc": "2026-10-12T19:35:57.614685+00:00",
+        "watch_unit": "# /etc/systemd/system/super-paqet-watch.service\n[Unit]\nDescription=Bounded super-paqet client incident observer\nAfter=super-paqet.service\n[Service]\nType=exec\nExecStart=/usr/bin/python3 /var/lib/super-paqet-watch/production_watch-20261012T142945Z.py --directory /var/log/super-paqet-watch/emergency109-20261012T142945Z --interval 10 --sample-file-mib 64 --sample-backups 15 --duration 604800 --until 2026-10-19T14:30:12.731676+00:00 --journal-since @1791814812\nRuntimeMaxSec=604900\nRestart=on-failure\nRestartSec=10\nNice=10\nIOSchedulingClass=idle\nMemoryMax=128M\nTasksMax=16\nUMask=0077\nNoNewPrivileges=yes\nProtectSystem=strict\nProtectHome=yes\nReadWritePaths=/var/log/super-paqet-watch\nPrivateTmp=yes\n[Install]\nWantedBy=multi-user.target\n",
+        "script": "/var/lib/super-paqet-watch/production_watch-20261012T142945Z.py",
+        "script_sha256": "d28f4f9b0dea6dd475cba301fc6f1c6a57b2b3d57d190315bc6474b76779b2a6",
+        "directory": "/var/log/super-paqet-watch/emergency109-20261012T142945Z",
+        "until": "2026-10-19T14:30:12.731676+00:00",
+        "identity": {
+          "unit": "MainPID=246452\nNRestarts=0\nActiveState=active\n",
+          "binary_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+          "config_sha256": "dbf05d1e4e7030861ff87902fd876711f5708418a4381c96b0d9ff05cff8f639"
+        },
+        "samples": 1827,
+        "journal_records": 8,
+        "latest_utc": "2026-10-12T19:35:57.389002+00:00",
+        "queue": {
+          "rc": 0,
+          "out": "[{\"kind\":\"noqueue\",\"handle\":\"0:\",\"dev\":\"lo\",\"root\":true,\"refcnt\":2,\"options\":{},\"bytes\":0,\"packets\":0,\"drops\":0,\"overlimits\":0,\"requeues\":0,\"backlog\":0,\"qlen\":0},{\"kind\":\"mq\",\"handle\":\"0:\",\"dev\":\"ens160\",\"root\":true,\"options\":{},\"bytes\":196161883097,\"packets\":176901823,\"drops\":4,\"overlimits\":0,\"requeues\":100,\"backlog\":0,\"qlen\":0},{\"kind\":\"fq_codel\",\"handle\":\"0:\",\"dev\":\"ens160\",\"parent\":\":4\",\"options\":{\"limit\":10240,\"flows\":1024,\"quantum\":1514,\"target\":4999,\"interval\":99999,\"memory_limit\":33554432,\"ecn\":true,\"drop_batch\":64},\"bytes\":51064799751,\"packets\":47056119,\"drops\":0,\"overlimits\":0,\"requeues\":33,\"backlog\":0,\"qlen\":0,\"maxpacket\":67872,\"drop_overlimit\":0,\"new_flow_count\":990615,\"ecn_mark\":0,\"new_flows_len\":0,\"old_flows_len\":0},{\"kind\":\"fq_codel\",\"handle\":\"0:\",\"dev\":\"ens160\",\"parent\":\":3\",\"options\":{\"limit\":10240,\"flows\":1024,\"quantum\":1514,\"target\":4999,\"interval\":99999,\"memory_limit\":33554432,\"ecn\":true,\"drop_batch\":64},\"bytes\":47313624586,\"packets\":42089179,\"drops\":1,\"overlimits\":0,\"requeues\":20,\"backlog\":0,\"qlen\":0,\"maxpacket\":66884,\"drop_overlimit\":0,\"new_flow_count\":673754,\"ecn_mark\":0,\"new_flows_len\":0,\"old_flows_len\":0},{\"kind\":\"fq_codel\",\"handle\":\"0:\",\"dev\":\"ens160\",\"parent\":\":2\",\"options\":{\"limit\":10240,\"flows\":1024,\"quantum\":1514,\"target\":4999,\"interval\":99999,\"memory_limit\":33554432,\"ecn\":true,\"drop_batch\":64},\"bytes\":50571927996,\"packets\":45948761,\"drops\":0,\"overlimits\":0,\"requeues\":23,\"backlog\":0,\"qlen\":0,\"maxpacket\":67068,\"drop_overlimit\":0,\"new_flow_count\":892056,\"ecn_mark\":0,\"new_flows_len\":0,\"old_flows_len\":0},{\"kind\":\"fq_codel\",\"handle\":\"0:\",\"dev\":\"ens160\",\"parent\":\":1\",\"options\":{\"limit\":10240,\"flows\":1024,\"quantum\":1514,\"target\":4999,\"interval\":99999,\"memory_limit\":33554432,\"ecn\":true,\"drop_batch\":64},\"bytes\":47211530764,\"packets\":41807764,\"drops\":3,\"overlimits\":0,\"requeues\":24,\"backlog\":0,\"qlen\":0,\"maxpacket\":67068,\"drop_overlimit\":0,\"new_flow_count\":683695,\"ecn_mark\":0,\"new_flows_len\":0,\"old_flows_len\":0}]\n",
+          "err": ""
+        },
+        "softnet": true,
+        "host_stat": true
+      }
+    },
+    {
+      "host": "116.202.177.233",
+      "before": {
+        "utc": "2026-10-12T19:35:35.080154+00:00",
+        "watch_unit": "# /etc/systemd/system/super-paqet-watch.service\n[Unit]\nDescription=Bounded seven-day super-paqet production incident observer\nAfter=super-paqet.service\n[Service]\nType=exec\nExecStart=/usr/bin/python3 /var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py --directory /var/log/super-paqet-watch/opening10-20261012T080128Z --interval 10 --sample-file-mib 64 --sample-backups 15 --duration 604800 --until 2026-10-19T08:01:28.597860+00:00 --journal-since @1791790288\nRuntimeMaxSec=604900\nRestart=on-failure\nRestartSec=10\nNice=10\nIOSchedulingClass=idle\nMemoryMax=128M\nTasksMax=16\nUMask=0077\nNoNewPrivileges=yes\nProtectSystem=strict\nProtectHome=yes\nReadWritePaths=/var/log/super-paqet-watch\nPrivateTmp=yes\n[Install]\nWantedBy=multi-user.target\n",
+        "script": "/var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py",
+        "script_sha256": "d501ec1ee7d2dfc0bbf3086d0c7179667f0ab4351439b59eb43f2f5b6b140d6e",
+        "directory": "/var/log/super-paqet-watch/opening10-20261012T080128Z",
+        "until": "2026-10-19T08:01:28.597860+00:00",
+        "identity": {
+          "unit": "MainPID=1192114\nNRestarts=0\nActiveState=active\n",
+          "binary_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+          "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475"
+        },
+        "samples": 4142,
+        "journal_records": 127,
+        "latest_utc": "2026-10-12T19:35:29.046305+00:00",
+        "queue": null,
+        "softnet": false,
+        "host_stat": false
+      },
+      "status": "verified",
+      "backup": "/var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py.queues-20261012T193515Z.backup",
+      "stage": "/var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py.queues-20261012T193515Z.new",
+      "after": {
+        "utc": "2026-10-12T19:36:00.677289+00:00",
+        "watch_unit": "# /etc/systemd/system/super-paqet-watch.service\n[Unit]\nDescription=Bounded seven-day super-paqet production incident observer\nAfter=super-paqet.service\n[Service]\nType=exec\nExecStart=/usr/bin/python3 /var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py --directory /var/log/super-paqet-watch/opening10-20261012T080128Z --interval 10 --sample-file-mib 64 --sample-backups 15 --duration 604800 --until 2026-10-19T08:01:28.597860+00:00 --journal-since @1791790288\nRuntimeMaxSec=604900\nRestart=on-failure\nRestartSec=10\nNice=10\nIOSchedulingClass=idle\nMemoryMax=128M\nTasksMax=16\nUMask=0077\nNoNewPrivileges=yes\nProtectSystem=strict\nProtectHome=yes\nReadWritePaths=/var/log/super-paqet-watch\nPrivateTmp=yes\n[Install]\nWantedBy=multi-user.target\n",
+        "script": "/var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py",
+        "script_sha256": "d28f4f9b0dea6dd475cba301fc6f1c6a57b2b3d57d190315bc6474b76779b2a6",
+        "directory": "/var/log/super-paqet-watch/opening10-20261012T080128Z",
+        "until": "2026-10-19T08:01:28.597860+00:00",
+        "identity": {
+          "unit": "MainPID=1192114\nNRestarts=0\nActiveState=active\n",
+          "binary_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+          "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475"
+        },
+        "samples": 4146,
+        "journal_records": 127,
+        "latest_utc": "2026-10-12T19:36:00.179276+00:00",
+        "queue": {
+          "rc": 0,
+          "out": "[{\"kind\":\"noqueue\",\"handle\":\"0:\",\"dev\":\"lo\",\"root\":true,\"refcnt\":2,\"options\":{},\"bytes\":0,\"packets\":0,\"drops\":0,\"overlimits\":0,\"requeues\":0,\"backlog\":0,\"qlen\":0},{\"kind\":\"fq_codel\",\"handle\":\"0:\",\"dev\":\"eth0\",\"root\":true,\"refcnt\":2,\"options\":{\"limit\":10240,\"flows\":1024,\"quantum\":1514,\"target\":4999,\"interval\":99999,\"memory_limit\":33554432,\"ecn\":true,\"drop_batch\":64},\"bytes\":13270145012120,\"packets\":15962459655,\"drops\":73,\"overlimits\":0,\"requeues\":6176,\"backlog\":0,\"qlen\":0,\"maxpacket\":68130,\"drop_overlimit\":0,\"new_flow_count\":403797822,\"ecn_mark\":0,\"new_flows_len\":0,\"old_flows_len\":0},{\"kind\":\"mq\",\"handle\":\"0:\",\"dev\":\"CloudflareWARP\",\"root\":true,\"options\":{},\"bytes\":998218538009,\"packets\":4622058550,\"drops\":0,\"overlimits\":0,\"requeues\":0,\"backlog\":0,\"qlen\":0},{\"kind\":\"fq_codel\",\"handle\":\"0:\",\"dev\":\"CloudflareWARP\",\"parent\":\":1\",\"options\":{\"limit\":10240,\"flows\":1024,\"quantum\":1280,\"target\":4999,\"interval\":99999,\"memory_limit\":33554432,\"ecn\":true,\"drop_batch\":64},\"bytes\":998218538009,\"packets\":4622058550,\"drops\":0,\"overlimits\":0,\"requeues\":0,\"backlog\":0,\"qlen\":0,\"maxpacket\":67840,\"drop_overlimit\":0,\"new_flow_count\":11782386,\"ecn_mark\":0,\"new_flows_len\":0,\"old_flows_len\":0},{\"kind\":\"noqueue\",\"handle\":\"0:\",\"dev\":\"sit_de1\",\"root\":true,\"refcnt\":2,\"options\":{},\"bytes\":0,\"packets\":0,\"drops\":0,\"overlimits\":0,\"requeues\":0,\"backlog\":0,\"qlen\":0}]\n",
+          "err": ""
+        },
+        "softnet": true,
+        "host_stat": true
+      }
+    },
+    {
+      "host": "171.22.132.226",
+      "before": {
+        "utc": "2026-10-12T19:35:37.428382+00:00",
+        "watch_unit": "# /etc/systemd/system/super-paqet-watch.service\n[Unit]\nDescription=Bounded seven-day super-paqet production incident observer\nAfter=super-paqet.service\n[Service]\nType=exec\nExecStart=/usr/bin/python3 /var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py --directory /var/log/super-paqet-watch/opening10-20261012T080128Z --interval 10 --sample-file-mib 64 --sample-backups 15 --duration 604800 --until 2026-10-19T08:01:28.597860+00:00 --journal-since @1791790288\nRuntimeMaxSec=604900\nRestart=on-failure\nRestartSec=10\nNice=10\nIOSchedulingClass=idle\nMemoryMax=128M\nTasksMax=16\nUMask=0077\nNoNewPrivileges=yes\nProtectSystem=strict\nProtectHome=yes\nReadWritePaths=/var/log/super-paqet-watch\nPrivateTmp=yes\n[Install]\nWantedBy=multi-user.target\n",
+        "script": "/var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py",
+        "script_sha256": "d501ec1ee7d2dfc0bbf3086d0c7179667f0ab4351439b59eb43f2f5b6b140d6e",
+        "directory": "/var/log/super-paqet-watch/opening10-20261012T080128Z",
+        "until": "2026-10-19T08:01:28.597860+00:00",
+        "identity": {
+          "unit": "ActiveState=active\nMainPID=3334731\nNRestarts=0\n",
+          "binary_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+          "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1"
+        },
+        "samples": 4162,
+        "journal_records": 87,
+        "latest_utc": "2026-10-12T19:35:36.798471+00:00",
+        "queue": null,
+        "softnet": false,
+        "host_stat": false
+      },
+      "status": "verified",
+      "backup": "/var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py.queues-20261012T193515Z.backup",
+      "stage": "/var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py.queues-20261012T193515Z.new",
+      "after": {
+        "utc": "2026-10-12T19:36:04.577679+00:00",
+        "watch_unit": "# /etc/systemd/system/super-paqet-watch.service\n[Unit]\nDescription=Bounded seven-day super-paqet production incident observer\nAfter=super-paqet.service\n[Service]\nType=exec\nExecStart=/usr/bin/python3 /var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py --directory /var/log/super-paqet-watch/opening10-20261012T080128Z --interval 10 --sample-file-mib 64 --sample-backups 15 --duration 604800 --until 2026-10-19T08:01:28.597860+00:00 --journal-since @1791790288\nRuntimeMaxSec=604900\nRestart=on-failure\nRestartSec=10\nNice=10\nIOSchedulingClass=idle\nMemoryMax=128M\nTasksMax=16\nUMask=0077\nNoNewPrivileges=yes\nProtectSystem=strict\nProtectHome=yes\nReadWritePaths=/var/log/super-paqet-watch\nPrivateTmp=yes\n[Install]\nWantedBy=multi-user.target\n",
+        "script": "/var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py",
+        "script_sha256": "d28f4f9b0dea6dd475cba301fc6f1c6a57b2b3d57d190315bc6474b76779b2a6",
+        "directory": "/var/log/super-paqet-watch/opening10-20261012T080128Z",
+        "until": "2026-10-19T08:01:28.597860+00:00",
+        "identity": {
+          "unit": "ActiveState=active\nMainPID=3334731\nNRestarts=0\n",
+          "binary_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+          "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1"
+        },
+        "samples": 4165,
+        "journal_records": 87,
+        "latest_utc": "2026-10-12T19:36:03.884855+00:00",
+        "queue": {
+          "rc": 0,
+          "out": "[{\"kind\":\"noqueue\",\"handle\":\"0:\",\"dev\":\"lo\",\"root\":true,\"refcnt\":2,\"options\":{},\"bytes\":0,\"packets\":0,\"drops\":0,\"overlimits\":0,\"requeues\":0,\"backlog\":0,\"qlen\":0},{\"kind\":\"pfifo_fast\",\"handle\":\"0:\",\"dev\":\"net0\",\"root\":true,\"refcnt\":2,\"options\":{\"bands\":3,\"priomap\":[1,2,2,2,1,2,0,0,1,1,1,1,1,1,1,1],\"multiqueue\":false},\"bytes\":14407273884741,\"packets\":18545698780,\"drops\":163009,\"overlimits\":0,\"requeues\":3338371,\"backlog\":0,\"qlen\":0},{\"kind\":\"mq\",\"handle\":\"0:\",\"dev\":\"CloudflareWARP\",\"root\":true,\"options\":{},\"bytes\":134454115065,\"packets\":648834032,\"drops\":0,\"overlimits\":0,\"requeues\":0,\"backlog\":0,\"qlen\":0},{\"kind\":\"fq\",\"handle\":\"0:\",\"dev\":\"CloudflareWARP\",\"parent\":\":1\",\"options\":{\"limit\":10000,\"flow_limit\":100,\"buckets\":1024,\"orphan_mask\":1023,\"bands\":3,\"priomap \":[1,2,2,2,1,2,0,0,1,1,1,1,1,1,1,1],\"weights \":[589824,196608,65536],\"quantum\":2560,\"initial_quantum\":12800,\"low_rate_threshold\":68750,\"refill_delay\":40000,\"timer_slack\":10000,\"horizon\":10000000,\"horizon_drop\":null,\"offload_horizon\":0},\"bytes\":134454115065,\"packets\":648834032,\"drops\":0,\"overlimits\":0,\"requeues\":0,\"backlog\":0,\"qlen\":0,\"flows\":1085,\"inactive\":1085,\"throttled\":0,\"band0_pkts\":0,\"band1_pkts\":0,\"band2_pkts\":0,\"gc\":436307,\"highprio\":0,\"fastpath\":600646479,\"throttled\":11104688,\"latency\":14637}]\n",
+          "err": ""
+        },
+        "softnet": true,
+        "host_stat": true
+      }
+    },
+    {
+      "host": "65.109.249.222",
+      "before": {
+        "utc": "2026-10-12T19:35:55.579192+00:00",
+        "watch_unit": "# /etc/systemd/system/super-paqet-watch.service\n[Unit]\nDescription=Bounded seven-day super-paqet production incident observer\nAfter=super-paqet.service\n[Service]\nType=exec\nExecStart=/usr/bin/python3 /var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py --directory /var/log/super-paqet-watch/opening10-20261012T080128Z --interval 10 --sample-file-mib 64 --sample-backups 15 --duration 604800 --until 2026-10-19T08:01:28.597860+00:00 --journal-since @1791790288\nRuntimeMaxSec=604900\nRestart=on-failure\nRestartSec=10\nNice=10\nIOSchedulingClass=idle\nMemoryMax=128M\nTasksMax=16\nUMask=0077\nNoNewPrivileges=yes\nProtectSystem=strict\nProtectHome=yes\nReadWritePaths=/var/log/super-paqet-watch\nPrivateTmp=yes\n[Install]\nWantedBy=multi-user.target\n",
+        "script": "/var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py",
+        "script_sha256": "d501ec1ee7d2dfc0bbf3086d0c7179667f0ab4351439b59eb43f2f5b6b140d6e",
+        "directory": "/var/log/super-paqet-watch/opening10-20261012T080128Z",
+        "until": "2026-10-19T08:01:28.597860+00:00",
+        "identity": {
+          "unit": "MainPID=459547\nNRestarts=0\nActiveState=active\n",
+          "binary_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+          "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69"
+        },
+        "samples": 4142,
+        "journal_records": 117,
+        "latest_utc": "2026-10-12T19:35:52.628665+00:00",
+        "queue": null,
+        "softnet": false,
+        "host_stat": false
+      },
+      "status": "verified",
+      "backup": "/var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py.queues-20261012T193515Z.backup",
+      "stage": "/var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py.queues-20261012T193515Z.new",
+      "after": {
+        "utc": "2026-10-12T19:36:08.345191+00:00",
+        "watch_unit": "# /etc/systemd/system/super-paqet-watch.service\n[Unit]\nDescription=Bounded seven-day super-paqet production incident observer\nAfter=super-paqet.service\n[Service]\nType=exec\nExecStart=/usr/bin/python3 /var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py --directory /var/log/super-paqet-watch/opening10-20261012T080128Z --interval 10 --sample-file-mib 64 --sample-backups 15 --duration 604800 --until 2026-10-19T08:01:28.597860+00:00 --journal-since @1791790288\nRuntimeMaxSec=604900\nRestart=on-failure\nRestartSec=10\nNice=10\nIOSchedulingClass=idle\nMemoryMax=128M\nTasksMax=16\nUMask=0077\nNoNewPrivileges=yes\nProtectSystem=strict\nProtectHome=yes\nReadWritePaths=/var/log/super-paqet-watch\nPrivateTmp=yes\n[Install]\nWantedBy=multi-user.target\n",
+        "script": "/var/lib/super-paqet-watch/production_watch-opening10-20261012T080128Z.py",
+        "script_sha256": "d28f4f9b0dea6dd475cba301fc6f1c6a57b2b3d57d190315bc6474b76779b2a6",
+        "directory": "/var/log/super-paqet-watch/opening10-20261012T080128Z",
+        "until": "2026-10-19T08:01:28.597860+00:00",
+        "identity": {
+          "unit": "MainPID=459547\nNRestarts=0\nActiveState=active\n",
+          "binary_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+          "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69"
+        },
+        "samples": 4144,
+        "journal_records": 117,
+        "latest_utc": "2026-10-12T19:36:07.827381+00:00",
+        "queue": {
+          "rc": 0,
+          "out": "[{\"kind\":\"noqueue\",\"handle\":\"0:\",\"dev\":\"lo\",\"root\":true,\"refcnt\":2,\"options\":{},\"bytes\":0,\"packets\":0,\"drops\":0,\"overlimits\":0,\"requeues\":0,\"backlog\":0,\"qlen\":0},{\"kind\":\"fq\",\"handle\":\"0:\",\"dev\":\"eth0\",\"root\":true,\"refcnt\":2,\"options\":{\"limit\":10000,\"flow_limit\":100,\"buckets\":1024,\"orphan_mask\":1023,\"quantum\":3028,\"initial_quantum\":15140,\"low_rate_threshold\":68750,\"refill_delay\":40000,\"timer_slack\":10000,\"horizon\":10000000,\"horizon_drop\":null},\"bytes\":2388014655871,\"packets\":2763755794,\"drops\":97844,\"overlimits\":0,\"requeues\":0,\"backlog\":0,\"qlen\":0,\"flows\":2047,\"inactive\":2045,\"throttled\":0,\"gc\":15495482,\"highprio\":6,\"throttled\":90543064,\"latency\":27961,\"flows_plimit\":97844},{\"kind\":\"mq\",\"handle\":\"0:\",\"dev\":\"CloudflareWARP\",\"root\":true,\"options\":{},\"bytes\":164636277119,\"packets\":716496204,\"drops\":0,\"overlimits\":0,\"requeues\":0,\"backlog\":0,\"qlen\":0},{\"kind\":\"fq\",\"handle\":\"0:\",\"dev\":\"CloudflareWARP\",\"parent\":\":1\",\"options\":{\"limit\":10000,\"flow_limit\":100,\"buckets\":1024,\"orphan_mask\":1023,\"quantum\":2560,\"initial_quantum\":12800,\"low_rate_threshold\":68750,\"refill_delay\":40000,\"timer_slack\":10000,\"horizon\":10000000,\"horizon_drop\":null},\"bytes\":164636277119,\"packets\":716496204,\"drops\":0,\"overlimits\":0,\"requeues\":0,\"backlog\":0,\"qlen\":0,\"flows\":2048,\"inactive\":2044,\"throttled\":0,\"gc\":6256432,\"highprio\":0,\"throttled\":4390459,\"latency\":34483}]\n",
+          "err": ""
+        },
+        "softnet": true,
+        "host_stat": true
+      }
+    }
+  ]
+}

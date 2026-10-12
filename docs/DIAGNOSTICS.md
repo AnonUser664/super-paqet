@@ -248,6 +248,19 @@ socket and packet-processing pressure. Capture is read-only and occurs with the
 existing five-minute incident cooldown; a missing tool is recorded as diagnostic
 failure and does not affect the tunnel. No queue policy is changed.
 
+The 12 October queue-evidence observer candidate additionally retains
+`host.qdisc` from `tc -s -j qdisc show`, `/proc/stat` and
+`/proc/net/softnet_stat` in every ordinary sample. This improves timing when an
+opening retry burst occurs between incident captures. The command has a
+three-second timeout and bounded output; a missing `tc` is an explicit error
+beside the other evidence. Compare successive samples for the same device,
+queue and host boot. Cumulative drops cannot date an earlier interruption, and
+parent/child queue totals can describe the same drops. Successful AF_PACKET
+injection does not prove the frame escaped later kernel queues. This observer
+does not alter queue policies or declare filtering. Its exact installed hosts
+and verification must be taken from the deployment receipt, not this source
+description.
+
 Verified source-tuple recovery exports attempt/success/rejection counters as
 `super_paqet_path_recovery_*_total`. Per-peer/session conversation IDs and actual
 source ports are `super_paqet_peer_conversation_id` and
