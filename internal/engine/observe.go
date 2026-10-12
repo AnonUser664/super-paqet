@@ -75,6 +75,8 @@ func (e *Engine) observe() {
 	previous := make(map[*kcp.Conn]observedState)
 	previousDrops := make(map[*socket.PacketConn]uint64)
 	previousRetries := make(map[*socket.PacketConn]uint64)
+	retryWarnings := openingRetryObservation{}
+	retryWarnings.sample(time.Now(), &e.stats)
 	for {
 		select {
 		case <-e.ctx.Done():
@@ -83,6 +85,15 @@ func (e *Engine) observe() {
 		case <-e.observeChanged:
 			ticker.Reset(e.current().Log.duration)
 		case now := <-ticker.C:
+			if burst, ok := retryWarnings.sample(now, &e.stats); ok {
+				// Successful fallback can hide a disruption from errors_total.
+				// One aggregate event per observer interval keeps warning logs
+				// useful without logging each customer's retry or target address.
+				e.log().Warn("opening.retry_burst", "retry_delta", burst.retries, "accepted_delta", burst.accepted,
+					"interval_ms", burst.elapsed.Milliseconds(), "active", e.stats.Active.Load(),
+					"syn_timeouts", burst.syn, "receipt_timeouts", burst.receipt,
+					"result_timeouts", burst.result, "closed_attempts", burst.closed)
+			}
 			e.log().Info("engine.summary", "active", e.stats.Active.Load(), "accepted", e.stats.Accepted.Load(), "rejected", e.stats.Rejected.Load(), "errors", e.stats.Errors.Load(), "aborted", e.stats.Aborted.Load(), "sent_bytes", e.stats.Sent.Load(), "received_bytes", e.stats.Received.Load(), "goroutines", runtime.NumGoroutine(), "log_dropped", e.diagnostics.dropped.Load())
 			if !e.log().Enabled(e.ctx, slog.LevelDebug) {
 				continue

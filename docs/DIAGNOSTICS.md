@@ -417,3 +417,21 @@ is enabled for reboot recovery within that window; a restart cannot extend the
 deadline. Raw sample rotation may retain less than the full week; summary peaks
 and counter deltas cover the observation window. Existing archives are retained.
 To continue observation after expiry, create a new dated window.
+
+## Opening retry cohorts (12 October exploration, not yet deployed)
+
+`opening.retry_burst` is one warning per existing log interval when at least
+`max(10, accepted_delta/100)` retries occur. It reports actual interval length,
+active/accepted counts and failed opening phases. Sparse recovered openings
+remain in metrics; they do not each create warning lines. Counter resets and
+quiet intervals advance the baseline without re-reporting lifetime totals.
+
+Additional counters: `super_paqet_opening_syn_timeouts_total`,
+`super_paqet_opening_receipt_timeouts_total`,
+`super_paqet_opening_result_timeouts_total` and
+`super_paqet_opening_closed_attempts_total`. These count failed attempts, while
+`opening_transport_retries_total` counts subsequent retry starts. Phase totals
+need not equal starts in the same scrape. A result timeout has already received
+ACK2; a receipt timeout has not. A retry cohort does not prove filtering, tuple
+failure or application rejection. No customer target or capability is included
+in the aggregate warning. It adds no packet-path logging or stream scans.

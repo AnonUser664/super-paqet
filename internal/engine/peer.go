@@ -282,6 +282,7 @@ func (p *peer) open(ctx context.Context, kind byte, target string, initialTCP ..
 			}
 			var timeout interface{ Timeout() bool }
 			if errors.As(err, &timeout) && timeout.Timeout() && p.engine.ctx.Err() == nil {
+				p.engine.stats.OpenSYNTimeouts.Add(1)
 				p.recoveryFailures.Add(1)
 				s.recordTransportFailure()
 				p.invalidateIdle(s, c)
@@ -342,6 +343,18 @@ func (p *peer) open(ctx context.Context, kind byte, target string, initialTCP ..
 			transportTimedOut := (ack[0] == 0 || retryableOpening) && errors.As(err, &timeout) && timeout.Timeout()
 			unreceivedClose := (ack[0] == 0 || retryableOpening) && (errors.Is(err, io.EOF) || errors.Is(err, io.ErrClosedPipe) || errors.Is(err, net.ErrClosed))
 			if (transportTimedOut || unreceivedClose) && ctx.Err() == nil && p.engine.ctx.Err() == nil {
+				// Count the failed phase independently of the eventual sibling
+				// retry. A received ACK2 distinguishes target-result waiting
+				// from an opening whose transport receipt never arrived.
+				if transportTimedOut {
+					if ack[0] == 2 {
+						p.engine.stats.OpenResultTimeouts.Add(1)
+					} else {
+						p.engine.stats.OpenReceiptTimeouts.Add(1)
+					}
+				} else {
+					p.engine.stats.OpenClosed.Add(1)
+				}
 				_, _, blocked := c.Session.ReceiveBufferStats()
 				if blocked {
 					p.engine.stats.OpenCapacityRetries.Add(1)

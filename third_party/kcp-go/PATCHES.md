@@ -92,3 +92,16 @@ the original packet encoder/flag state and closes all child outputs when the
 capture socket is replaced. End-to-end evidence and failed acceptance limits
 remain in `docs/EXPLORATION-2026-10-12.md`. The ordinary pooled-pressure screen
 failed; this implementation has not been accepted or deployed to production.
+
+## ACK RTT evidence eligibility (12 October 2026 exploration)
+
+`Input` samples RTT only from a still-live transmitted send segment and a
+nonfuture echoed transmission timestamp, before cumulative UNA can retire that
+segment. A delayed ACK for retired/already-ACKed/unsent data no longer inflates
+SRTT/RTO. Live older-attempt ACKs remain valid: strict latest-attempt matching
+prevented RTT bootstrap on links longer than the initial retry timer. Reliable
+ACK/UNA processing, frame format and raw envelope are unchanged. Deterministic
+regressions cover duplicate retirement, unsent sequences, late-original delivery
+and newest-retry timing. This exploration edit is not a production deployment;
+full owning-module and end-to-end qualification remain required. Optional ACK
+transit timestamp attribution is unchanged.

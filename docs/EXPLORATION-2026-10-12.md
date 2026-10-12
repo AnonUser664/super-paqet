@@ -480,3 +480,84 @@ acceptance is unmet. All four attempts clean their owned processes/rules and
 namespaces. The combined 750 ms/pacing overlay is built/native-checked but its
 prepared local link matrix has not been launched. Source and production retain
 the existing adaptive behavior while investigation continues.
+
+## Combined adaptive hypothesis passes its diagnostic body screen
+
+The [combined screen](combined-pacing-screen-2026-10-12.json) completes two
+reversed pairs with zero body/warmup errors in all four runs. Matched ceiling-200
+control / pacing-plus-ceiling-750 medians: 6.355 → 7.980 Mbit/s, mean body time
+9.617 → 7.948 s, p99 19.326 → 16.2175 s. This is a useful diagnostic improvement
+(about +25.6% throughput), not final acceptance: both variants include debug
+logging/timeline observers, and the controller-only/ceiling-only failures remain.
+A fresh unprofiled comparison against the exact deployed opening.10 artifact is
+running on asymmetric HTTP/body and narrow-bandwidth 5%-loss HTTP. Real capacity
+steps, clean bulk, equal-work mixed CPU/latency and recovery remain required if
+those gates pass. No production setting was changed.
+
+## ACK RTT eligibility: independent protocol correctness experiment
+
+Review finds `KCP.Input` updated RTT from ACK timestamps even when their sequence
+was already retired or never transmitted. The [deterministic checks](ack-rtt-native-2026-10-12.json)
+reproduce a retired duplicate changing a valid 100 ms SRTT to 1337 ms and a
+300 ms RTO to 11385 ms. This demonstrates estimator pollution; it does not prove
+that it caused the observed real-world interruptions.
+
+A strict latest-attempt-only draft is rejected: on a 1-second path whose first
+packet retries before its original ACK arrives, it learns no initial RTT. The
+corrected overlay accepts an old-attempt timestamp while its transmitted segment
+is still live, and excludes retired/already-ACKed/unsent segments from new RTT
+evidence. ACK/UNA delivery processing stays unchanged. Ten race repetitions of
+original failure, rejected strict policy and corrected policy run, followed by
+three repetitions of reorder/pacing/migration regressions. Corrected checks pass.
+This is a separate overlay, not part of the measured combined executable. The
+optional ACK transit-timestamp estimator remains unchanged; it is disabled in
+current production. Root/native/end-to-end checks and raw throughput remain
+necessary before this independent fix is promoted.
+
+At [18:10 UTC](emergency-client109-health-2026-10-12-1810.json), production
+retains the same PID/hash/config and zero new tunnel errors/rejections/restarts.
+Opening retries increase to 733, across Germany/France/Finland lanes, despite
+only one completed recovery and no currently suspect/blocked lanes. This signal
+requires incident-window review; process liveness alone is not called clean
+path acceptance. The observer continues retaining its bounded samples/journal.
+
+The [unprofiled WAN comparison](combined-pacing-wan-2026-10-12.json) against
+production opening.10 passes all eight attempts: asymmetric body throughput
+6.135 → 7.707 Mbit/s (+25.62%), mean 10.302 → 8.270 s, p99 12.441 → 10.064 s.
+Small-request mean/p99 84.722 → 84.620 ms / 268 → 265 ms. The 2 Mbit/s,
+5%-loss case has p99 486 → 477 ms with zero errors.
+
+Its [next qualification gate](combined-pacing-remaining-2026-10-12.json)
+retains clean bulk 5.728/4.408 → 5.994/4.427 Gbit/s and bounded combined rate
+about 2.000 Gbit/s. Client/server CPU changes +1.34%/+2.95% pass. Request mean
+805.294 → 910.636 microseconds (+13.08%) and p99 3.5 → 5.5 ms (+57.14%) fail.
+The matrix stops before capacity-step runs. Thus the combined edit remains
+**unaccepted**, despite passing WAN and clean rate gates. Placement/low-RTT
+controller activity need diagnosis; the failed quantiles are not dismissed.
+
+The [complete ACK RTT native check](ack-rtt-complete-native-2026-10-12.json)
+passes the owning KCP race suite in 701.238 s and vet, including large integrity,
+OOB, migration, loss/reorder and clock/sequence-wrap coverage. Its standalone
+overlay also passes root race/vet and builds SHA-256
+`57e9e36212a0e2bda1902289abdadc38a1a2fbebfce01ffe3ee497d4f714521b`.
+The first root attempt accidentally enumerates experimental `.go` snapshots
+as separate build packages. Private module boundaries isolate those folders;
+the original failure and corrected root attempt remain separate. The tracked
+core now contains only the validated ACK eligibility edit, not the rejected
+pacing/ceiling hypotheses. Link and raw throughput gates are still incomplete.
+
+The user confirms no Nginx/Xray changes at 17:47 UTC. Existing backend samples
+show traffic dipping concurrently across all three countries, no local TX/capture
+drop increments or sampled mux blockage, unchanged tunnel PIDs and Xray process
+start times preceding the burst. Germany/Finland have control-stream EOFs then;
+these can be effects of abandoned attempts and do not identify the root cause.
+No actor/drop location is established. A common cause is plausible, not proven.
+
+To improve the next production incident record, the local candidate adds
+failed-phase counters and an aggregate `opening.retry_burst` warning before the
+observer's debug-only gate. The warning is bounded to one per existing interval
+and scales its noise threshold with admissions; no target addresses or bearer
+capabilities are logged. Opening/retry/recovery decisions remain unchanged.
+Actual silent-receipt recovery and deterministic cohort/noise/reset fixtures
+verify classification. These logging additions are not in the earlier measured
+combined or standalone ACK binaries and have not been deployed.

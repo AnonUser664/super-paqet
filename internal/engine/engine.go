@@ -36,6 +36,9 @@ type Stats struct {
 	Active, Accepted, Rejected, Errors, Aborted, Sent, Received, Sessions atomic.Int64
 	// Counts new-opening recovery attempts without counting them as application failures.
 	OpenRetries atomic.Int64
+	// Failed opening phases remain observable even if a sibling succeeds.
+	// These count failed attempts; OpenRetries counts subsequent retry starts.
+	OpenSYNTimeouts, OpenReceiptTimeouts, OpenResultTimeouts, OpenClosed atomic.Int64
 	// Capacity retries are not evidence that a physical source tuple failed.
 	OpenCapacityRetries atomic.Int64
 	// Counts same-target dial reuse across unfinished stream attempts.

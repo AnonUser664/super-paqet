@@ -1,0 +1,881 @@
+{
+  "production_mutated": false,
+  "user_confirms_no_service_changes": true,
+  "cause": "not established; common-client/shared-path cause plausible from concurrent traffic dip, not proven censorship",
+  "client_events": [
+    {
+      "utc": "2026-10-12T17:27:46.293265+00:00",
+      "retry_delta": 2.0,
+      "active": 5160.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"finland\",session=\"2\"}": 2.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {}
+    },
+    {
+      "utc": "2026-10-12T17:39:29.676621+00:00",
+      "retry_delta": 2.0,
+      "active": 5319.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"germany\",session=\"3\"}": 2.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {}
+    },
+    {
+      "utc": "2026-10-12T17:39:49.772901+00:00",
+      "retry_delta": 1.0,
+      "active": 5398.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"finland\",session=\"2\"}": 1.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {}
+    },
+    {
+      "utc": "2026-10-12T17:40:19.916586+00:00",
+      "retry_delta": 1.0,
+      "active": 5090.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"germany\",session=\"3\"}": 1.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {}
+    },
+    {
+      "utc": "2026-10-12T17:40:50.061150+00:00",
+      "retry_delta": 4.0,
+      "active": 5027.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"finland\",session=\"3\"}": 4.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {}
+    },
+    {
+      "utc": "2026-10-12T17:41:50.349942+00:00",
+      "retry_delta": 3.0,
+      "active": 6378.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"finland\",session=\"3\"}": 3.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {}
+    },
+    {
+      "utc": "2026-10-12T17:42:10.444763+00:00",
+      "retry_delta": 3.0,
+      "active": 6372.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"finland\",session=\"3\"}": 3.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {}
+    },
+    {
+      "utc": "2026-10-12T17:42:20.494064+00:00",
+      "retry_delta": 1.0,
+      "active": 6647.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"france\",session=\"2\"}": 1.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {}
+    },
+    {
+      "utc": "2026-10-12T17:43:00.684509+00:00",
+      "retry_delta": 6.0,
+      "active": 7375.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"finland\",session=\"3\"}": 1.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"france\",session=\"2\"}": 5.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {}
+    },
+    {
+      "utc": "2026-10-12T17:44:00.972556+00:00",
+      "retry_delta": 4.0,
+      "active": 8464.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"france\",session=\"0\"}": 4.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {}
+    },
+    {
+      "utc": "2026-10-12T17:44:51.212823+00:00",
+      "retry_delta": 3.0,
+      "active": 9337.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"france\",session=\"0\"}": 3.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {}
+    },
+    {
+      "utc": "2026-10-12T17:45:31.404814+00:00",
+      "retry_delta": 10.0,
+      "active": 9578.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"germany\",session=\"2\"}": 10.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {}
+    },
+    {
+      "utc": "2026-10-12T17:46:51.788608+00:00",
+      "retry_delta": 42.0,
+      "active": 8126.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"germany\",session=\"0\"}": 3.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"germany\",session=\"1\"}": 4.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"germany\",session=\"2\"}": 10.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"finland\",session=\"0\"}": 7.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"finland\",session=\"2\"}": 8.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"france\",session=\"1\"}": 11.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {}
+    },
+    {
+      "utc": "2026-10-12T17:47:01.838132+00:00",
+      "retry_delta": 381.0,
+      "active": 8173.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"germany\",session=\"0\"}": 29.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"germany\",session=\"1\"}": 25.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"germany\",session=\"2\"}": 49.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"germany\",session=\"3\"}": 28.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"finland\",session=\"0\"}": 13.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"finland\",session=\"1\"}": 53.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"finland\",session=\"2\"}": 18.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"finland\",session=\"3\"}": 29.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"france\",session=\"0\"}": 27.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"france\",session=\"1\"}": 50.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"france\",session=\"2\"}": 39.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"france\",session=\"3\"}": 20.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {
+        "super_paqet_peer_carrier_suspect{peer=\"germany\",session=\"1\"}": 1.0
+      }
+    },
+    {
+      "utc": "2026-10-12T17:47:11.885030+00:00",
+      "retry_delta": 168.0,
+      "active": 7681.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"germany\",session=\"0\"}": 4.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"germany\",session=\"1\"}": 2.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"germany\",session=\"2\"}": 21.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"germany\",session=\"3\"}": 30.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"finland\",session=\"1\"}": 10.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"finland\",session=\"2\"}": 13.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"finland\",session=\"3\"}": 18.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"france\",session=\"0\"}": 17.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"france\",session=\"1\"}": 46.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"france\",session=\"2\"}": 4.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"france\",session=\"3\"}": 3.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {}
+    },
+    {
+      "utc": "2026-10-12T17:47:21.933105+00:00",
+      "retry_delta": 37.0,
+      "active": 7485.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"germany\",session=\"2\"}": 34.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"finland\",session=\"1\"}": 1.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"france\",session=\"0\"}": 2.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {}
+    },
+    {
+      "utc": "2026-10-12T17:47:31.980824+00:00",
+      "retry_delta": 11.0,
+      "active": 7165.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"germany\",session=\"2\"}": 5.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"france\",session=\"1\"}": 6.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {}
+    },
+    {
+      "utc": "2026-10-12T17:47:42.028548+00:00",
+      "retry_delta": 16.0,
+      "active": 6926.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"germany\",session=\"2\"}": 1.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"france\",session=\"1\"}": 15.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {}
+    },
+    {
+      "utc": "2026-10-12T17:48:02.124544+00:00",
+      "retry_delta": 10.0,
+      "active": 6791.0,
+      "failed_carriers": {
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"finland\",session=\"0\"}": 7.0,
+        "super_paqet_peer_carrier_transport_failures_total{peer=\"finland\",session=\"3\"}": 3.0
+      },
+      "local_drop_deltas": {},
+      "suspect": {}
+    }
+  ],
+  "backend_windows": [
+    {
+      "host": "116.202.177.233",
+      "unit": "MainPID=1192114\nNRestarts=0\nActiveState=active\n",
+      "journal": "{\"time\":\"2026-10-12T17:47:01.477203228Z\",\"level\":\"WARN\",\"msg\":\"connection.failed\",\"error_id\":26053,\"error\":\"read stream control: EOF\"}\n",
+      "service_process_start_times": [
+        "14194 Tue Sep 22 06:17:07 2026 nginx",
+        "14196 Tue Sep 22 06:17:07 2026 nginx",
+        "14197 Tue Sep 22 06:17:07 2026 nginx",
+        "1216150 Mon Oct 12 14:10:22 2026 xray"
+      ],
+      "windows": [
+        {
+          "utc": "2026-10-12T17:46:17.650271+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 197.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 36836249.0,
+            "super_paqet_received_bytes_total": 5114059.0,
+            "super_paqet_kcp_RetransSegs": 2383.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:46:27.698285+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 177.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 24651266.0,
+            "super_paqet_received_bytes_total": 3253118.0,
+            "super_paqet_kcp_RetransSegs": 3213.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:46:37.746281+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 211.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 24485360.0,
+            "super_paqet_received_bytes_total": 3353601.0,
+            "super_paqet_kcp_RetransSegs": 4343.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:46:47.795070+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 254.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 26994597.0,
+            "super_paqet_received_bytes_total": 3560777.0,
+            "super_paqet_kcp_RetransSegs": 4698.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:46:57.842260+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 308.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 11532141.0,
+            "super_paqet_received_bytes_total": 2428146.0,
+            "super_paqet_kcp_RetransSegs": 4211.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:47:07.890274+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 341.0,
+            "super_paqet_errors_total": 4.0,
+            "super_paqet_sent_bytes_total": 6302351.0,
+            "super_paqet_received_bytes_total": 2064091.0,
+            "super_paqet_kcp_RetransSegs": 3114.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:47:17.938495+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 172.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 24751137.0,
+            "super_paqet_received_bytes_total": 3046073.0,
+            "super_paqet_kcp_RetransSegs": 7273.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:47:27.986290+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 160.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 25454829.0,
+            "super_paqet_received_bytes_total": 2405411.0,
+            "super_paqet_kcp_RetransSegs": 11438.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:47:38.034252+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 192.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 18481997.0,
+            "super_paqet_received_bytes_total": 3058055.0,
+            "super_paqet_kcp_RetransSegs": 6893.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:47:48.084183+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 166.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 22354297.0,
+            "super_paqet_received_bytes_total": 3444352.0,
+            "super_paqet_kcp_RetransSegs": 5714.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:47:58.131877+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 211.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 19771666.0,
+            "super_paqet_received_bytes_total": 3377304.0,
+            "super_paqet_kcp_RetransSegs": 3258.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:48:08.179059+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 146.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 22690110.0,
+            "super_paqet_received_bytes_total": 2902803.0,
+            "super_paqet_kcp_RetransSegs": 3679.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:48:18.226445+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 246.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 19131131.0,
+            "super_paqet_received_bytes_total": 2775618.0,
+            "super_paqet_kcp_RetransSegs": 3259.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:48:28.275538+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 240.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 17519931.0,
+            "super_paqet_received_bytes_total": 2855335.0,
+            "super_paqet_kcp_RetransSegs": 3026.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:48:38.322918+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 273.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 20871815.0,
+            "super_paqet_received_bytes_total": 2841868.0,
+            "super_paqet_kcp_RetransSegs": 3714.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:48:48.370272+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 336.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 18022391.0,
+            "super_paqet_received_bytes_total": 3166503.0,
+            "super_paqet_kcp_RetransSegs": 3066.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:48:58.420218+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 224.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 40007040.0,
+            "super_paqet_received_bytes_total": 3611555.0,
+            "super_paqet_kcp_RetransSegs": 815.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        }
+      ]
+    },
+    {
+      "host": "171.22.132.226",
+      "unit": "ActiveState=active\nMainPID=3334731\nNRestarts=0\n",
+      "journal": "",
+      "service_process_start_times": [
+        "3357015 Mon Oct 12 14:10:28 2026 xray"
+      ],
+      "windows": [
+        {
+          "utc": "2026-10-12T17:46:16.717729+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 167.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 32836264.0,
+            "super_paqet_received_bytes_total": 2348906.0,
+            "super_paqet_kcp_RetransSegs": 2276.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:46:26.717818+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 166.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 23681991.0,
+            "super_paqet_received_bytes_total": 2150325.0,
+            "super_paqet_kcp_RetransSegs": 2245.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:46:36.717903+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 97.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 19970390.0,
+            "super_paqet_received_bytes_total": 1451211.0,
+            "super_paqet_kcp_RetransSegs": 3367.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:46:46.718005+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 156.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 24818827.0,
+            "super_paqet_received_bytes_total": 1670736.0,
+            "super_paqet_kcp_RetransSegs": 4281.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:46:56.718118+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 144.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 10342917.0,
+            "super_paqet_received_bytes_total": 1025859.0,
+            "super_paqet_kcp_RetransSegs": 5978.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:47:06.718248+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 263.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 4895773.0,
+            "super_paqet_received_bytes_total": 782151.0,
+            "super_paqet_kcp_RetransSegs": 3249.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:47:16.718348+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 184.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 22333677.0,
+            "super_paqet_received_bytes_total": 1400644.0,
+            "super_paqet_kcp_RetransSegs": 7009.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:47:26.718433+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 236.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 17676605.0,
+            "super_paqet_received_bytes_total": 1531990.0,
+            "super_paqet_kcp_RetransSegs": 5374.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:47:36.718519+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 136.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 22523861.0,
+            "super_paqet_received_bytes_total": 1462302.0,
+            "super_paqet_kcp_RetransSegs": 6251.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:47:46.718591+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 174.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 23536207.0,
+            "super_paqet_received_bytes_total": 1479910.0,
+            "super_paqet_kcp_RetransSegs": 5597.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:47:56.718669+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 85.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 15624316.0,
+            "super_paqet_received_bytes_total": 1315051.0,
+            "super_paqet_kcp_RetransSegs": 2852.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:48:06.718915+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 100.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 22140519.0,
+            "super_paqet_received_bytes_total": 1026788.0,
+            "super_paqet_kcp_RetransSegs": 3394.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:48:16.719017+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 142.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 19387408.0,
+            "super_paqet_received_bytes_total": 1020561.0,
+            "super_paqet_kcp_RetransSegs": 3003.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:48:26.719106+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 290.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 20063623.0,
+            "super_paqet_received_bytes_total": 1436010.0,
+            "super_paqet_kcp_RetransSegs": 3487.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:48:36.719198+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 368.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 14652949.0,
+            "super_paqet_received_bytes_total": 1785844.0,
+            "super_paqet_kcp_RetransSegs": 2530.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:48:46.719303+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 234.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 14519636.0,
+            "super_paqet_received_bytes_total": 1485569.0,
+            "super_paqet_kcp_RetransSegs": 2553.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:48:56.719391+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 222.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 18188798.0,
+            "super_paqet_received_bytes_total": 2127437.0,
+            "super_paqet_kcp_RetransSegs": 641.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        }
+      ]
+    },
+    {
+      "host": "65.109.249.222",
+      "unit": "MainPID=459547\nNRestarts=0\nActiveState=active\n",
+      "journal": "{\"time\":\"2026-10-12T17:47:01.419600281Z\",\"level\":\"WARN\",\"msg\":\"connection.failed\",\"error_id\":26292,\"error\":\"read stream control: EOF\"}\n",
+      "service_process_start_times": [
+        "727 Tue Oct  6 06:47:01 2026 nginx",
+        "731 Tue Oct  6 06:47:01 2026 nginx",
+        "732 Tue Oct  6 06:47:01 2026 nginx",
+        "474488 Mon Oct 12 14:10:19 2026 xray"
+      ],
+      "windows": [
+        {
+          "utc": "2026-10-12T17:46:11.060163+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 111.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 10706203.0,
+            "super_paqet_received_bytes_total": 1044845.0,
+            "super_paqet_kcp_RetransSegs": 1884.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:46:21.108687+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 121.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 19657262.0,
+            "super_paqet_received_bytes_total": 1049575.0,
+            "super_paqet_kcp_RetransSegs": 424.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:46:31.157510+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 121.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 8310833.0,
+            "super_paqet_received_bytes_total": 918713.0,
+            "super_paqet_kcp_RetransSegs": 1484.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:46:41.204199+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 177.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 8615357.0,
+            "super_paqet_received_bytes_total": 1845196.0,
+            "super_paqet_kcp_RetransSegs": 1827.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:46:51.253887+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 178.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 7739132.0,
+            "super_paqet_received_bytes_total": 990346.0,
+            "super_paqet_kcp_RetransSegs": 2473.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:47:01.300202+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 185.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 3280837.0,
+            "super_paqet_received_bytes_total": 653826.0,
+            "super_paqet_kcp_RetransSegs": 2279.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:47:11.349291+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 263.0,
+            "super_paqet_errors_total": 7.0,
+            "super_paqet_sent_bytes_total": 10470957.0,
+            "super_paqet_received_bytes_total": 1364915.0,
+            "super_paqet_kcp_RetransSegs": 2959.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:47:21.397215+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 148.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 9503656.0,
+            "super_paqet_received_bytes_total": 1046731.0,
+            "super_paqet_kcp_RetransSegs": 3348.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:47:31.444189+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 145.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 11436158.0,
+            "super_paqet_received_bytes_total": 1413631.0,
+            "super_paqet_kcp_RetransSegs": 3157.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:47:41.493039+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 129.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 9015022.0,
+            "super_paqet_received_bytes_total": 978184.0,
+            "super_paqet_kcp_RetransSegs": 2687.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:47:51.541666+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 205.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 9768936.0,
+            "super_paqet_received_bytes_total": 1223633.0,
+            "super_paqet_kcp_RetransSegs": 1778.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:48:01.588177+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 194.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 19315885.0,
+            "super_paqet_received_bytes_total": 1998922.0,
+            "super_paqet_kcp_RetransSegs": 3052.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:48:11.637737+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 183.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 12633784.0,
+            "super_paqet_received_bytes_total": 1571288.0,
+            "super_paqet_kcp_RetransSegs": 2239.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:48:21.684257+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 102.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 12560542.0,
+            "super_paqet_received_bytes_total": 1620769.0,
+            "super_paqet_kcp_RetransSegs": 2097.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:48:31.732155+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 140.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 17763732.0,
+            "super_paqet_received_bytes_total": 1301549.0,
+            "super_paqet_kcp_RetransSegs": 2988.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:48:41.781468+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 182.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 9816312.0,
+            "super_paqet_received_bytes_total": 1153462.0,
+            "super_paqet_kcp_RetransSegs": 1879.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        },
+        {
+          "utc": "2026-10-12T17:48:51.828174+00:00",
+          "counter_deltas": {
+            "super_paqet_accepted_total": 183.0,
+            "super_paqet_errors_total": 0.0,
+            "super_paqet_sent_bytes_total": 10014076.0,
+            "super_paqet_received_bytes_total": 989209.0,
+            "super_paqet_kcp_RetransSegs": 1054.0
+          },
+          "local_drop_deltas": {},
+          "mux_blocked": {}
+        }
+      ]
+    }
+  ]
+}

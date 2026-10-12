@@ -142,6 +142,9 @@ func TestBusyOpeningRetriesHealthyCarrier(t *testing.T) {
 	if e.stats.OpenRetries.Load() != 1 {
 		t.Fatalf("retry counter: %d", e.stats.OpenRetries.Load())
 	}
+	if e.stats.OpenReceiptTimeouts.Load() != 1 || e.stats.OpenSYNTimeouts.Load() != 0 || e.stats.OpenResultTimeouts.Load() != 0 {
+		t.Fatal("silent application receipt was mislabeled as SYN or target-result delay")
+	}
 	if stalled.conn.Load() == nil || stalled.conn.Load().Session.IsClosed() {
 		t.Fatal("retry destroyed a busy carrier")
 	}
