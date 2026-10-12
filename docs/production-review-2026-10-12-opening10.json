@@ -197,5 +197,60 @@
       "loss_growth_by_label": {},
       "qdisc": null
     }
-  ]
+  ],
+  "authenticated_reality_probes": {
+    "89.45.68.118": {
+      "germany": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.788747 2.315664",
+          "error": "",
+          "passed": true
+        }
+      ],
+      "finland": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.756528 1.767770",
+          "error": "",
+          "passed": true
+        }
+      ],
+      "france": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.638537 0.697352",
+          "error": "",
+          "passed": true
+        }
+      ]
+    },
+    "89.45.68.14": {
+      "germany": [
+        {
+          "exit": 0,
+          "response": "200 1048576 1.087265 1.273279",
+          "error": "",
+          "passed": true
+        }
+      ],
+      "finland": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.633180 0.917041",
+          "error": "",
+          "passed": true
+        }
+      ],
+      "france": [
+        {
+          "exit": 0,
+          "response": "200 1048576 0.676275 1.887945",
+          "error": "",
+          "passed": true
+        }
+      ]
+    }
+  },
+  "probe_qualification": "All six 1 MiB authenticated Reality downloads pass; only uniquely owned standalone probe executable/config/process used and cleaned; no customer-service restart."
 }

@@ -90,3 +90,14 @@ latency gate. Root race/vet pass. The initial production Reality probe helper
 could not execute under `/run`; it was cleaned up before traffic generation and
 a new owned attempt uses the previously proven `/root/super-paqet` location.
 This fixture failure is separate from a failed tunnel route.
+
+The corrected production probe completed all six authenticated 1 MiB Reality
+downloads. Owned standalone probe files/processes were removed; tunnel and
+Xray services were not restarted or reconfigured. These checks complement
+observer health/counters and do not establish full-capacity traffic or a
+completed 24-hour result.
+
+The public whole-tunnel receipt now summarizes iperf and HTTP results rather
+than retaining thousands of empty histogram bins/per-stream intervals in the
+current document. Complete original receipts remain in the private output
+directories and the earlier checkpoint history. No failed gate was removed.
