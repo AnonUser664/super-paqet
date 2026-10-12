@@ -1,0 +1,1226 @@
+{
+  "production_mutated": false,
+  "scope": "Incident diagnosis, 2026-10-12 13:34\u201313:41 UTC. Sparse probes under global test reservation. No service restart, config/firewall changes or deployment.",
+  "client": "89.45.68.118",
+  "reachable_jump": "89.45.68.14",
+  "unit": {
+    "rc": 0,
+    "out": "MainPID=1175580\nNRestarts=0\nExecMainStartTimestamp=Mon 2026-10-12 07:53:02 UTC\nMemoryCurrent=53071872\nActiveState=active\n",
+    "err": ""
+  },
+  "health": "ok\n",
+  "routing": {
+    "route_171.22.132.226": {
+      "rc": 0,
+      "out": "171.22.132.226 via 89.45.68.1 dev ens160 src 89.45.68.118 uid 0 \n    cache \n",
+      "err": ""
+    },
+    "route_65.109.249.222": {
+      "rc": 0,
+      "out": "65.109.249.222 via 89.45.68.1 dev ens160 src 89.45.68.118 uid 0 \n    cache \n",
+      "err": ""
+    },
+    "route_91.107.251.85": {
+      "rc": 0,
+      "out": "91.107.251.85 via 89.45.68.1 dev ens160 src 89.45.68.118 uid 0 \n    cache \n",
+      "err": ""
+    },
+    "route_89.45.68.14": {
+      "rc": 0,
+      "out": "89.45.68.14 dev ens160 src 89.45.68.118 uid 0 \n    cache \n",
+      "err": ""
+    },
+    "route_1.1.1.1": {
+      "rc": 0,
+      "out": "1.1.1.1 via 89.45.68.1 dev ens160 src 89.45.68.118 uid 0 \n    cache \n",
+      "err": ""
+    }
+  },
+  "onset": {
+    "observer_first_germany_suspect": {
+      "utc": "2026-10-12T10:48:40.104842+00:00",
+      "pid": "1175580",
+      "suspect": {
+        "france": 0,
+        "germany": 2,
+        "finland": 0
+      },
+      "counters": {
+        "path_recovery_attempts_total": 0.0,
+        "path_recovery_succeeded_total": 0.0,
+        "active_connections": 1460.0,
+        "errors_total": 0.0,
+        "opening_transport_retries_total": 83.0
+      }
+    },
+    "all_12_carriers_suspect": {
+      "utc": "2026-10-12T11:33:02.800737+00:00",
+      "pid": "1175580",
+      "suspect": {
+        "france": 4,
+        "germany": 4,
+        "finland": 4
+      },
+      "counters": {
+        "path_recovery_attempts_total": 409.0,
+        "path_recovery_succeeded_total": 0.0,
+        "active_connections": 715.0,
+        "errors_total": 332.0,
+        "opening_transport_retries_total": 1678.0
+      }
+    },
+    "last": {
+      "utc": "2026-10-12T13:40:53.456660+00:00",
+      "pid": "1175580",
+      "suspect": {
+        "france": 4,
+        "germany": 4,
+        "finland": 4
+      },
+      "counters": {
+        "path_recovery_attempts_total": 5522.0,
+        "path_recovery_succeeded_total": 0.0,
+        "active_connections": 44.0,
+        "errors_total": 40586.0,
+        "opening_transport_retries_total": 117233.0
+      }
+    },
+    "first_warnings": [
+      {
+        "time": "2026-10-12T10:48:42.029627727Z",
+        "level": "WARN",
+        "msg": "path.recovery_probe",
+        "peer": "germany",
+        "session": 0,
+        "old_source_port": 52416,
+        "remote": "91.107.251.85:29999"
+      },
+      {
+        "time": "2026-10-12T10:48:42.066120205Z",
+        "level": "WARN",
+        "msg": "path.recovery_probe",
+        "peer": "germany",
+        "session": 2,
+        "old_source_port": 61676,
+        "remote": "91.107.251.85:29999"
+      },
+      {
+        "time": "2026-10-12T10:48:47.208458718Z",
+        "level": "WARN",
+        "msg": "path.recovery_probe_failed",
+        "peer": "germany",
+        "session": 0,
+        "error": "timeout"
+      },
+      {
+        "time": "2026-10-12T10:48:47.27858907Z",
+        "level": "WARN",
+        "msg": "path.recovery_probe_failed",
+        "peer": "germany",
+        "session": 2,
+        "error": "io: read/write on closed pipe"
+      }
+    ]
+  },
+  "matrices": [
+    {
+      "name": "ethernet-20261012T133918Z",
+      "method": "AF_PACKET Ethernet via existing interface/router MAC",
+      "destination_ports": [
+        22,
+        29999,
+        443
+      ],
+      "diagnostic_source_ports": "61000..61299; busy raw source ports skipped",
+      "hosts": [
+        {
+          "host": "89.45.68.118",
+          "raw": [
+            {
+              "destination": "171.22.132.226",
+              "flags": "PA",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "171.22.132.226",
+              "flags": "S",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "171.22.132.226",
+              "flags": "A",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "65.109.249.222",
+              "flags": "PA",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "65.109.249.222",
+              "flags": "S",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "65.109.249.222",
+              "flags": "A",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "91.107.251.85",
+              "flags": "PA",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "91.107.251.85",
+              "flags": "S",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "91.107.251.85",
+              "flags": "A",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 0
+            }
+          ],
+          "tcp_connects": [],
+          "pings": [
+            {
+              "ping_ttl": "1.1.1.1",
+              "ttl": 1,
+              "rc": 1,
+              "out": "PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.\nFrom 94.139.180.1 icmp_seq=1 Time to live exceeded\n\n--- 1.1.1.1 ping statistics ---\n1 packets transmitted, 0 received, +1 errors, 100% packet loss, time 0ms\n\n",
+              "err": ""
+            },
+            {
+              "ping_ttl": "1.1.1.1",
+              "ttl": 2,
+              "rc": 1,
+              "out": "PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.\nFrom 172.24.113.21 icmp_seq=1 Time to live exceeded\n\n--- 1.1.1.1 ping statistics ---\n1 packets transmitted, 0 received, +1 errors, 100% packet loss, time 0ms\n\n",
+              "err": ""
+            },
+            {
+              "ping_ttl": "1.1.1.1",
+              "ttl": 3,
+              "rc": 1,
+              "out": "PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.\n\n--- 1.1.1.1 ping statistics ---\n1 packets transmitted, 0 received, 100% packet loss, time 0ms\n\n",
+              "err": ""
+            },
+            {
+              "ping_ttl": "1.1.1.1",
+              "ttl": 5,
+              "rc": 1,
+              "out": "PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.\n\n--- 1.1.1.1 ping statistics ---\n1 packets transmitted, 0 received, 100% packet loss, time 0ms\n\n",
+              "err": ""
+            }
+          ],
+          "skipped_busy_source_ports": [],
+          "wire_sha256": "587ca1d1bf1ee482c2dc4cec3a52d4a441fc9db5318386b191964e585feaae70",
+          "capture_counters": [
+            "27 packets captured",
+            "28 packets received by filter",
+            "0 packets dropped by kernel"
+          ]
+        },
+        {
+          "host": "89.45.68.14",
+          "raw": [
+            {
+              "destination": "171.22.132.226",
+              "flags": "PA",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 3
+            },
+            {
+              "destination": "171.22.132.226",
+              "flags": "S",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 3
+            },
+            {
+              "destination": "171.22.132.226",
+              "flags": "A",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 3
+            },
+            {
+              "destination": "65.109.249.222",
+              "flags": "PA",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 3
+            },
+            {
+              "destination": "65.109.249.222",
+              "flags": "S",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 3
+            },
+            {
+              "destination": "65.109.249.222",
+              "flags": "A",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 3
+            },
+            {
+              "destination": "91.107.251.85",
+              "flags": "PA",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 3
+            },
+            {
+              "destination": "91.107.251.85",
+              "flags": "S",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 3
+            },
+            {
+              "destination": "91.107.251.85",
+              "flags": "A",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 2
+            }
+          ],
+          "tcp_connects": [],
+          "pings": [
+            {
+              "ping_ttl": "1.1.1.1",
+              "ttl": 1,
+              "rc": 1,
+              "out": "PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.\nFrom 94.139.180.1 icmp_seq=1 Time to live exceeded\n\n--- 1.1.1.1 ping statistics ---\n1 packets transmitted, 0 received, +1 errors, 100% packet loss, time 0ms\n\n",
+              "err": ""
+            },
+            {
+              "ping_ttl": "1.1.1.1",
+              "ttl": 2,
+              "rc": 1,
+              "out": "PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.\nFrom 172.24.113.21 icmp_seq=1 Time to live exceeded\n\n--- 1.1.1.1 ping statistics ---\n1 packets transmitted, 0 received, +1 errors, 100% packet loss, time 0ms\n\n",
+              "err": ""
+            },
+            {
+              "ping_ttl": "1.1.1.1",
+              "ttl": 3,
+              "rc": 1,
+              "out": "PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.\nFrom 172.25.4.161 icmp_seq=1 Time to live exceeded\n\n--- 1.1.1.1 ping statistics ---\n1 packets transmitted, 0 received, +1 errors, 100% packet loss, time 0ms\n\n",
+              "err": ""
+            },
+            {
+              "ping_ttl": "1.1.1.1",
+              "ttl": 5,
+              "rc": 1,
+              "out": "PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.\nFrom 10.21.211.10 icmp_seq=1 Time to live exceeded\n\n--- 1.1.1.1 ping statistics ---\n1 packets transmitted, 0 received, +1 errors, 100% packet loss, time 0ms\n\n",
+              "err": ""
+            }
+          ],
+          "skipped_busy_source_ports": [
+            61223
+          ],
+          "wire_sha256": "1d22c76ec38b7cd1b4b201ece0f4994cabc11e232d33ab30a7bd6039cc0992ef",
+          "capture_counters": [
+            "104 packets captured",
+            "162 packets received by filter",
+            "0 packets dropped by kernel"
+          ]
+        },
+        {
+          "host": "171.22.132.226",
+          "raw": [
+            {
+              "destination": "89.45.68.118",
+              "flags": "PA",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "89.45.68.118",
+              "flags": "S",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "89.45.68.118",
+              "flags": "A",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "89.45.68.14",
+              "flags": "PA",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 2
+            },
+            {
+              "destination": "89.45.68.14",
+              "flags": "S",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 2
+            },
+            {
+              "destination": "89.45.68.14",
+              "flags": "A",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 2
+            }
+          ],
+          "tcp_connects": [],
+          "pings": [],
+          "skipped_busy_source_ports": [],
+          "wire_sha256": "dbf8ca77c9fb4894bcdb8167e7e2201861132bf2d8da3ddd84e08fe5e1ee3c1a",
+          "capture_counters": [
+            "36 packets captured",
+            "36 packets received by filter",
+            "0 packets dropped by kernel"
+          ]
+        },
+        {
+          "host": "65.109.249.222",
+          "raw": [
+            {
+              "destination": "89.45.68.118",
+              "flags": "PA",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "89.45.68.118",
+              "flags": "S",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "89.45.68.118",
+              "flags": "A",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "89.45.68.14",
+              "flags": "PA",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 2
+            },
+            {
+              "destination": "89.45.68.14",
+              "flags": "S",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 2
+            },
+            {
+              "destination": "89.45.68.14",
+              "flags": "A",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 2
+            }
+          ],
+          "tcp_connects": [],
+          "pings": [],
+          "skipped_busy_source_ports": [],
+          "wire_sha256": "e2c3713422ab48c1fa28c64930913879f8965e94d03828be28daf54b90ff50fd",
+          "capture_counters": [
+            "36 packets captured",
+            "36 packets received by filter",
+            "0 packets dropped by kernel"
+          ]
+        },
+        {
+          "host": "116.202.177.233",
+          "raw": [
+            {
+              "destination": "89.45.68.118",
+              "flags": "PA",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "89.45.68.118",
+              "flags": "S",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "89.45.68.118",
+              "flags": "A",
+              "sent": 1,
+              "sender_capture_matches": 1,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "89.45.68.14",
+              "flags": "PA",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 2
+            },
+            {
+              "destination": "89.45.68.14",
+              "flags": "S",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 2
+            },
+            {
+              "destination": "89.45.68.14",
+              "flags": "A",
+              "sent": 1,
+              "sender_capture_matches": 1,
+              "destination_capture_matches": 1
+            }
+          ],
+          "tcp_connects": [],
+          "pings": [],
+          "skipped_busy_source_ports": [
+            61202,
+            61208
+          ],
+          "wire_sha256": "990f2cd5e417194448c356609868e43716b455be24bea7d9ded0ae3bc639ae42",
+          "capture_counters": [
+            "32 packets captured",
+            "32 packets received by filter",
+            "0 packets dropped by kernel"
+          ]
+        }
+      ],
+      "cleanup": "Owned capture processes signaled by verified output path; capture artifacts fetched and remote private directories removed. No cleanup failure reported."
+    },
+    {
+      "name": "packets-20261012T133708Z",
+      "method": "AF_INET IP_HDRINCL",
+      "destination_ports": [
+        22,
+        29999,
+        443
+      ],
+      "diagnostic_source_ports": "61000..61299; busy raw source ports skipped",
+      "hosts": [
+        {
+          "host": "89.45.68.118",
+          "raw": [
+            {
+              "destination": "171.22.132.226",
+              "flags": "PA",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "171.22.132.226",
+              "flags": "S",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "171.22.132.226",
+              "flags": "A",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "65.109.249.222",
+              "flags": "PA",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "65.109.249.222",
+              "flags": "S",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "65.109.249.222",
+              "flags": "A",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "91.107.251.85",
+              "flags": "PA",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "91.107.251.85",
+              "flags": "S",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "91.107.251.85",
+              "flags": "A",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 0
+            }
+          ],
+          "tcp_connects": [
+            {
+              "tcp_connect": true,
+              "dst": "171.22.132.226",
+              "dport": 22,
+              "sport": 61000,
+              "success": false,
+              "error": "timed out",
+              "seconds": 2.0023390715941787
+            },
+            {
+              "tcp_connect": true,
+              "dst": "171.22.132.226",
+              "dport": 2096,
+              "sport": 61001,
+              "success": false,
+              "error": "timed out",
+              "seconds": 2.002329329960048
+            },
+            {
+              "tcp_connect": true,
+              "dst": "171.22.132.226",
+              "dport": 443,
+              "sport": 61002,
+              "success": false,
+              "error": "timed out",
+              "seconds": 2.002443015575409
+            },
+            {
+              "tcp_connect": true,
+              "dst": "65.109.249.222",
+              "dport": 22,
+              "sport": 61003,
+              "success": false,
+              "error": "timed out",
+              "seconds": 2.002641768194735
+            },
+            {
+              "tcp_connect": true,
+              "dst": "65.109.249.222",
+              "dport": 2096,
+              "sport": 61004,
+              "success": false,
+              "error": "timed out",
+              "seconds": 2.002388912253082
+            },
+            {
+              "tcp_connect": true,
+              "dst": "65.109.249.222",
+              "dport": 443,
+              "sport": 61005,
+              "success": false,
+              "error": "timed out",
+              "seconds": 2.002204492688179
+            },
+            {
+              "tcp_connect": true,
+              "dst": "91.107.251.85",
+              "dport": 22,
+              "sport": 61006,
+              "success": false,
+              "error": "timed out",
+              "seconds": 2.002339697442949
+            },
+            {
+              "tcp_connect": true,
+              "dst": "91.107.251.85",
+              "dport": 2096,
+              "sport": 61007,
+              "success": false,
+              "error": "timed out",
+              "seconds": 2.001375795342028
+            },
+            {
+              "tcp_connect": true,
+              "dst": "91.107.251.85",
+              "dport": 443,
+              "sport": 61008,
+              "success": false,
+              "error": "timed out",
+              "seconds": 2.002275412902236
+            },
+            {
+              "tcp_connect": true,
+              "dst": "89.45.68.14",
+              "dport": 22,
+              "sport": 61009,
+              "success": true,
+              "seconds": 0.0016780691221356392
+            },
+            {
+              "tcp_connect": true,
+              "dst": "1.1.1.1",
+              "dport": 443,
+              "sport": 61010,
+              "success": false,
+              "error": "timed out",
+              "seconds": 2.000401781871915
+            },
+            {
+              "tcp_connect": true,
+              "dst": "8.8.8.8",
+              "dport": 443,
+              "sport": 61011,
+              "success": false,
+              "error": "timed out",
+              "seconds": 2.002230007201433
+            }
+          ],
+          "pings": [
+            {
+              "ping": "89.45.68.1",
+              "rc": 0,
+              "out": "PING 89.45.68.1 (89.45.68.1) 56(84) bytes of data.\n64 bytes from 89.45.68.1: icmp_seq=1 ttl=255 time=0.463 ms\n64 bytes from 89.45.68.1: icmp_seq=2 ttl=255 time=0.493 ms\n\n--- 89.45.68.1 ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 1029ms\nrtt min/avg/max/mdev = 0.463/0.478/0.493/0.015 ms\n",
+              "err": ""
+            },
+            {
+              "ping": "89.45.68.14",
+              "rc": 0,
+              "out": "PING 89.45.68.14 (89.45.68.14) 56(84) bytes of data.\n64 bytes from 89.45.68.14: icmp_seq=1 ttl=64 time=0.391 ms\n64 bytes from 89.45.68.14: icmp_seq=2 ttl=64 time=43.7 ms\n\n--- 89.45.68.14 ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 1017ms\nrtt min/avg/max/mdev = 0.391/22.062/43.733/21.671 ms\n",
+              "err": ""
+            },
+            {
+              "ping": "1.1.1.1",
+              "rc": 1,
+              "out": "PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.\n\n--- 1.1.1.1 ping statistics ---\n2 packets transmitted, 0 received, 100% packet loss, time 1005ms\n\n",
+              "err": ""
+            },
+            {
+              "ping": "171.22.132.226",
+              "rc": 1,
+              "out": "PING 171.22.132.226 (171.22.132.226) 56(84) bytes of data.\n\n--- 171.22.132.226 ping statistics ---\n2 packets transmitted, 0 received, 100% packet loss, time 1008ms\n\n",
+              "err": ""
+            }
+          ],
+          "skipped_busy_source_ports": [],
+          "wire_sha256": "5568c8fb662a384dd8b9746e307c95db25ef98da46033fd83348a8d879230727",
+          "capture_counters": [
+            "83 packets captured",
+            "83 packets received by filter",
+            "0 packets dropped by kernel"
+          ]
+        },
+        {
+          "host": "89.45.68.14",
+          "raw": [
+            {
+              "destination": "171.22.132.226",
+              "flags": "PA",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 3
+            },
+            {
+              "destination": "171.22.132.226",
+              "flags": "S",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 3
+            },
+            {
+              "destination": "171.22.132.226",
+              "flags": "A",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 3
+            },
+            {
+              "destination": "65.109.249.222",
+              "flags": "PA",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 3
+            },
+            {
+              "destination": "65.109.249.222",
+              "flags": "S",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 3
+            },
+            {
+              "destination": "65.109.249.222",
+              "flags": "A",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 3
+            },
+            {
+              "destination": "91.107.251.85",
+              "flags": "PA",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 3
+            },
+            {
+              "destination": "91.107.251.85",
+              "flags": "S",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 3
+            },
+            {
+              "destination": "91.107.251.85",
+              "flags": "A",
+              "sent": 3,
+              "sender_capture_matches": 3,
+              "destination_capture_matches": 3
+            }
+          ],
+          "tcp_connects": [
+            {
+              "tcp_connect": true,
+              "dst": "171.22.132.226",
+              "dport": 22,
+              "sport": 61000,
+              "success": true,
+              "seconds": 0.08975674887187779
+            },
+            {
+              "tcp_connect": true,
+              "dst": "171.22.132.226",
+              "dport": 2096,
+              "sport": 61001,
+              "success": true,
+              "seconds": 0.09306255402043462
+            },
+            {
+              "tcp_connect": true,
+              "dst": "171.22.132.226",
+              "dport": 443,
+              "sport": 61002,
+              "success": false,
+              "error": "[Errno 111] Connection refused",
+              "seconds": 0.09340870403684676
+            },
+            {
+              "tcp_connect": true,
+              "dst": "65.109.249.222",
+              "dport": 22,
+              "sport": 61003,
+              "success": true,
+              "seconds": 0.09087871410883963
+            },
+            {
+              "tcp_connect": true,
+              "dst": "65.109.249.222",
+              "dport": 2096,
+              "sport": 61004,
+              "success": true,
+              "seconds": 0.09077623393386602
+            },
+            {
+              "tcp_connect": true,
+              "dst": "65.109.249.222",
+              "dport": 443,
+              "sport": 61005,
+              "success": false,
+              "error": "[Errno 111] Connection refused",
+              "seconds": 0.09072241303510964
+            },
+            {
+              "tcp_connect": true,
+              "dst": "91.107.251.85",
+              "dport": 22,
+              "sport": 61006,
+              "success": true,
+              "seconds": 0.07304944400675595
+            },
+            {
+              "tcp_connect": true,
+              "dst": "91.107.251.85",
+              "dport": 2096,
+              "sport": 61007,
+              "success": true,
+              "seconds": 0.08438289095647633
+            },
+            {
+              "tcp_connect": true,
+              "dst": "91.107.251.85",
+              "dport": 443,
+              "sport": 61008,
+              "success": false,
+              "error": "[Errno 111] Connection refused",
+              "seconds": 0.07380239595659077
+            },
+            {
+              "tcp_connect": true,
+              "dst": "89.45.68.118",
+              "dport": 22,
+              "sport": 61009,
+              "success": true,
+              "seconds": 0.0012495960108935833
+            },
+            {
+              "tcp_connect": true,
+              "dst": "1.1.1.1",
+              "dport": 443,
+              "sport": 61010,
+              "success": true,
+              "seconds": 0.08145336993038654
+            },
+            {
+              "tcp_connect": true,
+              "dst": "8.8.8.8",
+              "dport": 443,
+              "sport": 61011,
+              "success": true,
+              "seconds": 0.07816995889879763
+            }
+          ],
+          "pings": [
+            {
+              "ping": "89.45.68.1",
+              "rc": 0,
+              "out": "PING 89.45.68.1 (89.45.68.1) 56(84) bytes of data.\n64 bytes from 89.45.68.1: icmp_seq=1 ttl=255 time=0.422 ms\n64 bytes from 89.45.68.1: icmp_seq=2 ttl=255 time=0.499 ms\n\n--- 89.45.68.1 ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 1016ms\nrtt min/avg/max/mdev = 0.422/0.460/0.499/0.038 ms\n",
+              "err": ""
+            },
+            {
+              "ping": "89.45.68.118",
+              "rc": 0,
+              "out": "PING 89.45.68.118 (89.45.68.118) 56(84) bytes of data.\n64 bytes from 89.45.68.118: icmp_seq=1 ttl=64 time=0.446 ms\n64 bytes from 89.45.68.118: icmp_seq=2 ttl=64 time=1.86 ms\n\n--- 89.45.68.118 ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 1006ms\nrtt min/avg/max/mdev = 0.446/1.153/1.861/0.707 ms\n",
+              "err": ""
+            },
+            {
+              "ping": "1.1.1.1",
+              "rc": 0,
+              "out": "PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.\n64 bytes from 1.1.1.1: icmp_seq=1 ttl=50 time=75.7 ms\n64 bytes from 1.1.1.1: icmp_seq=2 ttl=50 time=75.4 ms\n\n--- 1.1.1.1 ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 1001ms\nrtt min/avg/max/mdev = 75.418/75.542/75.666/0.124 ms\n",
+              "err": ""
+            },
+            {
+              "ping": "171.22.132.226",
+              "rc": 0,
+              "out": "PING 171.22.132.226 (171.22.132.226) 56(84) bytes of data.\n64 bytes from 171.22.132.226: icmp_seq=1 ttl=50 time=86.4 ms\n64 bytes from 171.22.132.226: icmp_seq=2 ttl=50 time=86.3 ms\n\n--- 171.22.132.226 ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 1001ms\nrtt min/avg/max/mdev = 86.257/86.335/86.414/0.078 ms\n",
+              "err": ""
+            }
+          ],
+          "skipped_busy_source_ports": [],
+          "wire_sha256": "ffab02697a7d0802194696bb10617ca65236b16785d25eedb27e25afc3bdd81e",
+          "capture_counters": [
+            "658 packets captured",
+            "695 packets received by filter",
+            "0 packets dropped by kernel"
+          ]
+        },
+        {
+          "host": "171.22.132.226",
+          "raw": [
+            {
+              "destination": "89.45.68.118",
+              "flags": "PA",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "89.45.68.118",
+              "flags": "S",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "89.45.68.118",
+              "flags": "A",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "89.45.68.14",
+              "flags": "PA",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 2
+            },
+            {
+              "destination": "89.45.68.14",
+              "flags": "S",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 2
+            },
+            {
+              "destination": "89.45.68.14",
+              "flags": "A",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 2
+            }
+          ],
+          "tcp_connects": [
+            {
+              "tcp_connect": true,
+              "dst": "89.45.68.118",
+              "dport": 22,
+              "sport": 61000,
+              "success": false,
+              "error": "timed out",
+              "seconds": 2.0019834134727716
+            },
+            {
+              "tcp_connect": true,
+              "dst": "89.45.68.14",
+              "dport": 22,
+              "sport": 61001,
+              "success": true,
+              "seconds": 0.08603677339851856
+            }
+          ],
+          "pings": [
+            {
+              "ping": "89.45.68.118",
+              "rc": 1,
+              "out": "PING 89.45.68.118 (89.45.68.118) 56(84) bytes of data.\n\n--- 89.45.68.118 ping statistics ---\n2 packets transmitted, 0 received, 100% packet loss, time 1024ms\n\n",
+              "err": ""
+            },
+            {
+              "ping": "89.45.68.14",
+              "rc": 0,
+              "out": "PING 89.45.68.14 (89.45.68.14) 56(84) bytes of data.\n64 bytes from 89.45.68.14: icmp_seq=1 ttl=50 time=98.0 ms\n64 bytes from 89.45.68.14: icmp_seq=2 ttl=50 time=86.2 ms\n\n--- 89.45.68.14 ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 999ms\nrtt min/avg/max/mdev = 86.188/92.088/97.988/5.900 ms\n",
+              "err": ""
+            }
+          ],
+          "skipped_busy_source_ports": [],
+          "wire_sha256": "31f734c045e0c44ce4e7c6d378754521619f11f1b753c343b1b1280df1818365",
+          "capture_counters": [
+            "65 packets captured",
+            "71 packets received by filter",
+            "0 packets dropped by kernel"
+          ]
+        },
+        {
+          "host": "65.109.249.222",
+          "raw": [
+            {
+              "destination": "89.45.68.118",
+              "flags": "PA",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "89.45.68.118",
+              "flags": "S",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "89.45.68.118",
+              "flags": "A",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "89.45.68.14",
+              "flags": "PA",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 2
+            },
+            {
+              "destination": "89.45.68.14",
+              "flags": "S",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 2
+            },
+            {
+              "destination": "89.45.68.14",
+              "flags": "A",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 2
+            }
+          ],
+          "tcp_connects": [
+            {
+              "tcp_connect": true,
+              "dst": "89.45.68.118",
+              "dport": 22,
+              "sport": 61000,
+              "success": false,
+              "error": "timed out",
+              "seconds": 2.0007609230233356
+            },
+            {
+              "tcp_connect": true,
+              "dst": "89.45.68.14",
+              "dport": 22,
+              "sport": 61001,
+              "success": true,
+              "seconds": 0.09054215997457504
+            }
+          ],
+          "pings": [
+            {
+              "ping": "89.45.68.118",
+              "rc": 1,
+              "out": "PING 89.45.68.118 (89.45.68.118) 56(84) bytes of data.\n\n--- 89.45.68.118 ping statistics ---\n2 packets transmitted, 0 received, 100% packet loss, time 1003ms\n\n",
+              "err": ""
+            },
+            {
+              "ping": "89.45.68.14",
+              "rc": 0,
+              "out": "PING 89.45.68.14 (89.45.68.14) 56(84) bytes of data.\n64 bytes from 89.45.68.14: icmp_seq=1 ttl=51 time=90.5 ms\n64 bytes from 89.45.68.14: icmp_seq=2 ttl=51 time=90.5 ms\n\n--- 89.45.68.14 ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 1002ms\nrtt min/avg/max/mdev = 90.502/90.522/90.543/0.020 ms\n",
+              "err": ""
+            }
+          ],
+          "skipped_busy_source_ports": [],
+          "wire_sha256": "5e2f81c168ae532a584fc840501f2f4b596e1db6dbdf01f31464db6bc01aea5b",
+          "capture_counters": [
+            "65 packets captured",
+            "65 packets received by filter",
+            "0 packets dropped by kernel"
+          ]
+        },
+        {
+          "host": "116.202.177.233",
+          "raw": [
+            {
+              "destination": "89.45.68.118",
+              "flags": "PA",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "89.45.68.118",
+              "flags": "S",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "89.45.68.118",
+              "flags": "A",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 0
+            },
+            {
+              "destination": "89.45.68.14",
+              "flags": "PA",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 2
+            },
+            {
+              "destination": "89.45.68.14",
+              "flags": "S",
+              "sent": 2,
+              "sender_capture_matches": 2,
+              "destination_capture_matches": 2
+            },
+            {
+              "destination": "89.45.68.14",
+              "flags": "A",
+              "sent": 1,
+              "sender_capture_matches": 1,
+              "destination_capture_matches": 1
+            }
+          ],
+          "tcp_connects": [
+            {
+              "tcp_connect": true,
+              "dst": "89.45.68.118",
+              "dport": 22,
+              "sport": 61000,
+              "success": false,
+              "error": "timed out",
+              "seconds": 2.0009353558998555
+            },
+            {
+              "tcp_connect": true,
+              "dst": "89.45.68.14",
+              "dport": 22,
+              "sport": 61001,
+              "success": true,
+              "seconds": 0.08511711307801306
+            }
+          ],
+          "pings": [
+            {
+              "ping": "89.45.68.118",
+              "rc": 1,
+              "out": "PING 89.45.68.118 (89.45.68.118) 56(84) bytes of data.\n\n--- 89.45.68.118 ping statistics ---\n2 packets transmitted, 0 received, 100% packet loss, time 1010ms\n\n",
+              "err": ""
+            },
+            {
+              "ping": "89.45.68.14",
+              "rc": 0,
+              "out": "PING 89.45.68.14 (89.45.68.14) 56(84) bytes of data.\n64 bytes from 89.45.68.14: icmp_seq=1 ttl=51 time=70.7 ms\n64 bytes from 89.45.68.14: icmp_seq=2 ttl=51 time=69.9 ms\n\n--- 89.45.68.14 ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 1001ms\nrtt min/avg/max/mdev = 69.878/70.308/70.738/0.430 ms\n",
+              "err": ""
+            }
+          ],
+          "skipped_busy_source_ports": [
+            61208
+          ],
+          "wire_sha256": "39bebcb8c1516d3b7b62f79dadbc5d272cef08d9f730ceaf2b630cfb16fa61d8",
+          "capture_counters": [
+            "63 packets captured",
+            "64 packets received by filter",
+            "0 packets dropped by kernel"
+          ]
+        }
+      ],
+      "cleanup": "Owned capture processes signaled by verified output path; capture artifacts fetched and remote private directories removed. No cleanup failure reported."
+    }
+  ],
+  "conclusion": "Packets disappear between guest interface captures and remote hosts in both directions. PA, SYN and ACK fail; normal TCP/ICMP to external destinations fail too. Same probes through .14 pass. Supports an upstream source-IP-specific restriction or routing fault, not a KCP-only/process failure. Packet captures cannot identify the responsible filtering device, policy or initiating trigger. TTL nonresponse alone is not proof of a specific hop dropping data.",
+  "private_evidence": {
+    "directory": "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/client118-incident-20261012",
+    "snapshot_sha256": "b55c33d8d347544e5c1ed09d9dacf541a43906cb98a08004963cb3bab8c2265a",
+    "timeline_sha256": "faf2dc6c4041965b5bc6c7ecb8b9d324559c7ca11461b10b8dd953790bdd283e",
+    "scripts": {
+      "summarize.py": "6ee0b7975f81460a7a3f3b0b09678b32d25a0df0a349c5597fb2875151589fcb",
+      "ethernet_matrix.py": "b90fcdbe7dec64d6df1724a1839247784fba63d9db115acac0385f6c07b02524",
+      "timeline.py": "07968e984c3266c15352d7211c30be38611e12c1f71ad4b454dee604be3bb151",
+      "incident_snapshot.py": "9d28f2d89761f79e9bfd8ebc260b4e08cace21dae2e4b5a004b568a105f25f4f",
+      "packet_matrix.py": "34297ad8b2aab20144b4a2c3ebf3e7a22e8d7f8273d15af51d4c384671bcfefa"
+    }
+  }
+}
