@@ -19,7 +19,13 @@ func (c *PacketConn) NewSessionWriter() (kcplib.SessionWriter, error) {
 	if !privateOutputEnabled || c.raw == nil {
 		return nil, nil
 	}
-	return c.raw.(*rawPacket).newSessionWriter()
+	writer, err := c.raw.(*rawPacket).newSessionWriter()
+	if err != nil {
+		// A nil *rawPacket boxed as SessionWriter is a non-nil interface.
+		// Keep the factory failure contract unambiguous for every caller.
+		return nil, err
+	}
+	return writer, nil
 }
 
 // SessionWriterFailures exposes safe output-factory fallbacks without treating

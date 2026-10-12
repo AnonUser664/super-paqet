@@ -246,3 +246,10 @@ improved. This separates a local experiment from normal release construction.
 The measured executable remains the earlier explicitly identified private-output.2
 artifact; the build-selection change does not retroactively alter its receipts.
 The new default executable still needs its own build/native/end-to-end gates.
+
+Review of the build-tag selection fixture found a factory API edge case: returning
+a nil `*rawPacket` directly as `SessionWriter` creates a non-nil interface on
+construction failure. The adapter now returns plain `nil, err` explicitly.
+Existing listener fallback already checked the error; this makes the public
+optional-provider contract safe for other callers as well. The tagged closed-
+listener fixture verifies that contract without needing raw socket privileges.
