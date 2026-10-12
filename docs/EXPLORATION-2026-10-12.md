@@ -253,3 +253,54 @@ construction failure. The adapter now returns plain `nil, err` explicitly.
 Existing listener fallback already checked the error; this makes the public
 optional-provider contract safe for other callers as well. The tagged closed-
 listener fixture verifies that contract without needing raw socket privileges.
+
+## Default executable: native checks complete; WAN qualification in progress
+
+The larger-budget complete KCP race suite passes in 677.297 seconds, including
+the 1 GiB/6 GiB integrity, OOB, migration and deterministic virtual-link cases.
+KCP vet passes. The earlier ten-minute timeout is retained as a distinct attempt.
+The [completed native receipt](private-writer-native-complete-2026-10-12.json)
+does not rewrite that failed gate.
+
+The ordinary executable is source `b21cd0b`, version
+`enterprise-2026.10.12-shared-output.1`, SHA-256
+`751e4111bad6b14ee36a02baa562c6b06f7e341b16bdb3ec03ad14b21039e1f1`.
+Root race/vet and tagged socket race/vet pass; the default build-selection fixture
+and explicit experimental closed-factory fixture both pass. See its
+[native provenance](shared-output-native-2026-10-12.json).
+
+Its [functional checks](shared-output-functional-2026-10-12.json) verify three
+16 MiB TCP payloads, seven UDP datagrams through 65507 bytes and 262144-byte
+half-close. Owned process/rule cleanup succeeds. The short embedded throughput
+runs are not called sustained-performance acceptance. Session metrics in the
+new benchmark confirm all private-output flags are zero in the ordinary build.
+
+Four ordinary-pool, equal-offered-load runs deliver approximately 2.00 Gbit/s
+combined with no errors. Final medians: client CPU 0.877 → 0.8575 (-2.22%),
+backend CPU 0.567 → 0.5775 (+1.85%), mean request latency
+875.07 → 926.55 microseconds (+5.88%), p99 4.5 → 4.5 ms. These finite gates
+pass. The first pair alone looked adverse; the reversed pair is retained rather
+than choosing whichever observation supports a preferred conclusion. There is
+no established universal CPU/latency gain.
+
+The first WAN launch fails CLI preflight because `--warmup` requires iperf;
+the HTTP/body workloads need `--http-warmup`. No namespace or link is created.
+The exact failed command remains at
+`build/shared-output-20261012/qualification/asymmetric-control-0-runner.log`.
+The corrected `wan-v2/` matrix uses a fresh directory and five seconds of HTTP
+warmup. Asymmetric, reordering, upload ACK-bottleneck and uncapped bulk comparisons
+remain separate, with reversed pairs and exact artifact hashes. A fresh successful
+run does not remove the first failed fixture attempt.
+
+ACK-generation review finds existing cumulative compaction in `KCP.flush`: ACKs
+already covered by `rcv_nxt` are omitted except the last feedback item. Therefore
+simple cumulative ACK pruning is not a missing feature. Selective ACKs above a
+receive gap remain necessary, and their cost on constrained/reordered reverse
+links needs measurement. The per-item space check before the filtering condition
+is a possible micro-optimization to test later; no ACK wire change was made.
+
+Production remains opening.10 on .109. The 15:38 UTC read-only review covers
+68 minutes, 4,355 peak active forwards and 137,484 KiB peak RSS, with unchanged
+PID/config/executable and zero new tunnel errors, opening retries, recoveries
+or log drops. This is real customer traffic; it is not proof of universal link
+performance or of resistance to future upstream blocking.

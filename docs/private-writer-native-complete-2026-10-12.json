@@ -1,0 +1,31 @@
+{
+  "production_mutated": false,
+  "scope": "Complete KCP fork race suite and vet with explicit 30-minute package budget; previous ten-minute timeout retained separately.",
+  "receipt": [
+    {
+      "name": "kcp-full-race",
+      "command": [
+        "go",
+        "test",
+        "-v",
+        "-race",
+        "-timeout=30m",
+        "./..."
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 677.6987224030017,
+      "log_sha256": "d89e949d6e8a24f5caa2020cc3b75306df51e7b58c2c942b45aa1c522629dafb"
+    },
+    {
+      "name": "kcp-vet",
+      "command": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.29852800798835233,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

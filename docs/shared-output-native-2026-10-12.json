@@ -1,0 +1,75 @@
+{
+  "source": "b21cd0bd1275f117872fb2cf32172fdeb15b1bf5",
+  "commands": [
+    {
+      "name": "root-race",
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "./..."
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.417960792998201,
+      "log_sha256": "b706d6b1744bf267bc104281b236576625579f2f96a07a2943b1dd3a1fe26055"
+    },
+    {
+      "name": "experimental-socket-race",
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "-tags",
+        "spq_private_writers",
+        "./internal/socket"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.283965505004744,
+      "log_sha256": "72de4e90e30ef2fc3edb87bd6d92712566f63115bb5ac1b70538d72a116fbfa6"
+    },
+    {
+      "name": "root-vet",
+      "command": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.5658918639965123,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "experimental-socket-vet",
+      "command": [
+        "go",
+        "vet",
+        "-tags",
+        "spq_private_writers",
+        "./internal/socket"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.9922274239943363,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "build",
+      "command": [
+        "go",
+        "build",
+        "-trimpath",
+        "-ldflags",
+        "-s -w -X paqet/cmd/version.Version=enterprise-2026.10.12-shared-output.1 -X paqet/cmd/version.GitCommit=b21cd0bd1275f117872fb2cf32172fdeb15b1bf5 -X paqet/cmd/version.BuildTime=2026-10-12T15:22:42.359178+00:00",
+        "-o",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/shared-output-20261012/super-paqet",
+        "./cmd"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.2987918949947925,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "version": "enterprise-2026.10.12-shared-output.1",
+  "binary_sha256": "751e4111bad6b14ee36a02baa562c6b06f7e341b16bdb3ec03ad14b21039e1f1",
+  "private_output_enabled": false,
+  "production_mutated": false
+}
