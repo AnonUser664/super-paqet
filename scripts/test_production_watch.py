@@ -18,6 +18,26 @@ def row(utc, pid, errors, active=1, rss=1):
 class SummaryTests(unittest.TestCase):
     """Keep full-window evidence accurate when raw history is bounded."""
 
+    def test_host_queue_failure_keeps_other_evidence(self):
+        """A missing tc must not erase metrics or kernel scheduling/drop receipts."""
+        def command(args):
+            if args[0] == "systemctl":
+                return {"out": "MainPID=0\nActiveState=active\nControlGroup=/missing\n"}
+            return {"error": "tc unavailable"}
+
+        response = mock.MagicMock()
+        response.__enter__.return_value.read.return_value = b"super_paqet_errors_total 0\n"
+        with mock.patch.object(watch, "command", side_effect=command), \
+                mock.patch.object(watch, "read", side_effect=lambda path: str(path)), \
+                mock.patch.object(watch.pathlib.Path, "iterdir", side_effect=FileNotFoundError), \
+                mock.patch.object(watch.urllib.request, "urlopen", return_value=response):
+            sample = watch.snapshot()
+        self.assertEqual(sample["host"]["qdisc"], {"error": "tc unavailable"})
+        self.assertEqual(sample["host"]["net/softnet_stat"], "/proc/net/softnet_stat")
+        self.assertEqual(sample["host"]["stat"], "/proc/stat")
+        self.assertEqual(sample["metrics"], "super_paqet_errors_total 0\n")
+        self.assertIsNone(sample["fds"])
+
     def test_precise_output_loss_handles_legacy_labels_and_process_resets(self):
         """Attribute warning-level evidence without inventing loss on migration."""
         previous = None
@@ -91,17 +111,20 @@ class SummaryTests(unittest.TestCase):
         summary = {}
         previous = None
         reasons = []
+        keys = ("opening_capacity_retries_total", "opening_reused_targets_total",
+                "opening_syn_timeouts_total", "opening_receipt_timeouts_total",
+                "opening_result_timeouts_total", "opening_closed_attempts_total")
         for utc, pid, value in [("01", "a", None), ("02", "a", 8),
                                 ("03", "a", 10), ("04", "b", 0), ("05", "b", 1)]:
             sample = row(utc, pid, 0)
             sample["unit"]["ActiveState"] = "active"
             if value is not None:
-                for key in ("opening_capacity_retries_total", "opening_reused_targets_total"):
+                for key in keys:
                     sample["metrics"] += f"super_paqet_{key} {value}\n"
             reasons.append(watch.incident(sample, previous))
             watch.update_summary(summary, sample)
             previous = sample
-        for key in ("opening_capacity_retries_total", "opening_reused_targets_total"):
+        for key in keys:
             self.assertEqual(summary["counter_deltas"][key], 3)
             self.assertIn(key + "_increased", reasons[2])
         self.assertEqual(reasons[1], [])

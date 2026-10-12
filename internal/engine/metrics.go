@@ -30,6 +30,8 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 	}{
 		{"active_connections", e.stats.Active.Load()}, {"accepted_total", e.stats.Accepted.Load()}, {"rejected_total", e.stats.Rejected.Load()},
 		{"errors_total", e.stats.Errors.Load()}, {"opening_transport_retries_total", e.stats.OpenRetries.Load()}, {"sent_bytes_total", e.stats.Sent.Load()}, {"received_bytes_total", e.stats.Received.Load()},
+		{"opening_syn_timeouts_total", e.stats.OpenSYNTimeouts.Load()}, {"opening_receipt_timeouts_total", e.stats.OpenReceiptTimeouts.Load()},
+		{"opening_result_timeouts_total", e.stats.OpenResultTimeouts.Load()}, {"opening_closed_attempts_total", e.stats.OpenClosed.Load()},
 		{"aborted_connections_total", e.stats.Aborted.Load()},
 		{"server_sessions", e.stats.Sessions.Load()}, {"goroutines", int64(runtime.NumGoroutine())},
 	} {
@@ -64,6 +66,20 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 		state := c.UDPSession.TransportStats()
 		graceActive, graceStarts := c.Session.RecoveryGraceStats()
 		labels := fmt.Sprintf("conv=\"%d\",remote=%s", c.UDPSession.GetConv(), strconv.Quote(c.RemoteAddr().String()))
+		// Warn-level production observers need actual delivery and retry evidence
+		// for each logical carrier. Injection attempts and shared-worker counters
+		// cannot distinguish a broken direction from ordinary application closure.
+		// Reuse the snapshot already taken here; add no work to packet processing.
+		for _, v := range []struct {
+			name  string
+			value uint64
+		}{
+			{"acked_bytes_total", state.AckedBytes}, {"received_bytes_total", state.ReceivedBytes},
+			{"pending_bytes", state.PendingBytes}, {"retransmitted_segments_total", state.RetransmittedSegments},
+			{"spurious_retransmissions_total", state.SpuriousRetransmissions},
+		} {
+			fmt.Fprintf(w, "super_paqet_session_%s{%s} %d\n", v.name, labels, v.value)
+		}
 		grace := 0
 		if graceActive {
 			grace = 1
@@ -90,6 +106,9 @@ func (e *Engine) metrics(w http.ResponseWriter, r *http.Request) {
 		}{
 			{"send_window", state.SendWindow}, {"remote_window", state.RemoteWindow},
 			{"pending", state.Pending}, {"rtt_ms", int(state.SRTT)},
+			{"rto_ms", int(state.RTO)}, {"rttvar_ms", int(state.SRTTVar)},
+			{"send_queued", state.SendQueued}, {"receive_queued", state.ReceiveQueued},
+			{"receive_reordered", state.ReceiveReordered}, {"pipeline_queued", state.PipelineQueued},
 			{"forward_queue_ms", int(state.ForwardQueue)}, {"reverse_queue_ms", int(state.ReverseQueue)},
 		} {
 			fmt.Fprintf(w, "super_paqet_session_%s{%s} %d\n", v.name, labels, v.value)
