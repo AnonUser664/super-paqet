@@ -1,0 +1,276 @@
+{
+  "stage": "before tunnel rollout",
+  "attempts": [
+    {
+      "attempt": "auth-20261013T004009Z",
+      "probe_sha256": "402c34d5d537a48c858d6d227c1e660eda8bf8abe9d1258d54faa66b8b263b78",
+      "routes": [
+        {
+          "country": "germany",
+          "protocol": "vless",
+          "port": 9001,
+          "results": [
+            {
+              "exit_code": 0,
+              "status": "200",
+              "bytes": "1048576",
+              "timing": [
+                "0.563602",
+                "0.660812"
+              ],
+              "passed": true
+            },
+            {
+              "exit_code": 0,
+              "status": "200",
+              "bytes": "1048576",
+              "timing": [
+                "0.561090",
+                "0.641916"
+              ],
+              "passed": true
+            }
+          ]
+        },
+        {
+          "country": "germany",
+          "protocol": "shadowsocks",
+          "port": 8001,
+          "results": [
+            {
+              "exit_code": 0,
+              "status": "200",
+              "bytes": "1048576",
+              "timing": [
+                "0.379945",
+                "1.972302"
+              ],
+              "passed": true
+            },
+            {
+              "exit_code": 0,
+              "status": "200",
+              "bytes": "1048576",
+              "timing": [
+                "0.360671",
+                "0.806929"
+              ],
+              "passed": true
+            }
+          ]
+        },
+        {
+          "country": "finland",
+          "protocol": "vless",
+          "port": 9002,
+          "results": [
+            {
+              "exit_code": 28,
+              "status": "000",
+              "bytes": "0",
+              "timing": [
+                "0.000000",
+                "8.002041"
+              ],
+              "passed": false
+            },
+            {
+              "exit_code": 28,
+              "status": "000",
+              "bytes": "0",
+              "timing": [
+                "0.000000",
+                "8.001501"
+              ],
+              "passed": false
+            }
+          ]
+        },
+        {
+          "country": "finland",
+          "protocol": "shadowsocks",
+          "port": 8002,
+          "results": [
+            {
+              "exit_code": 0,
+              "status": "200",
+              "bytes": "1048576",
+              "timing": [
+                "0.479274",
+                "0.663699"
+              ],
+              "passed": true
+            },
+            {
+              "exit_code": 0,
+              "status": "200",
+              "bytes": "1048576",
+              "timing": [
+                "0.461722",
+                "0.983123"
+              ],
+              "passed": true
+            }
+          ]
+        },
+        {
+          "country": "france",
+          "protocol": "vless",
+          "port": 9003,
+          "results": [
+            {
+              "exit_code": 0,
+              "status": "200",
+              "bytes": "1048576",
+              "timing": [
+                "0.641978",
+                "0.919289"
+              ],
+              "passed": true
+            },
+            {
+              "exit_code": 0,
+              "status": "200",
+              "bytes": "1048576",
+              "timing": [
+                "0.558551",
+                "0.758276"
+              ],
+              "passed": true
+            }
+          ]
+        },
+        {
+          "country": "france",
+          "protocol": "shadowsocks",
+          "port": 8003,
+          "results": [
+            {
+              "exit_code": 0,
+              "status": "200",
+              "bytes": "1048576",
+              "timing": [
+                "0.410729",
+                "0.766984"
+              ],
+              "passed": true
+            },
+            {
+              "exit_code": 0,
+              "status": "200",
+              "bytes": "1048576",
+              "timing": [
+                "0.442937",
+                "0.835061"
+              ],
+              "passed": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "attempt": "auth-20261013T004854Z",
+      "probe_sha256": "402c34d5d537a48c858d6d227c1e660eda8bf8abe9d1258d54faa66b8b263b78",
+      "routes": [
+        {
+          "country": "finland",
+          "protocol": "vless",
+          "port": 9002,
+          "results": [
+            {
+              "exit_code": 28,
+              "status": "000",
+              "bytes": "0",
+              "timing": [
+                "0.000000",
+                "8.002354"
+              ],
+              "passed": false
+            },
+            {
+              "exit_code": 28,
+              "status": "000",
+              "bytes": "0",
+              "timing": [
+                "0.000000",
+                "8.001356"
+              ],
+              "passed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "attempt": "auth-20261013T005156Z",
+      "probe_sha256": "402c34d5d537a48c858d6d227c1e660eda8bf8abe9d1258d54faa66b8b263b78",
+      "routes": [
+        {
+          "country": "finland",
+          "protocol": "vless",
+          "port": 443,
+          "results": [
+            {
+              "exit_code": 28,
+              "status": "000",
+              "bytes": "0",
+              "timing": [
+                "0.000000",
+                "8.001514"
+              ],
+              "passed": false
+            },
+            {
+              "exit_code": 35,
+              "status": "000",
+              "bytes": "0",
+              "timing": [
+                "0.000000",
+                "7.063802"
+              ],
+              "passed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "attempt": "auth-20261013T005847Z",
+      "probe_sha256": "402c34d5d537a48c858d6d227c1e660eda8bf8abe9d1258d54faa66b8b263b78",
+      "backend_loopback": true,
+      "known_profile": true,
+      "routes": [
+        {
+          "country": "finland",
+          "protocol": "vless",
+          "port": 443,
+          "results": [
+            {
+              "exit_code": 35,
+              "status": "000",
+              "bytes": "0",
+              "timing": [
+                "0.000000",
+                "3.007582"
+              ],
+              "passed": false
+            },
+            {
+              "exit_code": 35,
+              "status": "000",
+              "bytes": "0",
+              "timing": [
+                "0.000000",
+                "5.027557"
+              ],
+              "passed": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "service_modified": false,
+  "interpretation": "Finland Reality fails in backend-loopback probes as well as through the existing tunnel; exact service/probe cause unassigned. Other five authenticated paths passed. Failed receipts remain evidence, not successful gates."
+}

@@ -191,3 +191,22 @@ are held-and-verified connections beside finite mixed traffic, not 20,000 fully
 saturated customers. Primary identities are preserved on all four hosts and
 owned sidecar cleanup completes without errors. Baseline authenticated Reality
 and Shadowsocks route verification precedes the protected binary-only rollout.
+
+## Application baseline and dependency exclusion
+
+Before any binary promotion, Germany/France Reality and all three Shadowsocks
+routes each passed two authenticated 1 MiB downloads. Finland Reality failed on
+the deployed opening.10 binary. Its forward correctly targets 65.109.249.222:443
+and the backend listens there. Wikipedia SNI repeats fail, as do direct backend
+loopback probes using both live configuration-derived credentials and the
+previously supplied client profile. Those loopback tests contain no tunnel.
+This establishes an independent service/probe dependency failure, not its exact
+cause or the status of every customer credential. No Xray/Nginx configuration or
+service was changed to mask it.
+
+The binary rollout checks the five working authenticated routes for regression
+and retains every Finland Reality failed row under an explicit, preexisting
+exclusion. It must not be described as six healthy authenticated application
+paths. The tunnel itself passed payload/scale checks on all three countries.
+Final acceptance is scoped to the tunneling runtime; Finland Reality still
+requires an operator/service follow-up.
