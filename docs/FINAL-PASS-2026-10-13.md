@@ -126,3 +126,68 @@ The conservative executable is `enterprise-2026.10.13-final.1`, SHA-256
 It remains a local candidate; native correctness does not qualify a production
 rollout by itself. [Diagnostic definitions](PRODUCTION-DIAGNOSTICS.md) explain
 new warning events, counters and interpretation limits.
+
+## Settled tradeoff
+
+The [focused twelve-case comparison](final-real-link-focus-2026-10-13.json)
+completes without transfer or warm-up errors. Bracketing control median bulk is
+443.766 / 350.376 / 336.501 Mbit/s for Germany / France / Finland. Arrival-order
+alone measures 428.763 / 371.115 / 360.051; feedback with the 200 ms ceiling
+431.075 / 363.148 / 331.583. The earlier Finland penalty does not repeat for the
+conservative correction; its latest rate is 7% above the control median. This
+variation prevents a causal speedup claim. The feedback change has no clear
+aggregate advantage over the narrower correction.
+
+Retain arrival-order eligibility, the existing adaptive controller and 200 ms
+learned reordering ceiling. Both feedback variants and the larger grace remain
+excluded. The selected runtime source and exact binary remain `37904d6` /
+`df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f`.
+Full root race/vet, repeated phase/timing tests and full KCP native qualification
+are complete. Exact-artifact impairment, integrity, recovery, reload and
+real-host connection-load qualification are now running or pending. Production
+still runs opening.10; source checkpoint pushes do not imply deployment.
+
+## Exact selected-artifact local gates complete
+
+[Qualification receipt](final-artifact-qualification-2026-10-13.json) records
+full native passes and the exact binary's clean repeats, asymmetric loss/reorder,
+narrow lossy HTTP, mixed HTTP/bulk, repeated/reverse established-stream recovery
+and four-carrier/two-worker live reload. All eight candidate cases pass; owned
+firewall cleanup and the unrelated sentinel are preserved. Recovery checks
+verify complete sequenced 32 KiB payloads with the deployed 10-second stall
+budget. Reload covers TCP/UDP and directional-close behavior.
+
+Measured tradeoffs are retained: median clean upload 6.411 versus 6.866 Gbit/s,
+download 4.942 versus 4.933; asymmetric useful delivery 4.628 versus 6.225 Mbit/s
+with no errors; narrow-loss HTTP p99 578 versus 567 ms. Mixed mean is 60.618
+versus 58.190 ms and p99 110 versus 249 ms. The valid-timing correction is
+selected for correctness and its balanced real-link comparisons, not because
+all local rates improved. The asymmetric rate gap remains a future optimization
+opportunity; no claim of maximum performance on every link is made.
+
+A real-host 20,000 held-connection plus three-country mixed-load check is now
+running on isolated sidecars. Primary binaries/configs remain unchanged before
+that check and rollout is still pending.
+
+The first scale setup was interrupted before its fourth host staged and before
+any target, tunnel or generator started: its validation path still named the
+comparison control instead of the final binary. Interrupted SSH cleanup then
+hung awaiting a request acknowledgement (the library's output timeout does not
+bound that handshake). The uniquely identified owned staging process was
+terminated, with the wrapper retaining its reservation until exit. No customer
+unit was stopped. The corrected harness bounds both SSH acknowledgement and
+output, uses the final validation binary and exact-unit journal queries, and
+retains the interrupted-stage receipt separately. This is a harness failure,
+not a successful or failed connection-load measurement.
+
+## Real-host scale gate complete
+
+[The selected binary's scale receipt](final-real-scale-2026-10-13.json) opens
+20,000 forwards in 29.70 seconds, holds them for 60 seconds and verifies every
+connection afterward, with zero errors. Three-country concurrent HTTP (32
+workers each) and bulk (four workers each) complete with zero errors. Tunnel
+peak RSS is 497.34 MiB client and 157.10 / 167.86 / 152.38 MiB backends. These
+are held-and-verified connections beside finite mixed traffic, not 20,000 fully
+saturated customers. Primary identities are preserved on all four hosts and
+owned sidecar cleanup completes without errors. Baseline authenticated Reality
+and Shadowsocks route verification precedes the protected binary-only rollout.

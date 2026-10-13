@@ -1,0 +1,760 @@
+{
+  "stage": "real-link selection complete; exact-artifact load qualification pending",
+  "configuration": {
+    "measurement_seconds": 30,
+    "warmup_seconds": 10,
+    "load_workers": 8,
+    "sessions": 4,
+    "encryption": "null",
+    "flags": "S outbound / PA return",
+    "reorder_ceiling_ms": 200
+  },
+  "rows": [
+    {
+      "label": "production",
+      "country": "germany",
+      "mode": "bulk",
+      "exit_code": 0,
+      "binary_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "seconds": 40.11060009407811,
+      "result": {
+        "bytes": 1621876252,
+        "canceled_requests": 8,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 0.43242536501625695,
+        "latency_fine_bucket_us": 125,
+        "latency_fine_range_us": 32000,
+        "mean_latency_us": 154312.54045307444,
+        "mode": "bulk",
+        "p50_us_upper": 148000,
+        "p99_us_upper": 279000,
+        "request_gap_seconds": 0,
+        "requests": 1545,
+        "requests_per_second": 51.49107308019491,
+        "seconds": 30.005201049,
+        "successful_workers": 8,
+        "total_seconds": 40.005200678,
+        "warmup_bytes": 543162368,
+        "warmup_errors": 0,
+        "warmup_requests": 518,
+        "warmup_seconds": 10,
+        "workers": 8
+      },
+      "resources_before": {
+        "client": {
+          "MainPID": "267672",
+          "MemoryCurrent": "4861952",
+          "CPUUsageNSec": "1698006000"
+        },
+        "germany": {
+          "MainPID": "1238712",
+          "MemoryCurrent": "3846144",
+          "CPUUsageNSec": "58146000"
+        }
+      },
+      "resources_after": {
+        "client": {
+          "MainPID": "267672",
+          "MemoryCurrent": "32980992",
+          "CPUUsageNSec": "41955057000"
+        },
+        "germany": {
+          "MainPID": "1238712",
+          "MemoryCurrent": "40325120",
+          "CPUUsageNSec": "16084522000"
+        }
+      },
+      "cpu_cores": {
+        "client": 1.0036511771346823,
+        "germany": 0.39955463050691475
+      }
+    },
+    {
+      "label": "production",
+      "country": "france",
+      "mode": "bulk",
+      "exit_code": 0,
+      "binary_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "seconds": 40.03183584893122,
+      "result": {
+        "bytes": 1247465100,
+        "canceled_requests": 8,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 0.3326219490562161,
+        "latency_fine_bucket_us": 125,
+        "latency_fine_range_us": 32000,
+        "mean_latency_us": 200906.11942809084,
+        "mode": "bulk",
+        "p50_us_upper": 181000,
+        "p99_us_upper": 448000,
+        "request_gap_seconds": 0,
+        "requests": 1189,
+        "requests_per_second": 39.62911441649158,
+        "seconds": 30.003193801,
+        "successful_workers": 8,
+        "total_seconds": 40.003193289,
+        "warmup_bytes": 350224384,
+        "warmup_errors": 0,
+        "warmup_requests": 334,
+        "warmup_seconds": 10,
+        "workers": 8
+      },
+      "resources_before": {
+        "client": {
+          "MainPID": "267672",
+          "MemoryCurrent": "32980992",
+          "CPUUsageNSec": "41996900000"
+        },
+        "france": {
+          "MainPID": "3385992",
+          "MemoryCurrent": "5033984",
+          "MemoryPeak": "5033984",
+          "CPUUsageNSec": "234319000"
+        }
+      },
+      "resources_after": {
+        "client": {
+          "MainPID": "267672",
+          "MemoryCurrent": "52690944",
+          "CPUUsageNSec": "77341162000"
+        },
+        "france": {
+          "MainPID": "3385992",
+          "MemoryCurrent": "40046592",
+          "MemoryPeak": "43065344",
+          "CPUUsageNSec": "13396964000"
+        }
+      },
+      "cpu_cores": {
+        "client": 0.8829038501601377,
+        "france": 0.32880443079533206
+      }
+    },
+    {
+      "label": "production",
+      "country": "finland",
+      "mode": "bulk",
+      "exit_code": 0,
+      "binary_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "seconds": 40.021119101089425,
+      "result": {
+        "bytes": 1234960021,
+        "canceled_requests": 8,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 0.3292435139496992,
+        "latency_fine_bucket_us": 125,
+        "latency_fine_range_us": 32000,
+        "mean_latency_us": 202740.8054375531,
+        "mode": "bulk",
+        "p50_us_upper": 196000,
+        "p99_us_upper": 373000,
+        "request_gap_seconds": 0,
+        "requests": 1177,
+        "requests_per_second": 39.223902933007984,
+        "seconds": 30.007212745,
+        "successful_workers": 8,
+        "total_seconds": 40.007212401,
+        "warmup_bytes": 369098752,
+        "warmup_errors": 0,
+        "warmup_requests": 352,
+        "warmup_seconds": 10,
+        "workers": 8
+      },
+      "resources_before": {
+        "client": {
+          "MainPID": "267672",
+          "MemoryCurrent": "52695040",
+          "CPUUsageNSec": "77393437000"
+        },
+        "finland": {
+          "MainPID": "504117",
+          "MemoryCurrent": "4509696",
+          "CPUUsageNSec": "488282000"
+        }
+      },
+      "resources_after": {
+        "client": {
+          "MainPID": "267672",
+          "MemoryCurrent": "54890496",
+          "CPUUsageNSec": "111217471000"
+        },
+        "finland": {
+          "MainPID": "504117",
+          "MemoryCurrent": "38461440",
+          "CPUUsageNSec": "19666928000"
+        }
+      },
+      "cpu_cores": {
+        "client": 0.84515462734972,
+        "finland": 0.47921313623331274
+      }
+    },
+    {
+      "label": "arrival-feedback",
+      "country": "germany",
+      "mode": "bulk",
+      "exit_code": 0,
+      "binary_sha256": "cd48e5e0d4601865487aa83a65839a46947307ed6f5fd65fe8151cfb60a71702",
+      "seconds": 40.02224491501693,
+      "result": {
+        "bytes": 1616678670,
+        "canceled_requests": 8,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 0.43107540428354374,
+        "latency_fine_bucket_us": 125,
+        "latency_fine_range_us": 32000,
+        "mean_latency_us": 155009.5282284231,
+        "mode": "bulk",
+        "p50_us_upper": 148000,
+        "p99_us_upper": 288000,
+        "request_gap_seconds": 0,
+        "requests": 1541,
+        "requests_per_second": 51.36203086672605,
+        "seconds": 30.00270772,
+        "successful_workers": 8,
+        "total_seconds": 40.002707276,
+        "warmup_bytes": 543162368,
+        "warmup_errors": 0,
+        "warmup_requests": 518,
+        "warmup_seconds": 10,
+        "workers": 8
+      },
+      "resources_before": {
+        "client": {
+          "MainPID": "268314",
+          "MemoryCurrent": "4956160",
+          "CPUUsageNSec": "1762343000"
+        },
+        "germany": {
+          "MainPID": "1238924",
+          "MemoryCurrent": "14094336",
+          "CPUUsageNSec": "75746000"
+        }
+      },
+      "resources_after": {
+        "client": {
+          "MainPID": "268314",
+          "MemoryCurrent": "32571392",
+          "CPUUsageNSec": "40444077000"
+        },
+        "germany": {
+          "MainPID": "1238924",
+          "MemoryCurrent": "49156096",
+          "CPUUsageNSec": "15509731000"
+        }
+      },
+      "cpu_cores": {
+        "client": 0.9665058539853683,
+        "germany": 0.3856351644634743
+      }
+    },
+    {
+      "label": "arrival-feedback",
+      "country": "france",
+      "mode": "bulk",
+      "exit_code": 0,
+      "binary_sha256": "cd48e5e0d4601865487aa83a65839a46947307ed6f5fd65fe8151cfb60a71702",
+      "seconds": 40.038902582018636,
+      "result": {
+        "bytes": 1362996885,
+        "canceled_requests": 8,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 0.36314845992193673,
+        "latency_fine_bucket_us": 125,
+        "latency_fine_range_us": 32000,
+        "mean_latency_us": 183890.8352578907,
+        "mode": "bulk",
+        "p50_us_upper": 174000,
+        "p99_us_upper": 369000,
+        "request_gap_seconds": 0,
+        "requests": 1299,
+        "requests_per_second": 43.262190712801576,
+        "seconds": 30.026218705,
+        "successful_workers": 8,
+        "total_seconds": 40.026218471,
+        "warmup_bytes": 360710144,
+        "warmup_errors": 0,
+        "warmup_requests": 344,
+        "warmup_seconds": 10,
+        "workers": 8
+      },
+      "resources_before": {
+        "client": {
+          "MainPID": "268314",
+          "MemoryCurrent": "32579584",
+          "CPUUsageNSec": "40473585000"
+        },
+        "france": {
+          "MainPID": "3386182",
+          "MemoryCurrent": "17424384",
+          "MemoryPeak": "17424384",
+          "CPUUsageNSec": "244174000"
+        }
+      },
+      "resources_after": {
+        "client": {
+          "MainPID": "268314",
+          "MemoryCurrent": "46006272",
+          "CPUUsageNSec": "76872926000"
+        },
+        "france": {
+          "MainPID": "3386182",
+          "MemoryCurrent": "52592640",
+          "MemoryPeak": "55144448",
+          "CPUUsageNSec": "14302556000"
+        }
+      },
+      "cpu_cores": {
+        "client": 0.9090993671826272,
+        "france": 0.3511180650169363
+      }
+    },
+    {
+      "label": "arrival-feedback",
+      "country": "finland",
+      "mode": "bulk",
+      "exit_code": 0,
+      "binary_sha256": "cd48e5e0d4601865487aa83a65839a46947307ed6f5fd65fe8151cfb60a71702",
+      "seconds": 40.01130802696571,
+      "result": {
+        "bytes": 1243467109,
+        "canceled_requests": 8,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 0.33158328327013303,
+        "latency_fine_bucket_us": 125,
+        "latency_fine_range_us": 32000,
+        "mean_latency_us": 200828.11158072695,
+        "mode": "bulk",
+        "p50_us_upper": 191000,
+        "p99_us_upper": 403000,
+        "request_gap_seconds": 0,
+        "requests": 1183,
+        "requests_per_second": 39.432388407123454,
+        "seconds": 30.000718896,
+        "successful_workers": 8,
+        "total_seconds": 40.000718522,
+        "warmup_bytes": 375390208,
+        "warmup_errors": 0,
+        "warmup_requests": 358,
+        "warmup_seconds": 10,
+        "workers": 8
+      },
+      "resources_before": {
+        "client": {
+          "MainPID": "268314",
+          "MemoryCurrent": "46002176",
+          "CPUUsageNSec": "76902579000"
+        },
+        "finland": {
+          "MainPID": "504286",
+          "MemoryCurrent": "4165632",
+          "CPUUsageNSec": "478560000"
+        }
+      },
+      "resources_after": {
+        "client": {
+          "MainPID": "268314",
+          "MemoryCurrent": "56205312",
+          "CPUUsageNSec": "111712670000"
+        },
+        "finland": {
+          "MainPID": "504286",
+          "MemoryCurrent": "37703680",
+          "CPUUsageNSec": "19106994000"
+        }
+      },
+      "cpu_cores": {
+        "client": 0.8700063236258025,
+        "finland": 0.4655792304376884
+      }
+    },
+    {
+      "label": "arrival",
+      "country": "germany",
+      "mode": "bulk",
+      "exit_code": 0,
+      "binary_sha256": "17b39d2949047bcb6c6f0e1450548ce021235e4337a462eb787c8d354cf6a250",
+      "seconds": 40.01404316793196,
+      "result": {
+        "bytes": 1607892508,
+        "canceled_requests": 8,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 0.4287628748889458,
+        "latency_fine_bucket_us": 125,
+        "latency_fine_range_us": 32000,
+        "mean_latency_us": 155967.54212932722,
+        "mode": "bulk",
+        "p50_us_upper": 145000,
+        "p99_us_upper": 292000,
+        "request_gap_seconds": 0,
+        "requests": 1531,
+        "requests_per_second": 51.03232633625283,
+        "seconds": 30.000591976,
+        "successful_workers": 8,
+        "total_seconds": 40.000591585,
+        "warmup_bytes": 545259520,
+        "warmup_errors": 0,
+        "warmup_requests": 520,
+        "warmup_seconds": 10,
+        "workers": 8
+      },
+      "resources_before": {
+        "client": {
+          "MainPID": "268950",
+          "MemoryCurrent": "5156864",
+          "CPUUsageNSec": "2027494000"
+        },
+        "germany": {
+          "MainPID": "1239016",
+          "MemoryCurrent": "7163904",
+          "CPUUsageNSec": "58392000"
+        }
+      },
+      "resources_after": {
+        "client": {
+          "MainPID": "268950",
+          "MemoryCurrent": "33091584",
+          "CPUUsageNSec": "39931972000"
+        },
+        "germany": {
+          "MainPID": "1239016",
+          "MemoryCurrent": "42733568",
+          "CPUUsageNSec": "15181970000"
+        }
+      },
+      "cpu_cores": {
+        "client": 0.9472793799147343,
+        "germany": 0.37795675724467487
+      }
+    },
+    {
+      "label": "arrival",
+      "country": "france",
+      "mode": "bulk",
+      "exit_code": 0,
+      "binary_sha256": "17b39d2949047bcb6c6f0e1450548ce021235e4337a462eb787c8d354cf6a250",
+      "seconds": 40.037501163897105,
+      "result": {
+        "bytes": 1392672284,
+        "canceled_requests": 7,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 0.37111547979909804,
+        "latency_fine_bucket_us": 125,
+        "latency_fine_range_us": 32000,
+        "mean_latency_us": 179885.64431047474,
+        "mode": "bulk",
+        "p50_us_upper": 170000,
+        "p99_us_upper": 402000,
+        "request_gap_seconds": 0,
+        "requests": 1327,
+        "requests_per_second": 44.20191377318699,
+        "seconds": 30.02132457,
+        "successful_workers": 8,
+        "total_seconds": 40.021324131,
+        "warmup_bytes": 363855872,
+        "warmup_errors": 0,
+        "warmup_requests": 347,
+        "warmup_seconds": 10,
+        "workers": 8
+      },
+      "resources_before": {
+        "client": {
+          "MainPID": "268950",
+          "MemoryCurrent": "33087488",
+          "CPUUsageNSec": "39949498000"
+        },
+        "france": {
+          "MainPID": "3386291",
+          "MemoryCurrent": "17313792",
+          "MemoryPeak": "17575936",
+          "CPUUsageNSec": "239383000"
+        }
+      },
+      "resources_after": {
+        "client": {
+          "MainPID": "268950",
+          "MemoryCurrent": "44769280",
+          "CPUUsageNSec": "80992297000"
+        },
+        "france": {
+          "MainPID": "3386291",
+          "MemoryCurrent": "51625984",
+          "MemoryPeak": "53841920",
+          "CPUUsageNSec": "14579436000"
+        }
+      },
+      "cpu_cores": {
+        "client": 1.0251089055729932,
+        "france": 0.3581655343898138
+      }
+    },
+    {
+      "label": "arrival",
+      "country": "finland",
+      "mode": "bulk",
+      "exit_code": 0,
+      "binary_sha256": "17b39d2949047bcb6c6f0e1450548ce021235e4337a462eb787c8d354cf6a250",
+      "seconds": 40.02068352594506,
+      "result": {
+        "bytes": 1350340245,
+        "canceled_requests": 8,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 0.36005104359746765,
+        "latency_fine_bucket_us": 125,
+        "latency_fine_range_us": 32000,
+        "mean_latency_us": 185416.92307692306,
+        "mode": "bulk",
+        "p50_us_upper": 182000,
+        "p99_us_upper": 335000,
+        "request_gap_seconds": 0,
+        "requests": 1287,
+        "requests_per_second": 42.895271657064924,
+        "seconds": 30.003306898,
+        "successful_workers": 8,
+        "total_seconds": 40.003306371,
+        "warmup_bytes": 413138944,
+        "warmup_errors": 0,
+        "warmup_requests": 394,
+        "warmup_seconds": 10,
+        "workers": 8
+      },
+      "resources_before": {
+        "client": {
+          "MainPID": "268950",
+          "MemoryCurrent": "44773376",
+          "CPUUsageNSec": "81039408000"
+        },
+        "finland": {
+          "MainPID": "504376",
+          "MemoryCurrent": "4001792",
+          "CPUUsageNSec": "492988000"
+        }
+      },
+      "resources_after": {
+        "client": {
+          "MainPID": "268950",
+          "MemoryCurrent": "54358016",
+          "CPUUsageNSec": "119496627000"
+        },
+        "finland": {
+          "MainPID": "504376",
+          "MemoryCurrent": "37769216",
+          "CPUUsageNSec": "21781046000"
+        }
+      },
+      "cpu_cores": {
+        "client": 0.9609335876302193,
+        "finland": 0.5319263971640849
+      }
+    },
+    {
+      "label": "production",
+      "country": "germany",
+      "mode": "bulk",
+      "exit_code": 0,
+      "binary_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "seconds": 40.013651591027156,
+      "result": {
+        "bytes": 1706757503,
+        "canceled_requests": 8,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 0.4551062050151707,
+        "latency_fine_bucket_us": 125,
+        "latency_fine_range_us": 32000,
+        "mean_latency_us": 146659.62300123,
+        "mode": "bulk",
+        "p50_us_upper": 141000,
+        "p99_us_upper": 265000,
+        "request_gap_seconds": 0,
+        "requests": 1626,
+        "requests_per_second": 54.196531145604375,
+        "seconds": 30.001920153,
+        "successful_workers": 8,
+        "total_seconds": 40.001919708,
+        "warmup_bytes": 565182464,
+        "warmup_errors": 0,
+        "warmup_requests": 539,
+        "warmup_seconds": 10,
+        "workers": 8
+      },
+      "resources_before": {
+        "client": {
+          "MainPID": "269593",
+          "MemoryCurrent": "4947968",
+          "CPUUsageNSec": "1367364000"
+        },
+        "germany": {
+          "MainPID": "1239180",
+          "MemoryCurrent": "3072000",
+          "CPUUsageNSec": "52090000"
+        }
+      },
+      "resources_after": {
+        "client": {
+          "MainPID": "269593",
+          "MemoryCurrent": "28762112",
+          "CPUUsageNSec": "44913737000"
+        },
+        "germany": {
+          "MainPID": "1239180",
+          "MemoryCurrent": "39829504",
+          "CPUUsageNSec": "16660867000"
+        }
+      },
+      "cpu_cores": {
+        "client": 1.0882879034655522,
+        "germany": 0.415077763203307
+      }
+    },
+    {
+      "label": "production",
+      "country": "france",
+      "mode": "bulk",
+      "exit_code": 0,
+      "binary_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "seconds": 40.018866752041504,
+      "result": {
+        "bytes": 1380593180,
+        "canceled_requests": 8,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 0.3681291107787327,
+        "latency_fine_bucket_us": 125,
+        "latency_fine_range_us": 32000,
+        "mean_latency_us": 181409.68821292775,
+        "mode": "bulk",
+        "p50_us_upper": 172000,
+        "p99_us_upper": 381000,
+        "request_gap_seconds": 0,
+        "requests": 1315,
+        "requests_per_second": 43.829872159917656,
+        "seconds": 30.002369051,
+        "successful_workers": 8,
+        "total_seconds": 40.00236869,
+        "warmup_bytes": 368050176,
+        "warmup_errors": 0,
+        "warmup_requests": 351,
+        "warmup_seconds": 10,
+        "workers": 8
+      },
+      "resources_before": {
+        "client": {
+          "MainPID": "269593",
+          "MemoryCurrent": "28766208",
+          "CPUUsageNSec": "44942147000"
+        },
+        "france": {
+          "MainPID": "3386477",
+          "MemoryCurrent": "4096000",
+          "MemoryPeak": "4096000",
+          "CPUUsageNSec": "241344000"
+        }
+      },
+      "resources_after": {
+        "client": {
+          "MainPID": "269593",
+          "MemoryCurrent": "50171904",
+          "CPUUsageNSec": "83305825000"
+        },
+        "france": {
+          "MainPID": "3386477",
+          "MemoryCurrent": "38318080",
+          "MemoryPeak": "41340928",
+          "CPUUsageNSec": "14506754000"
+        }
+      },
+      "cpu_cores": {
+        "client": 0.9586397895198503,
+        "france": 0.3564671155829836
+      }
+    },
+    {
+      "label": "production",
+      "country": "finland",
+      "mode": "bulk",
+      "exit_code": 0,
+      "binary_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "seconds": 40.01972967397887,
+      "result": {
+        "bytes": 1289149927,
+        "canceled_requests": 8,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 0.34375824729790444,
+        "latency_fine_bucket_us": 125,
+        "latency_fine_range_us": 32000,
+        "mean_latency_us": 194295.6596091205,
+        "mode": "bulk",
+        "p50_us_upper": 188000,
+        "p99_us_upper": 375000,
+        "request_gap_seconds": 0,
+        "requests": 1228,
+        "requests_per_second": 40.93153934625971,
+        "seconds": 30.001314869,
+        "successful_workers": 8,
+        "total_seconds": 40.001314481,
+        "warmup_bytes": 391118848,
+        "warmup_errors": 0,
+        "warmup_requests": 373,
+        "warmup_seconds": 10,
+        "workers": 8
+      },
+      "resources_before": {
+        "client": {
+          "MainPID": "269593",
+          "MemoryCurrent": "50163712",
+          "CPUUsageNSec": "83367145000"
+        },
+        "finland": {
+          "MainPID": "504541",
+          "MemoryCurrent": "4165632",
+          "CPUUsageNSec": "466693000"
+        }
+      },
+      "resources_after": {
+        "client": {
+          "MainPID": "269593",
+          "MemoryCurrent": "55918592",
+          "CPUUsageNSec": "121556148000"
+        },
+        "finland": {
+          "MainPID": "504541",
+          "MemoryCurrent": "38486016",
+          "CPUUsageNSec": "21115506000"
+        }
+      },
+      "cpu_cores": {
+        "client": 0.9542543967964575,
+        "finland": 0.51596582906021
+      }
+    }
+  ],
+  "cleanup": {
+    "client_production_identity_preserved": true,
+    "germany_production_identity_preserved": true,
+    "france_production_identity_preserved": true,
+    "errors": [
+      {
+        "host": "171.22.132.226",
+        "error": ""
+      }
+    ],
+    "finland_production_identity_preserved": true
+  },
+  "decision": "Retain arrival-order ACK eligibility correction, original adaptive pacing and 200 ms grace ceiling. Neither pacing feedback nor 750 ms grace has a clear aggregate production advantage.",
+  "limits": [
+    "All twelve transfer/warm-up cases passed; controls bracket ambient WAN variation.",
+    "France wildcard journal query timed out after successful primary identity verification; independent stopped-unit audit remains required for this last run.",
+    "No universal link-performance or sustained capacity guarantee is inferred."
+  ]
+}

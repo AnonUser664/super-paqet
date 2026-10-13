@@ -1,0 +1,233 @@
+{
+  "stage": "exact-artifact isolated real-host scale gate passed; primary deployment pending",
+  "sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+  "connections": 20000,
+  "hold_seconds": 60,
+  "ramp_seconds": 29.699477705,
+  "verified": [
+    {
+      "connections": 20000,
+      "errors": 0,
+      "phase": "established",
+      "ramp_seconds": 29.699477705
+    },
+    {
+      "connections": 20000,
+      "errors": 0,
+      "phase": "verified",
+      "verified": 20000
+    },
+    {
+      "connections": 20000,
+      "errors": 0,
+      "phase": "closed"
+    }
+  ],
+  "mixed": [
+    {
+      "country": "germany",
+      "mode": "http",
+      "exit_code": 0,
+      "result": {
+        "bytes": 78078,
+        "canceled_requests": 32,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 2.0818874764840645e-05,
+        "latency_fine_bucket_us": 125,
+        "latency_fine_range_us": 32000,
+        "mean_latency_us": 269664.3550295858,
+        "mode": "http",
+        "p50_us_upper": 254000,
+        "p99_us_upper": 567000,
+        "request_gap_seconds": 0,
+        "requests": 3549,
+        "requests_per_second": 118.28906116386732,
+        "seconds": 30.002774264,
+        "successful_workers": 32,
+        "total_seconds": 30.00277389,
+        "warmup_bytes": 0,
+        "warmup_errors": 0,
+        "warmup_requests": 0,
+        "warmup_seconds": 0,
+        "workers": 32
+      }
+    },
+    {
+      "country": "germany",
+      "mode": "bulk",
+      "exit_code": 0,
+      "result": {
+        "bytes": 366657483,
+        "canceled_requests": 4,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 0.0977726062174891,
+        "latency_fine_bucket_us": 125,
+        "latency_fine_range_us": 32000,
+        "mean_latency_us": 342656.4899713467,
+        "mode": "bulk",
+        "p50_us_upper": 333000,
+        "p99_us_upper": 769000,
+        "request_gap_seconds": 0,
+        "requests": 349,
+        "requests_per_second": 11.633009399778052,
+        "seconds": 30.000835382,
+        "successful_workers": 4,
+        "total_seconds": 30.000835085,
+        "warmup_bytes": 0,
+        "warmup_errors": 0,
+        "warmup_requests": 0,
+        "warmup_seconds": 0,
+        "workers": 4
+      }
+    },
+    {
+      "country": "france",
+      "mode": "http",
+      "exit_code": 0,
+      "result": {
+        "bytes": 115720,
+        "canceled_requests": 32,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 3.085320187350315e-05,
+        "latency_fine_bucket_us": 125,
+        "latency_fine_range_us": 32000,
+        "mean_latency_us": 181844.37205323193,
+        "mode": "http",
+        "p50_us_upper": 156000,
+        "p99_us_upper": 457000,
+        "request_gap_seconds": 0,
+        "requests": 5260,
+        "requests_per_second": 175.302283372177,
+        "seconds": 30.005313672,
+        "successful_workers": 32,
+        "total_seconds": 30.005313391,
+        "warmup_bytes": 0,
+        "warmup_errors": 0,
+        "warmup_requests": 0,
+        "warmup_seconds": 0,
+        "workers": 32
+      }
+    },
+    {
+      "country": "france",
+      "mode": "bulk",
+      "exit_code": 0,
+      "result": {
+        "bytes": 563478484,
+        "canceled_requests": 4,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 0.1502562213639524,
+        "latency_fine_bucket_us": 125,
+        "latency_fine_range_us": 32000,
+        "mean_latency_us": 222243.6573556797,
+        "mode": "bulk",
+        "p50_us_upper": 191000,
+        "p99_us_upper": 555000,
+        "request_gap_seconds": 0,
+        "requests": 537,
+        "requests_per_second": 17.899439189687506,
+        "seconds": 30.000939935,
+        "successful_workers": 4,
+        "total_seconds": 30.000939648,
+        "warmup_bytes": 0,
+        "warmup_errors": 0,
+        "warmup_requests": 0,
+        "warmup_seconds": 0,
+        "workers": 4
+      }
+    },
+    {
+      "country": "finland",
+      "mode": "http",
+      "exit_code": 0,
+      "result": {
+        "bytes": 64548,
+        "canceled_requests": 32,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 1.7211120070187383e-05,
+        "latency_fine_bucket_us": 125,
+        "latency_fine_range_us": 32000,
+        "mean_latency_us": 326014.145194274,
+        "mode": "http",
+        "p50_us_upper": 336000,
+        "p99_us_upper": 726000,
+        "request_gap_seconds": 0,
+        "requests": 2934,
+        "requests_per_second": 97.79045494424648,
+        "seconds": 30.002928217,
+        "successful_workers": 32,
+        "total_seconds": 30.002927665,
+        "warmup_bytes": 0,
+        "warmup_errors": 0,
+        "warmup_requests": 0,
+        "warmup_seconds": 0,
+        "workers": 32
+      }
+    },
+    {
+      "country": "finland",
+      "mode": "bulk",
+      "exit_code": 0,
+      "result": {
+        "bytes": 300351444,
+        "canceled_requests": 4,
+        "error_kinds": {},
+        "errors": 0,
+        "goodput_gbps": 0.08009049015790733,
+        "latency_fine_bucket_us": 125,
+        "latency_fine_range_us": 32000,
+        "mean_latency_us": 417662.72027972026,
+        "mode": "bulk",
+        "p50_us_upper": 426000,
+        "p99_us_upper": 912000,
+        "request_gap_seconds": 0,
+        "requests": 286,
+        "requests_per_second": 9.532949084623635,
+        "seconds": 30.001209223,
+        "successful_workers": 4,
+        "total_seconds": 30.001208949,
+        "warmup_bytes": 0,
+        "warmup_errors": 0,
+        "warmup_requests": 0,
+        "warmup_seconds": 0,
+        "workers": 4
+      }
+    }
+  ],
+  "resources": {
+    "client": {
+      "unit": "MainPID=272028\nMemoryCurrent=521961472\nCPUUsageNSec=80786005000\n",
+      "status": "Name:\tfinal\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t272028\nNgid:\t0\nPid:\t272028\nPPid:\t1\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t32768\nGroups:\t \nNStgid:\t272028\nNSpid:\t272028\nNSpgid:\t272028\nNSsid:\t272028\nVmPeak:\t 3017444 kB\nVmSize:\t 3017444 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t  509276 kB\nVmRSS:\t  509268 kB\nRssAnon:\t  496756 kB\nRssFile:\t   12512 kB\nRssShmem:\t       0 kB\nVmData:\t  726248 kB\nVmStk:\t     132 kB\nVmExe:\t    6352 kB\nVmLib:\t    4640 kB\nVmPTE:\t    1268 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nThreads:\t18\nSigQ:\t0/31366\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\tfffffffc3bba3a00\nSigIgn:\t0000000000000000\nSigCgt:\tfffffffd7fc1feff\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\tf\nCpus_allowed_list:\t0-3\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t14\nnonvoluntary_ctxt_switches:\t5\n"
+    },
+    "germany": {
+      "unit": "MainPID=1240244\nMemoryCurrent=155885568\nCPUUsageNSec=11474827000\n",
+      "status": "Name:\tfinal\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1240244\nNgid:\t0\nPid:\t1240244\nPPid:\t1\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t8192\nGroups:\t \nNStgid:\t1240244\nNSpid:\t1240244\nNSpgid:\t1240244\nNSsid:\t1240244\nVmPeak:\t 2085592 kB\nVmSize:\t 2085592 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t  160868 kB\nVmRSS:\t  160868 kB\nRssAnon:\t  148952 kB\nRssFile:\t   11916 kB\nRssShmem:\t       0 kB\nVmData:\t  301276 kB\nVmStk:\t     132 kB\nVmExe:\t    6352 kB\nVmLib:\t    4640 kB\nVmPTE:\t     508 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nThreads:\t10\nSigQ:\t1/15100\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\tfffffffc3bba3a00\nSigIgn:\t0000000000000000\nSigCgt:\tfffffffd7fc1feff\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t3\nCpus_allowed_list:\t0-1\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t7\nnonvoluntary_ctxt_switches:\t15\n"
+    },
+    "france": {
+      "unit": "MainPID=3387921\nMemoryCurrent=167227392\nMemoryPeak=192049152\nCPUUsageNSec=15225292000\n",
+      "status": "Name:\tfinal\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t3387921\nNgid:\t0\nPid:\t3387921\nPPid:\t1\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t8192\nGroups:\t \nNStgid:\t3387921\nNSpid:\t3387921\nNSpgid:\t3387921\nNSsid:\t3387921\nKthread:\t0\nVmPeak:\t 2012056 kB\nVmSize:\t 2012056 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t  171892 kB\nVmRSS:\t  171892 kB\nRssAnon:\t  159476 kB\nRssFile:\t   12416 kB\nRssShmem:\t       0 kB\nVmData:\t  305656 kB\nVmStk:\t     132 kB\nVmExe:\t    6352 kB\nVmLib:\t    4084 kB\nVmPTE:\t     532 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t9\nSigQ:\t1/11853\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\tfffffffc3bba3a00\nSigIgn:\t0000000000000000\nSigCgt:\tfffffffd7fc1feff\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t3\nCpus_allowed_list:\t0-1\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t5\nnonvoluntary_ctxt_switches:\t19\nx86_Thread_features:\t\nx86_Thread_features_locked:\t\n"
+    },
+    "finland": {
+      "unit": "MainPID=506044\nMemoryCurrent=150945792\nCPUUsageNSec=18161521000\n",
+      "status": "Name:\tfinal\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t506044\nNgid:\t0\nPid:\t506044\nPPid:\t1\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t8192\nGroups:\t \nNStgid:\t506044\nNSpid:\t506044\nNSpgid:\t506044\nNSsid:\t506044\nVmPeak:\t 2216344 kB\nVmSize:\t 2151128 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t  156032 kB\nVmRSS:\t  156032 kB\nRssAnon:\t  144308 kB\nRssFile:\t   11724 kB\nRssShmem:\t       0 kB\nVmData:\t  301276 kB\nVmStk:\t     132 kB\nVmExe:\t    6352 kB\nVmLib:\t    4640 kB\nVmPTE:\t     508 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nThreads:\t10\nSigQ:\t1/15100\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\tfffffffc3bba3a00\nSigIgn:\t0000000000000000\nSigCgt:\tfffffffd7fc1feff\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t3\nCpus_allowed_list:\t0-1\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t8\nnonvoluntary_ctxt_switches:\t9\n"
+    }
+  },
+  "duration_seconds": 106.41533839300973,
+  "cleanup": {
+    "client_production_identity_preserved": true,
+    "germany_production_identity_preserved": true,
+    "france_production_identity_preserved": true,
+    "finland_production_identity_preserved": true
+  },
+  "limits": [
+    "Held connections are verified, not 20,000 continuously saturated customers.",
+    "Three-country mixed traffic is a 30-second finite sample, not sustained link-capacity qualification.",
+    "CPU deltas and post-run high-water RSS are retained; no claim of peak CPU is made.",
+    "This is not the latest artifact tested at 100,000 busy connections."
+  ]
+}
