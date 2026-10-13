@@ -244,6 +244,33 @@ All experiments were executed under `/home/shayan/.cache/super-paqet-tests/test.
 - `go test -race -count=10 ./internal/engine`: **PASSED** (10/10).
 - `python3 -m unittest discover -s scripts`: **PASSED** (26/26 tests).
 
+### 4.12 Systemd Service Unit Lifecycle & Sandbox Restrictions
+*Harness:* `scripts/systemd_netns_test.py`  
+*Receipt:* `build/service-test-7504/results.json`
+
+- **Sandbox Restrictions:** Verified `ProtectSystem=strict`, `ProtectHome=yes`, `NoNewPrivileges=yes`, `LimitNOFILE=524288`, and capability bounds (`cap_net_bind_service`, `cap_net_admin`, `cap_net_raw`, `cap_sys_resource`) in disposable namespaces.
+- **Payload Verification:** 16,777,216 bytes verified before and after forced replacement/restart (`restart_pid_changed: true`).
+- **Clean Teardown:** Zero leaked nftables rules; `unrelated_rule_preserved: true`.
+
+### 4.13 Automated Protocol Fuzzing
+*Harness:* `go test -fuzz`
+
+- `FuzzControlRead` (`internal/protocol`): **2,004,359 executions** across 12 workers in 15s with **0 crashes / 0 panics (PASS)**.
+- `FuzzDecodeFrame` (`internal/socket`): **575,793 executions** across 12 workers in 15s with **0 crashes / 0 panics (PASS)**.
+
+### 4.14 Older WAN Qualification Matrix
+*Harness:* `scripts/qualify_wan.py`  
+*Receipt:* `build/exp-ack-wan-qualification-20261013/matrix.json`
+
+Sequential execution across 6 profiles (15s duration each):
+1. **`random` (100 Mbit/s, 10 ms delay, 1% loss, 32 workers):** Completed with **0 errors**.
+2. **`burst` (100 Mbit/s, 20 ms delay, Gilbert-Elliot burst loss, 16 workers):** Completed with **0 errors**.
+3. **`jitter-reorder` (100 Mbit/s, 25 ms delay, 5 ms jitter, 1% reorder, 0.5% loss, 16 workers):** Completed with **0 errors**.
+4. **`mobile` (1 Mbit/s, 50 ms delay, 5% loss, 4 workers):** Completed with **0 errors**.
+5. **`asymmetric` (20/100 Mbit/s, 40 ms delay, 0.5% loss, iperf, 4 workers):** Completed with **0 errors**.
+6. **`high-delay` (1000 Mbit/s Gigabit, 50 ms delay, 100 ms RTT, upload iperf):** Completed with **0 errors**.
+- All cases verified clean firewall teardown with unrelated rules preserved.
+
 ---
 
 ## 5. Non-Negotiables & Tradeoffs
@@ -274,3 +301,5 @@ All experiments were executed under `/home/shayan/.cache/super-paqet-tests/test.
   - `build/exp-ack-netns-20261013/` (`clean`, `asymmetric-v3`, `functional`, `mobile`, `mixed`, `capacity-change`)
   - `build/exp-ack-recovery-20261013/`
   - `build/exp-ack-reload-20261013/results.json`
+  - `build/exp-ack-wan-qualification-20261013/matrix.json`
+  - `build/service-test-7504/`
