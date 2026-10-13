@@ -67,7 +67,7 @@ ended. It retained that reservation across sudo, the transfer, capture and owned
 cleanup. After release, the other agent resumed its mixed-load test. None of its
 processes, worktrees, namespaces, files or shared build outputs were modified.
 
-The measurement branch's harness accepts `--direction upload` and selects the client
+The integrated `scripts/measure_ack_budget.py` harness accepts `--direction upload` and selects the client
 capture for complete payload coverage and the backend capture for ACK cost.
 Download remains the default. Each target/generator uses bounded 64 KiB chunks.
 Seven accounting parser checks also pass after waiting for the other agent's
@@ -76,8 +76,9 @@ The [receipt](asymmetric-upload-evidence-2026-10-13.json) records the full comma
 hashes, actual qdiscs, byte accounting, cleanup and capture logs. Raw evidence is
 in this worktree's unique `build/asymmetric-upload-20261013-run1/` directory.
 
-Use that branch's harness (checkpoint `61a384a`) for reproduction. Run future
-measurements under `scripts/with_test_lock.py` outside sudo and use
+The original run used measurement checkpoint `61a384a`; its upload support is
+now integrated on master after [selective review](EXPLORATION-REVIEW-2026-10-13.md).
+Run future measurements under `scripts/with_test_lock.py` outside sudo and use
 a new output directory. Supply `--direction upload --profiles asymmetric-clean-50-10`
 with an explicit final executable and any required shared-library directory.
 This one-stream single run does not qualify multi-customer capacity, lossy upload,

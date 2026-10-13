@@ -12,6 +12,7 @@ checkpoints and do not supersede the current status.
 | Document | Purpose |
 |---|---|
 | [Additional client — 13 October](CLIENT142-DEPLOYMENT-2026-10-13.md) | Verified .142 installation, six forwards and expected Finland exception. |
+| [Selective ACK exploration review — 13 October](EXPLORATION-REVIEW-2026-10-13.md) | Evidence audit, rejected adaptive tradeoffs, accepted upload measurement tool and preserved failures. |
 | [STATUS.md](STATUS.md) | Running version, current paths and outstanding work. |
 | [Branch consolidation — 13 October](CONSOLIDATION-2026-10-13.md) | Every retired experiment's outcome, selective merge decisions, archived evidence and remaining paths. |
 | [Production-led exploration — 12 October](EXPLORATION-2026-10-12.md) | Full writer, pacing, reordering, RTT, diagnostics and measurement journal, including failed gates. |

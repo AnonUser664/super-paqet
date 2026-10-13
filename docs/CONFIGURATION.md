@@ -495,8 +495,7 @@ per forwarded customer connection. The controller:
   This avoids treating queued control packets as saturated bulk delivery.
 - Adjusts ACK delay within the configured ceiling.
 - Applies a 0–200 ms allowance before gap-based retransmission to tolerate reorder
-  in the current local candidate. The deployed latency.1 executable retains its
-  former 0–50 ms ceiling. Below 20 ms SRTT the allowance remains zero; otherwise
+  in the deployed final.1 release. Below 20 ms SRTT the allowance remains zero; otherwise
   the controller bounds the greater of observed gap delay and `4 × RTT variation
   + 1 ms`. A late timer-only ACK does not supply gap-delay evidence.
 - Adjusts the RTO floor to approximately `max(30 ms, 2 × SRTT + 4 × RTT variation)`.

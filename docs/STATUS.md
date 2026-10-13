@@ -60,6 +60,13 @@ the user accepted the existing Finland Reality failure as an expected exception.
 The new client's bounded observer retains logs through 20 October. Its exact
 configuration and unit are in [deployed snapshots](deployed/README.md).
 
+The [independent exploration review](EXPLORATION-REVIEW-2026-10-13.md) retains
+upload measurement support and corrected records. The experimental adaptive
+window and retry-timer changes are excluded after matched impaired-link gates
+failed; no runtime or dependency bytes change and no production deployment is
+performed by that review. Sustained multiplexed synthetic impairment remains a
+qualification limit, alongside the earlier documented performance limits.
+
 # Earlier deployment status — 12 October 2026
 
 All five hosts now run **enterprise-2026.10.12-opening.10** under enabled

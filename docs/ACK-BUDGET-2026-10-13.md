@@ -103,7 +103,10 @@ Use `scripts/measure_ack_budget.py` under `scripts/with_test_lock.py`, with sudo
 inside the reservation. Supply an explicit binary, any required shared-library
 directory and a new output directory. The default three profiles cover clean
 local, clean WAN and loss/reorder WAN; select `--profiles asymmetric-50-10`
-for the fourth profile. The script makes a checked private adaptation of the
+for the fourth profile, or `--profiles asymmetric-clean-50-10` for clean asymmetry.
+Use `--direction upload` to measure the opposite data direction; download remains
+the default. Upload checks the receiver's digest and accounts ACKs at the backend.
+The script makes a checked private adaptation of the
 existing namespace fixture rather than changing its historical results.
 
 Raw captures and generated fixture/helper remain in unique local build output
