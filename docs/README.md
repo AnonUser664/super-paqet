@@ -53,3 +53,12 @@ from the checkout. Their committed versions remain available in Git history.
 [Source-tuple incident and verified recovery](SOURCE-TUPLE-INCIDENT-2026-10-07.md)
 records the live .118 France/Finland outage, scoped repair, client rollout and
 [exact recovery qualification](path-recovery-qualification-2026-10-07.json).
+
+## Final production review — 13 October 2026
+
+- [Final decisions, failures and tradeoffs](FINAL-PASS-2026-10-13.md)
+- [Production counters and bounded warning interpretation](PRODUCTION-DIAGNOSTICS.md)
+- [Current exact deployment and dependency status](STATUS.md)
+- [Exact-artifact qualification](final-artifact-qualification-2026-10-13.json)
+- [Real-host 20,000-connection gate](final-real-scale-2026-10-13.json)
+- [Post-cleanup health](final-health-evidence-2026-10-13.json)

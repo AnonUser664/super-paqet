@@ -10,12 +10,13 @@ TCP and UDP ports. SOCKS5 and the old role-based configuration have been removed
 The transport contract and its reasons are documented in [docs/TRANSPORT.md](docs/TRANSPORT.md).
 Measured results and qualification limits are in [docs/BENCHMARKS.md](docs/BENCHMARKS.md).
 
-The deployed migration release uses four distinct client source ports per country,
-preserves live connections during verified carrier moves, and uses 10-second
-stall detection with a 15-second retry budget. Backend listeners use two capture
-workers. See the [deployment report](docs/MIGRATION-DEPLOYMENT-2026-10-07.md),
-[recorded configs](docs/deployed/README.md) and
-[migration behavior and benchmarks](docs/MIGRATION-2026-10-07.md).
+The current final.1 release runs on one active client and three backends, with
+four distinct client source ports per country, verified connection preservation,
+10-second stall detection, 15-second retry cooldown and two backend capture
+workers. It retains the existing adaptive controller and corrects ACK timing
+evidence. See [current status](docs/STATUS.md),
+[final qualification and tradeoffs](docs/FINAL-PASS-2026-10-13.md) and
+[production diagnostics](docs/PRODUCTION-DIAGNOSTICS.md).
 This is a substantial transport/runtime rewrite; successful local benchmarks do
 not establish universal optimality, WAN behavior, or production readiness on
 untested hardware and firewall products.
@@ -27,17 +28,15 @@ Start with [current status](docs/STATUS.md), then the
 [deployment guide](docs/DEPLOYMENT.md) and [operations runbook](docs/OPERATIONS.md).
 The [documentation map](docs/README.md) links current guides and compact evidence.
 
-Live reload, validation and negotiated carrier migration are deployed on both
-clients and backends. All six
-Germany/Finland/France paths use four adaptive sessions per peer and S outbound /
-PA return. After customer traffic failures, opening recovery and mux stream
-lifetime bugs were fixed; continued observation exposed further controller and
-mux liveness and queued-payload ownership/deadline defects, fixed and redeployed. 24-hour production observation remains
-in progress. See the [incident report](docs/PRODUCTION-INCIDENT-2026-10-06.md) and
-[current observation and log locations](docs/PRODUCTION-OBSERVATION-2026-10-07.md), plus
-[current status](docs/STATUS.md). Earlier load/bulk measurements are retained in
-[production evidence](docs/production-deployment-evidence.json); they qualify the
-earlier executable and do not prove this release is production-ready.
+Live reload, validation and negotiated carrier migration remain deployed.
+The three active country routes use four adaptive carriers and S outbound / PA
+return. The selected binary passes native/impairment/recovery/reload checks and
+20,000 held-and-verified real-host forwards beside mixed traffic. Five
+Reality/Shadowsocks application paths pass authentication; Finland Reality
+fails independently on backend loopback and remains a documented dependency
+issue. No Xray or Nginx settings were changed. Bounded production observers
+continue through 19 October; [current status](docs/STATUS.md) records exact
+versions, topology, log locations, measured tradeoffs and qualification limits.
 
 ## Build and run
 
