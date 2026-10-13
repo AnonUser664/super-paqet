@@ -99,3 +99,30 @@ cleanup, and perform staged rollout with rollback. Current observer archives
 remain bounded and are retained. The unexplained 17:47 UTC opening-retry cohort
 is not claimed solved by these experiments; the added phase and queue evidence
 makes a recurrence more diagnosable.
+
+## Longer comparison and final ablation
+
+All 24 longer cases completed with zero transfer or warm-up errors and unchanged
+primary identities. The [longer receipt](final-real-link-long-2026-10-13.json)
+records CPU deltas and current memory, including missing peak-memory support on
+older systemd. Germany controls varied 311.759 to 452.180 Mbit/s; France controls
+373.994 to 337.281; Finland controls 308.746 to 340.501. The conservative candidate
+measured 428.723 / 367.377 / 283.202 Mbit/s respectively. Its Finland rate is
+12.75% below the bracketing-control median and body p99 532 versus median 457.5 ms;
+this adverse production comparison is retained, not dismissed as a local gate.
+The aggressive combined candidate was weaker on Finland (259.176 Mbit/s).
+
+A final focused ablation combines arrival-order timing and pacing-feedback
+retention with the existing 200 ms reordering ceiling. This separates the
+feedback hypothesis from the wider grace. Selection remains provisional until
+that comparison completes. Its engine race suite passes; the first remote
+launch lacked a terminal and reached getpass EOF before connecting. That failed
+attempt and its successful build are preserved. The corrected launch uses a PTY.
+
+Source `37904d6` passes full root race/vet, observer guards, ten opening-phase
+race repeats, three KCP timing/virtual-link race repeats and the full KCP suite.
+The conservative executable is `enterprise-2026.10.13-final.1`, SHA-256
+`df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f`.
+It remains a local candidate; native correctness does not qualify a production
+rollout by itself. [Diagnostic definitions](PRODUCTION-DIAGNOSTICS.md) explain
+new warning events, counters and interpretation limits.

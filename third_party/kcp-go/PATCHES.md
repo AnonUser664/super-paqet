@@ -68,3 +68,12 @@ impairment regression tests. The full upstream suites remain required.
 These integrated candidates and their end-to-end qualification decisions are
 tracked in `docs/INTEGRATION-REVIEW-2026-10-08.md` in the parent application.
 They are not a production deployment.
+
+* ACK RTT evidence is collected from live, transmitted, unacknowledged send-ring
+  entries before any cumulative ACK in the datagram retires them. Retired/unsent
+  and impossible future echoes do not inflate timing; old-attempt echoes retain
+  high-delay bootstrap. The last eligible echo in datagram order preserves the
+  deployed sampler, rather than selecting the newest timestamp. Validation and
+  reliable delivery remain in the normal parser; malformed/FEC input cannot
+  apply the timing sample. Deterministic regressions cover cumulative progress,
+  duplicate retirement, retransmission, echo extensions and clock wrap.
