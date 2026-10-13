@@ -1,0 +1,86 @@
+# Acknowledgment bandwidth for a 100 MB download
+
+Four isolated transfers each verify exactly **100,000,000 application bytes**
+with SHA-256 `5775b33226f152a0b1640906a59c1081149f8832aa4f7d0113453d0a864e8a22`.
+They use the deployed final executable, SHA-256
+`df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f`.
+No production hosts or services are changed.
+
+| Link profile | ACK record bytes | ACK cost including IP/TCP bytes | Percentage of payload | Estimated Ethernet occupancy bytes | Download seconds | Average ACK IP Mbit/s |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Clean local, 100/100 Mbit/s | 37,512 | 126,432 | 0.1264% | 182,748 | 9.768 | 0.1036 |
+| Clean 80 ms RTT, 100/100 Mbit/s | 33,288 | 116,388 | 0.1164% | 169,018 | 10.132 | 0.0919 |
+| 80 ms RTT, 0.5% loss, 5% reorder, 100/100 Mbit/s | 1,695,504 | 1,785,264 | 1.7853% | 1,842,112 | 19.257 | 0.7417 |
+| 80 ms RTT, 0.5% loss, 5% reorder, 50 upload / 10 download Mbit/s | 1,124,184 | 1,410,264 | 1.4103% | 1,591,448 | 148.189 | 0.0761 |
+
+All captures report zero packets dropped by the capture kernel. All tunnel
+processes exit normally, owned firewall rules are removed, unrelated firewall
+sentinels survive, and the disposable namespaces are removed. The Python HTTP
+target's expected SIGTERM status is -15; this is not a tunnel failure.
+Six independent parser checks pass under the machine-wide test lock: full ACK
+headers, packed ACK headers counted once, mixed-packet incremental attribution,
+outer TCP flags distinguished from KCP commands, capture truncation rejected,
+and malformed KCP rejected.
+
+## What is counted
+
+The parser identifies inner KCP command 82 in complete outbound Ethernet packet
+captures on each endpoint. S/PA outer TCP flags do not identify KCP feedback.
+No encryption, FEC or optional ACK timestamp extension obscures the record
+boundaries. Capturing both endpoints records sending attempts before the middle
+bridge's artificial loss; receiver-side observations would omit lost feedback.
+
+The table describes client-to-backend acknowledgments of the downloaded data.
+The captures span one cold opening, the single download and a 0.5-second final
+feedback drain, including the other three pooled carriers' background feedback.
+The 100 MB denominator is the verified HTTP body. Opening/HTTP/mux/control
+traffic is visible separately and is not mistaken for ACK records.
+
+For a pure ACK packet, its complete IP/TCP header belongs to the ACK cost. For
+an ACK mixed with another KCP command, only the ACK record bytes are charged;
+the shared packet headers are not charged twice. Ethernet occupancy additionally
+includes Ethernet headers, minimum frame size, FCS, preamble/SFD and inter-frame
+gap. It is an occupancy estimate, not a measurement of Internet-provider
+encapsulation. Average ACK rate divides emitted ACK cost by body transfer time;
+it does not represent peak packet bursts.
+
+## Interpretation
+
+The clean 80 ms case sends 1,387 ACK records. The loss/reorder 100/100 case sends
+70,646 ACK records, packed into 1,510 packets containing ACKs. Contiguous
+progress can use cumulative acknowledgment and suppress redundant records;
+gaps require more selective receipt information. The impaired run therefore
+already batches approximately 46.8 ACK records per packet on average. Simply
+packing those same records more densely has less room to help than compacting
+the selective information or improving timing/recovery.
+
+The asymmetric case delivers 5.399 Mbit/s of useful payload, while average ACK
+IP traffic consumes only 0.152% of its 50 Mbit/s return capacity. Average return
+bandwidth exhaustion does not explain its underutilized 10 Mbit/s download.
+This does not rule out feedback delay/compression, burst queues, reordering,
+retransmission cost, multiplexed ordering or adaptive-controller decisions.
+It is one stream, rather than the earlier eight-worker HTTP comparison, and
+must not be described as an improvement over that benchmark.
+
+The current source uses adaptive control, four pooled carriers with distinct
+source ports, two backend capture workers, client/backend GOMAXPROCS 4/2,
+S outbound / PA return, no encryption or FEC, MTU 1350, manual KCP
+0/30/2/nc1, windows 4096, deployed mux buffers and optional extensions disabled.
+The complete commands, fixture hashes, cleanup receipts and byte counts are in
+[the evidence](ack-budget-evidence-2026-10-13.json).
+
+## Reproduction and limits
+
+Use `scripts/measure_ack_budget.py` under `scripts/with_test_lock.py`, with sudo
+inside the reservation. Supply an explicit binary, any required shared-library
+directory and a new output directory. The default three profiles cover clean
+local, clean WAN and loss/reorder WAN; select `--profiles asymmetric-50-10`
+for the fourth profile. The script makes a checked private adaptation of the
+existing namespace fixture rather than changing its historical results.
+
+Raw captures and generated fixture/helper remain in unique local build output
+directories. This is an exploratory measurement branch, not a new deployed
+release. The single runs measure emitted feedback cost at the specified caps;
+they do not qualify maximum throughput, thousands of active customers, real
+backend traffic, upload cost or peak return-link requirements. No batching or
+protocol change is implemented as a consequence of this measurement.
