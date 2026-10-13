@@ -5,7 +5,7 @@ Branch: `exploration/exp-ack-20261013`
 Worktree: `/home/shayan/Codes/super-paqet/build/worktrees/exp-ack-20261013`  
 Baseline commit: `844e357` (master)  
 Deployed reference executable: `enterprise-2026.10.13-final.1`, SHA-256 `df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f`  
-Candidate executable: `enterprise-2026.10.13-exp-ack.1`, SHA-256 `0b0bb6b9300958d7d127310a73cb07a36376e2a1bcd31bc79a8e6457978b6dd9`  
+Candidate executable: `enterprise-2026.10.13-exp-ack.1`, SHA-256 `756660c7c1a832ae6bc39ac6700b677a6f3a5f7515cf9eca0eea41da959f1a9b`  
 
 ---
 
@@ -124,7 +124,7 @@ All test commands acquired `/home/shayan/.cache/super-paqet-tests/test.lock` via
 ### 5.3 Candidate Binary
 Built clean, standalone candidate binary:
 - Path: `build/bin/candidate`
-- SHA-256: `0b0bb6b9300958d7d127310a73cb07a36376e2a1bcd31bc79a8e6457978b6dd9`
+- SHA-256: `756660c7c1a832ae6bc39ac6700b677a6f3a5f7515cf9eca0eea41da959f1a9b`
 - Version: `enterprise-2026.10.13-exp-ack.1`
 
 ---
