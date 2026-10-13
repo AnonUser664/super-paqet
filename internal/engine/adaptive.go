@@ -234,17 +234,28 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 	// RTT includes both directions: shrinking the data window repeatedly in
 	// response to a reverse-path queue can lock both senders into a low-rate
 	// state. Budget bounded ACK-delay headroom; pacing drains the queue.
-	flightRTT := min(rtt, c.minRTT*2) + c.ackScheduleBudget
+	flightRTT := min(rtt, c.minRTT*4)
 	headroom := 2.0
 	if queued {
 		// When congested, the target in-flight budget drains the queue towards
 		// true path BDP plus known ACK scheduling headroom, preventing
 		// bufferbloat from inflating the target and keeping the window bloated.
+		// When active packet loss is observed, retain standard headroom so
+		// multiplexed streams preserve enough credit for fast retransmit.
 		flightRTT = c.minRTT + c.ackScheduleBudget
-		headroom = 1.25
+		headroom = 1.75
+		if c.lossRatio > 0 {
+			flightRTT = min(rtt, c.minRTT*2) + c.ackScheduleBudget
+			headroom = 2.0
+		}
 	}
 	target := int(math.Ceil(headroom*c.rate*flightRTT/1000/float64(mss))) + 2
 	target = max(target, int(math.Ceil(headroom*c.packetRate*flightRTT/1000))+2)
+	if c.bulkSeen {
+		// Multiplexed streams and loss recovery require enough in-flight credit
+		// for duplicate ACKs to trigger fast retransmit without timer stalls.
+		target = max(target, 32)
+	}
 	target = min(c.maximum, max(min(4, c.maximum), target))
 	if sent > 0 {
 		c.lossRatio = .75*c.lossRatio + .25*min(.5, float64(resent)/float64(sent))
@@ -419,7 +430,11 @@ func (e *Engine) tune() {
 				// Burst queues can put late segments beyond a single SRTT even
 				// on a lossless high-delay path. Fast retransmission still handles
 				// explicit gaps; the timer floor avoids racing the normal ACKs.
-				conn.UDPSession.SetMinRTO(uint32(max(30, int(s.SRTT)*2+int(s.SRTTVar)*4+int(c.ackScheduleBudget))))
+				floor := max(30, int(s.SRTT)*2+int(s.SRTTVar)*4)
+				if s.SRTT < 100 {
+					floor = max(floor, int(s.SRTT)*2+int(c.ackScheduleBudget))
+				}
+				conn.UDPSession.SetMinRTO(uint32(floor))
 				// Per-session batch loss remains attributable on shared workers
 				// and monotonic across physical moves. Socket totals stay diagnostic.
 				c.observeOutput(conn.UDPSession.PostProcessingDrops()+conn.UDPSession.LocalOutputDrops(), s, now)
