@@ -131,7 +131,7 @@ c.ackScheduleBudget = reliabilityACKBudget(conf.KCP{Mode: "manual", Interval: 30
 
 All experiments were executed under `/home/shayan/.cache/super-paqet-tests/test.lock` via `python3 scripts/with_test_lock.py --` in `/home/shayan/Codes/super-paqet/build/worktrees/exp-ack-20261013`.
 
-### 4.1 100 MB Asymmetric Capture (`50/10 Mbit/s`, 80 ms RTT, 0% loss)
+### 4.1 100 MB Asymmetric Download Capture (`50/10 Mbit/s`, 80 ms RTT, 0% loss)
 *Harness:* `scripts/measure_ack_budget.py`  
 *Receipt:* `build/exp-ack-clean-asymmetric-20261013/receipt.json`
 
@@ -145,7 +145,21 @@ All experiments were executed under `/home/shayan/.cache/super-paqet-tests/test.
 | **Repeats < 200 ms** | ~1,700 segments | **0 segments** | **-100% (eliminated)** |
 | **Client Pure ACKs**| 3,112 packets | 3,112 packets | Zero ACK inflation |
 
-### 4.2 Multi-Profile Latency and Loss Matrix
+### 4.2 100 MB Asymmetric Upload Capture (`50/10 Mbit/s`, 80 ms RTT, 0% loss)
+*Harness:* `scripts/measure_ack_budget.py --direction upload --profiles asymmetric-clean-50-10`  
+*Receipt:* `build/exp-ack-upload-20261013/receipt.json` (Matched baseline: `docs/asymmetric-upload-evidence-2026-10-13.json`)
+
+| Metric | Deployed Baseline (`df9b3ccb`) | Candidate (`be344e00`) | Delta |
+| :--- | :--- | :--- | :--- |
+| **Transfer Time** | 19.656 s | **19.403 s** | **-0.253 s (-1.3%)** |
+| **Useful Goodput** | 40.701 Mbit/s | **41.231 Mbit/s** | **+1.3% throughput** |
+| **Useful Cap Ratio** | 81.40% | **82.46%** | **+1.06% link efficiency** |
+| **Verified Bytes** | 100,000,000 | 100,000,000 | Identical (100 MB verified digest) |
+| **Client Repeats** | 2,158 segments | **1,116 segments** | **-1,042 repeats (-48.3%)** |
+| **Repeated Bytes** | 2,830,282 bytes | **1,465,372 bytes** | **-1,364,910 bytes saved (-48.2%)** |
+| **Backend Pure ACKs**| 1,432 packets | 1,414 packets | Zero ACK inflation |
+
+### 4.3 Multi-Profile Latency and Loss Matrix
 *Harness:* `scripts/measure_ack_budget.py`  
 *Receipt:* `build/exp-ack-matrix-20261013/receipt.json`
 
@@ -160,7 +174,7 @@ All experiments were executed under `/home/shayan/.cache/super-paqet-tests/test.
 | **asymmetric-50-10** (0.5% loss, 5% reorder) | Transfer Time | 148.189 s | **141.892 s** | **-6.297 s (-4.4%)** |
 | | Goodput | 5.399 Mbit/s | **5.638 Mbit/s** | **+4.4% throughput** |
 
-### 4.3 8-Worker Bulk & HTTP on Asymmetric Impaired Link
+### 4.4 8-Worker Bulk & HTTP on Asymmetric Impaired Link
 *Harness:* `scripts/netns_bench.py` (50/10 Mbit/s, 80 ms RTT, 0.5% loss, 5% reorder, 8 workers, 45s duration + 10s warmup)  
 *Receipts:* `build/exp-ack-netns-20261013/baseline-asymmetric/results.json`, `build/exp-ack-netns-20261013/asymmetric-v3/results.json`
 
@@ -177,7 +191,7 @@ All experiments were executed under `/home/shayan/.cache/super-paqet-tests/test.
 | **Bulk Errors / Timeouts** | 0 | **0** | **Clean (0 errors)** |
 | **Successful Workers** | 8 / 8 | 8 / 8 | All 8 workers passed |
 
-### 4.4 Functional, Boundary, and Protocol Integrity
+### 4.5 Functional, Boundary, and Protocol Integrity
 *Harness:* `scripts/netns_bench.py --functional`  
 *Receipt:* `build/exp-ack-netns-20261013/functional/results.json`
 
@@ -187,21 +201,21 @@ All experiments were executed under `/home/shayan/.cache/super-paqet-tests/test.
 - **Control Ping:** Verified across live tunnel (`pong 165.79ms`).
 - **HTTP High-Concurrency:** 351,198 requests at 70,235 req/s across 32 workers with 0 errors.
 
-### 4.5 Mobile Profile (Narrow, High Loss)
+### 4.6 Mobile Profile (Narrow, High Loss)
 *Harness:* `scripts/netns_bench.py` (2 Mbit/s, 100 ms RTT, 5% loss, 4 workers, 30s duration + 10s warmup)  
 *Receipt:* `build/exp-ack-netns-20261013/mobile/results.json`
 
 - **HTTP:** 838 requests completed, 27.9 req/s, 101 ms p50 latency, **0 errors**.
 - **Bulk:** 3,242,391 bytes transferred, **0 errors**.
 
-### 4.6 Mixed Load Profile (Line Rate iperf3 + Steady HTTP Churn)
+### 4.7 Mixed Load Profile (Line Rate iperf3 + Steady HTTP Churn)
 *Harness:* `scripts/netns_bench.py --iperf --iperf-directions bidirectional --duplex-http --duplex-http-steady`  
 *Receipt:* `build/exp-ack-netns-20261013/mixed/results.json`
 
 - **Bidirectional iperf3 Rate:** **2.124 Gbit/s reverse / 2.206 Gbit/s forward**.
 - **Concurrent Duplex HTTP Churn:** **9,930 requests, 331 req/s, 9.25 ms p50 latency, 0 errors**.
 
-### 4.7 Dynamic Capacity Changes (Link Epoch Transitions)
+### 4.8 Dynamic Capacity Changes (Link Epoch Transitions)
 *Harness:* `scripts/netns_bench.py` (0s: 50 Mbit/s @ 20 ms -> 15s: 10 Mbit/s @ 80 ms -> 30s: 30 Mbit/s @ 40 ms)  
 *Receipt:* `build/exp-ack-netns-20261013/capacity-change/results.json`
 
@@ -209,14 +223,14 @@ All experiments were executed under `/home/shayan/.cache/super-paqet-tests/test.
 - **Requests Completed:** 72 requests across 4 workers.
 - **Average Goodput Across Transitions:** 13.80 Mbit/s, **0 errors**.
 
-### 4.8 Carrier Migration and Reverse Recovery
+### 4.9 Carrier Migration and Reverse Recovery
 *Harness:* `scripts/path_recovery_bench.py`  
 *Receipts:* `build/exp-ack-recovery-20261013/`
 
 - `repeat-established`: **PASSED** (0 errors, 4 established connection streams preserved across carrier drops).
 - `reverse-established`: **PASSED** (0 errors, 10.8s clean reverse recovery).
 
-### 4.9 Multi-Worker Live Reload & Resource Bounds
+### 4.10 Multi-Worker Live Reload & Resource Bounds
 *Harness:* `scripts/live_reload_netns_test.py`  
 *Receipt:* `build/exp-ack-reload-20261013/results.json`
 
@@ -225,7 +239,7 @@ All experiments were executed under `/home/shayan/.cache/super-paqet-tests/test.
 - Zero file descriptor leaks across cycles.
 - Owned nftables firewall tables completely cleaned up.
 
-### 4.10 Unit & Race Detector Suites
+### 4.11 Unit & Race Detector Suites
 - `go test -race ./...`: **PASSED** (all packages clean).
 - `go test -race -count=10 ./internal/engine`: **PASSED** (10/10).
 - `python3 -m unittest discover -s scripts`: **PASSED** (26/26 tests).
@@ -255,6 +269,7 @@ All experiments were executed under `/home/shayan/.cache/super-paqet-tests/test.
   - `internal/engine/adaptive_test.go`
 - **Receipts Preserved Under:**
   - `build/exp-ack-clean-asymmetric-20261013/receipt.json`
+  - `build/exp-ack-upload-20261013/receipt.json`
   - `build/exp-ack-matrix-20261013/receipt.json`
   - `build/exp-ack-netns-20261013/` (`clean`, `asymmetric-v3`, `functional`, `mobile`, `mixed`, `capacity-change`)
   - `build/exp-ack-recovery-20261013/`

@@ -22,8 +22,8 @@ PAYLOAD = 100_000_000  # Decimal MB; one HTTP body, not a timed load approximati
 # The standalone target/generator uses bounded storage and checks a deterministic
 # byte pattern via SHA-256. Its CPU and HTTP overhead are separate from the tunnel.
 HELPER = r'''#!/usr/bin/env python3
-import argparse,hashlib,json,time,urllib.request,http.server
-p=argparse.ArgumentParser();p.add_argument('-mode');p.add_argument('-addr');p.add_argument('-verify-size',type=int,default=100000000);a=p.parse_args()
+import argparse,hashlib,json,time,urllib.request,http.server,http.client
+p=argparse.ArgumentParser();p.add_argument('-mode');p.add_argument('-addr');p.add_argument('-verify-size',type=int,default=100000000);p.add_argument('-direction',choices=['upload','download'],default='download');a=p.parse_args()
 pattern=bytes(range(256))*256
 if a.mode=='serve':
  class Target(http.server.BaseHTTPRequestHandler):
@@ -33,6 +33,17 @@ if a.mode=='serve':
    left=100000000
    while left:
     b=pattern[:min(left,len(pattern))];self.wfile.write(b);left-=len(b)
+  def do_POST(self):
+   # Bound reads by Content-Length and return the receiver's actual digest;
+   # sender-side successful writes alone do not verify tunnel delivery.
+   size=int(self.headers['Content-Length']);assert size==100000000
+   left=size;actual=hashlib.sha256()
+   while left:
+    b=self.rfile.read(min(left,65536))
+    if not b:raise RuntimeError('upload truncated')
+    actual.update(b);left-=len(b)
+   response=json.dumps({'verified_bytes':size,'sha256':actual.hexdigest()}).encode()
+   self.send_response(200);self.send_header('Content-Length',str(len(response)));self.end_headers();self.wfile.write(response)
   def log_message(self,*args):pass
  host,port=a.addr.rsplit(':',1);http.server.ThreadingHTTPServer((host,int(port)),Target).serve_forever()
 elif a.mode=='verify':
@@ -40,16 +51,28 @@ elif a.mode=='verify':
  while left:
   b=pattern[:min(left,len(pattern))];expected.update(b);left-=len(b)
  start=time.monotonic();unix_start=time.time();actual=hashlib.sha256();n=0
- opener=urllib.request.build_opener(urllib.request.ProxyHandler({}))
- with opener.open('http://'+a.addr+'/bulk',timeout=180) as response:
-  assert int(response.headers['Content-Length'])==a.verify_size
-  while True:
-   b=response.read(65536)
-   if not b:break
-   actual.update(b);n+=len(b)
+ if a.direction=='upload':
+  host,port=a.addr.rsplit(':',1);connection=http.client.HTTPConnection(host,int(port),timeout=180)
+  try:
+   connection.putrequest('POST','/upload');connection.putheader('Content-Length',str(a.verify_size));connection.endheaders()
+   left=a.verify_size
+   while left:
+    b=pattern[:min(left,len(pattern))];connection.send(b);left-=len(b)
+   response=connection.getresponse();assert response.status==200
+   receipt=json.loads(response.read(4096));n=receipt['verified_bytes']
+   assert receipt['sha256']==expected.hexdigest(), 'backend digest mismatch'
+  finally:connection.close()
+ else:
+  opener=urllib.request.build_opener(urllib.request.ProxyHandler({}))
+  with opener.open('http://'+a.addr+'/bulk',timeout=180) as response:
+   assert int(response.headers['Content-Length'])==a.verify_size
+   while True:
+    b=response.read(65536)
+    if not b:break
+    actual.update(b);n+=len(b)
  elapsed=time.monotonic()-start
- assert n==a.verify_size and actual.digest()==expected.digest(), 'integrity/length failure'
- print(json.dumps({'verified_bytes':n,'sha256':actual.hexdigest(),'transfer_seconds':elapsed,'unix_start':unix_start,'unix_end':time.time(),'goodput_mbit':n*8/elapsed/1e6}))
+ assert n==a.verify_size and (a.direction=='upload' or actual.digest()==expected.digest()), 'integrity/length failure'
+ print(json.dumps({'direction':a.direction,'verified_bytes':n,'sha256':expected.hexdigest(),'transfer_seconds':elapsed,'unix_start':unix_start,'unix_end':time.time(),'goodput_mbit':n*8/elapsed/1e6}))
 else:raise RuntimeError('unsupported fixture mode')
 '''
 
@@ -138,7 +161,7 @@ def capture_accounting(path, sender):
     return {'counts':dict(counts),'commands':dict(commands)}
 
 
-def derived_fixture(out):
+def derived_fixture(out, direction='download'):
     """Keep the mature fixture cleanup but capture a single exact-size transfer."""
     original=(ROOT/'scripts/netns_bench.py').read_text()
     text=original
@@ -152,6 +175,8 @@ def derived_fixture(out):
     replace("spawn(s,'capture','tcpdump','-i','spq-s','-n','-w',str(out/'wire.pcap'),'-c','128','tcp','port','29999')",
             "captures=[]\n            for namespace,label,iface in ((c,'client','spq-c'),(s,'server','spq-s')):\n                captures.append(spawn(namespace,label+'-capture','tcpdump','-i',iface,'-Q','out','--immediate-mode','-s','0','-B','8192','-U','-n','-w',str(out/(label+'-out.pcap')),'tcp','port','29999'))\n            ready_deadline=time.monotonic()+10\n            while not all('listening on' in (out/(side+'-capture.log')).read_text() for side in ('client','server')):\n                if time.monotonic()>ready_deadline or any(capture.poll() is not None for capture in captures):raise RuntimeError('capture did not become ready')\n                time.sleep(.05)")
     replace("modes = (['http','bulk'] if a.mode=='both' else [a.mode]) if not a.hold else ['hold']", 'modes = []  # Only the exact-size integrity transfer belongs to this experiment.')
+    replace("result = ns(c,str(bench),'-mode','verify','-addr','127.0.0.1:28080','-verify-size',str(verify_size))",
+            "result = ns(c,str(bench),'-mode','verify','-addr','127.0.0.1:28080','-verify-size',str(verify_size),'-direction',"+repr(direction)+")")
     replace("decoded = ns(s,'tcpdump','-n','-vv','-r',str(out/'wire.pcap')).stdout\n            (out/'wire.txt').write_text(decoded)",
             "time.sleep(1.5)  # Include final ACKs and drain capture before SIGINT.\n            for capture in captures:\n                capture.send_signal(signal.SIGINT)\n            for capture in captures:\n                if capture.wait(timeout=10)!=0:raise RuntimeError('capture failed')\n            for side in ('client','server'):\n                capture_log=(out/(side+'-capture.log')).read_text()\n                if '0 packets dropped by kernel' not in capture_log:raise RuntimeError('capture lost packets; reject accounting')")
     replace("recovery_fields='{enabled: true'", "recovery_fields='{enabled: true, stalled_after: 10s'")
@@ -166,13 +191,14 @@ def main():
     parser.add_argument('--binary',required=True)
     parser.add_argument('--library-path')
     parser.add_argument('--output',required=True)
+    parser.add_argument('--direction',choices=['download','upload'],default='download')
     parser.add_argument('--profiles',nargs='+',choices=['clean-local','clean-80ms','loss-reorder-80ms','asymmetric-50-10','asymmetric-clean-50-10'],
                         default=['clean-local','clean-80ms','loss-reorder-80ms'])
     a=parser.parse_args()
     if os.geteuid()!=0:
         parser.error('run with sudo, under the shared test lock')
     out=Path(a.output).resolve();out.mkdir(parents=True,exist_ok=False)
-    binary=Path(a.binary).resolve();fixture,helper,source_hash=derived_fixture(out)
+    binary=Path(a.binary).resolve();fixture,helper,source_hash=derived_fixture(out,a.direction)
     kcp={'mode':'manual','sndwnd':4096,'rcvwnd':4096,'mtu':1350,'nodelay':0,'interval':30,
          'resend':2,'nocongestion':1,'wdelay':True,'acknodelay':False,'small_write_flush':256,
          'smuxbuf':4194304,'streambuf':2097152,'adaptive_buffers':False,'ack_timestamps':False,
@@ -188,10 +214,10 @@ def main():
               'asymmetric-50-10':['--delay-ms','40','--loss','.5','--reorder','5','--rate-mbit','50','--down-rate-mbit','10'],
               'asymmetric-clean-50-10':['--delay-ms','40','--rate-mbit','50','--down-rate-mbit','10']}
     receipt={'created_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
-             'binary_sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'payload_bytes':PAYLOAD,
+             'binary_sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'payload_bytes':PAYLOAD,'direction':a.direction,
              'source_fixture_sha256':source_hash,'derived_fixture_sha256':hashlib.sha256(fixture.read_bytes()).hexdigest(),
              'helper_sha256':hashlib.sha256(helper.read_bytes()).hexdigest(),'cases':[],
-             'limits':['one download stream using one of four pooled carriers','per-case rate caps are recorded in command/fixture parameters',
+             'limits':['one '+a.direction+' stream using one of four pooled carriers','per-case rate caps are recorded in command/fixture parameters',
                        'captures perturb timing; this measures feedback cost, not peak throughput',
                        'Ethernet occupancy includes FCS/preamble/IFG estimate; no WAN encapsulation',
                        'mixed packet header cost is not double-counted','no enc/FEC or optional ACK timestamps']}
@@ -216,9 +242,10 @@ def main():
             # tcpdump can stop before a buffered final block becomes readable
             # despite zero kernel drops. Body verification plus distinct KCP
             # payload coverage catches that accounting failure independently.
-            if row['server']['counts'].get('unique_push_payload_bytes',0)<PAYLOAD:
-                raise RuntimeError('download capture lacks complete payload coverage; reject ACK accounting')
-            ack=row['client']['counts'];seconds=row['transfer']['transfer_seconds']
+            data_side,ack_side=('client','server') if a.direction=='upload' else ('server','client')
+            if row[data_side]['counts'].get('unique_push_payload_bytes',0)<PAYLOAD:
+                raise RuntimeError(a.direction+' capture lacks complete payload coverage; reject ACK accounting')
+            ack=row[ack_side]['counts'];seconds=row['transfer']['transfer_seconds']
             row['ack_payload_percent']=ack.get('ack_record_bytes',0)/PAYLOAD*100
             row['ack_ip_percent']=ack.get('ack_incremental_ip_bytes',0)/PAYLOAD*100
             row['ack_ethernet_percent']=ack.get('ack_incremental_ethernet_bytes',0)/PAYLOAD*100
