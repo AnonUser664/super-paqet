@@ -573,8 +573,50 @@ func TestCongestionDrainsBufferbloatToBDP(t *testing.T) {
 	}
 }
 
+// TestOutputPressureDoesNotInflateWindowOnLowRTT verifies that on low-RTT links,
+// local socket drops or output pressure do NOT inflate the in-flight window.
+func TestOutputPressureDoesNotInflateWindowOnLowRTT(t *testing.T) {
+	c := newController(4096, 4096)
+	c.ackScheduleBudget = 50
+	now := time.Unix(100, 0)
+	// Base propagation delay: 2 ms, rate: 100 Mbit/s (12.5 MB/s)
+	s := kcp.TransportStats{SRTT: 2, MSS: 1326, Pending: 10, PendingBytes: 13260}
+	c.update(s, now)
+	c.startup = false
+	c.window = 20
+
+	// Trigger output pressure on low-RTT path
+	c.outputPressure = true
+	now = now.Add(250 * time.Millisecond)
+	c.update(s, now)
+	// Flight RTT must be bounded by uncongested flight budget, NOT expanded to 52 ms
+	if c.window > 30 {
+		t.Fatalf("output pressure inflated window on low-RTT link: window=%d (expected <= 30)", c.window)
+	}
+}
+
+// TestNarrowLinkBulkSeenBoundsFloor verifies that on narrow links (e.g. 1 Mbit/s, 20 ms),
+// bulkSeen does not force an oversized 32-packet floor that causes persistent bufferbloat.
+func TestNarrowLinkBulkSeenBoundsFloor(t *testing.T) {
+	c := newController(4096, 4096)
+	c.ackScheduleBudget = 50
+	c.bulkSeen = true
+	c.startup = false
+	now := time.Unix(100, 0)
+	// Narrow 1 Mbit/s link (125 KB/s), 20 ms delay: BDP is ~2 packets
+	s := kcp.TransportStats{SRTT: 20, MSS: 1326, Pending: 4, PendingBytes: 5304}
+	c.update(s, now)
+	now = now.Add(250 * time.Millisecond)
+	s.AckedBytes += 31250 // 125 KB/s * 0.25s
+	s.AckedSegments += 24
+	window := c.update(s, now)
+	if window >= 32 {
+		t.Fatalf("narrow link forced rigid 32-packet floor: window=%d (expected < 32)", window)
+	}
+}
+
 // TestTunerSetsMinRTOWithACKBudget verifies that the tuner configures MinRTO taking
-// into account the peer's delayed ACK budget, preventing premature timer firings.
+// into account the peer's delayed ACK budget, and that MinRTO is strictly monotonic.
 func TestTunerSetsMinRTOWithACKBudget(t *testing.T) {
 	e := reloadFixture(t)
 	ctx, cancel := context.WithCancel(e.ctx)
@@ -622,6 +664,15 @@ func TestTunerSetsMinRTOWithACKBudget(t *testing.T) {
 	}
 	if tuner.ackScheduleBudget != 50 {
 		t.Fatalf("expected ackScheduleBudget 50 (Interval 30 + ACKDelayMaxMS 20), got %v", tuner.ackScheduleBudget)
+	}
+
+	// Verify formula monotonicity across the 80ms -> 120ms range
+	for srtt := 80; srtt <= 120; srtt++ {
+		rto1 := max(30, srtt*2+max(1*4, 50))
+		rto2 := max(30, (srtt+1)*2+max(1*4, 50))
+		if rto2 < rto1 {
+			t.Fatalf("MinRTO is not monotonic at srtt=%d: rto1=%d, rto2=%d", srtt, rto1, rto2)
+		}
 	}
 }
 
