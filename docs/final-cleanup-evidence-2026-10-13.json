@@ -1,0 +1,80 @@
+{
+  "stage": "owned remote scratch cleanup complete",
+  "production_restarted": false,
+  "hosts": [
+    {
+      "host": "94.139.180.109",
+      "inactive_units": 11,
+      "removed_directories": [
+        "/var/lib/super-paqet-final/20261012T205657Z",
+        "/var/lib/super-paqet-final/20261012T210011Z",
+        "/var/lib/super-paqet-final/20261013T000109Z",
+        "/var/lib/super-paqet-final/20261013T002733Z",
+        "/var/lib/super-paqet-final/20261013T003419Z"
+      ],
+      "removed_bytes": 219863029,
+      "primary_identity": {
+        "unit": "MainPID=274584\nNRestarts=0\nActiveState=active\n",
+        "binary_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+        "config_sha256": "dbf05d1e4e7030861ff87902fd876711f5708418a4381c96b0d9ff05cff8f639"
+      },
+      "health": "ok"
+    },
+    {
+      "host": "116.202.177.233",
+      "inactive_units": 15,
+      "removed_directories": [
+        "/var/lib/super-paqet-final/20261012T210011Z",
+        "/var/lib/super-paqet-final/20261013T000109Z",
+        "/var/lib/super-paqet-final/20261013T002733Z",
+        "/var/lib/super-paqet-final/20261013T003419Z"
+      ],
+      "removed_bytes": 174355059,
+      "primary_identity": {
+        "unit": "MainPID=1241390\nNRestarts=0\nActiveState=active\n",
+        "binary_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+        "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475"
+      },
+      "health": "ok"
+    },
+    {
+      "host": "171.22.132.226",
+      "inactive_units": 15,
+      "removed_directories": [
+        "/var/lib/super-paqet-final/20261012T210011Z",
+        "/var/lib/super-paqet-final/20261013T000109Z",
+        "/var/lib/super-paqet-final/20261013T002733Z",
+        "/var/lib/super-paqet-final/20261013T003419Z"
+      ],
+      "removed_bytes": 174355065,
+      "primary_identity": {
+        "unit": "ActiveState=active\nMainPID=3389657\nNRestarts=0\n",
+        "binary_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+        "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1"
+      },
+      "health": "ok"
+    },
+    {
+      "host": "65.109.249.222",
+      "inactive_units": 15,
+      "removed_directories": [
+        "/var/lib/super-paqet-final/20261012T210011Z",
+        "/var/lib/super-paqet-final/20261013T000109Z",
+        "/var/lib/super-paqet-final/20261013T003419Z"
+      ],
+      "removed_bytes": 150084270,
+      "primary_identity": {
+        "unit": "MainPID=508108\nNRestarts=0\nActiveState=active\n",
+        "binary_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+        "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69"
+      },
+      "health": "ok"
+    }
+  ],
+  "preserved": [
+    "local original receipts, failed/interrupted attempts and exact binaries",
+    "production log/observer archives",
+    "current/previous production binaries and rollback backups",
+    "Xray and Nginx services/configuration"
+  ]
+}

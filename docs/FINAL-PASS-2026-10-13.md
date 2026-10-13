@@ -237,3 +237,9 @@ deadline, summary history and journal cursor. Updated script hashes, new samples
 qdisc/softnet/host scheduling evidence and unchanged tunnel identities verify.
 Client collection continues until 19 October 14:30 UTC; backend collection until
 19 October 08:01 UTC. Observer restart does not restart the application.
+
+[Owned scratch cleanup](final-cleanup-evidence-2026-10-13.json) removes the
+completed/interrupted canary directories only after verifying every receipt-owned
+unit inactive. File hashes and sizes remain in the private receipt; original
+local results, exact executables, failed attempts, production journals and rollback
+backups remain. Cleanup preserves each primary PID, binary/config hash and health.
