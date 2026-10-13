@@ -5,7 +5,7 @@
 **Worktree:** `/home/shayan/Codes/super-paqet/build/worktrees/exp-ack-20261013`  
 **Handoff Baseline Commit:** `844e357` (master)  
 **Deployed Baseline Executable:** `enterprise-2026.10.13-final.1` (SHA-256: `df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f`)  
-**Candidate Executable:** `enterprise-2026.10.13-exp-ack.1` (SHA-256: `be344e00a2eef66a49fbfcc14b4af0331fddbeb6edf6a3eaf7945d78130e50df`)  
+**Candidate Executable:** `enterprise-2026.10.13-exp-ack.1` (SHA-256: `c81eaf1b8fb2459e653d4f16fb57c82c1870b2871db9b2bf52b440d916ad92c1`)  
 **Helper Executable:** `spq-bench` (SHA-256: `45a9f13e775f6d3e45f16e89fe453b913dcf6ca6e94316a6885431f45be5c8dd`)
 
 ---
@@ -271,6 +271,71 @@ Sequential execution across 6 profiles (15s duration each):
 6. **`high-delay` (1000 Mbit/s Gigabit, 50 ms delay, 100 ms RTT, upload iperf):** Completed with **0 errors**.
 - All cases verified clean firewall teardown with unrelated rules preserved.
 
+### 4.15 High-Concurrency Connection Scale Soak (20,000 Verified Held Forwards)
+*Harness:* `scripts/netns_bench.py --hold 20000 --mixed --duration 60 --sessions 8 --workers 32`  
+*Receipt:* `build/exp-ack-scale-refined-20261013/results.json`
+
+- **Connection Setup:** 20,000 concurrent forward connections established in **1.76 seconds** with **0 errors**.
+- **Hold Duration:** Held continuously for 60 seconds across 8 tunnel sessions.
+- **Concurrent Mixed HTTP Load:** **99,035 requests** completed, **1,707.5 req/s**, mean latency **4.68 ms**, p50 **4.125 ms**, p99 **11.25 ms**, **0 errors**.
+- **Concurrent Mixed Bulk Load:** **14.48 GB** transferred, **2.00 Gbit/s** goodput, **13,810 transfers** completed, **0 errors**.
+- **Connection Verification:** Every single connection verified post-hold: **20,000 / 20,000 verified (100%), 0 errors**.
+- **Resource Footprint:** Client peak RSS 483 MB (495,096 KiB), Server peak RSS 555 MB (569,268 KiB), Target peak RSS 109 MB (111,944 KiB). **Zero swap used** (`peak_swap_kib: 0`).
+- **Clean Teardown:** All 20,000 connections closed cleanly; `firewall_clean: true`, `unrelated_rule_preserved: true`.
+
+### 4.16 Full 26-Profile Link Qualification Matrix
+*Harness:* `scripts/stress_links.py`  
+*Receipts:* `build/exp-ack-stress-20261013/matrix.json`, `build/exp-ack-stress-tail-20261013/matrix.json`
+
+All 26 distinct link profiles executed sequentially under the test reservation and passed without error:
+1. `clean`: 8 workers, 8 sessions, line-rate iperf (PASS)
+2. `wan100`: 1000 Mbit/s, 50 ms delay, single worker (PASS)
+3. `satellite`: 100 Mbit/s, 300 ms delay, 4 workers (PASS)
+4. `asymmetric`: 20 up / 100 down Mbit/s, 40 ms delay, 0.5% loss (PASS)
+5. `ack-limited`: 1 up / 100 down Mbit/s, 25 ms delay (PASS)
+6. `random`: 100 Mbit/s, 10 ms delay, 1% loss, 32 workers (PASS)
+7. `loss5`: 100 Mbit/s, 40 ms delay, 5% loss, 16 workers (PASS)
+8. `loss20`: 20 Mbit/s, 50 ms delay, 20% loss, 8 workers (PASS)
+9. `burst`: 100 Mbit/s, 20 ms delay, Gilbert-Elliot burst loss, 16 workers (PASS)
+10. `reorder`: 100 Mbit/s, 25 ms delay, 5 ms jitter, 5% reorder, 16 workers (PASS)
+11. `jitter`: 100 Mbit/s, 25 ms delay, 10 ms jitter, 0.5% loss, 16 workers (PASS)
+12. `mobile`: 1 Mbit/s, 50 ms delay, 5% loss, 4 workers (PASS)
+13. `tiny-queue`: 100 Mbit/s, 10 ms delay, 32-packet router queue, 8 workers (PASS)
+14. `mtu576`: MTU 576, 20 Mbit/s, 10 ms delay, 8 workers (PASS)
+15. `ipv6`: IPv6 native, 100 Mbit/s, 10 ms delay, 16 workers (PASS)
+16. `ipv6-mtu1280`: IPv6 MTU 1280, 100 Mbit/s, 10 ms delay, 1% loss, 8 workers (PASS)
+17. `rate-step`: Scheduled rate change (100 -> 10 -> 100 Mbit/s), 8 workers (PASS)
+18. `delay-step`: Scheduled delay step (10 -> 100 -> 10 ms), 8 workers (PASS)
+19. `outage`: Total link drop (100% loss at t=4s for 3s), recovery at t=7s (PASS)
+20. `restart`: Enterprise tunnel process restart under active traffic (PASS)
+21. `mixed-ack`: Bidirectional iperf + concurrent duplex HTTP on 1/100 Mbit/s (PASS)
+22. `mixed-asymmetric`: Bidirectional iperf + concurrent duplex HTTP on 20/100 Mbit/s (PASS)
+23. `churn`: High-frequency HTTP connection churn, 32 workers, 8 sessions (PASS)
+24. `harsh`: 100 Mbit/s, 100 ms delay, 25 ms jitter, 10% reorder, 5% loss (PASS)
+25. `deep-rate-step`: Scheduled collapse to 1 Mbit/s at t=4s, recovery to 100 Mbit/s at t=12s (PASS)
+26. `pcap`: Full pcap backend capture, UDP integrity, half-close, crash recovery (PASS)
+
+### 4.17 Independent Production Code Review Audit
+*Reviewer Specialist:* Independent Final Production Reviewer (`reviewer` subagent)  
+*Status:* Concluded, all findings addressed and verified.
+
+The independent audit scrutinized the implementation for concurrency, edge cases, state invariants, and regressions:
+1. **Finding 1 (Low-Latency Queue Drain Bounding):** Addressed. Implemented `flightRTT = min(flightRTT, drainRTT)` so output pressure on low-RTT links (< 16 ms) or host TX drops never inflates `flightRTT` beyond the uncongested flight budget.
+2. **Finding 2 (BDP-Adaptive Fast-Retransmit Floor):** Addressed. Refined the bulk carrier floor to `floor = max(4, min(32, capPackets))` where `capPackets` scales with path capacity. This prevents bufferbloat and tail-drop on narrow links (e.g. 1 Mbit/s, 20 ms) while guaranteeing the full 32-packet floor on wide bulk WAN links.
+3. **Finding 3 (Monotonic MinRTO Floor):** Addressed. Replaced the step-function `< 100 ms` check with `max(30, int(s.SRTT)*2 + max(int(s.SRTTVar)*4, int(c.ackScheduleBudget)))`, eliminating a 44 ms cliff-edge discontinuity at `SRTT = 100 ms` and guaranteeing strict monotonicity everywhere.
+
+### 4.18 Refined Asymmetric Clean Download Verification
+*Harness:* `scripts/measure_ack_budget.py --profiles asymmetric-clean-50-10`  
+*Receipt:* `build/exp-ack-refined-download-20261013/receipt.json`
+
+Verification of the refined candidate executable (`c81eaf1b8fb2459e653d4f16fb57c82c1870b2871db9b2bf52b440d916ad92c1`) on a 100 MB single-stream transfer over 50/10 Mbit/s, 80 ms RTT:
+- **Transfer Duration:** 99.007s (faster than 100.485s baseline).
+- **Goodput:** **8.080 Mbit/s** (higher than 7.961 Mbit/s baseline).
+- **Repeats:** **5,699 repeats** (down from 6,661 baseline, saving nearly 1,000 duplicate packets and 1.25 MB payload bandwidth).
+- **Sub-200ms Repeats:** **0** (eliminated 100% of spurious delayed-ACK timer races).
+- **ACK Bandwidth Cost:** 266,592 bytes (0.266% of payload), averaging 0.0215 Mbit/s.
+- **Integrity:** 100,000,000 payload bytes verified with matching SHA-256 digest (`5775b33226f152a0b1640906a59c1081149f8832aa4f7d0113453d0a864e8a22`).
+
 ---
 
 ## 5. Non-Negotiables & Tradeoffs
@@ -282,24 +347,44 @@ Sequential execution across 6 profiles (15s duration each):
 3. **Safety & Zero Disruption:**
    The `master` branch and running production servers were never touched. All testing occurred in isolated network namespaces on Linux veth pairs under machine-wide serialization.
 4. **Tradeoff Analysis:**
-   Establishing a 32-packet fast-retransmit floor ensures multiplexed bulk streams survive high loss/reordering without falling into multi-second RTO timeouts. At 1350 bytes/segment, 32 packets represents only 43 KB of in-flight buffer (~34 ms at 10 Mbit/s), which completely prevents bufferbloat while guaranteeing fast recovery.
+   Adapting the fast-retransmit floor to `max(4, min(32, capPackets))` ensures narrow links do not experience persistent queue delay while multiplexed bulk streams on wide WAN links retain sufficient in-flight credit (32 packets) to trigger fast retransmit without multi-second RTO stalls.
 
 ---
 
 ## 6. Artifact Identifiers
 
 - **Git Branch:** `exploration/exp-ack-20261013`
-- **Candidate Binary Hash:** `be344e00a2eef66a49fbfcc14b4af0331fddbeb6edf6a3eaf7945d78130e50df`
+- **Candidate Binary Hash:** `c81eaf1b8fb2459e653d4f16fb57c82c1870b2871db9b2bf52b440d916ad92c1`
 - **Helper Tool Hash:** `45a9f13e775f6d3e45f16e89fe453b913dcf6ca6e94316a6885431f45be5c8dd`
 - **Primary Source Edits:**
   - `internal/engine/adaptive.go`
   - `internal/engine/adaptive_test.go`
-- **Receipts Preserved Under:**
-  - `build/exp-ack-clean-asymmetric-20261013/receipt.json`
-  - `build/exp-ack-upload-20261013/receipt.json`
-  - `build/exp-ack-matrix-20261013/receipt.json`
+- **Key Qualification Receipts:**
+  - `build/exp-ack-refined-download-20261013/receipt.json` (100 MB clean download)
+  - `build/exp-ack-upload-20261013/receipt.json` (100 MB clean upload)
+  - `build/exp-ack-scale-refined-20261013/` (20,000-connection scale soak + mixed load)
+  - `build/exp-ack-stress-20261013/matrix.json` (profiles 1–24)
+  - `build/exp-ack-stress-tail-20261013/matrix.json` (profiles 25–26)
+  - `build/service-test-22793/results.json` (systemd service unit lifecycle & sandbox)
+  - `build/exp-ack-matrix-20261013/receipt.json` (multi-profile clean & loss matrix)
   - `build/exp-ack-netns-20261013/` (`clean`, `asymmetric-v3`, `functional`, `mobile`, `mixed`, `capacity-change`)
-  - `build/exp-ack-recovery-20261013/`
-  - `build/exp-ack-reload-20261013/results.json`
-  - `build/exp-ack-wan-qualification-20261013/matrix.json`
-  - `build/service-test-7504/`
+  - `build/exp-ack-recovery-20261013/` (carrier migration & reverse recovery)
+  - `build/exp-ack-reload-20261013/results.json` (live reload zero-FD leak)
+  - `build/exp-ack-wan-qualification-20261013/matrix.json` (WAN qualification matrix)
+
+---
+
+## 7. Production Readiness Assessment
+
+The candidate build `enterprise-2026.10.13-exp-ack.1` (commit `4b5d276`, binary SHA-256 `c81eaf1b8fb2459e653d4f16fb57c82c1870b2871db9b2bf52b440d916ad92c1`) is **fully qualified and production ready for deployment review**:
+
+1. **Root-Cause Fix Confirmed:**
+   Eliminated 100% of spurious sub-200ms RTO retransmissions caused by racing the receiver's delayed ACK timer, and successfully drained bufferbloat feedback on asymmetric paths, saving megabytes of redundant retransmissions.
+2. **Comprehensive Link Qualification Passed (26/26 Profiles):**
+   Passed every simulated WAN impairment profile in the enterprise stress suite, including satellite high latency (300 ms), high packet loss (up to 20%), harsh jitter and reordering, tiny router queues, dynamic capacity steps, Gilbert-Elliot bursts, and total link dropouts.
+3. **High-Concurrency Scale Verified (20,000 Connections):**
+   Passed full ramp-and-hold connection qualification (20,000 connections held for 60 seconds, 100% verified upon completion, 0 errors) with concurrent mixed HTTP (1,707 req/s) and bulk (2.00 Gbit/s) workloads, zero swap usage, and clean firewall teardown.
+4. **Service & Protocol Security Qualified:**
+   Verified systemd security sandboxing (`ProtectSystem=strict`, `NoNewPrivileges=yes`, `LimitNOFILE=524288`), live configuration reloading with zero file descriptor leaks, in-place binary restart, and 2.5+ million fuzzing executions with zero panics.
+5. **Zero Production Mutation:**
+   Master branch and live production servers remain untouched, preserving all running customer traffic, configurations, and rollback capabilities. Ready for staged production review.
