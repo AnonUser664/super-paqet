@@ -1,0 +1,62 @@
+{
+  "utc": "2026-10-12T19:59:55.314643+00:00",
+  "unit": "MainPID=246452\nNRestarts=0\nMemoryCurrent=246292480\nTasksCurrent=18\nActiveState=active\n",
+  "running_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+  "config_sha256": "dbf05d1e4e7030861ff87902fd876711f5708418a4381c96b0d9ff05cff8f639",
+  "health": "ok\n",
+  "since_initial_success_counter_deltas": {
+    "super_paqet_opening_capacity_retries_total": 0.0,
+    "super_paqet_opening_reused_targets_total": 0.0,
+    "super_paqet_path_recovery_attempts_total": 1.0,
+    "super_paqet_path_recovery_succeeded_total": 1.0,
+    "super_paqet_path_recovery_rejected_total": 0.0,
+    "super_paqet_log_dropped_total": 0.0,
+    "super_paqet_accepted_total": 1073832.0,
+    "super_paqet_rejected_total": 0.0,
+    "super_paqet_errors_total": 0.0,
+    "super_paqet_opening_transport_retries_total": 749.0,
+    "super_paqet_sent_bytes_total": 15151990926.0,
+    "super_paqet_received_bytes_total": 188381024811.0,
+    "super_paqet_aborted_connections_total": 705598.0,
+    "super_paqet_config_reload_applied_total": 0.0,
+    "super_paqet_config_reload_rejected_total": 0.0,
+    "super_paqet_gc_total": 465.0
+  },
+  "summary": {
+    "completed": false,
+    "until": "2026-10-19T14:30:12.731676+00:00",
+    "journal_recorder": {
+      "records": 8,
+      "cursor_resume": true,
+      "last_realtime_usec": "1791819843391359"
+    },
+    "first_utc": "2026-10-12T14:30:15.311918+00:00",
+    "last_utc": "2026-10-12T19:59:54.561253+00:00",
+    "samples": 1970,
+    "triggers": {
+      "opening_transport_retries_total_increased": 22,
+      "carrier_became_suspect": 2,
+      "path_recovery_attempts_total_increased": 1,
+      "path_recovery_succeeded_total_increased": 1,
+      "source_port_changed": 1
+    },
+    "peak_active": 11492.0,
+    "peak_rss_kib": 282068,
+    "peak_fds": 11528,
+    "observed_processes": 1,
+    "counter_deltas": {
+      "errors_total": 0,
+      "rejected_total": 0,
+      "opening_transport_retries_total": 749.0,
+      "opening_capacity_retries_total": 0,
+      "opening_reused_targets_total": 0,
+      "config_reload_rejected_total": 0,
+      "path_recovery_attempts_total": 1.0,
+      "path_recovery_succeeded_total": 1.0,
+      "path_recovery_rejected_total": 0,
+      "log_dropped_total": 0
+    },
+    "captures": 5
+  },
+  "interpretation": "Same production executable/PID/config, zero restarts and new terminal errors. Retry total 749 unchanged since 19:26 UTC. No outage-free claim; prior 17:47 cause remains unresolved. Observer cursor/summary resumed after queue evidence refresh."
+}

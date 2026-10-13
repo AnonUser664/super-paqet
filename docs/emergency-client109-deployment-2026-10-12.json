@@ -1,0 +1,269 @@
+{
+  "scope": "Emergency replacement client deployed on 12 October 2026; experimental private-writer build excluded. No sustained-capacity acceptance claim.",
+  "host": "94.139.180.109",
+  "version": "enterprise-2026.10.12-opening.10",
+  "runtime_source": "2d0e8d10c13a79a6b71668fc91aa8fb6a94af7b1",
+  "sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+  "config_sha256": "dbf05d1e4e7030861ff87902fd876711f5708418a4381c96b0d9ff05cff8f639",
+  "service": "MainPID=246452\nNRestarts=0\nActiveState=active\nUnitFileState=enabled\n",
+  "stopped_clients": [
+    {
+      "stop_rc": 0,
+      "stderr": "",
+      "state": "MainPID=0\nActiveState=inactive\nSubState=dead\nUnitFileState=enabled\n",
+      "host": "89.45.68.14",
+      "route": "new-client",
+      "attempts": [
+        {
+          "route": "direct",
+          "error": "Error reading SSH protocol banner"
+        }
+      ]
+    },
+    {
+      "stop_rc": 0,
+      "stderr": "",
+      "state": "MainPID=0\nActiveState=inactive\nSubState=dead\nUnitFileState=enabled\n",
+      "host": "89.45.68.118",
+      "route": "new-client",
+      "attempts": [
+        {
+          "route": "direct",
+          "error": "No existing session"
+        }
+      ]
+    }
+  ],
+  "hardware": {
+    "arch": "x86_64",
+    "cpus": 4,
+    "mem_kib": 8142020,
+    "route": {
+      "dst": "171.22.132.226",
+      "gateway": "94.139.180.1",
+      "dev": "ens160",
+      "prefsrc": "94.139.180.109",
+      "flags": [],
+      "uid": 0,
+      "cache": []
+    }
+  },
+  "reload": {
+    "same_process": true,
+    "pid": 246452,
+    "changed": "9001/9002/9003 destination port 2096 -> 443, confirmed by user"
+  },
+  "nginx_process_identity_unchanged": true,
+  "xray_process_identity_unchanged": true,
+  "reality_probes": {
+    "germany": [
+      {
+        "exit": 0,
+        "response": "200 1048576 0.611793 1.096589",
+        "error": "",
+        "passed": true
+      }
+    ],
+    "finland": [
+      {
+        "exit": 0,
+        "response": "200 1048576 0.704700 1.948178",
+        "error": "",
+        "passed": true
+      }
+    ],
+    "france": [
+      {
+        "exit": 0,
+        "response": "200 1048576 0.821263 2.166887",
+        "error": "",
+        "passed": true
+      }
+    ]
+  },
+  "shadowsocks_probes": {
+    "host": "94.139.180.109",
+    "method": "2022-blake3-aes-128-gcm",
+    "credentials_retained": false,
+    "probes": [
+      {
+        "country": "germany",
+        "forward_port": 8001,
+        "exit": 0,
+        "response": "200 1048576 0.432485 0.742298",
+        "error": "",
+        "passed": true
+      },
+      {
+        "country": "finland",
+        "forward_port": 8002,
+        "exit": 0,
+        "response": "200 1048576 0.440759 0.684245",
+        "error": "",
+        "passed": true
+      },
+      {
+        "country": "france",
+        "forward_port": 8003,
+        "exit": 0,
+        "response": "200 1048576 0.519812 1.776277",
+        "error": "",
+        "passed": true
+      }
+    ]
+  },
+  "backend_targets": [
+    {
+      "host": "116.202.177.233",
+      "targets": [
+        {
+          "port": 443,
+          "connected": true
+        },
+        {
+          "port": 8880,
+          "connected": true
+        }
+      ]
+    },
+    {
+      "host": "65.109.249.222",
+      "targets": [
+        {
+          "port": 443,
+          "connected": true
+        },
+        {
+          "port": 8880,
+          "connected": true
+        }
+      ]
+    },
+    {
+      "host": "171.22.132.226",
+      "targets": [
+        {
+          "port": 443,
+          "connected": true
+        },
+        {
+          "port": 8880,
+          "connected": true
+        }
+      ]
+    }
+  ],
+  "observer": {
+    "directory": "/var/log/super-paqet-watch/emergency109-20261012T142945Z",
+    "until": "2026-10-19T14:30:12.731676+00:00",
+    "unit": "[Unit]\nDescription=Bounded super-paqet client incident observer\nAfter=super-paqet.service\n[Service]\nType=exec\nExecStart=/usr/bin/python3 /var/lib/super-paqet-watch/production_watch-20261012T142945Z.py --directory /var/log/super-paqet-watch/emergency109-20261012T142945Z --interval 10 --sample-file-mib 64 --sample-backups 15 --duration 604800 --until 2026-10-19T14:30:12.731676+00:00 --journal-since @1791814812\nRuntimeMaxSec=604900\nRestart=on-failure\nRestartSec=10\nNice=10\nIOSchedulingClass=idle\nMemoryMax=128M\nTasksMax=16\nUMask=0077\nNoNewPrivileges=yes\nProtectSystem=strict\nProtectHome=yes\nReadWritePaths=/var/log/super-paqet-watch\nPrivateTmp=yes\n[Install]\nWantedBy=multi-user.target\n",
+    "active": true,
+    "sample_present": true
+  },
+  "initial_failed_probes": {
+    "germany": [
+      {
+        "exit": 35,
+        "response": "000 0 0.000000 2.828540",
+        "error": "curl: (35) OpenSSL SSL_connect: Connection reset by peer in connection to speed.cloudflare.com:443 \n",
+        "passed": false
+      }
+    ],
+    "finland": [
+      {
+        "exit": 35,
+        "response": "000 0 0.000000 3.215971",
+        "error": "curl: (35) OpenSSL SSL_connect: Connection reset by peer in connection to speed.cloudflare.com:443 \n",
+        "passed": false
+      }
+    ],
+    "france": [
+      {
+        "exit": 35,
+        "response": "000 0 0.000000 3.207062",
+        "error": "curl: (35) OpenSSL SSL_connect: Connection reset by peer in connection to speed.cloudflare.com:443 \n",
+        "passed": false
+      }
+    ]
+  },
+  "initial_failure_explanation": "Backends rejected obsolete Reality target 2096. User confirmed Reality moved to 443 and 8880 now serves Shadowsocks. Corrected via validated same-PID live reload. Plain HTTP to 8880 is not a Shadowsocks qualification.",
+  "production_configuration": "four independently reserved client source slots per country; adaptive enabled; one capture worker; GOMAXPROCS 4; quoted null cipher; S outbound / PA return; warn logs; loopback metrics; profiling off; memory limit 4096 MiB",
+  "private_evidence": "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/emergency-client109-20261012",
+  "credentials_in_public_evidence": false,
+  "nginx_shadowsocks_probes": {
+    "host": "94.139.180.109",
+    "method": "2022-blake3-aes-128-gcm",
+    "credentials_retained": false,
+    "probes": [
+      {
+        "country": "germany",
+        "forward_port": 10001,
+        "exit": 0,
+        "response": "200 1048576 0.546861 1.707102",
+        "error": "",
+        "passed": true
+      },
+      {
+        "country": "finland",
+        "forward_port": 10002,
+        "exit": 0,
+        "response": "200 1048576 0.559786 0.747507",
+        "error": "",
+        "passed": true
+      },
+      {
+        "country": "france",
+        "forward_port": 10003,
+        "exit": 0,
+        "response": "200 1048576 0.467116 0.664431",
+        "error": "",
+        "passed": true
+      }
+    ]
+  },
+  "nginx_frontend": {
+    "nginx_proxy_lines": [
+      "proxy_pass $xray_pool;",
+      "listen 0.0.0.0:10001 reuseport backlog=65535 so_keepalive=on;",
+      "listen 0.0.0.0:10002 reuseport backlog=65535 so_keepalive=on;",
+      "listen 0.0.0.0:10003 reuseport backlog=65535 so_keepalive=on;",
+      "proxy_pass $xray_ws_pool;"
+    ],
+    "ss_dns": [
+      "94.139.180.109"
+    ]
+  },
+  "public_customer_shadowsocks_probes": {
+    "address": "ss.cloudnet1.ir",
+    "resolved_addresses": [
+      "94.139.180.109"
+    ],
+    "probes": [
+      {
+        "country": "germany",
+        "forward_port": 10001,
+        "exit": 0,
+        "response": "200 1048576 0.718719 1.260228",
+        "error": "",
+        "passed": true
+      },
+      {
+        "country": "finland",
+        "forward_port": 10002,
+        "exit": 0,
+        "response": "200 1048576 0.591577 1.110820",
+        "error": "",
+        "passed": true
+      },
+      {
+        "country": "france",
+        "forward_port": 10003,
+        "exit": 0,
+        "response": "200 1048576 0.512012 0.958878",
+        "error": "",
+        "passed": true
+      }
+    ],
+    "credential_retained": false
+  }
+}

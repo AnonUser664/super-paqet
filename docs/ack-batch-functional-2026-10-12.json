@@ -1,0 +1,313 @@
+{
+  "build": {
+    "source_commit": "057bb4759bcd9e53d6b57ccd1037b02e956b9416",
+    "version": "enterprise-2026.10.12-ack-batch.1",
+    "binary_sha256": "05c99b8d35603a81b80b89118e625bb8c99103e6c67cc322dcb0174432538c7e",
+    "source_dirty": false,
+    "build_command": "CGO_LDFLAGS=-L/home/shayan/Codes/super-paqet/build/deploy-libs go build -trimpath -ldflags=\"-s -w -X paqet/cmd/version.Version=enterprise-2026.10.12-ack-batch.1 -X paqet/cmd/version.GitCommit=057bb47\" -o build/ack-batch-20261012/super-paqet ./cmd",
+    "private_writers": false,
+    "reorder_ceiling_ms": 200,
+    "pacing_policy": "existing policy",
+    "production_mutated": false
+  },
+  "production_mutated": false,
+  "functional": [
+    {
+      "name": "integrity",
+      "command": [
+        "/usr/bin/python3",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/scripts/netns_bench.py",
+        "--binary",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/ack-batch-20261012/super-paqet",
+        "--output",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/ack-batch-20261012/functional/integrity",
+        "--duration",
+        "3",
+        "--functional",
+        "--capture",
+        "--packet-workers",
+        "2",
+        "--sessions",
+        "4",
+        "--conversation-listener",
+        "--path-recovery",
+        "--preserve-connections",
+        "--client-flag",
+        "S",
+        "--server-flag",
+        "PA",
+        "--block",
+        "null",
+        "--kcp-options",
+        "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "--open-timeout",
+        "15s",
+        "--dial-timeout",
+        "5s"
+      ],
+      "binary_sha256": "05c99b8d35603a81b80b89118e625bb8c99103e6c67cc322dcb0174432538c7e",
+      "exit_code": 0,
+      "elapsed_seconds": 14.943137057009153,
+      "results.json": {
+        "parameters": {
+          "binary": "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/ack-batch-20261012/super-paqet",
+          "duration": 3,
+          "open_timeout": "15s",
+          "dial_timeout": "5s",
+          "cold_read_bytes": null,
+          "workers": 32,
+          "loss": 0,
+          "delay_ms": 0,
+          "jitter_ms": 0,
+          "reorder": 0,
+          "burst_loss": null,
+          "seed": null,
+          "rate_mbit": 0,
+          "strict_rate": false,
+          "down_rate_mbit": null,
+          "sessions": 4,
+          "max_sessions": 4,
+          "path_recovery": true,
+          "preserve_connections": true,
+          "shared_source": false,
+          "client_memory_mib": 0,
+          "server_memory_mib": 0,
+          "client_procs": 0,
+          "server_procs": 0,
+          "client_cpus": "",
+          "server_cpus": "",
+          "workload_cpus": "",
+          "packet_workers": 2,
+          "conversation_listener": true,
+          "client_flag": "S",
+          "server_flag": "PA",
+          "source_ports": null,
+          "hold": 0,
+          "enterprise": true,
+          "profile": false,
+          "metrics_interval": 0,
+          "trace_seconds": 0,
+          "debug": false,
+          "flow_sample": 1000,
+          "backend": "packet",
+          "duplex_http": false,
+          "mtu": 1500,
+          "ipv6": false,
+          "warmup": 0,
+          "http_warmup": 0,
+          "duplex_http_gap_ms": 0,
+          "duplex_http_steady": false,
+          "schedule": null,
+          "mode": "both",
+          "ramp_timeout": 600,
+          "queue_packets": 0,
+          "fq_flow_limit": 0,
+          "fq_maxrate_mbit": 0,
+          "adaptive": "on",
+          "kcp_options": "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+          "functional": true,
+          "block": "null",
+          "fec": [
+            0,
+            0
+          ],
+          "iperf": false,
+          "iperf_rate_mbit": 0,
+          "pinned_lanes": false,
+          "iperf_directions": [
+            "upload",
+            "download",
+            "bidirectional"
+          ],
+          "direct_iperf": false,
+          "tcp_buffer_mib": 0,
+          "capture": true,
+          "restart": false,
+          "mixed": false,
+          "socket_buffer_mib": 0,
+          "host_backlog": 0,
+          "bridge": false,
+          "output": "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/ack-batch-20261012/functional/integrity"
+        },
+        "results": [
+          {
+            "verified_bytes": 16777216,
+            "cold_transfer_seconds": 0.46628548798616976
+          },
+          {
+            "verified_bytes": 16777216
+          },
+          {
+            "verified_bytes": 16777216
+          },
+          {
+            "udp_datagrams_verified": 7,
+            "udp_max_bytes": 65507
+          },
+          {
+            "half_close_verified_bytes": 262144
+          },
+          {
+            "ping": "pong 171.571814ms"
+          },
+          {
+            "bytes": 5031928,
+            "canceled_requests": 30,
+            "error_kinds": {},
+            "errors": 0,
+            "goodput_gbps": 0.013417084558314472,
+            "mean_latency_us": 418.95821601580946,
+            "mode": "http",
+            "p50_us_upper": 1000,
+            "p99_us_upper": 2000,
+            "request_gap_seconds": 0,
+            "requests": 228724,
+            "requests_per_second": 76233.43499042313,
+            "seconds": 3.000310822,
+            "successful_workers": 32,
+            "total_seconds": 3.000310782,
+            "warmup_bytes": 0,
+            "warmup_errors": 0,
+            "warmup_requests": 0,
+            "warmup_seconds": 0,
+            "workers": 32,
+            "tunnel_cpu_cores": {
+              "client": 2.21,
+              "server": 2.196
+            }
+          },
+          {
+            "bytes": 2049534585,
+            "canceled_requests": 32,
+            "error_kinds": {},
+            "errors": 0,
+            "goodput_gbps": 5.464634255458184,
+            "mean_latency_us": 48826.57054582904,
+            "mode": "bulk",
+            "p50_us_upper": 31000,
+            "p99_us_upper": 220000,
+            "request_gap_seconds": 0,
+            "requests": 1942,
+            "requests_per_second": 647.2396100173513,
+            "seconds": 3.000434414,
+            "successful_workers": 32,
+            "total_seconds": 3.00043437,
+            "warmup_bytes": 0,
+            "warmup_errors": 0,
+            "warmup_requests": 0,
+            "warmup_seconds": 0,
+            "workers": 32,
+            "tunnel_cpu_cores": {
+              "client": 2.033,
+              "server": 2.043
+            }
+          }
+        ],
+        "processes": {
+          "target": {
+            "peak_rss_kib": 19120,
+            "peak_fds": 38,
+            "peak_swap_kib": 0,
+            "peak_rss_plus_swap_kib": 19120,
+            "rss_high_water_kib": 19120,
+            "cpu_seconds": 5.78
+          },
+          "server": {
+            "peak_rss_kib": 97456,
+            "peak_fds": 47,
+            "peak_swap_kib": 0,
+            "peak_rss_plus_swap_kib": 97456,
+            "rss_high_water_kib": 97456,
+            "cpu_seconds": 13.09
+          },
+          "client": {
+            "peak_rss_kib": 40436,
+            "peak_fds": 62,
+            "peak_swap_kib": 0,
+            "peak_rss_plus_swap_kib": 40436,
+            "rss_high_water_kib": 40436,
+            "cpu_seconds": 13.02
+          }
+        },
+        "kernel": "7.2.4-arch1-2",
+        "binary_sha256": "05c99b8d35603a81b80b89118e625bb8c99103e6c67cc322dcb0174432538c7e",
+        "benchmark_helper_sha256": "11e08c7becbdbe41b517c854244f598737a9b4ad1bc679dcc155d41b9ecb2445"
+      },
+      "cleanup.json": {
+        "process_exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      }
+    },
+    {
+      "name": "repeat-established",
+      "command": [
+        "/usr/bin/python3",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/scripts/path_recovery_bench.py",
+        "--binary",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/ack-batch-20261012/super-paqet",
+        "--case",
+        "repeat-established",
+        "--output",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/ack-batch-20261012/functional/repeat-established",
+        "--preserve-connections",
+        "--sequenced-payloads",
+        "--held-payload-bytes",
+        "32768",
+        "--packet-workers",
+        "2",
+        "--stall-seconds",
+        "10"
+      ],
+      "binary_sha256": "05c99b8d35603a81b80b89118e625bb8c99103e6c67cc322dcb0174432538c7e",
+      "exit_code": 0,
+      "elapsed_seconds": 57.327229325979715,
+      "cleanup.json": {
+        "spq-rec-c-363555_owned_rules_removed": true,
+        "spq-rec-s-363555_owned_rules_removed": true,
+        "unrelated_rule_preserved": true,
+        "namespaces_removed": true
+      }
+    },
+    {
+      "name": "reverse-established",
+      "command": [
+        "/usr/bin/python3",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/scripts/path_recovery_bench.py",
+        "--binary",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/ack-batch-20261012/super-paqet",
+        "--case",
+        "reverse-established",
+        "--output",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/ack-batch-20261012/functional/reverse-established",
+        "--preserve-connections",
+        "--sequenced-payloads",
+        "--held-payload-bytes",
+        "32768",
+        "--packet-workers",
+        "2",
+        "--stall-seconds",
+        "10"
+      ],
+      "binary_sha256": "05c99b8d35603a81b80b89118e625bb8c99103e6c67cc322dcb0174432538c7e",
+      "exit_code": 0,
+      "elapsed_seconds": 57.430229532998055,
+      "cleanup.json": {
+        "spq-rec-c-364269_owned_rules_removed": true,
+        "spq-rec-s-364269_owned_rules_removed": true,
+        "unrelated_rule_preserved": true,
+        "namespaces_removed": true
+      }
+    }
+  ]
+}

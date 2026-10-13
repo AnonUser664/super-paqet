@@ -1,0 +1,68 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/scripts/netns_bench.py",
+    "--binary",
+    "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/shared-output-20261012/super-paqet",
+    "--output",
+    "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/shared-output-20261012/functional/raw",
+    "--duration",
+    "3",
+    "--functional",
+    "--capture",
+    "--packet-workers",
+    "2",
+    "--sessions",
+    "4",
+    "--conversation-listener",
+    "--path-recovery",
+    "--preserve-connections",
+    "--client-flag",
+    "S",
+    "--server-flag",
+    "PA",
+    "--block",
+    "null"
+  ],
+  "binary_sha256": "751e4111bad6b14ee36a02baa562c6b06f7e341b16bdb3ec03ad14b21039e1f1",
+  "exit_code": 0,
+  "elapsed_seconds": 13.535738656006288,
+  "cleanup.json": {
+    "process_exit_codes": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "firewall_clean": true,
+    "unrelated_rule_preserved": true
+  },
+  "integrity_results": [
+    {
+      "verified_bytes": 16777216,
+      "cold_transfer_seconds": 0.10784538299776614
+    },
+    {
+      "verified_bytes": 16777216
+    },
+    {
+      "verified_bytes": 16777216
+    },
+    {
+      "udp_datagrams_verified": 7,
+      "udp_max_bytes": 65507
+    },
+    {
+      "half_close_verified_bytes": 262144
+    },
+    {
+      "ping": "pong 150.974779ms"
+    }
+  ],
+  "qualification_scope": "Functional only; short embedded HTTP/bulk runs are not sustained-performance acceptance."
+}

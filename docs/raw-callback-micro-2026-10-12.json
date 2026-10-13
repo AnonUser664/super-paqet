@@ -1,0 +1,80 @@
+{
+  "baseline_source": "43c15db",
+  "candidate": "working patch; committed source will be recorded before executable build",
+  "baseline": {
+    "BenchmarkRawBatchHealthy/packets=1": [
+      {
+        "ns": 965.0,
+        "bytes": 72,
+        "allocs": 3
+      },
+      {
+        "ns": 971.8,
+        "bytes": 72,
+        "allocs": 3
+      },
+      {
+        "ns": 978.5,
+        "bytes": 72,
+        "allocs": 3
+      }
+    ],
+    "BenchmarkRawBatchHealthy/packets=32": [
+      {
+        "ns": 22644.0,
+        "bytes": 75,
+        "allocs": 3
+      },
+      {
+        "ns": 21901.0,
+        "bytes": 74,
+        "allocs": 3
+      },
+      {
+        "ns": 21504.0,
+        "bytes": 73,
+        "allocs": 3
+      }
+    ]
+  },
+  "candidate_results": {
+    "BenchmarkRawBatchHealthy/packets=1": [
+      {
+        "ns": 888.3,
+        "bytes": 0,
+        "allocs": 0
+      },
+      {
+        "ns": 890.6,
+        "bytes": 0,
+        "allocs": 0
+      },
+      {
+        "ns": 885.6,
+        "bytes": 0,
+        "allocs": 0
+      }
+    ],
+    "BenchmarkRawBatchHealthy/packets=32": [
+      {
+        "ns": 22594.0,
+        "bytes": 0,
+        "allocs": 0
+      },
+      {
+        "ns": 22000.0,
+        "bytes": 0,
+        "allocs": 0
+      },
+      {
+        "ns": 21686.0,
+        "bytes": 0,
+        "allocs": 0
+      }
+    ]
+  },
+  "race_log": "ok  \tpaqet/internal/socket\t1.276s\n",
+  "configuration": "Unpinned actual Unix datagram sendmmsg encoding microbenchmark, 12 Go threads; 2s \u00d7 3 repetitions; not tunnel goodput.",
+  "runtime_policy": "No flag, packet, retry, pacing, adaptation, routing or migration changes; callback/results serialized by existing txMu.",
+  "acceptance_remaining": "Whole-tunnel clean, mixed and pressure comparisons; recovery/reload before any promotion."
+}

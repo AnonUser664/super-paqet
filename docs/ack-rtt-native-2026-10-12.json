@@ -1,0 +1,123 @@
+{
+  "status": "deterministic original and unsafe strict-policy failures reproduced; corrected policy native passes; no link benchmark yet",
+  "production_mutated": false,
+  "checks": [
+    {
+      "name": "red",
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "-overlay",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/ack-rtt-20261012/overlay-red.json",
+        "-run",
+        "TestACKRTT",
+        "-count=10",
+        "./..."
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "log_sha256": "7bfd043e180386bc444e397287f651757a5878d32341a9a8b88285a134babeb6",
+      "tail": [
+        "--- FAIL: TestACKRTTRetiredDuplicatePreservesEstimate (0.00s)",
+        "    ack_rtt_experiment_test.go:41: retired ACK changed estimate: RTT 100 -> 1337 RTO 300 -> 11385",
+        "--- FAIL: TestACKRTTUnsentSequencePreservesEstimate (0.00s)",
+        "    ack_rtt_experiment_test.go:82: unsent ACK changed RTT: 100",
+        "--- FAIL: TestACKRTTRetiredDuplicatePreservesEstimate (0.00s)",
+        "    ack_rtt_experiment_test.go:41: retired ACK changed estimate: RTT 100 -> 1337 RTO 300 -> 11385",
+        "--- FAIL: TestACKRTTUnsentSequencePreservesEstimate (0.00s)",
+        "    ack_rtt_experiment_test.go:82: unsent ACK changed RTT: 100",
+        "--- FAIL: TestACKRTTRetiredDuplicatePreservesEstimate (0.00s)",
+        "    ack_rtt_experiment_test.go:41: retired ACK changed estimate: RTT 100 -> 1337 RTO 300 -> 11385",
+        "--- FAIL: TestACKRTTUnsentSequencePreservesEstimate (0.00s)",
+        "    ack_rtt_experiment_test.go:82: unsent ACK changed RTT: 100",
+        "FAIL",
+        "FAIL\tgithub.com/xtaci/kcp-go/v5\t0.026s",
+        "FAIL"
+      ]
+    },
+    {
+      "name": "strict",
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "-overlay",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/ack-rtt-20261012/overlay-strict.json",
+        "-run",
+        "TestACKRTT",
+        "-count=10",
+        "./..."
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "log_sha256": "01456820608e5d09d591c6fd442b4fee39b8decaa97046abf1ccdd13a06f704c",
+      "tail": [
+        "--- FAIL: TestACKRTTOlderAttemptDeliversAndSamples (0.00s)",
+        "    ack_rtt_experiment_test.go:57: late original failed RTT bootstrap: RTT=0",
+        "--- FAIL: TestACKRTTOlderAttemptDeliversAndSamples (0.00s)",
+        "    ack_rtt_experiment_test.go:57: late original failed RTT bootstrap: RTT=0",
+        "--- FAIL: TestACKRTTOlderAttemptDeliversAndSamples (0.00s)",
+        "    ack_rtt_experiment_test.go:57: late original failed RTT bootstrap: RTT=0",
+        "--- FAIL: TestACKRTTOlderAttemptDeliversAndSamples (0.00s)",
+        "    ack_rtt_experiment_test.go:57: late original failed RTT bootstrap: RTT=0",
+        "--- FAIL: TestACKRTTOlderAttemptDeliversAndSamples (0.00s)",
+        "    ack_rtt_experiment_test.go:57: late original failed RTT bootstrap: RTT=0",
+        "--- FAIL: TestACKRTTOlderAttemptDeliversAndSamples (0.00s)",
+        "    ack_rtt_experiment_test.go:57: late original failed RTT bootstrap: RTT=0",
+        "FAIL",
+        "FAIL\tgithub.com/xtaci/kcp-go/v5\t0.027s",
+        "FAIL"
+      ]
+    },
+    {
+      "name": "green",
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "-overlay",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/ack-rtt-20261012/overlay.json",
+        "-run",
+        "TestACKRTT",
+        "-count=10",
+        "./..."
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log_sha256": "d4837631ad259e33c6e72a4d6628c102410c3a58a7597c2b067771570e4eff02",
+      "tail": [
+        "ok  \tgithub.com/xtaci/kcp-go/v5\t1.026s"
+      ]
+    },
+    {
+      "name": "regressions",
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "-overlay",
+        "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/ack-rtt-20261012/overlay.json",
+        "-run",
+        "Test(ExtendedGapGrace|GapGrace|TimerRetransmission|LateTimerACK|DelayedACKFlush|Pacing|.*Migration|.*Virtual|.*Reorder)",
+        "-count=3",
+        "./..."
+      ],
+      "exit_code": 0
+    }
+  ],
+  "sources": {
+    "kcp.go": {
+      "sha256": "0da22d2a69ed83b8b5cab4336271e8f7a3de81986e2fc5d9b1dc7442a936d407"
+    },
+    "ack_rtt_test.go": {
+      "sha256": "253faa788ac19e7c1d87e426600bb51ff267e85f1d7964e55f05d5bf31c7fe08"
+    },
+    "strict-draft-kcp.go": {
+      "sha256": "cf1a0cfc2eb3ff3c7cb2cf45c15eb417b0dffea9b9929246cd1267655ca5e30e"
+    }
+  },
+  "semantics": "Sample only ACKs for still-live transmitted segments and nonfuture echoed send timestamps. Live older-attempt ACKs remain eligible, preserving high-delay bootstrap. Reliable ACK/UNA processing unchanged.",
+  "observed_original": "duplicate retired ACK: SRTT 100 -> 1337 ms; RTO 300 -> 11385 ms. Invalid unsent sequence also changed RTT.",
+  "limitation": "Optional ACK transit timestamp attribution is unchanged; current production disables that extension."
+}

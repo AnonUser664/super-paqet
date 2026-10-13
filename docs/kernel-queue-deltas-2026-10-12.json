@@ -1,0 +1,206 @@
+{
+  "production_mutated": false,
+  "interpretation": "Root/child queues are separate comparisons and must not be summed. Drops cannot be attributed to super-paqet traffic or to the earlier 17:47 interruption. No queue policy changed.",
+  "hosts": [
+    {
+      "host": "94.139.180.109",
+      "since": "2026-10-12T19:11:50.940873+00:00",
+      "until": "2026-10-12T19:42:04.466128+00:00",
+      "unit": "MainPID=246452\nNRestarts=0\nActiveState=active\n",
+      "queues": [
+        {
+          "device": "lo",
+          "kind": "noqueue",
+          "parent": "root",
+          "drop_delta": 0,
+          "packets_delta": 0,
+          "backlog_bytes": 0
+        },
+        {
+          "device": "ens160",
+          "kind": "mq",
+          "parent": "root",
+          "drop_delta": 2,
+          "packets_delta": 22754699,
+          "backlog_bytes": 0
+        },
+        {
+          "device": "ens160",
+          "kind": "fq_codel",
+          "parent": ":4",
+          "drop_delta": 0,
+          "packets_delta": 6336023,
+          "backlog_bytes": 0
+        },
+        {
+          "device": "ens160",
+          "kind": "fq_codel",
+          "parent": ":3",
+          "drop_delta": 1,
+          "packets_delta": 5370449,
+          "backlog_bytes": 0
+        },
+        {
+          "device": "ens160",
+          "kind": "fq_codel",
+          "parent": ":2",
+          "drop_delta": 0,
+          "packets_delta": 5798422,
+          "backlog_bytes": 0
+        },
+        {
+          "device": "ens160",
+          "kind": "fq_codel",
+          "parent": ":1",
+          "drop_delta": 1,
+          "packets_delta": 5249805,
+          "backlog_bytes": 0
+        }
+      ],
+      "softnet_deltas": {
+        "drop": 0,
+        "time_squeeze": 5638
+      }
+    },
+    {
+      "host": "116.202.177.233",
+      "since": "2026-10-12T19:11:51.246341+00:00",
+      "until": "2026-10-12T19:42:06.053737+00:00",
+      "unit": "MainPID=1192114\nNRestarts=0\nActiveState=active\n",
+      "queues": [
+        {
+          "device": "lo",
+          "kind": "noqueue",
+          "parent": "root",
+          "drop_delta": 0,
+          "packets_delta": 0,
+          "backlog_bytes": 0
+        },
+        {
+          "device": "eth0",
+          "kind": "fq_codel",
+          "parent": "root",
+          "drop_delta": 0,
+          "packets_delta": 22996748,
+          "backlog_bytes": 0
+        },
+        {
+          "device": "CloudflareWARP",
+          "kind": "mq",
+          "parent": "root",
+          "drop_delta": 0,
+          "packets_delta": 7410801,
+          "backlog_bytes": 0
+        },
+        {
+          "device": "CloudflareWARP",
+          "kind": "fq_codel",
+          "parent": ":1",
+          "drop_delta": 0,
+          "packets_delta": 7410801,
+          "backlog_bytes": 0
+        },
+        {
+          "device": "sit_de1",
+          "kind": "noqueue",
+          "parent": "root",
+          "drop_delta": 0,
+          "packets_delta": 0,
+          "backlog_bytes": 0
+        }
+      ],
+      "softnet_deltas": {
+        "drop": 0,
+        "time_squeeze": 0
+      }
+    },
+    {
+      "host": "171.22.132.226",
+      "since": "2026-10-12T19:11:49.875484+00:00",
+      "until": "2026-10-12T19:42:04.152399+00:00",
+      "unit": "ActiveState=active\nMainPID=3334731\nNRestarts=0\n",
+      "queues": [
+        {
+          "device": "lo",
+          "kind": "noqueue",
+          "parent": "root",
+          "drop_delta": 0,
+          "packets_delta": 0,
+          "backlog_bytes": 0
+        },
+        {
+          "device": "net0",
+          "kind": "pfifo_fast",
+          "parent": "root",
+          "drop_delta": 0,
+          "packets_delta": 14279328,
+          "backlog_bytes": 0
+        },
+        {
+          "device": "CloudflareWARP",
+          "kind": "mq",
+          "parent": "root",
+          "drop_delta": 0,
+          "packets_delta": 4727243,
+          "backlog_bytes": 0
+        },
+        {
+          "device": "CloudflareWARP",
+          "kind": "fq",
+          "parent": ":1",
+          "drop_delta": 0,
+          "packets_delta": 4727241,
+          "backlog_bytes": 0
+        }
+      ],
+      "softnet_deltas": {
+        "drop": 0,
+        "time_squeeze": 391
+      }
+    },
+    {
+      "host": "65.109.249.222",
+      "since": "2026-10-12T19:12:04.694471+00:00",
+      "until": "2026-10-12T19:42:18.937522+00:00",
+      "unit": "MainPID=459547\nNRestarts=0\nActiveState=active\n",
+      "queues": [
+        {
+          "device": "lo",
+          "kind": "noqueue",
+          "parent": "root",
+          "drop_delta": 0,
+          "packets_delta": 0,
+          "backlog_bytes": 0
+        },
+        {
+          "device": "eth0",
+          "kind": "fq",
+          "parent": "root",
+          "drop_delta": 24,
+          "packets_delta": 13079559,
+          "backlog_bytes": 0
+        },
+        {
+          "device": "CloudflareWARP",
+          "kind": "mq",
+          "parent": "root",
+          "drop_delta": 0,
+          "packets_delta": 3348399,
+          "backlog_bytes": 0
+        },
+        {
+          "device": "CloudflareWARP",
+          "kind": "fq",
+          "parent": ":1",
+          "drop_delta": 0,
+          "packets_delta": 3348399,
+          "backlog_bytes": 0
+        }
+      ],
+      "softnet_deltas": {
+        "drop": 0,
+        "time_squeeze": 2
+      }
+    }
+  ]
+}

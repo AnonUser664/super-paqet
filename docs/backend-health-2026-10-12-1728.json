@@ -1,0 +1,106 @@
+{
+  "production_mutated": false,
+  "checks": [
+    {
+      "host": "116.202.177.233",
+      "utc": "2026-10-12T17:27:50.946076+00:00",
+      "unit": "MainPID=1192114\nNRestarts=0\nMemoryCurrent=123305984\nTasksCurrent=15\nActiveState=active\n",
+      "health": "ok\n",
+      "running_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+      "journal": "",
+      "observer": {
+        "first_utc": "2026-10-12T08:01:59.600341+00:00",
+        "last_utc": "2026-10-12T17:27:42.298331+00:00",
+        "samples": 3379,
+        "peak_active": 2963.0,
+        "peak_rss_kib": 120180,
+        "peak_fds": 2975,
+        "counter_deltas": {
+          "errors_total": 26052.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "opening_capacity_retries_total": 0,
+          "opening_reused_targets_total": 413.0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        },
+        "triggers": {
+          "opening_reused_targets_total_increased": 22,
+          "errors_total_increased": 84
+        }
+      }
+    },
+    {
+      "host": "171.22.132.226",
+      "utc": "2026-10-12T17:27:49.380964+00:00",
+      "unit": "ActiveState=active\nMainPID=3334731\nNRestarts=0\nMemoryCurrent=80281600\nTasksCurrent=11\n",
+      "health": "ok\n",
+      "running_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+      "journal": "",
+      "observer": {
+        "first_utc": "2026-10-12T08:02:06.326818+00:00",
+        "last_utc": "2026-10-12T17:27:46.706568+00:00",
+        "samples": 3395,
+        "peak_active": 1839.0,
+        "peak_rss_kib": 92852,
+        "peak_fds": 1849,
+        "counter_deltas": {
+          "errors_total": 5198.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "opening_capacity_retries_total": 0,
+          "opening_reused_targets_total": 228.0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        },
+        "triggers": {
+          "opening_reused_targets_total_increased": 24,
+          "errors_total_increased": 45
+        }
+      }
+    },
+    {
+      "host": "65.109.249.222",
+      "utc": "2026-10-12T17:28:03.348710+00:00",
+      "unit": "MainPID=459547\nNRestarts=0\nMemoryCurrent=93052928\nTasksCurrent=14\nActiveState=active\n",
+      "health": "ok\n",
+      "running_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+      "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+      "journal": "{\"time\":\"2026-10-12T15:45:04.984229623Z\",\"level\":\"WARN\",\"msg\":\"session.closed\",\"conv\":4244184183,\"remote\":\"94.139.180.109:50467\",\"reason\":\"keepalive_timeout\",\"error\":null}\n",
+      "observer": {
+        "first_utc": "2026-10-12T08:02:23.296527+00:00",
+        "last_utc": "2026-10-12T17:27:55.796525+00:00",
+        "samples": 3378,
+        "peak_active": 8354.0,
+        "peak_rss_kib": 199704,
+        "peak_fds": 8363,
+        "counter_deltas": {
+          "errors_total": 26291.0,
+          "rejected_total": 0,
+          "opening_transport_retries_total": 0,
+          "opening_capacity_retries_total": 0,
+          "opening_reused_targets_total": 126.0,
+          "config_reload_rejected_total": 0,
+          "path_recovery_attempts_total": 0,
+          "path_recovery_succeeded_total": 0,
+          "path_recovery_rejected_total": 0,
+          "log_dropped_total": 0
+        },
+        "triggers": {
+          "packet_drops_increased": 110,
+          "opening_reused_targets_total_increased": 13,
+          "errors_total_increased": 88
+        }
+      }
+    }
+  ],
+  "finland_warning": "keepalive timeout for conversation 4244184183 one minute after migration; preserved customer conversation is 136939470. Timing/tuple are consistent with temporary probe retirement, but warning alone does not prove its role or that customer streams failed."
+}

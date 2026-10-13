@@ -1,0 +1,35 @@
+{
+  "status": "root race and vet passed; real receipt retry classification and cohort/reset/noise policy checked",
+  "commands": [
+    "go test -race ./...",
+    "go vet ./..."
+  ],
+  "logs": {
+    "root-vet.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tail": []
+    },
+    "root-race.log": {
+      "sha256": "c64e12c670d5f0a4c5d6d2f5c3cb0bc15a81b496db8876133587d14b70db8c16",
+      "tail": [
+        "?   \tpaqet/cmd\t[no test files]",
+        "ok  \tpaqet/cmd/bench\t(cached)",
+        "ok  \tpaqet/cmd/config\t1.287s",
+        "?   \tpaqet/cmd/dump\t[no test files]",
+        "?   \tpaqet/cmd/firewall\t[no test files]",
+        "?   \tpaqet/cmd/ping\t[no test files]",
+        "?   \tpaqet/cmd/run\t[no test files]",
+        "?   \tpaqet/cmd/secret\t[no test files]",
+        "?   \tpaqet/cmd/version\t[no test files]",
+        "ok  \tpaqet/internal/conf\t(cached)",
+        "ok  \tpaqet/internal/engine\t6.683s",
+        "?   \tpaqet/internal/pkg/iterator\t[no test files]",
+        "ok  \tpaqet/internal/protocol\t(cached)",
+        "ok  \tpaqet/internal/socket\t(cached)",
+        "?   \tpaqet/internal/tnet\t[no test files]",
+        "?   \tpaqet/internal/tnet/kcp\t[no test files]"
+      ]
+    }
+  },
+  "production_mutated": false
+}

@@ -1,17 +1,20 @@
 # Documentation
 
-Start with [current status](STATUS.md). Latency.1 is deployed on five hosts
-with four independent client source ports per country, two backend capture
-workers and ten-second stall detection. The finite rollout passed;
-a renewed 24-hour metric/journal window is running,
-all six paths pass authenticated checks, and country peers use S outbound / PA
-return. 171.22.132.226 is France; the historical Netherlands diagnosis describes
-that same host. Measured capacity limitations remain explicit in the status and
-[production evidence](production-deployment-evidence.json).
+Start with [current status](STATUS.md). The final 13 October release runs on
+the replacement client and three backends, with four independent client source
+ports per country, adaptive control, S outbound / PA return and ten-second stall
+detection. Current qualification limits and the separate Finland Reality
+dependency are explicit in the status and [final review](FINAL-PASS-2026-10-13.md).
+171.22.132.226 is France; the historical Netherlands diagnosis describes that
+same host. Earlier deployment/review documents below describe their dated
+checkpoints and do not supersede the current status.
 
 | Document | Purpose |
 |---|---|
 | [STATUS.md](STATUS.md) | Running version, current paths and outstanding work. |
+| [Branch consolidation — 13 October](CONSOLIDATION-2026-10-13.md) | Every retired experiment's outcome, selective merge decisions, archived evidence and remaining paths. |
+| [Production-led exploration — 12 October](EXPLORATION-2026-10-12.md) | Full writer, pacing, reordering, RTT, diagnostics and measurement journal, including failed gates. |
+| [ACK bandwidth — 13 October](ACK-BUDGET-2026-10-13.md) | Verified 100 MB feedback cost, clean asymmetric confirmation and repeated-segment finding. |
 | [Latest rollout — 9 October](LATENCY-DEPLOYMENT-2026-10-09.md) | Accepted five-host latency.1 deployment, unchanged configs, cleanup, rollback and renewed observer window. |
 | [PRODUCTION-OBSERVATION-2026-10-07.md](PRODUCTION-OBSERVATION-2026-10-07.md) | Earlier five-host observer window, retention and review procedures. |
 | [Production log review — 9 October](PRODUCTION-REVIEW-2026-10-09.md) | 17.6-hour latency.1 review, France preserving recoveries, opening backpressure, queue drops and unchanged fleet identities. |

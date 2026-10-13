@@ -1,0 +1,86 @@
+{
+  "status": "complete owning-module race/vet passed; standalone overlay root checks/build pass; tracked log additions still being checked; end-to-end qualification incomplete",
+  "owning_module": {
+    "checks": [
+      {
+        "label": "kcp-race",
+        "command": [
+          "go",
+          "test",
+          "-v",
+          "-race",
+          "-timeout=30m",
+          "./..."
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 702.3882024810009
+      },
+      {
+        "label": "kcp-vet",
+        "command": [
+          "go",
+          "vet",
+          "./..."
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.1718957679986488
+      }
+    ],
+    "input_sha256": {
+      "third_party/kcp-go/kcp.go": "00fd0cb92cbaa28c3978b8a055b45638b852b1f6f7309139d75748a3dd46750e",
+      "third_party/kcp-go/ack_rtt_eligibility_test.go": "653d8d56c5db7b93f586699d8f01eaa5203218b0a5d7fad8946521bc832aa46f"
+    },
+    "production_mutated": false
+  },
+  "standalone_build": {
+    "native_commands": [
+      {
+        "command": [
+          "go",
+          "test",
+          "-race",
+          "-overlay",
+          "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/ack-rtt-20261012/overlay.json",
+          "./..."
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "go",
+          "vet",
+          "-overlay",
+          "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/ack-rtt-20261012/overlay.json",
+          "./..."
+        ],
+        "exit_code": 0
+      }
+    ],
+    "build_command": [
+      "go",
+      "build",
+      "-trimpath",
+      "-overlay",
+      "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/ack-rtt-20261012/overlay.json",
+      "-ldflags",
+      "-s -w -X paqet/cmd/version.Version=enterprise-2026.10.12-ack-rtt.1 -X paqet/cmd/version.GitCommit=6ff4f1d09d060bce75de04f41a13489493330d9f",
+      "-o",
+      "/home/shayan/Codes/super-paqet/build/worktrees/production-20261012/build/ack-rtt-20261012/super-paqet",
+      "./cmd"
+    ],
+    "source_commit": "6ff4f1d09d060bce75de04f41a13489493330d9f",
+    "version": "enterprise-2026.10.12-ack-rtt.1",
+    "binary_sha256": "57e9e36212a0e2bda1902289abdadc38a1a2fbebfce01ffe3ee497d4f714521b",
+    "overlay_source_sha256": "0da22d2a69ed83b8b5cab4336271e8f7a3de81986e2fc5d9b1dc7442a936d407",
+    "production_mutated": false,
+    "changes": "ACK RTT eligibility only; 200ms ceiling and existing pacing policy retained"
+  },
+  "failed_root_fixture": {
+    "exit_code": 1,
+    "cause": "root go test ./... enumerated .go snapshots as independent packages under ignored build directories; isolated with private module boundaries",
+    "retained_log": "native/root-race.log",
+    "root_engine_race_seconds": 6.646,
+    "corrective_attempt": "root-native-v2; original attempt retained"
+  },
+  "production_mutated": false
+}

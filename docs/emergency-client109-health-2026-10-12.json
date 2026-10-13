@@ -1,0 +1,48 @@
+{
+  "utc": "2026-10-12T14:49:29.968662+00:00",
+  "unit": "MainPID=246452\nNRestarts=0\nMemoryCurrent=79216640\nTasksCurrent=13\nActiveState=active\n",
+  "running_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+  "config_sha256": "dbf05d1e4e7030861ff87902fd876711f5708418a4381c96b0d9ff05cff8f639",
+  "health": "ok\n",
+  "since_initial_success_counter_deltas": {
+    "super_paqet_opening_capacity_retries_total": 0.0,
+    "super_paqet_opening_reused_targets_total": 0.0,
+    "super_paqet_path_recovery_attempts_total": 0.0,
+    "super_paqet_path_recovery_succeeded_total": 0.0,
+    "super_paqet_path_recovery_rejected_total": 0.0,
+    "super_paqet_log_dropped_total": 0.0,
+    "super_paqet_accepted_total": 21554.0,
+    "super_paqet_rejected_total": 0.0,
+    "super_paqet_errors_total": 0.0,
+    "super_paqet_opening_transport_retries_total": 0.0,
+    "super_paqet_sent_bytes_total": 297210377.0,
+    "super_paqet_received_bytes_total": 2183587300.0,
+    "super_paqet_aborted_connections_total": 14520.0,
+    "super_paqet_config_reload_applied_total": 0.0,
+    "super_paqet_config_reload_rejected_total": 0.0,
+    "super_paqet_gc_total": 22.0
+  },
+  "observer": {
+    "first_utc": "2026-10-12T14:30:15.311918+00:00",
+    "last_utc": "2026-10-12T14:49:20.588880+00:00",
+    "samples": 115,
+    "peak_active": 1918.0,
+    "peak_rss_kib": 84600,
+    "peak_fds": 1955,
+    "counter_deltas": {
+      "errors_total": 0,
+      "rejected_total": 0,
+      "opening_transport_retries_total": 0,
+      "opening_capacity_retries_total": 0,
+      "opening_reused_targets_total": 0,
+      "config_reload_rejected_total": 0,
+      "path_recovery_attempts_total": 0,
+      "path_recovery_succeeded_total": 0,
+      "path_recovery_rejected_total": 0,
+      "log_dropped_total": 0
+    },
+    "triggers": {}
+  },
+  "production_mutated": false,
+  "note": "Aborted forward count records client/application closure; not automatically a path failure. No fresh warning records in this review window. Finite 19-minute window is not a long-term stability or capacity qualification."
+}
