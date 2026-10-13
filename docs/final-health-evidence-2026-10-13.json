@@ -1,0 +1,110 @@
+{
+  "stage": "post-rollout and post-cleanup verification",
+  "hosts": [
+    {
+      "host": "116.202.177.233",
+      "unit": "MainPID=1241390\nNRestarts=0\nMemoryCurrent=64421888\nTasksCurrent=10\nActiveState=active\nUnitFileState=enabled\n",
+      "sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+      "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+      "health": "ok",
+      "counters": {
+        "active_connections": 511.0,
+        "accepted_total": 13910.0,
+        "errors_total": 0.0,
+        "rejected_total": 0.0,
+        "log_dropped_total": 0.0,
+        "opening_transport_retries_total": 0.0,
+        "opening_capacity_retries_total": 0.0,
+        "opening_syn_timeouts_total": 0.0,
+        "opening_receipt_timeouts_total": 0.0,
+        "opening_result_timeouts_total": 0.0,
+        "opening_closed_attempts_total": 0.0
+      },
+      "source_ports": {},
+      "rollback_timer_listing": ""
+    },
+    {
+      "host": "171.22.132.226",
+      "unit": "ActiveState=active\nUnitFileState=enabled\nMainPID=3389657\nNRestarts=0\nMemoryCurrent=27066368\nTasksCurrent=9\n",
+      "sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+      "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+      "health": "ok",
+      "counters": {
+        "active_connections": 232.0,
+        "accepted_total": 2820.0,
+        "errors_total": 0.0,
+        "rejected_total": 0.0,
+        "log_dropped_total": 0.0,
+        "opening_transport_retries_total": 0.0,
+        "opening_capacity_retries_total": 0.0,
+        "opening_syn_timeouts_total": 0.0,
+        "opening_receipt_timeouts_total": 0.0,
+        "opening_result_timeouts_total": 0.0,
+        "opening_closed_attempts_total": 0.0
+      },
+      "source_ports": {},
+      "rollback_timer_listing": ""
+    },
+    {
+      "host": "65.109.249.222",
+      "unit": "MainPID=508108\nNRestarts=0\nMemoryCurrent=19636224\nTasksCurrent=9\nActiveState=active\nUnitFileState=enabled\n",
+      "sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+      "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+      "health": "ok",
+      "counters": {
+        "active_connections": 116.0,
+        "accepted_total": 1244.0,
+        "errors_total": 0.0,
+        "rejected_total": 0.0,
+        "log_dropped_total": 0.0,
+        "opening_transport_retries_total": 0.0,
+        "opening_capacity_retries_total": 0.0,
+        "opening_syn_timeouts_total": 0.0,
+        "opening_receipt_timeouts_total": 0.0,
+        "opening_result_timeouts_total": 0.0,
+        "opening_closed_attempts_total": 0.0
+      },
+      "source_ports": {},
+      "rollback_timer_listing": ""
+    },
+    {
+      "host": "94.139.180.109",
+      "unit": "MainPID=274584\nNRestarts=0\nMemoryCurrent=100904960\nTasksCurrent=11\nActiveState=active\nUnitFileState=enabled\n",
+      "sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+      "config_sha256": "dbf05d1e4e7030861ff87902fd876711f5708418a4381c96b0d9ff05cff8f639",
+      "health": "ok",
+      "counters": {
+        "active_connections": 840.0,
+        "accepted_total": 17753.0,
+        "errors_total": 0.0,
+        "rejected_total": 0.0,
+        "log_dropped_total": 0.0,
+        "opening_transport_retries_total": 3.0,
+        "opening_capacity_retries_total": 3.0,
+        "opening_syn_timeouts_total": 0.0,
+        "opening_receipt_timeouts_total": 3.0,
+        "opening_result_timeouts_total": 0.0,
+        "opening_closed_attempts_total": 0.0
+      },
+      "source_ports": {
+        "super_paqet_peer_source_port{peer=\"france\",session=\"0\"}": 42026.0,
+        "super_paqet_peer_source_port{peer=\"france\",session=\"1\"}": 37730.0,
+        "super_paqet_peer_source_port{peer=\"france\",session=\"2\"}": 63138.0,
+        "super_paqet_peer_source_port{peer=\"france\",session=\"3\"}": 63261.0,
+        "super_paqet_peer_source_port{peer=\"germany\",session=\"0\"}": 60998.0,
+        "super_paqet_peer_source_port{peer=\"germany\",session=\"1\"}": 63003.0,
+        "super_paqet_peer_source_port{peer=\"germany\",session=\"2\"}": 63137.0,
+        "super_paqet_peer_source_port{peer=\"germany\",session=\"3\"}": 52240.0,
+        "super_paqet_peer_source_port{peer=\"finland\",session=\"0\"}": 58122.0,
+        "super_paqet_peer_source_port{peer=\"finland\",session=\"1\"}": 33601.0,
+        "super_paqet_peer_source_port{peer=\"finland\",session=\"2\"}": 55099.0,
+        "super_paqet_peer_source_port{peer=\"finland\",session=\"3\"}": 37797.0
+      },
+      "rollback_timer_listing": ""
+    }
+  ],
+  "limits": [
+    "Finite healthy observation does not establish the remaining future observer window.",
+    "Three client receipt timeouts recovered; application errors/rejections/log drops and automatic restarts are zero."
+  ]
+}

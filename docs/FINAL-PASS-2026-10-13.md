@@ -243,3 +243,13 @@ completed/interrupted canary directories only after verifying every receipt-owne
 unit inactive. File hashes and sizes remain in the private receipt; original
 local results, exact executables, failed attempts, production journals and rollback
 backups remain. Cleanup preserves each primary PID, binary/config hash and health.
+
+The [final post-cleanup health read](final-health-evidence-2026-10-13.json)
+verifies all four exact binaries/configs, enabled healthy services, zero automatic
+restarts, application errors/rejections and dropped logs. All four distinct
+source ports per country are active on the client. Three client receipt-timeout
+attempts recovered and remain in the new counters; they are not erased or
+classified as a proven network incident. Production source is integrated into
+`master`; the exploration worktrees retain private immutable receipts and builds.
+This closes the final-pass implementation and operational handoff with the
+explicit dependency and performance limits above.
