@@ -58,6 +58,12 @@ class Accounting(unittest.TestCase):
     def test_capture_truncation_rejected(self):
         with self.assertRaises(ValueError):self.parse([packet(record(82))],truncated=True)
 
+    def test_repeated_data_is_not_unique_payload(self):
+        counts=self.parse([packet(record(81,b'data')),packet(record(81,b'data'))])
+        self.assertEqual(counts['push_payload_bytes'],8)
+        self.assertEqual(counts['unique_push_payload_bytes'],4)
+        self.assertEqual(counts['repeated_push_payload_bytes'],4)
+
     def test_malformed_kcp_rejected(self):
         with self.assertRaises(ValueError):self.parse([packet(record(82)[:-1])])
 

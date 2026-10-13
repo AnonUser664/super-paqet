@@ -65,6 +65,7 @@ def capture_accounting(path, sender):
     """
     counts = collections.Counter()
     commands = collections.Counter()
+    seen_push = {}
     with path.open('rb') as source:
         header = source.read(24)
         order = {b'\xd4\xc3\xb2\xa1':'<', b'\xa1\xb2\xc3\xd4':'>',
@@ -95,7 +96,7 @@ def capture_accounting(path, sender):
             while offset < len(data):
                 if len(data)-offset < 24:
                     raise ValueError('short KCP record: enc/FEC must be disabled')
-                _,cmd,_,_,_,_,_,size=struct.unpack_from('<IBBHIIII',data,offset)
+                conv,cmd,_,_,_,sn,_,size=struct.unpack_from('<IBBHIIII',data,offset)
                 length=24+size
                 if cmd not in (81,82,83,84) or offset+length>len(data):
                     raise ValueError('invalid KCP command/length')
@@ -107,6 +108,16 @@ def capture_accounting(path, sender):
                 if cmd==81:
                     counts['push_record_bytes']+=length
                     counts['push_payload_bytes']+=size
+                    key=(conv,sn)
+                    if key in seen_push:
+                        if seen_push[key]!=size:
+                            raise ValueError('repeated KCP sequence changed length')
+                        counts['repeated_push_records']+=1
+                        counts['repeated_push_payload_bytes']+=size
+                    else:
+                        seen_push[key]=size
+                        counts['unique_push_records']+=1
+                        counts['unique_push_payload_bytes']+=size
                 offset+=length
             if not data:
                 raise ValueError('unexpected kernel TCP packet')
@@ -139,10 +150,10 @@ def derived_fixture(out):
     replace('ROOT = Path(__file__).resolve().parents[1]', 'ROOT = Path('+repr(str(ROOT))+')')
     replace('not 1 <= a.cold_read_bytes <= 16777216','not 1 <= a.cold_read_bytes <= 100000000')
     replace("spawn(s,'capture','tcpdump','-i','spq-s','-n','-w',str(out/'wire.pcap'),'-c','128','tcp','port','29999')",
-            "captures=[]\n            for namespace,label,iface in ((c,'client','spq-c'),(s,'server','spq-s')):\n                captures.append(spawn(namespace,label+'-capture','tcpdump','-i',iface,'-Q','out','-s','0','-B','8192','-U','-n','-w',str(out/(label+'-out.pcap')),'tcp','port','29999'))")
+            "captures=[]\n            for namespace,label,iface in ((c,'client','spq-c'),(s,'server','spq-s')):\n                captures.append(spawn(namespace,label+'-capture','tcpdump','-i',iface,'-Q','out','--immediate-mode','-s','0','-B','8192','-U','-n','-w',str(out/(label+'-out.pcap')),'tcp','port','29999'))\n            ready_deadline=time.monotonic()+10\n            while not all('listening on' in (out/(side+'-capture.log')).read_text() for side in ('client','server')):\n                if time.monotonic()>ready_deadline or any(capture.poll() is not None for capture in captures):raise RuntimeError('capture did not become ready')\n                time.sleep(.05)")
     replace("modes = (['http','bulk'] if a.mode=='both' else [a.mode]) if not a.hold else ['hold']", 'modes = []  # Only the exact-size integrity transfer belongs to this experiment.')
     replace("decoded = ns(s,'tcpdump','-n','-vv','-r',str(out/'wire.pcap')).stdout\n            (out/'wire.txt').write_text(decoded)",
-            "time.sleep(.5)  # Include the final ACKs before stopping capture.\n            for capture in captures:\n                capture.send_signal(signal.SIGINT)\n            for capture in captures:\n                if capture.wait(timeout=10)!=0:raise RuntimeError('capture failed')\n            for side in ('client','server'):\n                capture_log=(out/(side+'-capture.log')).read_text()\n                if '0 packets dropped by kernel' not in capture_log:raise RuntimeError('capture lost packets; reject accounting')")
+            "time.sleep(1.5)  # Include final ACKs and drain capture before SIGINT.\n            for capture in captures:\n                capture.send_signal(signal.SIGINT)\n            for capture in captures:\n                if capture.wait(timeout=10)!=0:raise RuntimeError('capture failed')\n            for side in ('client','server'):\n                capture_log=(out/(side+'-capture.log')).read_text()\n                if '0 packets dropped by kernel' not in capture_log:raise RuntimeError('capture lost packets; reject accounting')")
     replace("recovery_fields='{enabled: true'", "recovery_fields='{enabled: true, stalled_after: 10s'")
     fixture=out/'namespace_fixture.py';fixture.write_text(text)
     helper=out/'transfer-helper';helper.write_text(HELPER);helper.chmod(0o755)
@@ -155,7 +166,7 @@ def main():
     parser.add_argument('--binary',required=True)
     parser.add_argument('--library-path')
     parser.add_argument('--output',required=True)
-    parser.add_argument('--profiles',nargs='+',choices=['clean-local','clean-80ms','loss-reorder-80ms','asymmetric-50-10'],
+    parser.add_argument('--profiles',nargs='+',choices=['clean-local','clean-80ms','loss-reorder-80ms','asymmetric-50-10','asymmetric-clean-50-10'],
                         default=['clean-local','clean-80ms','loss-reorder-80ms'])
     a=parser.parse_args()
     if os.geteuid()!=0:
@@ -174,7 +185,8 @@ def main():
             '--strict-rate','--rate-mbit','100','--down-rate-mbit','100','--queue-packets','2048','--seed','804']
     profiles={'clean-local':[],'clean-80ms':['--delay-ms','40'],
               'loss-reorder-80ms':['--delay-ms','40','--loss','.5','--reorder','5'],
-              'asymmetric-50-10':['--delay-ms','40','--loss','.5','--reorder','5','--rate-mbit','50','--down-rate-mbit','10']}
+              'asymmetric-50-10':['--delay-ms','40','--loss','.5','--reorder','5','--rate-mbit','50','--down-rate-mbit','10'],
+              'asymmetric-clean-50-10':['--delay-ms','40','--rate-mbit','50','--down-rate-mbit','10']}
     receipt={'created_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
              'binary_sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'payload_bytes':PAYLOAD,
              'source_fixture_sha256':source_hash,'derived_fixture_sha256':hashlib.sha256(fixture.read_bytes()).hexdigest(),
@@ -201,6 +213,11 @@ def main():
                 raise RuntimeError('payload/artifact mismatch')
             for side,ip in [('client','198.18.0.1'),('server','198.18.0.2')]:
                 row[side]=capture_accounting(directory/(side+'-out.pcap'),ip)
+            # tcpdump can stop before a buffered final block becomes readable
+            # despite zero kernel drops. Body verification plus distinct KCP
+            # payload coverage catches that accounting failure independently.
+            if row['server']['counts'].get('unique_push_payload_bytes',0)<PAYLOAD:
+                raise RuntimeError('download capture lacks complete payload coverage; reject ACK accounting')
             ack=row['client']['counts'];seconds=row['transfer']['transfer_seconds']
             row['ack_payload_percent']=ack.get('ack_record_bytes',0)/PAYLOAD*100
             row['ack_ip_percent']=ack.get('ack_incremental_ip_bytes',0)/PAYLOAD*100

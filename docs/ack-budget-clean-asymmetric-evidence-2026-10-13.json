@@ -1,0 +1,531 @@
+{
+  "stage": "clean asymmetric follow-up completed; no production change",
+  "initial_receipt": {
+    "created_utc": "2026-10-13T07:37:03.090685+00:00",
+    "binary_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+    "payload_bytes": 100000000,
+    "source_fixture_sha256": "babbb00f1cfbc2116c886dc7b691b90e05fb94d886b74a32470c36cd949a328f",
+    "derived_fixture_sha256": "db724c197f02e655779f71adee08d32bfff21be21ad459e8a7a0ed27a2d33310",
+    "helper_sha256": "2dbb8c2065fd6dcc064742aee1bd7d89d6d94f32581ec1e12cc778bbda03f92e",
+    "cases": [
+      {
+        "profile": "asymmetric-clean-50-10",
+        "exit_code": 0,
+        "command": [
+          "python3",
+          "-B",
+          "/home/shayan/Codes/super-paqet/build/worktrees/ack-budget-20261013/build/ack-budget-clean-asymmetric-20261013T073617Z/namespace_fixture.py",
+          "--output",
+          "/home/shayan/Codes/super-paqet/build/worktrees/ack-budget-20261013/build/ack-budget-clean-asymmetric-20261013T073617Z/asymmetric-clean-50-10",
+          "--binary",
+          "/home/shayan/Codes/super-paqet/build/worktrees/final-20261013/build/final-pass-20261013/binaries/final",
+          "--benchmark-helper",
+          "/home/shayan/Codes/super-paqet/build/worktrees/ack-budget-20261013/build/ack-budget-clean-asymmetric-20261013T073617Z/transfer-helper",
+          "--cold-read-bytes",
+          "100000000",
+          "--capture",
+          "--sessions",
+          "4",
+          "--packet-workers",
+          "2",
+          "--conversation-listener",
+          "--client-procs",
+          "4",
+          "--server-procs",
+          "2",
+          "--path-recovery",
+          "--preserve-connections",
+          "--open-timeout",
+          "15s",
+          "--dial-timeout",
+          "5s",
+          "--client-flag",
+          "S",
+          "--server-flag",
+          "PA",
+          "--block",
+          "null",
+          "--adaptive",
+          "on",
+          "--kcp-options",
+          "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+          "--bridge",
+          "--strict-rate",
+          "--rate-mbit",
+          "100",
+          "--down-rate-mbit",
+          "100",
+          "--queue-packets",
+          "2048",
+          "--seed",
+          "804",
+          "--delay-ms",
+          "40",
+          "--rate-mbit",
+          "50",
+          "--down-rate-mbit",
+          "10"
+        ],
+        "cleanup": {
+          "process_exit_codes": [
+            -15,
+            0,
+            0,
+            0,
+            0
+          ],
+          "firewall_clean": true,
+          "unrelated_rule_preserved": true
+        },
+        "transfer": {
+          "verified_bytes": 100000000,
+          "sha256": "5775b33226f152a0b1640906a59c1081149f8832aa4f7d0113453d0a864e8a22",
+          "transfer_seconds": 100.10222570999758,
+          "unix_start": 1791877025.657347,
+          "unix_end": 1791877125.759586,
+          "goodput_mbit": 7.991830294739401,
+          "cold_transfer_seconds": 100.20545619699988
+        },
+        "client": {
+          "counts": {
+            "push_record_bytes": 6186,
+            "push_payload_bytes": 2274,
+            "packets": 3359,
+            "ip_bytes": 286278,
+            "ethernet_occupancy_bytes": 413920,
+            "ack_records": 3273,
+            "ack_record_bytes": 78552,
+            "packets_with_ack": 3273,
+            "pure_ack_packets": 3196,
+            "pure_ack_ip_bytes": 268464,
+            "pure_ack_ethernet_bytes": 389912,
+            "ack_incremental_ip_bytes": 270312,
+            "ack_incremental_ethernet_bytes": 391760,
+            "mixed_ack_packets": 77
+          },
+          "commands": {
+            "81": 163,
+            "82": 3273
+          }
+        },
+        "server": {
+          "counts": {
+            "packets": 83524,
+            "ip_bytes": 114743522,
+            "ethernet_occupancy_bytes": 117917434,
+            "ack_records": 155,
+            "ack_record_bytes": 3720,
+            "packets_with_ack": 155,
+            "pure_ack_packets": 150,
+            "pure_ack_ip_bytes": 11400,
+            "pure_ack_ethernet_bytes": 17100,
+            "ack_incremental_ip_bytes": 11520,
+            "ack_incremental_ethernet_bytes": 17220,
+            "push_record_bytes": 110396554,
+            "push_payload_bytes": 108394810,
+            "mixed_ack_packets": 5
+          },
+          "commands": {
+            "82": 155,
+            "81": 83406
+          }
+        },
+        "ack_payload_percent": 0.078552,
+        "ack_ip_percent": 0.270312,
+        "ack_ethernet_percent": 0.39176,
+        "average_ack_ip_mbit": 0.02160287630631597
+      }
+    ],
+    "limits": [
+      "one download stream using one of four pooled carriers",
+      "per-case rate caps are recorded in command/fixture parameters",
+      "captures perturb timing; this measures feedback cost, not peak throughput",
+      "Ethernet occupancy includes FCS/preamble/IFG estimate; no WAN encapsulation",
+      "mixed packet header cost is not double-counted",
+      "no enc/FEC or optional ACK timestamps"
+    ]
+  },
+  "confirmation_receipt": {
+    "created_utc": "2026-10-13T07:42:23.925741+00:00",
+    "binary_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+    "payload_bytes": 100000000,
+    "source_fixture_sha256": "babbb00f1cfbc2116c886dc7b691b90e05fb94d886b74a32470c36cd949a328f",
+    "derived_fixture_sha256": "3772856713c63cc4b1a11fc5d1737a46e9a6b3981a8d9a626a2f6f7ccc2a1d5d",
+    "helper_sha256": "2dbb8c2065fd6dcc064742aee1bd7d89d6d94f32581ec1e12cc778bbda03f92e",
+    "cases": [
+      {
+        "profile": "asymmetric-clean-50-10",
+        "exit_code": 0,
+        "command": [
+          "python3",
+          "-B",
+          "/home/shayan/Codes/super-paqet/build/worktrees/ack-budget-20261013/build/ack-budget-clean-asymmetric-confirm-20261013/namespace_fixture.py",
+          "--output",
+          "/home/shayan/Codes/super-paqet/build/worktrees/ack-budget-20261013/build/ack-budget-clean-asymmetric-confirm-20261013/asymmetric-clean-50-10",
+          "--binary",
+          "/home/shayan/Codes/super-paqet/build/worktrees/final-20261013/build/final-pass-20261013/binaries/final",
+          "--benchmark-helper",
+          "/home/shayan/Codes/super-paqet/build/worktrees/ack-budget-20261013/build/ack-budget-clean-asymmetric-confirm-20261013/transfer-helper",
+          "--cold-read-bytes",
+          "100000000",
+          "--capture",
+          "--sessions",
+          "4",
+          "--packet-workers",
+          "2",
+          "--conversation-listener",
+          "--client-procs",
+          "4",
+          "--server-procs",
+          "2",
+          "--path-recovery",
+          "--preserve-connections",
+          "--open-timeout",
+          "15s",
+          "--dial-timeout",
+          "5s",
+          "--client-flag",
+          "S",
+          "--server-flag",
+          "PA",
+          "--block",
+          "null",
+          "--adaptive",
+          "on",
+          "--kcp-options",
+          "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+          "--bridge",
+          "--strict-rate",
+          "--rate-mbit",
+          "100",
+          "--down-rate-mbit",
+          "100",
+          "--queue-packets",
+          "2048",
+          "--seed",
+          "804",
+          "--delay-ms",
+          "40",
+          "--rate-mbit",
+          "50",
+          "--down-rate-mbit",
+          "10"
+        ],
+        "cleanup": {
+          "process_exit_codes": [
+            -15,
+            0,
+            0,
+            0,
+            0
+          ],
+          "firewall_clean": true,
+          "unrelated_rule_preserved": true
+        },
+        "transfer": {
+          "verified_bytes": 100000000,
+          "sha256": "5775b33226f152a0b1640906a59c1081149f8832aa4f7d0113453d0a864e8a22",
+          "transfer_seconds": 100.48536467799568,
+          "unix_start": 1791877346.5508063,
+          "unix_end": 1791877447.0361822,
+          "goodput_mbit": 7.961358378541909,
+          "cold_transfer_seconds": 100.5855026890058
+        },
+        "client": {
+          "counts": {
+            "push_record_bytes": 9090,
+            "push_payload_bytes": 3306,
+            "packets": 3417,
+            "ip_bytes": 292878,
+            "ethernet_occupancy_bytes": 422724,
+            "ack_records": 3282,
+            "ack_record_bytes": 78768,
+            "packets_with_ack": 3282,
+            "pure_ack_packets": 3176,
+            "pure_ack_ip_bytes": 266784,
+            "pure_ack_ethernet_bytes": 387472,
+            "ack_incremental_ip_bytes": 269328,
+            "ack_incremental_ethernet_bytes": 390016,
+            "mixed_ack_packets": 106
+          },
+          "commands": {
+            "81": 241,
+            "82": 3282
+          }
+        },
+        "server": {
+          "counts": {
+            "packets": 83803,
+            "ip_bytes": 115134485,
+            "ethernet_occupancy_bytes": 118318999,
+            "ack_records": 233,
+            "ack_record_bytes": 5592,
+            "packets_with_ack": 233,
+            "pure_ack_packets": 229,
+            "pure_ack_ip_bytes": 17404,
+            "pure_ack_ethernet_bytes": 26106,
+            "ack_incremental_ip_bytes": 17500,
+            "ack_incremental_ethernet_bytes": 26202,
+            "push_record_bytes": 110771137,
+            "push_payload_bytes": 108764305,
+            "mixed_ack_packets": 4
+          },
+          "commands": {
+            "82": 233,
+            "81": 83618
+          }
+        },
+        "ack_payload_percent": 0.078768,
+        "ack_ip_percent": 0.269328,
+        "ack_ethernet_percent": 0.39001600000000003,
+        "average_ack_ip_mbit": 0.021442167293759352
+      }
+    ],
+    "limits": [
+      "one download stream using one of four pooled carriers",
+      "per-case rate caps are recorded in command/fixture parameters",
+      "captures perturb timing; this measures feedback cost, not peak throughput",
+      "Ethernet occupancy includes FCS/preamble/IFG estimate; no WAN encapsulation",
+      "mixed packet header cost is not double-counted",
+      "no enc/FEC or optional ACK timestamps"
+    ]
+  },
+  "verified_confirmation_accounting": {
+    "client": {
+      "counts": {
+        "push_record_bytes": 9090,
+        "push_payload_bytes": 3306,
+        "unique_push_records": 156,
+        "unique_push_payload_bytes": 2186,
+        "packets": 3417,
+        "ip_bytes": 292878,
+        "ethernet_occupancy_bytes": 422724,
+        "ack_records": 3282,
+        "ack_record_bytes": 78768,
+        "packets_with_ack": 3282,
+        "pure_ack_packets": 3176,
+        "pure_ack_ip_bytes": 266784,
+        "pure_ack_ethernet_bytes": 387472,
+        "ack_incremental_ip_bytes": 269328,
+        "ack_incremental_ethernet_bytes": 390016,
+        "mixed_ack_packets": 106,
+        "repeated_push_records": 85,
+        "repeated_push_payload_bytes": 1120
+      },
+      "commands": {
+        "81": 241,
+        "82": 3282
+      }
+    },
+    "server": {
+      "counts": {
+        "packets": 83803,
+        "ip_bytes": 115134485,
+        "ethernet_occupancy_bytes": 118318999,
+        "ack_records": 233,
+        "ack_record_bytes": 5592,
+        "packets_with_ack": 233,
+        "pure_ack_packets": 229,
+        "pure_ack_ip_bytes": 17404,
+        "pure_ack_ethernet_bytes": 26106,
+        "ack_incremental_ip_bytes": 17500,
+        "ack_incremental_ethernet_bytes": 26202,
+        "push_record_bytes": 110771137,
+        "push_payload_bytes": 108764305,
+        "unique_push_records": 76957,
+        "unique_push_payload_bytes": 100054655,
+        "mixed_ack_packets": 4,
+        "repeated_push_records": 6661,
+        "repeated_push_payload_bytes": 8709650
+      },
+      "commands": {
+        "82": 233,
+        "81": 83618
+      }
+    },
+    "full_download_capture_coverage": true
+  },
+  "parser_checks_passed": 7,
+  "capture_note": "Initial buffered capture omitted a trailing partial block despite zero kernel drops. Retained as throughput evidence; confirmation uses readiness gate, immediate mode, 1.5-second drain and distinct payload coverage.",
+  "confirmation_qdiscs": {
+    "c": [
+      {
+        "kind": "noqueue",
+        "handle": "0:",
+        "dev": "lo",
+        "root": true,
+        "refcnt": 2,
+        "options": {},
+        "bytes": 0,
+        "packets": 0,
+        "drops": 0,
+        "overlimits": 0,
+        "requeues": 0,
+        "backlog": 0,
+        "qlen": 0
+      },
+      {
+        "kind": "noqueue",
+        "handle": "0:",
+        "dev": "spq-c",
+        "root": true,
+        "refcnt": 2,
+        "options": {},
+        "bytes": 0,
+        "packets": 0,
+        "drops": 0,
+        "overlimits": 0,
+        "requeues": 0,
+        "backlog": 0,
+        "qlen": 0
+      }
+    ],
+    "r": [
+      {
+        "kind": "noqueue",
+        "handle": "0:",
+        "dev": "br0",
+        "root": true,
+        "refcnt": 2,
+        "options": {},
+        "bytes": 0,
+        "packets": 0,
+        "drops": 0,
+        "overlimits": 0,
+        "requeues": 0,
+        "backlog": 0,
+        "qlen": 0
+      },
+      {
+        "kind": "tbf",
+        "handle": "1:",
+        "dev": "spq-rc",
+        "root": true,
+        "refcnt": 13,
+        "options": {
+          "rate": 1250000,
+          "burst": 16384,
+          "lat": 2444492
+        },
+        "bytes": 116310359,
+        "packets": 83835,
+        "drops": 0,
+        "overlimits": 214462,
+        "requeues": 0,
+        "backlog": 0,
+        "qlen": 0
+      },
+      {
+        "kind": "netem",
+        "handle": "10:",
+        "dev": "spq-rc",
+        "parent": "1:1",
+        "options": {
+          "limit": 2048,
+          "delay": {
+            "delay": 0.04,
+            "jitter": 0,
+            "correlation": 0
+          },
+          "seed": 804,
+          "ecn": false,
+          "gap": 0
+        },
+        "bytes": 116310359,
+        "packets": 83835,
+        "drops": 0,
+        "overlimits": 0,
+        "requeues": 0,
+        "backlog": 0,
+        "qlen": 0,
+        "delayed": 83835,
+        "dropped": 0,
+        "corrupted": 0,
+        "duplicated": 0,
+        "reordered": 0,
+        "ecn_marked": 0
+      },
+      {
+        "kind": "tbf",
+        "handle": "1:",
+        "dev": "spq-rs",
+        "root": true,
+        "refcnt": 13,
+        "options": {
+          "rate": 6250000,
+          "burst": 16384,
+          "lat": 488898
+        },
+        "bytes": 343258,
+        "packets": 3448,
+        "drops": 0,
+        "overlimits": 0,
+        "requeues": 0,
+        "backlog": 106,
+        "qlen": 1
+      },
+      {
+        "kind": "netem",
+        "handle": "10:",
+        "dev": "spq-rs",
+        "parent": "1:1",
+        "options": {
+          "limit": 2048,
+          "delay": {
+            "delay": 0.04,
+            "jitter": 0,
+            "correlation": 0
+          },
+          "seed": 804,
+          "ecn": false,
+          "gap": 0
+        },
+        "bytes": 343168,
+        "packets": 3447,
+        "drops": 0,
+        "overlimits": 0,
+        "requeues": 0,
+        "backlog": 106,
+        "qlen": 1,
+        "delayed": 3448,
+        "dropped": 0,
+        "corrupted": 0,
+        "duplicated": 0,
+        "reordered": 0,
+        "ecn_marked": 0
+      }
+    ],
+    "s": [
+      {
+        "kind": "noqueue",
+        "handle": "0:",
+        "dev": "lo",
+        "root": true,
+        "refcnt": 2,
+        "options": {},
+        "bytes": 0,
+        "packets": 0,
+        "drops": 0,
+        "overlimits": 0,
+        "requeues": 0,
+        "backlog": 0,
+        "qlen": 0
+      },
+      {
+        "kind": "noqueue",
+        "handle": "0:",
+        "dev": "spq-s",
+        "root": true,
+        "refcnt": 2,
+        "options": {},
+        "bytes": 0,
+        "packets": 0,
+        "drops": 0,
+        "overlimits": 0,
+        "requeues": 0,
+        "backlog": 0,
+        "qlen": 0
+      }
+    ]
+  }
+}

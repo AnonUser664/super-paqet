@@ -32,7 +32,7 @@ bridge's artificial loss; receiver-side observations would omit lost feedback.
 
 The table describes client-to-backend acknowledgments of the downloaded data.
 The captures span one cold opening, the single download and a 0.5-second final
-feedback drain, including the other three pooled carriers' background feedback.
+feedback drain, including any background feedback on the configured pool.
 The 100 MB denominator is the verified HTTP body. Opening/HTTP/mux/control
 traffic is visible separately and is not mistaken for ACK records.
 
@@ -84,3 +84,44 @@ release. The single runs measure emitted feedback cost at the specified caps;
 they do not qualify maximum throughput, thousands of active customers, real
 backend traffic, upload cost or peak return-link requirements. No batching or
 protocol change is implemented as a consequence of this measurement.
+
+## Clean asymmetric follow-up
+
+The user requested the same 50 Mbit/s upload / 10 Mbit/s download profile with
+80 ms RTT, but **zero configured loss and zero reordering**. Two transfers
+verify the same 100,000,000-byte body using the same final executable and
+adaptive/KCP parameters:
+
+| Run | Body transfer seconds | Useful download Mbit/s | ACK IP/TCP bytes | ACK payload percentage | Average ACK IP Mbit/s |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Initial | 100.102 | 7.992 | 270,312 | 0.2703% | 0.02160 |
+| Confirmation with full capture coverage | 100.485 | 7.961 | 269,328 | 0.2693% | 0.02144 |
+
+All virtual-link qdiscs show zero drops and zero reordering; capture kernel drops
+are zero, payload verification passes and owned cleanup succeeds. The confirmed
+run improves useful delivery approximately 47.5% over the prior impaired single
+download's 5.399 Mbit/s. Its rate is still only 79.6% of the nominal download cap;
+this does not demonstrate perfect utilization or that asymmetry has no cost.
+
+The confirmation captures **6,661 repeated KCP PUSH segments containing
+8,709,650 payload bytes**. Distinct sender payload totals 100,054,655 bytes,
+covering the whole application body plus mux/protocol bytes. The repeated
+segments consume capacity without duplicating bytes delivered to the customer.
+Their presence with loss/reordering disabled is a reliability/pacing investigation
+opportunity. This experiment has no per-packet timer/receiver-drop trace and does
+not prove every repeat was unnecessary or identify the exact trigger.
+
+The first follow-up exposed a measurement limitation: the buffered tcpdump
+capture contained less distinct KCP payload than the verified application body,
+despite zero kernel drops. Stopping capture can omit its trailing partial block.
+The initial transfer's SHA-256 and timing remain valid, but its ACK cost is an
+estimate. The confirmation adds an explicit readiness gate, immediate capture,
+a 1.5-second feedback drain and a distinct-payload coverage check. The helper
+now rejects incomplete download captures; seven parser checks pass, including
+not treating repeated sends as unique payload. Historical raw receipts and ACK
+estimates remain preserved, rather than silently replaced.
+
+[Follow-up evidence](ack-budget-clean-asymmetric-evidence-2026-10-13.json) includes
+both attempts, confirmed byte accounting and the actual qdisc counters. Select
+`--profiles asymmetric-clean-50-10` to reproduce the clean case. There is no
+production runtime/configuration change or deployment.
