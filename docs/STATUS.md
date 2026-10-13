@@ -1,4 +1,45 @@
-# Current deployment status
+# Current deployment status — 13 October 2026
+
+The four active hosts run **enterprise-2026.10.13-final.1**, runtime source
+`37904d6`, SHA-256
+`df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f`:
+client **94.139.180.109**, Germany **116.202.177.233** (also its existing
+91.107.251.85 listener), France **171.22.132.226**, Finland **65.109.249.222**.
+The old .14/.118 clients remain stopped and were not restarted by this rollout.
+
+Configs and systemd units are unchanged: four independent source-port carriers
+per country, existing adaptive control, 200 ms learned reordering ceiling,
+10s stall / 15s retry / 5s probe, S outbound / PA return, null encryption,
+warning logs and profiling off. All existing 900x→backend 443 and 800x→8880
+forwards are preserved. Customer connections reconnected during binary restarts.
+Xray and Nginx identities/configuration were preserved. Exact running/disk hashes,
+healthy enabled services and zero automatic restarts pass; rollback timers are
+disarmed and backups retained.
+
+The release fixes invalid ACK timing evidence while preserving arrival-order
+sampling, and adds bounded opening-phase warnings and delivery/queue metrics.
+Both experimental pacing changes and the 750 ms grace remain excluded. Root
+race/vet, owning KCP tests, local impairment/mixed/recovery/reload gates and
+20,000 held-and-verified real-host connections with concurrent three-country
+traffic pass. Clean median upload/download is 6.41/4.94 Gbit/s locally. This is
+finite qualification, not a guarantee of universal maximum performance or
+100,000 continuously busy connections on the backend hardware.
+
+**Five authenticated paths pass. Finland Reality fails before and after rollout
+and in backend-loopback tests that bypass the tunnel; its Shadowsocks path and
+controlled tunnel payload tests pass.** Its service/probe dependency requires
+follow-up; no Xray changes were made to hide the failure. Synthetic asymmetric
+throughput is lower than control and remains a documented optimization limit.
+
+See the [final review and tradeoffs](FINAL-PASS-2026-10-13.md),
+[exact-artifact gates](final-artifact-qualification-2026-10-13.json),
+[real-host scale gate](final-real-scale-2026-10-13.json),
+[deployment receipt](final-deployment-evidence-2026-10-13.json) and
+[production diagnostic guide](PRODUCTION-DIAGNOSTICS.md). Finite, bounded
+observers retain production logs through 19 October; completed stability over
+that future window is not claimed.
+
+# Earlier deployment status — 12 October 2026
 
 All five hosts now run **enterprise-2026.10.12-opening.10** under enabled
 `super-paqet.service`, runtime source `2d0e8d1`, SHA-256

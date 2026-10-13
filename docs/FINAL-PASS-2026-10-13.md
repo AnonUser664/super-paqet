@@ -7,7 +7,8 @@ production are distinguished below; a source commit alone is not a deployment.
 
 ## Scope and release decision
 
-Qualification is in progress. The primary services still run opening.10,
+Review and finite qualification are complete; final.1 is deployed. Earlier
+sections below retain the investigation and previous primary opening.10,
 SHA-256 `22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c`.
 The active topology is client 94.139.180.109 and Germany, France and Finland
 backends. The old .14/.118 clients remain stopped. Application destinations are
@@ -210,3 +211,29 @@ exclusion. It must not be described as six healthy authenticated application
 paths. The tunnel itself passed payload/scale checks on all three countries.
 Final acceptance is scoped to the tunneling runtime; Finland Reality still
 requires an operator/service follow-up.
+
+## Final deployment complete
+
+All four active hosts run the selected exact binary with healthy enabled
+services, zero automatic restarts and matching disk/running hashes. Config and
+unit hashes and Xray/Nginx identities remain unchanged. Backend-first replacement
+then independently scheduled Finland/client restarts prevent administrative
+connectivity loss from blocking recovery. Established customer connections
+reconnected during the update. Rollback protection was disarmed only after
+five working authenticated routes passed twice each and all final identities
+verified. Finland Reality failed again as it had before and on backend loopback;
+that exclusion remains explicit in [the rollout receipt](final-deployment-evidence-2026-10-13.json).
+
+The final decision is closed: retain the corrected arrival-order RTT sampler,
+existing adaptive pacing, 200 ms learned reorder ceiling and current four-lane
+configuration. Correctness, finite real-load checks and incident visibility
+justify this release; neither universally highest throughput nor a repaired
+Finland Reality service is claimed. Production observer refresh, owned scratch
+cleanup and final source integration/push complete the operational handoff.
+
+The [finite observers](final-observer-evidence-2026-10-13.json) are refreshed
+on all four hosts with the new phase counters, retaining the existing archive,
+deadline, summary history and journal cursor. Updated script hashes, new samples,
+qdisc/softnet/host scheduling evidence and unchanged tunnel identities verify.
+Client collection continues until 19 October 14:30 UTC; backend collection until
+19 October 08:01 UTC. Observer restart does not restart the application.

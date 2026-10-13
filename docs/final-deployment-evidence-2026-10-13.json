@@ -1,0 +1,272 @@
+{
+  "release": {
+    "source_commit": "37904d61cb877f48a7206c2a669bed986d09b263",
+    "version": "enterprise-2026.10.13-final.1",
+    "binary": "/home/shayan/Codes/super-paqet/build/worktrees/final-20261013/build/final-pass-20261013/binaries/final",
+    "sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+    "toolchain": "go version go1.27.0-X:nodwarf5 linux/amd64",
+    "qualification_complete": true,
+    "qualification_scope": "Native application/fork suites; exact local link/mixed/recovery/reload cases; 20,000 held-and-verified real-host connections with finite three-country mixed load.",
+    "previous_sha256": "22b2f1ab66b625403048cc52743fb811ece853b2c84c771932c4e66de9091f7c",
+    "native_receipt": "build/final-pass-20261013/native-final-20261012T235630Z/artifact.json",
+    "local_receipt": "build/final-pass-20261013/qualification-20261013T001453Z/receipt.json",
+    "scale_receipt": "build/final-pass-20261013/canary-20261013T003419Z/receipt.json",
+    "known_limits": [
+      "Synthetic asymmetric delivery is 25.65% below control, with zero errors.",
+      "Real WAN comparisons vary; no universal fastest-link guarantee.",
+      "No latest-artifact 100,000-busy-stream or sustained maximum WAN-capacity claim."
+    ]
+  },
+  "status": "tunnel deployed and verified; five authenticated routes pass; preexisting Finland Reality loopback failure retained separately",
+  "rollback_timers_disarmed": true,
+  "config_mutated": false,
+  "hosts": [
+    {
+      "host": "116.202.177.233",
+      "unit": {
+        "MainPID": "1241390",
+        "NRestarts": "0",
+        "MemoryCurrent": "61607936",
+        "TasksCurrent": "10",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "running_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+      "disk_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+      "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+      "config_unchanged": true,
+      "unit_unchanged": true,
+      "xray_identity_unchanged": true,
+      "nginx_identity_unchanged": true,
+      "health": "ok"
+    },
+    {
+      "host": "171.22.132.226",
+      "unit": {
+        "ActiveState": "active",
+        "UnitFileState": "enabled",
+        "MainPID": "3389657",
+        "NRestarts": "0",
+        "MemoryCurrent": "23134208",
+        "TasksCurrent": "9"
+      },
+      "running_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+      "disk_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+      "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+      "config_unchanged": true,
+      "unit_unchanged": true,
+      "xray_identity_unchanged": true,
+      "nginx_identity_unchanged": true,
+      "health": "ok"
+    },
+    {
+      "host": "65.109.249.222",
+      "unit": {
+        "MainPID": "508108",
+        "NRestarts": "0",
+        "MemoryCurrent": "24289280",
+        "TasksCurrent": "9",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "running_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+      "disk_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+      "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+      "config_unchanged": true,
+      "unit_unchanged": true,
+      "xray_identity_unchanged": true,
+      "nginx_identity_unchanged": true,
+      "health": "ok"
+    },
+    {
+      "host": "94.139.180.109",
+      "unit": {
+        "MainPID": "274584",
+        "NRestarts": "0",
+        "MemoryCurrent": "91357184",
+        "TasksCurrent": "11",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "running_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+      "disk_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+      "config_sha256": "dbf05d1e4e7030861ff87902fd876711f5708418a4381c96b0d9ff05cff8f639",
+      "config_unchanged": true,
+      "unit_unchanged": true,
+      "xray_identity_unchanged": true,
+      "nginx_identity_unchanged": true,
+      "health": "ok"
+    }
+  ],
+  "authenticated_routes": {
+    "probe_sha256": "402c34d5d537a48c858d6d227c1e660eda8bf8abe9d1258d54faa66b8b263b78",
+    "backend_loopback": false,
+    "known_profile": false,
+    "preexisting_failure_allowed": true,
+    "routes": [
+      {
+        "country": "germany",
+        "protocol": "vless",
+        "port": 9001,
+        "results": [
+          {
+            "exit_code": 0,
+            "status": "200",
+            "bytes": "1048576",
+            "timing": [
+              "0.581943",
+              "0.668231"
+            ],
+            "passed": true
+          },
+          {
+            "exit_code": 0,
+            "status": "200",
+            "bytes": "1048576",
+            "timing": [
+              "0.510651",
+              "0.579421"
+            ],
+            "passed": true
+          }
+        ]
+      },
+      {
+        "country": "germany",
+        "protocol": "shadowsocks",
+        "port": 8001,
+        "results": [
+          {
+            "exit_code": 0,
+            "status": "200",
+            "bytes": "1048576",
+            "timing": [
+              "0.410671",
+              "0.448337"
+            ],
+            "passed": true
+          },
+          {
+            "exit_code": 0,
+            "status": "200",
+            "bytes": "1048576",
+            "timing": [
+              "0.382218",
+              "0.455076"
+            ],
+            "passed": true
+          }
+        ]
+      },
+      {
+        "country": "finland",
+        "protocol": "vless",
+        "port": 9002,
+        "results": [
+          {
+            "exit_code": 35,
+            "status": "000",
+            "bytes": "0",
+            "timing": [
+              "0.000000",
+              "3.467607"
+            ],
+            "passed": false
+          },
+          {
+            "exit_code": 35,
+            "status": "000",
+            "bytes": "0",
+            "timing": [
+              "0.000000",
+              "3.451822"
+            ],
+            "passed": false
+          }
+        ]
+      },
+      {
+        "country": "finland",
+        "protocol": "shadowsocks",
+        "port": 8002,
+        "results": [
+          {
+            "exit_code": 0,
+            "status": "200",
+            "bytes": "1048576",
+            "timing": [
+              "0.456046",
+              "0.786645"
+            ],
+            "passed": true
+          },
+          {
+            "exit_code": 0,
+            "status": "200",
+            "bytes": "1048576",
+            "timing": [
+              "0.428312",
+              "0.541409"
+            ],
+            "passed": true
+          }
+        ]
+      },
+      {
+        "country": "france",
+        "protocol": "vless",
+        "port": 9003,
+        "results": [
+          {
+            "exit_code": 0,
+            "status": "200",
+            "bytes": "1048576",
+            "timing": [
+              "0.690082",
+              "0.917271"
+            ],
+            "passed": true
+          },
+          {
+            "exit_code": 0,
+            "status": "200",
+            "bytes": "1048576",
+            "timing": [
+              "0.641471",
+              "0.762745"
+            ],
+            "passed": true
+          }
+        ]
+      },
+      {
+        "country": "france",
+        "protocol": "shadowsocks",
+        "port": 8003,
+        "results": [
+          {
+            "exit_code": 0,
+            "status": "200",
+            "bytes": "1048576",
+            "timing": [
+              "0.460073",
+              "0.538150"
+            ],
+            "passed": true
+          },
+          {
+            "exit_code": 0,
+            "status": "200",
+            "bytes": "1048576",
+            "timing": [
+              "0.490123",
+              "0.711729"
+            ],
+            "passed": true
+          }
+        ]
+      }
+    ]
+  },
+  "scope": "Four active hosts; old .14/.118 clients untouched. Exact app release verified, five authenticated paths pass, independent preexisting Finland Reality dependency failure retained."
+}

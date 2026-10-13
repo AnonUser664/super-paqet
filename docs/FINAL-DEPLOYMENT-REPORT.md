@@ -1,3 +1,12 @@
+# Final release — 13 October 2026
+
+The selected, qualified release is deployed on the four active hosts. See
+[current status](STATUS.md), [tradeoffs and qualification](FINAL-PASS-2026-10-13.md)
+and [verified deployment evidence](final-deployment-evidence-2026-10-13.json).
+Five authenticated application routes pass; the preexisting Finland Reality
+loopback failure is retained as a separate dependency issue. Sections below
+record earlier deployments and do not describe the current topology/version.
+
 # Final deployment and measured qualification
 
 ## Current incident ownership release — 2026-10-07

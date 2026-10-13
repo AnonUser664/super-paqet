@@ -1,11 +1,10 @@
 # Production diagnostics
 
-The release candidate keeps warning-level logging and loopback-only `/metrics`
+The deployed final.1 release keeps warning-level logging and loopback-only `/metrics`
 on port 29090, with profiling disabled. The finite systemd observer retains
 bounded metric samples, process identity, kernel queue/drop/scheduling evidence
 and warning journals. It never collects customer payloads or authentication
-configuration. These additions are pending exact-artifact qualification and
-rollout; the deployed opening.10 executable does not yet export the new fields.
+configuration. The final.1 release exports these fields; earlier opening.10 binaries do not.
 
 ## Recovered opening disruptions
 

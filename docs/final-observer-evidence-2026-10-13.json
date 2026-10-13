@@ -1,0 +1,54 @@
+{
+  "observer_sha256": "d28f4f9b0dea6dd475cba301fc6f1c6a57b2b3d57d190315bc6474b76779b2a6",
+  "tunnel_mutated": false,
+  "hosts": [
+    {
+      "host": "94.139.180.109",
+      "status": "verified",
+      "directory": "/var/log/super-paqet-watch/emergency109-20261012T142945Z",
+      "until": "2026-10-19T14:30:12.731676+00:00",
+      "samples": 3857,
+      "script_sha256": "d28f4f9b0dea6dd475cba301fc6f1c6a57b2b3d57d190315bc6474b76779b2a6",
+      "primary_identity_preserved": true,
+      "queue_evidence": true,
+      "softnet_evidence": true,
+      "host_stat_evidence": true
+    },
+    {
+      "host": "116.202.177.233",
+      "status": "verified",
+      "directory": "/var/log/super-paqet-watch/opening10-20261012T080128Z",
+      "until": "2026-10-19T08:01:28.597860+00:00",
+      "samples": 6176,
+      "script_sha256": "d28f4f9b0dea6dd475cba301fc6f1c6a57b2b3d57d190315bc6474b76779b2a6",
+      "primary_identity_preserved": true,
+      "queue_evidence": true,
+      "softnet_evidence": true,
+      "host_stat_evidence": true
+    },
+    {
+      "host": "171.22.132.226",
+      "status": "verified",
+      "directory": "/var/log/super-paqet-watch/opening10-20261012T080128Z",
+      "until": "2026-10-19T08:01:28.597860+00:00",
+      "samples": 6204,
+      "script_sha256": "d28f4f9b0dea6dd475cba301fc6f1c6a57b2b3d57d190315bc6474b76779b2a6",
+      "primary_identity_preserved": true,
+      "queue_evidence": true,
+      "softnet_evidence": true,
+      "host_stat_evidence": true
+    },
+    {
+      "host": "65.109.249.222",
+      "status": "verified",
+      "directory": "/var/log/super-paqet-watch/opening10-20261012T080128Z",
+      "until": "2026-10-19T08:01:28.597860+00:00",
+      "samples": 6174,
+      "script_sha256": "d28f4f9b0dea6dd475cba301fc6f1c6a57b2b3d57d190315bc6474b76779b2a6",
+      "primary_identity_preserved": true,
+      "queue_evidence": true,
+      "softnet_evidence": true,
+      "host_stat_evidence": true
+    }
+  ]
+}
