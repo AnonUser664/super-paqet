@@ -92,3 +92,14 @@ or remote branches are removed. Existing production observers, logs, rollback
 files and services are untouched. Measurement parser checks and documentation
 integrity are checked under the shared reservation; this is repository cleanup,
 not deployment or a new performance qualification.
+
+Cleanup is complete: only local/remote `master` and the main checkout remain.
+The three retired worktrees' 4,242 artifact entries (1,802,730,872 file bytes)
+are archived, not discarded. Seven parser checks, 46 imported JSON receipts and
+the consolidated document links pass validation. Go runtime/module bytes still
+match deployed source `37904d6`. Two permissions-related archive attempts are
+recorded privately; root-private fixtures were preserved using privileged
+archival rather than weakening their file permissions.
+[Completion evidence](consolidation-evidence-2026-10-13.json) records the archive
+counts and source identities. The production observer review can now be reopened
+at `build/archives/consolidation-20261013/final-20261013/build/final-pass-20261013/log-review-20261013T063108Z/REPORT.md`.

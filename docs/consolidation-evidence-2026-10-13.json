@@ -1,0 +1,40 @@
+{
+  "completed_utc": "2026-10-13T08:08:46.375070+00:00",
+  "integration_commit": "0743bc789a3baf492fac0ce967c88fc1bb81a197",
+  "only_local_branch": "master",
+  "checkout_count": 1,
+  "production_changed": false,
+  "runtime_source_matches_37904d6": true,
+  "validation": "Seven ACK accounting parser checks passed, 46 imported JSON receipts parsed and consolidated report links resolve under the shared test reservation.",
+  "private_archive": "build/archives/consolidation-20261013/",
+  "git_bundle_sha256": "27131da027a6b97a28b02137f6b8ee11bca00abc09a78aa4198f479f1b783363",
+  "archived_worktrees": [
+    {
+      "former_name": "ack-budget-20261013",
+      "source_head": "0743bc789a3baf492fac0ce967c88fc1bb81a197",
+      "artifact_entries": 140,
+      "file_bytes": 752560971,
+      "removed_python_cache_directories": 0
+    },
+    {
+      "former_name": "final-20261013",
+      "source_head": "2e6dd0cf15139881d484e5bddf8fbbe19499e9d9",
+      "artifact_entries": 503,
+      "file_bytes": 180253295,
+      "removed_python_cache_directories": 0
+    },
+    {
+      "former_name": "production-20261012",
+      "source_head": "e4fd461fc308d22765d90499e69d5d7dc2ed8425",
+      "artifact_entries": 3599,
+      "file_bytes": 869916606,
+      "removed_python_cache_directories": 1
+    }
+  ],
+  "preserved": "All artifact receipts, failed/interrupted attempts, captures, exact binaries, merge-parent experiment history, private manifest and pre-cleanup Git bundle.",
+  "remote_deleted_branches": [
+    "exploration/ack-budget-20261013",
+    "exploration/production-20261012",
+    "release/production-20261013"
+  ]
+}
