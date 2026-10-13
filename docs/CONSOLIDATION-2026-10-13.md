@@ -62,6 +62,11 @@ was not exhausted in the tested 50/10 Mbit/s case. Clean 80 ms asymmetry deliver
 7.99/7.96 Mbit/s for two verified 100 MB bodies, versus 5.399 Mbit/s with loss and
 reordering. The complete confirmation capture contains 8.71 MB of repeated KCP
 payload. Its trigger is not diagnosed; no reliability/pacing change is implied.
+The subsequent verified upload measures 40.701 Mbit/s against its 50 Mbit/s cap
+and captures 2.83 MB of repeated KCP payload. Both clean directions use roughly
+80% of their own caps; unequal bandwidth alone is not an established cause of
+failure, and this percentage is not proof of optimality. See the
+[updated direction summary](asymmetric-directions-summary-2026-10-13.json).
 The first buffered capture's trailing-block limitation and incomplete-coverage finding
 are retained, alongside the corrected immediate-mode measurement.
 

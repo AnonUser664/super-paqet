@@ -4,7 +4,8 @@ The user requested the missing upload measurement on the same asymmetric link
 without interfering with another agent's ongoing experiments. This isolated
 namespace run uses the exact deployed final.1 executable, SHA-256
 `df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f`.
-There is no production or master change.
+At the measurement checkpoint, production and master were unchanged. This
+report can be integrated independently of the measurement harness changes.
 
 ## Link and workload
 
@@ -66,7 +67,7 @@ ended. It retained that reservation across sudo, the transfer, capture and owned
 cleanup. After release, the other agent resumed its mixed-load test. None of its
 processes, worktrees, namespaces, files or shared build outputs were modified.
 
-The measurement harness now accepts `--direction upload` and selects the client
+The measurement branch's harness accepts `--direction upload` and selects the client
 capture for complete payload coverage and the backend capture for ACK cost.
 Download remains the default. Each target/generator uses bounded 64 KiB chunks.
 Seven accounting parser checks also pass after waiting for the other agent's
@@ -75,7 +76,8 @@ The [receipt](asymmetric-upload-evidence-2026-10-13.json) records the full comma
 hashes, actual qdiscs, byte accounting, cleanup and capture logs. Raw evidence is
 in this worktree's unique `build/asymmetric-upload-20261013-run1/` directory.
 
-Run future measurements under `scripts/with_test_lock.py` outside sudo and use
+Use that branch's harness (checkpoint `61a384a`) for reproduction. Run future
+measurements under `scripts/with_test_lock.py` outside sudo and use
 a new output directory. Supply `--direction upload --profiles asymmetric-clean-50-10`
 with an explicit final executable and any required shared-library directory.
 This one-stream single run does not qualify multi-customer capacity, lossy upload,

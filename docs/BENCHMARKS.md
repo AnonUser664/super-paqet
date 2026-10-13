@@ -1,5 +1,36 @@
 # Benchmark evidence
 
+## Latest clean asymmetric directional measurement — 13 October
+
+The deployed final.1 executable was measured in isolated namespaces with
+**50 Mbit/s upload, 10 Mbit/s download, nominal 80 ms RTT, no injected loss or
+reordering**, and exactly 100,000,000 verified bytes per transfer:
+
+| Direction | Useful throughput | Nominal cap | Utilization | Confirmed repeated KCP payload |
+| --- | ---: | ---: | ---: | ---: |
+| Upload | 40.701 Mbit/s | 50 Mbit/s | 81.4% | 2,830,282 bytes |
+| Download | 7.961 Mbit/s; earlier repeat 7.992 | 10 Mbit/s | 79.6–79.9% | 8,709,650 bytes |
+
+Virtual qdisc and capture drops are zero. ACK traffic averages 0.0443 Mbit/s
+during upload and 0.0214 Mbit/s during the confirmed download, so average ACK
+bandwidth exhaustion does not explain these particular results. Matching
+approximately 80% utilization is encouraging but is not an expected constant or
+proof that every remaining cost is normal. Repeated sends and the additional
+loss/reordering penalty remain unresolved mechanisms. Their causes need evidence
+before changing retransmission, pacing or feedback behavior.
+
+These are cold single-stream measurements with the existing production runtime,
+not a new release or a many-customer/steady-state capacity claim. The upload
+includes the receiver's verification response. No production service was touched;
+other agents' tests were serialized under the shared reservation. See the
+[direction summary](asymmetric-directions-summary-2026-10-13.json),
+[ACK report](ACK-BUDGET-2026-10-13.md) and
+[upload report](ASYMMETRIC-UPLOAD-2026-10-13.md).
+
+The sections below retain historical executable-specific qualification results;
+their deployment labels refer to those checkpoints. Current deployment is in
+[STATUS.md](STATUS.md).
+
 ## Live migration qualification before deployment
 
 `enterprise-2026.10.07-migration.3` preserves established streams during verified
