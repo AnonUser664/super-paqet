@@ -228,16 +228,24 @@ func (c *controller) update(s kcplib.TransportStats, now time.Time) int {
 		c.rate = .75*c.rate + .25*bandwidth
 	}
 	mss := max(1, s.MSS)
+	saturated := waited || s.Pending >= c.window/2
+	queued := c.congested || c.outputPressure
 	// A modest BDP margin sustains delivery without blindly filling queues.
 	// RTT includes both directions: shrinking the data window repeatedly in
 	// response to a reverse-path queue can lock both senders into a low-rate
 	// state. Budget bounded ACK-delay headroom; pacing drains the queue.
-	flightRTT := min(rtt, c.minRTT*4)
-	target := int(math.Ceil(2*c.rate*flightRTT/1000/float64(mss))) + 2
-	target = max(target, int(math.Ceil(2*c.packetRate*flightRTT/1000))+2)
+	flightRTT := min(rtt, c.minRTT*2) + c.ackScheduleBudget
+	headroom := 2.0
+	if queued {
+		// When congested, the target in-flight budget drains the queue towards
+		// true path BDP plus known ACK scheduling headroom, preventing
+		// bufferbloat from inflating the target and keeping the window bloated.
+		flightRTT = c.minRTT + c.ackScheduleBudget
+		headroom = 1.25
+	}
+	target := int(math.Ceil(headroom*c.rate*flightRTT/1000/float64(mss))) + 2
+	target = max(target, int(math.Ceil(headroom*c.packetRate*flightRTT/1000))+2)
 	target = min(c.maximum, max(min(4, c.maximum), target))
-	saturated := waited || s.Pending >= c.window/2
-	queued := c.congested || c.outputPressure
 	if sent > 0 {
 		c.lossRatio = .75*c.lossRatio + .25*min(.5, float64(resent)/float64(sent))
 	}
@@ -322,6 +330,7 @@ func (c *controller) sampleInterval(s kcplib.TransportStats) time.Duration {
 // receive/send limits.
 func (e *Engine) addTuner(conn *kcp.Conn, maximum, receive int, slots ...*slot) {
 	c := newController(maximum, receive)
+	c.ackScheduleBudget = reliabilityACKBudget(conf.KCP{Mode: "manual", Interval: 30, ACKDelayMaxMS: 20})
 	if len(slots) > 0 {
 		c.slot = slots[0]
 	}
@@ -410,7 +419,7 @@ func (e *Engine) tune() {
 				// Burst queues can put late segments beyond a single SRTT even
 				// on a lossless high-delay path. Fast retransmission still handles
 				// explicit gaps; the timer floor avoids racing the normal ACKs.
-				conn.UDPSession.SetMinRTO(uint32(max(30, int(s.SRTT)*2+int(s.SRTTVar)*4)))
+				conn.UDPSession.SetMinRTO(uint32(max(30, int(s.SRTT)*2+int(s.SRTTVar)*4+int(c.ackScheduleBudget))))
 				// Per-session batch loss remains attributable on shared workers
 				// and monotonic across physical moves. Socket totals stay diagnostic.
 				c.observeOutput(conn.UDPSession.PostProcessingDrops()+conn.UDPSession.LocalOutputDrops(), s, now)

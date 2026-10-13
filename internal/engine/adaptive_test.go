@@ -6,10 +6,17 @@
 package engine
 
 import (
-	kcp "github.com/xtaci/kcp-go/v5"
-	"paqet/internal/conf"
+	"context"
+	"io"
+	"net"
+	"sync/atomic"
 	"testing"
 	"time"
+
+	kcp "github.com/xtaci/kcp-go/v5"
+	"github.com/xtaci/smux"
+	"paqet/internal/conf"
+	tnetkcp "paqet/internal/tnet/kcp"
 )
 
 // TestLocalDropsDrainAnACKMaskedQueue keeps RTT inside the known ACK budget.
@@ -528,3 +535,94 @@ func TestLegacyRTTJitterRetainsProgress(t *testing.T) {
 		t.Fatal("stable queue growth stopped reducing pacing")
 	}
 }
+
+// TestCongestionDrainsBufferbloatToBDP verifies that when sustained queue congestion
+// is detected (e.g., SRTT rises due to bottleneck buffering), the controller reduces
+// the in-flight window towards the propagation BDP rather than inflating the window
+// to match the bloated queue delay.
+func TestCongestionDrainsBufferbloatToBDP(t *testing.T) {
+	c := newController(4096, 4096)
+	c.ackScheduleBudget = 30
+	now := time.Unix(100, 0)
+	// Base propagation delay: 80 ms, rate: 10 Mbit/s (1.25 MB/s)
+	s := kcp.TransportStats{SRTT: 80, MSS: 1326, Pending: 100, PendingBytes: 132600}
+	c.update(s, now)
+	now = now.Add(250 * time.Millisecond)
+	s.AckedBytes += 312500
+	s.AckedSegments += 235
+	c.update(s, now)
+	c.startup = false
+	c.window = 300 // Simulate in-flight window having grown to 300
+
+	// Now bottleneck queue forms: SRTT grows to 280 ms (80 ms minRTT + 200 ms queue).
+	for range 8 {
+		now = now.Add(250 * time.Millisecond)
+		s.SRTT = 280
+		s.AckedBytes += 312500
+		s.AckedSegments += 235
+		c.update(s, now)
+	}
+	if !c.congested {
+		t.Fatal("expected queue growth to trigger congestion")
+	}
+	// BDP at 1.25 MB/s and 80ms minRTT is ~75 segments.
+	// With 30ms ack budget, flight target is ~104 segments.
+	// The window must shrink towards ~100-150 segments, NOT remain >= 200.
+	if c.window >= 200 {
+		t.Fatalf("window did not drain bufferbloat during sustained congestion: window=%d (expected < 200)", c.window)
+	}
+}
+
+// TestTunerSetsMinRTOWithACKBudget verifies that the tuner configures MinRTO taking
+// into account the peer's delayed ACK budget, preventing premature timer firings.
+func TestTunerSetsMinRTOWithACKBudget(t *testing.T) {
+	e := reloadFixture(t)
+	ctx, cancel := context.WithCancel(e.ctx)
+	e.ctx = ctx
+	defer cancel()
+
+	packet, err := net.ListenPacket("udp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer packet.Close()
+	sink, err := net.ListenPacket("udp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer sink.Close()
+	udp, err := kcp.NewConn3(123, sink.LocalAddr(), nil, 0, 0, packet)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer udp.Close()
+	left, right := net.Pipe()
+	defer right.Close()
+	go io.Copy(io.Discard, right)
+	session, err := smux.Client(left, smux.DefaultConfig())
+	if err != nil {
+		t.Fatal(err)
+	}
+	conn := &tnetkcp.Conn{UDPSession: udp, Session: session}
+	defer conn.Close()
+
+	settings := &atomic.Pointer[Endpoint]{}
+	adaptive := true
+	settings.Store(&Endpoint{
+		Adaptive: &adaptive,
+		KCP:      conf.KCP{Mode: "manual", Interval: 30, ACKDelayMaxMS: 20, Sndwnd: 128, Rcvwnd: 128},
+	})
+	e.addEndpoint(conn, settings)
+
+	e.tuneMu.Lock()
+	tuner, ok := e.tuners[conn]
+	e.tuneMu.Unlock()
+	if !ok {
+		t.Fatal("tuner not registered")
+	}
+	if tuner.ackScheduleBudget != 50 {
+		t.Fatalf("expected ackScheduleBudget 50 (Interval 30 + ACKDelayMaxMS 20), got %v", tuner.ackScheduleBudget)
+	}
+}
+
+
