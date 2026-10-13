@@ -1,4 +1,32 @@
-# Acknowledgment bandwidth for a 100 MB download
+# Acknowledgment bandwidth for verified 100 MB transfers
+
+## Latest clean asymmetric result in both directions
+
+The 50 Mbit/s client-to-backend / 10 Mbit/s backend-to-client link at nominal
+80 ms RTT, with no injected loss or reordering, produced:
+
+| Direction | Applicable cap | Useful throughput | Time for 100 MB | Confirmed ACK IP/TCP bytes | Repeated KCP payload bytes |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Upload | **50 Mbit/s** | **40.701 Mbit/s** | 19.656 s | 108,904 | 2,830,282 |
+| Download, confirmed | **10 Mbit/s** | **7.961 Mbit/s** | 100.485 s | 269,328 | 8,709,650 |
+
+The earlier clean download repeat measured 7.992 Mbit/s. All application bodies
+verify exactly 100,000,000 bytes with the same final.1 executable. Both directions
+use roughly 80% of their respective caps; this does not establish a universal
+normal efficiency or prove optimality. There is no demonstrated special download
+collapse caused solely by unequal bandwidth. Loss/reordering penalties and the
+unexplained repeated KCP sends remain separate investigation targets. Some cost
+comes from framing/startup/feedback, but the contributions are not isolated.
+
+The impaired single-download result was 5.399 Mbit/s with 0.5% loss and 5%
+reordering. Do not compare it with the 50 Mbit/s upload ceiling or conflate this
+single-stream body experiment with the earlier eight-worker release comparison.
+Upload timing includes the receiver's verified receipt; the upload/download
+runs were separate, not a matched steady-state duplex qualification.
+See [upload evidence](ASYMMETRIC-UPLOAD-2026-10-13.md) and
+[combined direction summary](asymmetric-directions-summary-2026-10-13.json).
+
+## Original download ACK-cost screen
 
 Four isolated transfers each verify exactly **100,000,000 application bytes**
 with SHA-256 `5775b33226f152a0b1640906a59c1081149f8832aa4f7d0113453d0a864e8a22`.

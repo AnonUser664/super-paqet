@@ -15,6 +15,7 @@ checkpoints and do not supersede the current status.
 | [Branch consolidation — 13 October](CONSOLIDATION-2026-10-13.md) | Every retired experiment's outcome, selective merge decisions, archived evidence and remaining paths. |
 | [Production-led exploration — 12 October](EXPLORATION-2026-10-12.md) | Full writer, pacing, reordering, RTT, diagnostics and measurement journal, including failed gates. |
 | [ACK bandwidth — 13 October](ACK-BUDGET-2026-10-13.md) | Verified 100 MB feedback cost, clean asymmetric confirmation and repeated-segment finding. |
+| [Clean asymmetric upload — 13 October](ASYMMETRIC-UPLOAD-2026-10-13.md) | Verified 40.70 Mbit/s upload against the 50 Mbit/s cap; measured ACK cost, repeated payload and test coordination. |
 | [Latest rollout — 9 October](LATENCY-DEPLOYMENT-2026-10-09.md) | Accepted five-host latency.1 deployment, unchanged configs, cleanup, rollback and renewed observer window. |
 | [PRODUCTION-OBSERVATION-2026-10-07.md](PRODUCTION-OBSERVATION-2026-10-07.md) | Earlier five-host observer window, retention and review procedures. |
 | [Production log review — 9 October](PRODUCTION-REVIEW-2026-10-09.md) | 17.6-hour latency.1 review, France preserving recoveries, opening backpressure, queue drops and unchanged fleet identities. |

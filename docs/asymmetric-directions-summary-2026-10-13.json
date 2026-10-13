@@ -1,0 +1,57 @@
+{
+  "scope": "Separate cold single-stream local measurements, not a matched duplex or capacity certification",
+  "binary_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+  "link": {
+    "client_to_backend_mbit": 50,
+    "backend_to_client_mbit": 10,
+    "nominal_rtt_ms": 80,
+    "injected_loss_percent": 0,
+    "injected_reorder_percent": 0
+  },
+  "measurements": [
+    {
+      "direction": "upload",
+      "capacity_mbit": 50,
+      "verified_application_bytes": 100000000,
+      "transfer_seconds": 19.655545152985724,
+      "goodput_mbit": 40.70098253563209,
+      "cap_utilization_percent": 81.40196507126419,
+      "ack_ip_bytes": 108904,
+      "average_ack_ip_mbit": 0.04432499802060478,
+      "repeated_push_payload_bytes": 2830282,
+      "repeated_push_records": 2158,
+      "unique_push_payload_bytes": 100025789
+    },
+    {
+      "direction": "download",
+      "capacity_mbit": 10,
+      "verified_application_bytes": 100000000,
+      "transfer_seconds": 100.48536467799568,
+      "goodput_mbit": 7.961358378541909,
+      "cap_utilization_percent": 79.61358378541908,
+      "ack_ip_bytes": 269328,
+      "average_ack_ip_mbit": 0.021442167293759352,
+      "repeated_push_payload_bytes": 8709650,
+      "repeated_push_records": 6661,
+      "unique_push_payload_bytes": 100054655
+    }
+  ],
+  "earlier_clean_download_goodput_mbit": 7.991830294739401,
+  "earlier_impaired_download": {
+    "goodput_mbit": 5.3985073999453865,
+    "injected_loss_percent": 0.5,
+    "injected_reorder_percent": 5,
+    "source": "ack-budget-evidence-2026-10-13.json"
+  },
+  "interpretation": {
+    "established": "Both clean directions delivered roughly 80% of their respective caps; average ACK traffic did not exhaust reverse capacity in these tests.",
+    "unresolved": "Causes of repeated KCP sends and the loss/reordering penalty; contribution of framing, startup, pacing and feedback waiting not isolated.",
+    "not_established": "An asymmetry-only defect, a universal expected 80% efficiency, or proof all repeated sends were unnecessary.",
+    "timing_difference": "Upload includes backend verification receipt; download ends after body read."
+  },
+  "source_records": [
+    "asymmetric-upload-evidence-2026-10-13.json",
+    "ack-budget-clean-asymmetric-evidence-2026-10-13.json"
+  ],
+  "production_changed": false
+}

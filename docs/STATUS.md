@@ -28,8 +28,20 @@ finite qualification, not a guarantee of universal maximum performance or
 **Five authenticated paths pass. Finland Reality fails before and after rollout
 and in backend-loopback tests that bypass the tunnel; its Shadowsocks path and
 controlled tunnel payload tests pass.** Its service/probe dependency requires
-follow-up; no Xray changes were made to hide the failure. Synthetic asymmetric
-throughput is lower than control and remains a documented optimization limit.
+follow-up; no Xray changes were made to hide the failure. The release comparison
+on a synthetic asymmetric link with loss/reordering is lower than control and
+remains a documented optimization limit.
+
+The newer clean 50/10 Mbit/s, 80 ms RTT, zero-loss/reordering measurements deliver
+**40.701 Mbit/s upload against the 50 Mbit/s cap** and **7.992/7.961 Mbit/s
+download against the 10 Mbit/s cap**, with verified 100 MB bodies. Both directions
+use roughly 80% of their own ceilings. This does not demonstrate an asymmetry-only
+fault or establish a universal expected efficiency. Confirmed captures still
+contain 2.83 MB of repeated upload KCP payload and 8.71 MB of repeated download
+payload; their triggers remain undiagnosed. Average ACK traffic does not exhaust
+the reverse caps in these cases. See [latest benchmarks](BENCHMARKS.md) and
+[directional evidence](asymmetric-directions-summary-2026-10-13.json). These are
+local measurements of the existing release, with no production change.
 
 See the [final review and tradeoffs](FINAL-PASS-2026-10-13.md),
 [exact-artifact gates](final-artifact-qualification-2026-10-13.json),

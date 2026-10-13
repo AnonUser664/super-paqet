@@ -1,0 +1,347 @@
+{
+  "created_utc": "2026-10-13T14:02:36.674210+00:00",
+  "binary_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+  "payload_bytes": 100000000,
+  "direction": "upload",
+  "source_fixture_sha256": "babbb00f1cfbc2116c886dc7b691b90e05fb94d886b74a32470c36cd949a328f",
+  "derived_fixture_sha256": "c7037c0b57fd08ae3703fda827d89b67dcca828e81465d215fd5c4583659d7aa",
+  "helper_sha256": "7222008ef8789dc0e706c314f57701bffa7492f4182bb618983bc7ac9a42aa64",
+  "cases": [
+    {
+      "profile": "asymmetric-clean-50-10",
+      "exit_code": 0,
+      "command": [
+        "python3",
+        "-B",
+        "/home/shayan/Codes/super-paqet/build/worktrees/asymmetric-upload-20261013/build/asymmetric-upload-20261013-run1/namespace_fixture.py",
+        "--output",
+        "/home/shayan/Codes/super-paqet/build/worktrees/asymmetric-upload-20261013/build/asymmetric-upload-20261013-run1/asymmetric-clean-50-10",
+        "--binary",
+        "/home/shayan/Codes/super-paqet/build/archives/consolidation-20261013/final-20261013/build/final-pass-20261013/binaries/final",
+        "--benchmark-helper",
+        "/home/shayan/Codes/super-paqet/build/worktrees/asymmetric-upload-20261013/build/asymmetric-upload-20261013-run1/transfer-helper",
+        "--cold-read-bytes",
+        "100000000",
+        "--capture",
+        "--sessions",
+        "4",
+        "--packet-workers",
+        "2",
+        "--conversation-listener",
+        "--client-procs",
+        "4",
+        "--server-procs",
+        "2",
+        "--path-recovery",
+        "--preserve-connections",
+        "--open-timeout",
+        "15s",
+        "--dial-timeout",
+        "5s",
+        "--client-flag",
+        "S",
+        "--server-flag",
+        "PA",
+        "--block",
+        "null",
+        "--adaptive",
+        "on",
+        "--kcp-options",
+        "{\"mode\": \"manual\", \"sndwnd\": 4096, \"rcvwnd\": 4096, \"mtu\": 1350, \"nodelay\": 0, \"interval\": 30, \"resend\": 2, \"nocongestion\": 1, \"wdelay\": true, \"acknodelay\": false, \"small_write_flush\": 256, \"smuxbuf\": 4194304, \"streambuf\": 2097152, \"adaptive_buffers\": false, \"ack_timestamps\": false, \"credit_hints\": false, \"smux_recovery_grace\": 0}",
+        "--bridge",
+        "--strict-rate",
+        "--rate-mbit",
+        "100",
+        "--down-rate-mbit",
+        "100",
+        "--queue-packets",
+        "2048",
+        "--seed",
+        "804",
+        "--delay-ms",
+        "40",
+        "--rate-mbit",
+        "50",
+        "--down-rate-mbit",
+        "10"
+      ],
+      "cleanup": {
+        "process_exit_codes": [
+          -15,
+          0,
+          0,
+          0,
+          0
+        ],
+        "firewall_clean": true,
+        "unrelated_rule_preserved": true
+      },
+      "transfer": {
+        "direction": "upload",
+        "verified_bytes": 100000000,
+        "sha256": "5775b33226f152a0b1640906a59c1081149f8832aa4f7d0113453d0a864e8a22",
+        "transfer_seconds": 19.655545152985724,
+        "unix_start": 1791900159.287863,
+        "unix_end": 1791900178.9434125,
+        "goodput_mbit": 40.70098253563209,
+        "cold_transfer_seconds": 19.75964002299588
+      },
+      "client": {
+        "counts": {
+          "push_record_bytes": 104740527,
+          "push_payload_bytes": 102856071,
+          "unique_push_records": 76361,
+          "unique_push_payload_bytes": 100025789,
+          "packets": 78538,
+          "ip_bytes": 109455543,
+          "ethernet_occupancy_bytes": 112439987,
+          "ack_records": 114,
+          "ack_record_bytes": 2736,
+          "packets_with_ack": 114,
+          "pure_ack_packets": 111,
+          "pure_ack_ip_bytes": 9324,
+          "pure_ack_ethernet_bytes": 13542,
+          "ack_incremental_ip_bytes": 9396,
+          "ack_incremental_ethernet_bytes": 13614,
+          "mixed_ack_packets": 3,
+          "repeated_push_records": 2158,
+          "repeated_push_payload_bytes": 2830282
+        },
+        "commands": {
+          "81": 78519,
+          "82": 114
+        }
+      },
+      "server": {
+        "counts": {
+          "packets": 1550,
+          "ip_bytes": 119876,
+          "ethernet_occupancy_bytes": 178776,
+          "ack_records": 1435,
+          "ack_record_bytes": 34440,
+          "packets_with_ack": 1435,
+          "pure_ack_packets": 1432,
+          "pure_ack_ip_bytes": 108832,
+          "pure_ack_ethernet_bytes": 163248,
+          "ack_incremental_ip_bytes": 108904,
+          "ack_incremental_ethernet_bytes": 163320,
+          "push_record_bytes": 4836,
+          "push_payload_bytes": 2004,
+          "unique_push_records": 114,
+          "unique_push_payload_bytes": 1956,
+          "mixed_ack_packets": 3,
+          "repeated_push_records": 4,
+          "repeated_push_payload_bytes": 48
+        },
+        "commands": {
+          "82": 1435,
+          "81": 118
+        }
+      },
+      "ack_payload_percent": 0.034440000000000005,
+      "ack_ip_percent": 0.10890400000000001,
+      "ack_ethernet_percent": 0.16332,
+      "average_ack_ip_mbit": 0.04432499802060478
+    }
+  ],
+  "limits": [
+    "one upload stream using one of four pooled carriers",
+    "per-case rate caps are recorded in command/fixture parameters",
+    "captures perturb timing; this measures feedback cost, not peak throughput",
+    "Ethernet occupancy includes FCS/preamble/IFG estimate; no WAN encapsulation",
+    "mixed packet header cost is not double-counted",
+    "no enc/FEC or optional ACK timestamps"
+  ],
+  "qdiscs": {
+    "c": [
+      {
+        "kind": "noqueue",
+        "handle": "0:",
+        "dev": "lo",
+        "root": true,
+        "refcnt": 2,
+        "options": {},
+        "bytes": 0,
+        "packets": 0,
+        "drops": 0,
+        "overlimits": 0,
+        "requeues": 0,
+        "backlog": 0,
+        "qlen": 0
+      },
+      {
+        "kind": "noqueue",
+        "handle": "0:",
+        "dev": "spq-c",
+        "root": true,
+        "refcnt": 2,
+        "options": {},
+        "bytes": 0,
+        "packets": 0,
+        "drops": 0,
+        "overlimits": 0,
+        "requeues": 0,
+        "backlog": 0,
+        "qlen": 0
+      }
+    ],
+    "r": [
+      {
+        "kind": "noqueue",
+        "handle": "0:",
+        "dev": "br0",
+        "root": true,
+        "refcnt": 2,
+        "options": {},
+        "bytes": 0,
+        "packets": 0,
+        "drops": 0,
+        "overlimits": 0,
+        "requeues": 0,
+        "backlog": 0,
+        "qlen": 0
+      },
+      {
+        "kind": "tbf",
+        "handle": "1:",
+        "dev": "spq-rc",
+        "root": true,
+        "refcnt": 13,
+        "options": {
+          "rate": 1250000,
+          "burst": 16384,
+          "lat": 2444492
+        },
+        "bytes": 143788,
+        "packets": 1576,
+        "drops": 0,
+        "overlimits": 0,
+        "requeues": 0,
+        "backlog": 0,
+        "qlen": 0
+      },
+      {
+        "kind": "netem",
+        "handle": "10:",
+        "dev": "spq-rc",
+        "parent": "1:1",
+        "options": {
+          "limit": 2048,
+          "delay": {
+            "delay": 0.04,
+            "jitter": 0,
+            "correlation": 0
+          },
+          "seed": 804,
+          "ecn": false,
+          "gap": 0
+        },
+        "bytes": 143698,
+        "packets": 1575,
+        "drops": 0,
+        "overlimits": 0,
+        "requeues": 0,
+        "backlog": 0,
+        "qlen": 0,
+        "delayed": 1575,
+        "dropped": 0,
+        "corrupted": 0,
+        "duplicated": 0,
+        "reordered": 0,
+        "ecn_marked": 0
+      },
+      {
+        "kind": "tbf",
+        "handle": "1:",
+        "dev": "spq-rs",
+        "root": true,
+        "refcnt": 13,
+        "options": {
+          "rate": 6250000,
+          "burst": 16384,
+          "lat": 488898
+        },
+        "bytes": 110557197,
+        "packets": 78563,
+        "drops": 0,
+        "overlimits": 212125,
+        "requeues": 0,
+        "backlog": 0,
+        "qlen": 0
+      },
+      {
+        "kind": "netem",
+        "handle": "10:",
+        "dev": "spq-rs",
+        "parent": "1:1",
+        "options": {
+          "limit": 2048,
+          "delay": {
+            "delay": 0.04,
+            "jitter": 0,
+            "correlation": 0
+          },
+          "seed": 804,
+          "ecn": false,
+          "gap": 0
+        },
+        "bytes": 110557107,
+        "packets": 78562,
+        "drops": 0,
+        "overlimits": 0,
+        "requeues": 0,
+        "backlog": 0,
+        "qlen": 0,
+        "delayed": 78562,
+        "dropped": 0,
+        "corrupted": 0,
+        "duplicated": 0,
+        "reordered": 0,
+        "ecn_marked": 0
+      }
+    ],
+    "s": [
+      {
+        "kind": "noqueue",
+        "handle": "0:",
+        "dev": "lo",
+        "root": true,
+        "refcnt": 2,
+        "options": {},
+        "bytes": 0,
+        "packets": 0,
+        "drops": 0,
+        "overlimits": 0,
+        "requeues": 0,
+        "backlog": 0,
+        "qlen": 0
+      },
+      {
+        "kind": "noqueue",
+        "handle": "0:",
+        "dev": "spq-s",
+        "root": true,
+        "refcnt": 2,
+        "options": {},
+        "bytes": 0,
+        "packets": 0,
+        "drops": 0,
+        "overlimits": 0,
+        "requeues": 0,
+        "backlog": 0,
+        "qlen": 0
+      }
+    ]
+  },
+  "capture_logs": {
+    "client": "tcpdump: listening on spq-c, link-type EN10MB (Ethernet), snapshot length 262144 bytes\n78538 packets captured\n80088 packets received by filter\n0 packets dropped by kernel\n",
+    "server": "tcpdump: listening on spq-s, link-type EN10MB (Ethernet), snapshot length 262144 bytes\n1550 packets captured\n80088 packets received by filter\n0 packets dropped by kernel\n"
+  },
+  "production_changed": false,
+  "test_coordination": "Ran after previous agent workload/owned namespaces ended; shared reservation held through sudo, transfer, capture and cleanup. Another agent resumed afterward.",
+  "parser_checks": {
+    "command": "python3 scripts/with_test_lock.py --wait -- python3 -B scripts/test_ack_budget.py",
+    "passed": 7,
+    "coordination": "Queued until the other agent mixed-load test released the reservation; did not launch while it ran."
+  }
+}
