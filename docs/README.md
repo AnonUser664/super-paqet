@@ -1,7 +1,7 @@
 # Documentation
 
 Start with [current status](STATUS.md). The final 13 October release runs on
-the replacement client and three backends, with four independent client source
+clients 94.139.180.109 and 94.139.180.142 and three backends, with four independent client source
 ports per country, adaptive control, S outbound / PA return and ten-second stall
 detection. Current qualification limits and the separate Finland Reality
 dependency are explicit in the status and [final review](FINAL-PASS-2026-10-13.md).
@@ -11,6 +11,7 @@ checkpoints and do not supersede the current status.
 
 | Document | Purpose |
 |---|---|
+| [Additional client — 13 October](CLIENT142-DEPLOYMENT-2026-10-13.md) | Verified .142 installation, six forwards and expected Finland exception. |
 | [STATUS.md](STATUS.md) | Running version, current paths and outstanding work. |
 | [Branch consolidation — 13 October](CONSOLIDATION-2026-10-13.md) | Every retired experiment's outcome, selective merge decisions, archived evidence and remaining paths. |
 | [Production-led exploration — 12 October](EXPLORATION-2026-10-12.md) | Full writer, pacing, reordering, RTT, diagnostics and measurement journal, including failed gates. |

@@ -10,7 +10,7 @@ TCP and UDP ports. SOCKS5 and the old role-based configuration have been removed
 The transport contract and its reasons are documented in [docs/TRANSPORT.md](docs/TRANSPORT.md).
 Measured results and qualification limits are in [docs/BENCHMARKS.md](docs/BENCHMARKS.md).
 
-The current final.1 release runs on one active client and three backends, with
+The current final.1 release runs on two active clients and three backends, with
 four distinct client source ports per country, verified connection preservation,
 10-second stall detection, 15-second retry cooldown and two backend capture
 workers. It retains the existing adaptive controller and corrects ACK timing

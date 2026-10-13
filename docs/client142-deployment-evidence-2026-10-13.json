@@ -1,0 +1,379 @@
+{
+  "host": "94.139.180.142",
+  "sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+  "runtime_source": "37904d6",
+  "version": "enterprise-2026.10.13-final.1",
+  "existing_hosts_mutated": false,
+  "stamp": "20261013T144552Z",
+  "log_archive": "/var/log/super-paqet-watch/client142-20261013T143745Z",
+  "observer_until": "2026-10-20T14:37:45.836073+00:00",
+  "config_sha256": "9f355633a375317d636ccf1f76398d7a3db3d721708961d322799c78766fd045",
+  "unit_sha256": "79664f70e267783b2d70f4d5c1785de43a530b1f993fba966e64184757199eac",
+  "watch_unit_sha256": "ebf5148ad4d569a16fdff00a360322b73ad2be14bc2e19dac01c6deaf553e528",
+  "expected_exception": "Finland Reality: user accepted; matching backend loopback probe also failed",
+  "status": "deployed and verified; Finland Reality expected exception",
+  "routes": [
+    {
+      "country": "germany",
+      "protocol": "vless",
+      "forward_port": 9001,
+      "results": [
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.643584",
+            "1.564609"
+          ],
+          "passed": true
+        },
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.571295",
+            "1.578784"
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "country": "germany",
+      "protocol": "shadowsocks",
+      "forward_port": 8001,
+      "results": [
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.499613",
+            "1.611862"
+          ],
+          "passed": true
+        },
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.438883",
+            "0.709193"
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "country": "france",
+      "protocol": "vless",
+      "forward_port": 9003,
+      "results": [
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.939022",
+            "2.213708"
+          ],
+          "passed": true
+        },
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.944863",
+            "2.107485"
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "country": "france",
+      "protocol": "shadowsocks",
+      "forward_port": 8003,
+      "results": [
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.732062",
+            "1.882141"
+          ],
+          "passed": true
+        },
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "1.265917",
+            "2.440700"
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "country": "finland",
+      "protocol": "shadowsocks",
+      "forward_port": 8002,
+      "results": [
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.996125",
+            "2.667868"
+          ],
+          "passed": true
+        },
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.827408",
+            "1.991829"
+          ],
+          "passed": true
+        }
+      ]
+    }
+  ],
+  "external_nginx_restart_before_finalization": true,
+  "external_application_identity_change_during_finalization": false,
+  "qualification_scope": "Existing qualified release; additional-host startup, config validation, authenticated payload checks and finite health/log review. No new capacity or day-long stability claim.",
+  "validation": {
+    "forwards": 6,
+    "listeners": 0,
+    "path": "/root/super-paqet/stage-client142-20261013T143745Z/conf.yaml",
+    "peers": 3,
+    "valid": true
+  },
+  "health": "ok",
+  "running_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+  "unit": {
+    "MainPID": "16954",
+    "NRestarts": "0",
+    "MemoryCurrent": "13651968",
+    "TasksCurrent": "9",
+    "ActiveState": "active",
+    "FragmentPath": "/etc/systemd/system/super-paqet.service",
+    "UnitFileState": "enabled"
+  },
+  "watch_unit": {
+    "MainPID": "16955",
+    "NRestarts": "0",
+    "MemoryCurrent": "13438976",
+    "TasksCurrent": "2",
+    "ActiveState": "active",
+    "FragmentPath": "/etc/systemd/system/super-paqet-watch.service",
+    "UnitFileState": "enabled"
+  },
+  "configured_sessions_per_country": 4,
+  "observed_source_ports": {
+    "germany": [
+      {
+        "slot": 0,
+        "port": 45193
+      },
+      {
+        "slot": 1,
+        "port": 54291
+      },
+      {
+        "slot": 2,
+        "port": 44980
+      },
+      {
+        "slot": 3,
+        "port": 41371
+      }
+    ],
+    "finland": [
+      {
+        "slot": 0,
+        "port": 52251
+      },
+      {
+        "slot": 1,
+        "port": 52163
+      }
+    ],
+    "france": [
+      {
+        "slot": 0,
+        "port": 51974
+      },
+      {
+        "slot": 1,
+        "port": 35802
+      },
+      {
+        "slot": 2,
+        "port": 41650
+      },
+      {
+        "slot": 3,
+        "port": 49893
+      }
+    ]
+  },
+  "lazy_activation": "Only two Finland slots activated by final Shadowsocks checks; all four are configured. Germany and France activated all four.",
+  "gomaxprocs": 4,
+  "memory_mib": 4096,
+  "application_bytes_per_check": 1048576,
+  "finland_reality_failed_checks": [
+    {
+      "exit_code": 28,
+      "status": "000",
+      "bytes": "0",
+      "timing": [
+        "0.000000",
+        "8.000023"
+      ],
+      "passed": false
+    },
+    {
+      "exit_code": 28,
+      "status": "000",
+      "bytes": "0",
+      "timing": [
+        "0.000000",
+        "8.000363"
+      ],
+      "passed": false
+    }
+  ],
+  "finland_reality_loopback": [
+    {
+      "exit_code": 28,
+      "status": "000",
+      "bytes": "0",
+      "timing": [
+        "0.000000",
+        "8.001141"
+      ],
+      "passed": false
+    },
+    {
+      "exit_code": 28,
+      "status": "000",
+      "bytes": "0",
+      "timing": [
+        "0.000000",
+        "8.001064"
+      ],
+      "passed": false
+    }
+  ],
+  "observer_last_utc": "2026-10-13T14:47:21.251700+00:00",
+  "observer_summary": {
+    "completed": false,
+    "until": "2026-10-20T14:37:45.836073+00:00",
+    "journal_recorder": {
+      "records": 11,
+      "cursor_resume": true,
+      "last_realtime_usec": "1791902770782659"
+    },
+    "captures": 2,
+    "first_utc": "2026-10-13T14:38:32.389402+00:00",
+    "last_utc": "2026-10-13T14:47:21.251700+00:00",
+    "samples": 20,
+    "triggers": {
+      "metrics_unavailable": 2
+    },
+    "samples_without_metrics": 2,
+    "peak_active": 26.0,
+    "peak_rss_kib": 23052,
+    "peak_fds": 58,
+    "runs": {
+      "15905": {
+        "first_utc": "2026-10-13T14:38:42.416073+00:00",
+        "last_counters": {
+          "errors_total": 0.0,
+          "rejected_total": 0.0,
+          "opening_transport_retries_total": 0.0,
+          "opening_syn_timeouts_total": 0.0,
+          "opening_receipt_timeouts_total": 0.0,
+          "opening_result_timeouts_total": 0.0,
+          "opening_closed_attempts_total": 0.0,
+          "opening_capacity_retries_total": 0.0,
+          "opening_reused_targets_total": 0.0,
+          "config_reload_rejected_total": 0.0,
+          "path_recovery_attempts_total": 0.0,
+          "path_recovery_succeeded_total": 0.0,
+          "path_recovery_rejected_total": 0.0,
+          "log_dropped_total": 0.0
+        },
+        "last_utc": "2026-10-13T14:40:22.743699+00:00"
+      },
+      "16954": {
+        "first_utc": "2026-10-13T14:46:21.079280+00:00",
+        "last_counters": {
+          "errors_total": 0.0,
+          "rejected_total": 0.0,
+          "opening_transport_retries_total": 0.0,
+          "opening_syn_timeouts_total": 0.0,
+          "opening_receipt_timeouts_total": 0.0,
+          "opening_result_timeouts_total": 0.0,
+          "opening_closed_attempts_total": 0.0,
+          "opening_capacity_retries_total": 0.0,
+          "opening_reused_targets_total": 0.0,
+          "config_reload_rejected_total": 0.0,
+          "path_recovery_attempts_total": 0.0,
+          "path_recovery_succeeded_total": 0.0,
+          "path_recovery_rejected_total": 0.0,
+          "log_dropped_total": 0.0
+        },
+        "last_utc": "2026-10-13T14:47:21.251700+00:00"
+      }
+    },
+    "observed_processes": 2,
+    "counter_deltas": {
+      "errors_total": 0,
+      "rejected_total": 0,
+      "opening_transport_retries_total": 0,
+      "opening_syn_timeouts_total": 0,
+      "opening_receipt_timeouts_total": 0,
+      "opening_result_timeouts_total": 0,
+      "opening_closed_attempts_total": 0,
+      "opening_capacity_retries_total": 0,
+      "opening_reused_targets_total": 0,
+      "config_reload_rejected_total": 0,
+      "path_recovery_attempts_total": 0,
+      "path_recovery_succeeded_total": 0,
+      "path_recovery_rejected_total": 0,
+      "log_dropped_total": 0
+    }
+  },
+  "final_journal": "",
+  "retained_attempts": [
+    {
+      "receipt": "build/client142/deploy-20261013T143431Z/receipt.json",
+      "sha256": "c928110c96a1afacbc896cedb0f5bf2bb53e9c648fe128667fd5294f547bee7d"
+    },
+    {
+      "receipt": "build/client142/deploy-20261013T143745Z/receipt.json",
+      "sha256": "907dd9fcd998057f94b49930ac593f873aeefa650a9c9a48f24b1e87e4d4beba"
+    },
+    {
+      "receipt": "build/client142/finalize-20261013T144552Z/receipt.json",
+      "sha256": "1535a4afe437b5ac127801ac83d9e73c995c899724e3600dac81785a405064ae"
+    }
+  ],
+  "deployment_guard_corrections": [
+    "Wait up to 45 seconds for startup health rather than treating initial metrics-listener unavailability as failure.",
+    "Record external Nginx identity changes independently; restarting Nginx does not require a tunnel restart."
+  ],
+  "cleanup": "Owned isolated probe executables and empty staging directories removed. Failed receipts, rollback scripts and observer archives retained. Existing hosts, Nginx and Xray were not reconfigured or restarted."
+}

@@ -1,9 +1,9 @@
 # Current deployment status — 13 October 2026
 
-The four active hosts run **enterprise-2026.10.13-final.1**, runtime source
+The five active hosts run **enterprise-2026.10.13-final.1**, runtime source
 `37904d6`, SHA-256
 `df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f`:
-client **94.139.180.109**, Germany **116.202.177.233** (also its existing
+clients **94.139.180.109** and **94.139.180.142**, Germany **116.202.177.233** (also its existing
 91.107.251.85 listener), France **171.22.132.226**, Finland **65.109.249.222**.
 The old .14/.118 clients remain stopped and were not restarted by this rollout.
 
@@ -50,6 +50,15 @@ See the [final review and tradeoffs](FINAL-PASS-2026-10-13.md),
 [production diagnostic guide](PRODUCTION-DIAGNOSTICS.md). Finite, bounded
 observers retain production logs through 19 October; completed stability over
 that future window is not claimed.
+
+The [additional-client deployment](CLIENT142-DEPLOYMENT-2026-10-13.md) installs
+this same pinned executable on .142, with all six forwards, four adaptive
+source-port carriers per country, GOMAXPROCS=4 and a 4096 MiB memory budget.
+Existing hosts were not reconfigured or restarted. Germany and France Reality
+and Shadowsocks plus Finland Shadowsocks pass authenticated payload checks;
+the user accepted the existing Finland Reality failure as an expected exception.
+The new client's bounded observer retains logs through 20 October. Its exact
+configuration and unit are in [deployed snapshots](deployed/README.md).
 
 # Earlier deployment status — 12 October 2026
 

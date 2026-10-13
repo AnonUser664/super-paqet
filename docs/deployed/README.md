@@ -1,3 +1,23 @@
+# Current additional-client snapshot — 13 October 2026
+
+The current release and five-host topology are recorded in [STATUS.md](../STATUS.md).
+[94.139.180.142.yaml](94.139.180.142.yaml) and
+[94.139.180.142.service](94.139.180.142.service) are the new client's installed
+configuration and tunnel unit. They use the same final.1 executable and runtime
+settings as the existing client .109, adapting only host interface/IP/gateway MAC
+and its 4096 MiB memory budget. Four country carriers use independent source ports;
+GOMAXPROCS=4, one capture worker, S outbound / PA return, adaptation on and warn
+JSON logs. The six forwards target country ports 443 and 8880. See the
+[deployment report](../CLIENT142-DEPLOYMENT-2026-10-13.md) and
+[receipt](../client142-deployment-evidence-2026-10-13.json) for authenticated
+checks, expected Finland Reality exception and the observer deadline.
+
+The files and description below are historical 12 October snapshots; the old
+.14/.118 clients remain stopped. For .109's current configuration, see its
+[recorded replacement-client profile](../archive/production-exploration-2026-10-12/94.139.180.109.yaml).
+The dated snapshot reports must be read with current status, particularly the
+later move of Reality targets from 2096 to 443.
+
 # Recorded production configuration
 
 All five hosts run **enterprise-2026.10.12-opening.10**, runtime source
