@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-13",
+  "selection_commit": "831dd0c",
+  "consolidated_head": "b5f1d56a43d2896fea5f50d972095673087e8566",
+  "production_mutated": false,
+  "runtime_changes": false,
+  "archive": "/home/shayan/Codes/super-paqet/build/archives/exploration-review-20261013",
+  "manifest_sha256": "de4cc7e5f0216e79622d676e3ec2461ffa51e2557a323c85f826890aa424c114",
+  "bundle_sha256": "8467972941ac012ce1fe7b1970b0353f56d45d7a6daa9b1d11069ba29d671769",
+  "preserved_artifacts": 1738,
+  "preserved_bytes": 1156147027,
+  "retired_worktrees": [
+    {
+      "worktree": "/home/shayan/Codes/super-paqet/build/worktrees/asymmetric-upload-20261013",
+      "head": "7c760f96cc0994fc605d1d91ecbbcf760dbb1255",
+      "branch": "measurement/asymmetric-upload-20261013",
+      "destination": "/home/shayan/Codes/super-paqet/build/archives/exploration-review-20261013/asymmetric-upload-20261013"
+    },
+    {
+      "worktree": "/home/shayan/Codes/super-paqet/build/worktrees/client142-20261013",
+      "head": "beda8eba4a5b73051308cda131ff1526052d2295",
+      "branch": "deployment/client142-20261013",
+      "destination": "/home/shayan/Codes/super-paqet/build/archives/exploration-review-20261013/client142-20261013"
+    },
+    {
+      "worktree": "/home/shayan/Codes/super-paqet/build/worktrees/exp-ack-20261013",
+      "head": "43a9792969c1047851f6cbdb9d3e013788d30700",
+      "branch": "exploration/exp-ack-20261013",
+      "destination": "/home/shayan/Codes/super-paqet/build/archives/exploration-review-20261013/exp-ack-20261013"
+    },
+    {
+      "worktree": "/home/shayan/Codes/super-paqet/build/worktrees/exp-ack-review-20261013",
+      "head": "b5f1d56a43d2896fea5f50d972095673087e8566",
+      "branch": "integration/exp-ack-review-20261013",
+      "destination": "/home/shayan/Codes/super-paqet/build/archives/exploration-review-20261013/exp-ack-review-20261013"
+    }
+  ],
+  "remaining_worktrees": [
+    "/home/shayan/Codes/super-paqet b5f1d56 [master]"
+  ],
+  "remaining_local_branches": [
+    "master"
+  ],
+  "remaining_test_namespaces": [],
+  "failed_attempts_preserved": true,
+  "candidate_source_reachable_from_master": true,
+  "post_cleanup_checks": {
+    "bundle-verify.log": {
+      "exit_code": 0,
+      "sha256": "d1cf85549b46c64da98b4ff8924987337c645f27a2b3fb16a9aaa93fce2a9e69"
+    },
+    "post-cleanup-race.log": {
+      "exit_code": 0,
+      "sha256": "95f279d732bff5f6fe0e23d41281b036caa98a27e6c0f63e90f986cc3a9ccd79"
+    },
+    "post-cleanup-python.log": {
+      "exit_code": 0,
+      "sha256": "b9e76a57e7c9cb367d17be00ec29f3022b5974f52f1be8c7598544424ab4cf55"
+    }
+  }
+}

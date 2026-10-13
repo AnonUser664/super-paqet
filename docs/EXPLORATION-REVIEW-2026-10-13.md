@@ -139,3 +139,7 @@ and manifest map original paths to archived files with sizes and SHA-256 values.
 Private receipt paths are historical execution locations; consult that mapping
 after cleanup. Failed attempts and interrupted evidence are retained. No active
 agent workload is terminated, and no production host is modified.
+
+[Completed cleanup receipt](exploration-ack-cleanup-evidence-2026-10-13.json)
+records the sole master checkout, retained 1,738 artifacts, archive manifest and
+Git bundle hashes. All retired candidate source is reachable from master.
