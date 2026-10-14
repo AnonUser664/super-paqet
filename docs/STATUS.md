@@ -1,3 +1,19 @@
+# Latest production review — 14 October 2026
+
+All five final.1 tunnel services remain active/enabled with the expected binary,
+unchanged process identities, zero automatic restarts and zero cgroup OOM kills.
+Both clients pass the ten expected Reality/Shadowsocks application paths; the
+previously accepted Finland Reality exception remains on both clients. Logs and
+bounded observers are healthy. No production changes were made.
+
+The preceding day includes significant France opening-failure bursts around
+13 October 17:54–18:00 and 19:53–19:57 UTC, plus later carrier recovery. ACK/data
+progress continues in the larger bursts, so full-stall recovery alone does not
+resolve their cause. Current samples are quiet, but historical stability is not
+certified. See the [14 October production review](PRODUCTION-REVIEW-2026-10-14.md)
+and [exact receipt](production-review-evidence-2026-10-14.json) for operator
+restart attribution limits, preservation outcomes and remaining investigation.
+
 # Current deployment status — 13 October 2026
 
 The five active hosts run **enterprise-2026.10.13-final.1**, runtime source

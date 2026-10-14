@@ -1,0 +1,1420 @@
+{
+  "review_date": "2026-10-14",
+  "since": "2026-10-13T16:01:03.946867+00:00",
+  "production_mutated": false,
+  "application_services_modified": false,
+  "release": "enterprise-2026.10.13-final.1",
+  "binary_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+  "hosts": [
+    {
+      "host": "116.202.177.233",
+      "utc": "2026-10-14T16:17:35.970356+00:00",
+      "service": {
+        "MainPID": "1241390",
+        "NRestarts": "0",
+        "ControlGroup": "/system.slice/super-paqet.service",
+        "MemoryCurrent": "132972544",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "observer": {
+        "MainPID": "1242283",
+        "NRestarts": "0",
+        "ControlGroup": "/system.slice/super-paqet-watch.service",
+        "MemoryCurrent": "57352192",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "running_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+      "config_sha256": "d5452e855a8a943fc658c5700f762e7c57cab5292ade3c187043933230cc4475",
+      "same_tunnel_pid_during_review": true,
+      "same_config_during_review": true,
+      "health": "ok",
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0"
+      },
+      "current_active_connections": 2421.0,
+      "current_problem_carriers": {},
+      "current_counter_totals": {
+        "opening_receipts": 297.0,
+        "opening_pending_targets": 2.0,
+        "opening_capacity_retries_total": 0.0,
+        "opening_reused_targets_total": 189.0,
+        "path_recovery_attempts_total": 0.0,
+        "path_recovery_succeeded_total": 0.0,
+        "path_recovery_rejected_total": 0.0,
+        "log_dropped_total": 0.0,
+        "rejected_total": 0.0,
+        "errors_total": 2345.0,
+        "opening_transport_retries_total": 0.0,
+        "opening_syn_timeouts_total": 0.0,
+        "opening_receipt_timeouts_total": 0.0,
+        "opening_result_timeouts_total": 0.0,
+        "opening_closed_attempts_total": 0.0,
+        "config_reload_applied_total": 0.0,
+        "config_reload_rejected_total": 0.0,
+        "config_degraded": 0.0
+      },
+      "review_counter_deltas": {
+        "opening_capacity_retries_total": 0.0,
+        "opening_reused_targets_total": 0.0,
+        "path_recovery_attempts_total": 0.0,
+        "path_recovery_succeeded_total": 0.0,
+        "path_recovery_rejected_total": 0.0,
+        "log_dropped_total": 0.0,
+        "accepted_total": 23947.0,
+        "rejected_total": 0.0,
+        "errors_total": 0.0,
+        "opening_transport_retries_total": 0.0,
+        "sent_bytes_total": 4150147601.0,
+        "received_bytes_total": 290000848.0,
+        "opening_syn_timeouts_total": 0.0,
+        "opening_receipt_timeouts_total": 0.0,
+        "opening_result_timeouts_total": 0.0,
+        "opening_closed_attempts_total": 0.0,
+        "aborted_connections_total": 634.0,
+        "config_reload_applied_total": 0.0,
+        "config_reload_rejected_total": 0.0,
+        "gc_total": 22.0
+      },
+      "recent_sample_interval": [
+        "2026-10-14T14:05:54.730281+00:00",
+        "2026-10-14T16:01:17.882600+00:00"
+      ],
+      "recent_sample_counter_deltas": {
+        "opening_capacity_retries_total": 0.0,
+        "opening_reused_targets_total": 0.0,
+        "path_recovery_attempts_total": 0.0,
+        "path_recovery_succeeded_total": 0.0,
+        "path_recovery_rejected_total": 0.0,
+        "log_dropped_total": 0.0,
+        "accepted_total": 207458.0,
+        "rejected_total": 0.0,
+        "errors_total": 0.0,
+        "opening_transport_retries_total": 0.0,
+        "sent_bytes_total": 44142351680.0,
+        "received_bytes_total": 3307940594.0,
+        "opening_syn_timeouts_total": 0.0,
+        "opening_receipt_timeouts_total": 0.0,
+        "opening_result_timeouts_total": 0.0,
+        "opening_closed_attempts_total": 0.0,
+        "aborted_connections_total": 6129.0,
+        "config_reload_applied_total": 0.0,
+        "config_reload_rejected_total": 0.0,
+        "gc_total": 209.0
+      },
+      "observer_archive": "/var/log/super-paqet-watch/opening10-20261012T080128Z",
+      "observer_last_sample": "2026-10-14T16:01:17.882600+00:00",
+      "observer_deadline": "2026-10-19T08:01:28.597860+00:00",
+      "observer_peak_active_full_window": 7835.0,
+      "application_processes": [
+        {
+          "pid": "14194",
+          "exe": "/usr/sbin/nginx",
+          "start_utc": "2026-09-22T06:17:07.100000+00:00"
+        },
+        {
+          "pid": "14196",
+          "exe": "/usr/sbin/nginx",
+          "start_utc": "2026-09-22T06:17:07.110000+00:00"
+        },
+        {
+          "pid": "14197",
+          "exe": "/usr/sbin/nginx",
+          "start_utc": "2026-09-22T06:17:07.110000+00:00"
+        },
+        {
+          "pid": "1283747",
+          "exe": "/usr/local/bin/xray",
+          "start_utc": "2026-10-13T13:18:01.700000+00:00",
+          "stdout": "/usr/local/bin/.xray-controller.log",
+          "stderr": "/usr/local/bin/.xray-controller.log"
+        }
+      ],
+      "application_lifecycle": {
+        "rc": 0,
+        "out": "-- No entries --\n",
+        "err": ""
+      },
+      "kernel_warnings": {
+        "rc": 0,
+        "out": "-- No entries --\n",
+        "err": ""
+      },
+      "journal_command_status": 0,
+      "disk": {
+        "rc": 0,
+        "out": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/sda1        38G  9.5G   27G  27% /\n/dev/sda1        38G  9.5G   27G  27% /\n",
+        "err": ""
+      },
+      "host_memory": {
+        "MemTotal": "3907396 kB",
+        "MemAvailable": "1021416 kB",
+        "SwapFree": "0 kB"
+      }
+    },
+    {
+      "host": "171.22.132.226",
+      "utc": "2026-10-14T16:17:34.802271+00:00",
+      "service": {
+        "ActiveState": "active",
+        "UnitFileState": "enabled",
+        "MainPID": "3389657",
+        "NRestarts": "0",
+        "ControlGroup": "/system.slice/super-paqet.service",
+        "MemoryCurrent": "96559104"
+      },
+      "observer": {
+        "ActiveState": "active",
+        "UnitFileState": "enabled",
+        "MainPID": "3390628",
+        "NRestarts": "0",
+        "ControlGroup": "/system.slice/super-paqet-watch.service",
+        "MemoryCurrent": "33112064"
+      },
+      "running_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+      "config_sha256": "cbb7bf337c40786ffd25c29fd3e0a69f5c5ddae5470dd372e660ff40ac81afe1",
+      "same_tunnel_pid_during_review": true,
+      "same_config_during_review": true,
+      "health": "ok",
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0",
+        "sock_throttled": "0"
+      },
+      "current_active_connections": 1606.0,
+      "current_problem_carriers": {},
+      "current_counter_totals": {
+        "opening_receipts": 447.0,
+        "opening_pending_targets": 1.0,
+        "opening_capacity_retries_total": 0.0,
+        "opening_reused_targets_total": 5670.0,
+        "path_recovery_attempts_total": 0.0,
+        "path_recovery_succeeded_total": 0.0,
+        "path_recovery_rejected_total": 0.0,
+        "log_dropped_total": 0.0,
+        "rejected_total": 0.0,
+        "errors_total": 1936.0,
+        "opening_transport_retries_total": 0.0,
+        "opening_syn_timeouts_total": 0.0,
+        "opening_receipt_timeouts_total": 0.0,
+        "opening_result_timeouts_total": 0.0,
+        "opening_closed_attempts_total": 0.0,
+        "config_reload_applied_total": 0.0,
+        "config_reload_rejected_total": 0.0,
+        "config_degraded": 0.0
+      },
+      "review_counter_deltas": {
+        "opening_capacity_retries_total": 0.0,
+        "opening_reused_targets_total": 0.0,
+        "path_recovery_attempts_total": 0.0,
+        "path_recovery_succeeded_total": 0.0,
+        "path_recovery_rejected_total": 0.0,
+        "log_dropped_total": 0.0,
+        "accepted_total": 13746.0,
+        "rejected_total": 0.0,
+        "errors_total": 0.0,
+        "opening_transport_retries_total": 0.0,
+        "sent_bytes_total": 2948072811.0,
+        "received_bytes_total": 237240254.0,
+        "opening_syn_timeouts_total": 0.0,
+        "opening_receipt_timeouts_total": 0.0,
+        "opening_result_timeouts_total": 0.0,
+        "opening_closed_attempts_total": 0.0,
+        "aborted_connections_total": 264.0,
+        "config_reload_applied_total": 0.0,
+        "config_reload_rejected_total": 0.0,
+        "gc_total": 22.0
+      },
+      "recent_sample_interval": [
+        "2026-10-14T14:55:56.837729+00:00",
+        "2026-10-14T16:01:26.886882+00:00"
+      ],
+      "recent_sample_counter_deltas": {
+        "opening_capacity_retries_total": 0.0,
+        "opening_reused_targets_total": 0.0,
+        "path_recovery_attempts_total": 0.0,
+        "path_recovery_succeeded_total": 0.0,
+        "path_recovery_rejected_total": 0.0,
+        "log_dropped_total": 0.0,
+        "accepted_total": 62500.0,
+        "rejected_total": 0.0,
+        "errors_total": 0.0,
+        "opening_transport_retries_total": 0.0,
+        "sent_bytes_total": 13670594092.0,
+        "received_bytes_total": 939119883.0,
+        "opening_syn_timeouts_total": 0.0,
+        "opening_receipt_timeouts_total": 0.0,
+        "opening_result_timeouts_total": 0.0,
+        "opening_closed_attempts_total": 0.0,
+        "aborted_connections_total": 1220.0,
+        "config_reload_applied_total": 0.0,
+        "config_reload_rejected_total": 0.0,
+        "gc_total": 103.0
+      },
+      "observer_archive": "/var/log/super-paqet-watch/opening10-20261012T080128Z",
+      "observer_last_sample": "2026-10-14T16:01:26.886882+00:00",
+      "observer_deadline": "2026-10-19T08:01:28.597860+00:00",
+      "observer_peak_active_full_window": 7138.0,
+      "application_processes": [
+        {
+          "pid": "3424128",
+          "exe": "/usr/local/bin/xray",
+          "start_utc": "2026-10-13T13:18:07.640000+00:00",
+          "stdout": "/usr/local/bin/.xray-controller.log",
+          "stderr": "/usr/local/bin/.xray-controller.log"
+        }
+      ],
+      "application_lifecycle": {
+        "rc": 0,
+        "out": "-- No entries --\n",
+        "err": ""
+      },
+      "kernel_warnings": {
+        "rc": 0,
+        "out": "-- No entries --\n",
+        "err": ""
+      },
+      "journal_command_status": 0,
+      "disk": {
+        "rc": 0,
+        "out": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/vda2        59G   11G   46G  19% /\n/dev/vda2        59G   11G   46G  19% /\n",
+        "err": ""
+      },
+      "host_memory": {
+        "MemTotal": "4004628 kB",
+        "MemAvailable": "1956600 kB",
+        "SwapFree": "0 kB"
+      }
+    },
+    {
+      "host": "65.109.249.222",
+      "utc": "2026-10-14T16:17:36.103055+00:00",
+      "service": {
+        "MainPID": "508108",
+        "NRestarts": "0",
+        "ControlGroup": "/system.slice/super-paqet.service",
+        "MemoryCurrent": "114143232",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "observer": {
+        "MainPID": "509054",
+        "NRestarts": "0",
+        "ControlGroup": "/system.slice/super-paqet-watch.service",
+        "MemoryCurrent": "133242880",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "running_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+      "config_sha256": "0eae1d57ab410231b20262451648c05e02a09fb21b483399b150360aa3453f69",
+      "same_tunnel_pid_during_review": true,
+      "same_config_during_review": true,
+      "health": "ok",
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0"
+      },
+      "current_active_connections": 1918.0,
+      "current_problem_carriers": {},
+      "current_counter_totals": {
+        "opening_receipts": 186.0,
+        "opening_pending_targets": 0.0,
+        "opening_capacity_retries_total": 0.0,
+        "opening_reused_targets_total": 76.0,
+        "path_recovery_attempts_total": 0.0,
+        "path_recovery_succeeded_total": 0.0,
+        "path_recovery_rejected_total": 0.0,
+        "log_dropped_total": 0.0,
+        "rejected_total": 0.0,
+        "errors_total": 202.0,
+        "opening_transport_retries_total": 0.0,
+        "opening_syn_timeouts_total": 0.0,
+        "opening_receipt_timeouts_total": 0.0,
+        "opening_result_timeouts_total": 0.0,
+        "opening_closed_attempts_total": 0.0,
+        "config_reload_applied_total": 0.0,
+        "config_reload_rejected_total": 0.0,
+        "config_degraded": 0.0
+      },
+      "review_counter_deltas": {
+        "opening_capacity_retries_total": 0.0,
+        "opening_reused_targets_total": 0.0,
+        "path_recovery_attempts_total": 0.0,
+        "path_recovery_succeeded_total": 0.0,
+        "path_recovery_rejected_total": 0.0,
+        "log_dropped_total": 0.0,
+        "accepted_total": 15190.0,
+        "rejected_total": 0.0,
+        "errors_total": 0.0,
+        "opening_transport_retries_total": 0.0,
+        "sent_bytes_total": 3335318912.0,
+        "received_bytes_total": 214792119.0,
+        "opening_syn_timeouts_total": 0.0,
+        "opening_receipt_timeouts_total": 0.0,
+        "opening_result_timeouts_total": 0.0,
+        "opening_closed_attempts_total": 0.0,
+        "aborted_connections_total": 1372.0,
+        "config_reload_applied_total": 0.0,
+        "config_reload_rejected_total": 0.0,
+        "gc_total": 18.0
+      },
+      "recent_sample_interval": [
+        "2026-10-14T15:19:16.181386+00:00",
+        "2026-10-14T16:01:08.209145+00:00"
+      ],
+      "recent_sample_counter_deltas": {
+        "opening_capacity_retries_total": 0.0,
+        "opening_reused_targets_total": 0.0,
+        "path_recovery_attempts_total": 0.0,
+        "path_recovery_succeeded_total": 0.0,
+        "path_recovery_rejected_total": 0.0,
+        "log_dropped_total": 0.0,
+        "accepted_total": 56567.0,
+        "rejected_total": 0.0,
+        "errors_total": 0.0,
+        "opening_transport_retries_total": 0.0,
+        "sent_bytes_total": 12743318663.0,
+        "received_bytes_total": 859311062.0,
+        "opening_syn_timeouts_total": 0.0,
+        "opening_receipt_timeouts_total": 0.0,
+        "opening_result_timeouts_total": 0.0,
+        "opening_closed_attempts_total": 0.0,
+        "aborted_connections_total": 3340.0,
+        "config_reload_applied_total": 0.0,
+        "config_reload_rejected_total": 0.0,
+        "gc_total": 69.0
+      },
+      "observer_archive": "/var/log/super-paqet-watch/opening10-20261012T080128Z",
+      "observer_last_sample": "2026-10-14T16:01:08.209145+00:00",
+      "observer_deadline": "2026-10-19T08:01:28.597860+00:00",
+      "observer_peak_active_full_window": 8354.0,
+      "application_processes": [
+        {
+          "pid": "727",
+          "exe": "/usr/sbin/nginx",
+          "start_utc": "2026-10-06T06:47:01.900000+00:00"
+        },
+        {
+          "pid": "731",
+          "exe": "/usr/sbin/nginx",
+          "start_utc": "2026-10-06T06:47:01.910000+00:00"
+        },
+        {
+          "pid": "732",
+          "exe": "/usr/sbin/nginx",
+          "start_utc": "2026-10-06T06:47:01.910000+00:00"
+        },
+        {
+          "pid": "545541",
+          "exe": "/usr/local/bin/xray",
+          "start_utc": "2026-10-13T13:17:58.920000+00:00",
+          "stdout": "/usr/local/bin/.xray-controller.log",
+          "stderr": "/usr/local/bin/.xray-controller.log"
+        }
+      ],
+      "application_lifecycle": {
+        "rc": 0,
+        "out": "-- No entries --\n",
+        "err": ""
+      },
+      "kernel_warnings": {
+        "rc": 0,
+        "out": "-- No entries --\n",
+        "err": ""
+      },
+      "journal_command_status": 0,
+      "disk": {
+        "rc": 0,
+        "out": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/sda1        38G  8.3G   28G  24% /\n/dev/sda1        38G  8.3G   28G  24% /\n",
+        "err": ""
+      },
+      "host_memory": {
+        "MemTotal": "3907396 kB",
+        "MemAvailable": "1964360 kB",
+        "SwapFree": "0 kB"
+      }
+    },
+    {
+      "host": "94.139.180.109",
+      "utc": "2026-10-14T16:17:34.014937+00:00",
+      "service": {
+        "MainPID": "274584",
+        "NRestarts": "0",
+        "ControlGroup": "/system.slice/super-paqet.service",
+        "MemoryCurrent": "292290560",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "observer": {
+        "MainPID": "275363",
+        "NRestarts": "0",
+        "ControlGroup": "/system.slice/super-paqet-watch.service",
+        "MemoryCurrent": "133734400",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "running_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+      "config_sha256": "dbf05d1e4e7030861ff87902fd876711f5708418a4381c96b0d9ff05cff8f639",
+      "same_tunnel_pid_during_review": true,
+      "same_config_during_review": true,
+      "health": "ok",
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0"
+      },
+      "current_active_connections": 6077.0,
+      "current_problem_carriers": {},
+      "current_counter_totals": {
+        "opening_receipts": 0.0,
+        "opening_pending_targets": 0.0,
+        "opening_capacity_retries_total": 281.0,
+        "opening_reused_targets_total": 0.0,
+        "path_recovery_attempts_total": 94.0,
+        "path_recovery_succeeded_total": 21.0,
+        "path_recovery_rejected_total": 73.0,
+        "log_dropped_total": 0.0,
+        "rejected_total": 0.0,
+        "errors_total": 29472.0,
+        "opening_transport_retries_total": 87163.0,
+        "opening_syn_timeouts_total": 12577.0,
+        "opening_receipt_timeouts_total": 84682.0,
+        "opening_result_timeouts_total": 63.0,
+        "opening_closed_attempts_total": 111.0,
+        "config_reload_applied_total": 0.0,
+        "config_reload_rejected_total": 0.0,
+        "config_degraded": 0.0
+      },
+      "review_counter_deltas": {
+        "opening_capacity_retries_total": 0.0,
+        "opening_reused_targets_total": 0.0,
+        "path_recovery_attempts_total": 0.0,
+        "path_recovery_succeeded_total": 0.0,
+        "path_recovery_rejected_total": 0.0,
+        "log_dropped_total": 0.0,
+        "accepted_total": 52851.0,
+        "rejected_total": 0.0,
+        "errors_total": 0.0,
+        "opening_transport_retries_total": 0.0,
+        "sent_bytes_total": 742770789.0,
+        "received_bytes_total": 10403235996.0,
+        "opening_syn_timeouts_total": 0.0,
+        "opening_receipt_timeouts_total": 0.0,
+        "opening_result_timeouts_total": 0.0,
+        "opening_closed_attempts_total": 0.0,
+        "aborted_connections_total": 33830.0,
+        "config_reload_applied_total": 0.0,
+        "config_reload_rejected_total": 0.0,
+        "gc_total": 20.0
+      },
+      "recent_sample_interval": [
+        "2026-10-14T12:33:59.684595+00:00",
+        "2026-10-14T16:01:09.512586+00:00"
+      ],
+      "recent_sample_counter_deltas": {
+        "opening_capacity_retries_total": 5.0,
+        "opening_reused_targets_total": 0.0,
+        "path_recovery_attempts_total": 0.0,
+        "path_recovery_succeeded_total": 0.0,
+        "path_recovery_rejected_total": 0.0,
+        "log_dropped_total": 0.0,
+        "accepted_total": 733502.0,
+        "rejected_total": 0.0,
+        "errors_total": 0.0,
+        "opening_transport_retries_total": 5.0,
+        "sent_bytes_total": 11767042295.0,
+        "received_bytes_total": 152636366724.0,
+        "opening_syn_timeouts_total": 0.0,
+        "opening_receipt_timeouts_total": 5.0,
+        "opening_result_timeouts_total": 0.0,
+        "opening_closed_attempts_total": 0.0,
+        "aborted_connections_total": 432454.0,
+        "config_reload_applied_total": 0.0,
+        "config_reload_rejected_total": 0.0,
+        "gc_total": 286.0
+      },
+      "observer_archive": "/var/log/super-paqet-watch/emergency109-20261012T142945Z",
+      "observer_last_sample": "2026-10-14T16:01:09.512586+00:00",
+      "observer_deadline": "2026-10-19T14:30:12.731676+00:00",
+      "observer_peak_active_full_window": 11492.0,
+      "application_processes": [
+        {
+          "pid": "231540",
+          "exe": "/usr/sbin/nginx",
+          "start_utc": "2026-10-11T19:21:11.470000+00:00"
+        },
+        {
+          "pid": "231541",
+          "exe": "/usr/sbin/nginx",
+          "start_utc": "2026-10-11T19:21:11.470000+00:00"
+        },
+        {
+          "pid": "231542",
+          "exe": "/usr/sbin/nginx",
+          "start_utc": "2026-10-11T19:21:11.470000+00:00"
+        },
+        {
+          "pid": "231543",
+          "exe": "/usr/sbin/nginx",
+          "start_utc": "2026-10-11T19:21:11.470000+00:00"
+        },
+        {
+          "pid": "231544",
+          "exe": "/usr/sbin/nginx",
+          "start_utc": "2026-10-11T19:21:11.470000+00:00"
+        }
+      ],
+      "application_lifecycle": {
+        "rc": 0,
+        "out": "-- No entries --\n",
+        "err": ""
+      },
+      "kernel_warnings": {
+        "rc": 0,
+        "out": "-- No entries --\n",
+        "err": ""
+      },
+      "journal_command_status": 0,
+      "disk": {
+        "rc": 0,
+        "out": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/sda2        45G  8.5G   34G  21% /\n/dev/sda2        45G  8.5G   34G  21% /\n",
+        "err": ""
+      },
+      "host_memory": {
+        "MemTotal": "8142020 kB",
+        "MemAvailable": "6762352 kB",
+        "SwapFree": "2097148 kB"
+      }
+    },
+    {
+      "host": "94.139.180.142",
+      "utc": "2026-10-14T16:17:34.692074+00:00",
+      "service": {
+        "MainPID": "16954",
+        "NRestarts": "0",
+        "ControlGroup": "/system.slice/super-paqet.service",
+        "MemoryCurrent": "25239552",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "observer": {
+        "MainPID": "16955",
+        "NRestarts": "0",
+        "ControlGroup": "/system.slice/super-paqet-watch.service",
+        "MemoryCurrent": "133632000",
+        "ActiveState": "active",
+        "UnitFileState": "enabled"
+      },
+      "running_sha256": "df9b3ccb9e76d1f597f09165624dd5d0fdc66b920dc92bccefc0ecf7f63dc96f",
+      "config_sha256": "9f355633a375317d636ccf1f76398d7a3db3d721708961d322799c78766fd045",
+      "same_tunnel_pid_during_review": true,
+      "same_config_during_review": true,
+      "health": "ok",
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0"
+      },
+      "current_active_connections": 0.0,
+      "current_problem_carriers": {},
+      "current_counter_totals": {
+        "opening_receipts": 0.0,
+        "opening_pending_targets": 0.0,
+        "opening_capacity_retries_total": 0.0,
+        "opening_reused_targets_total": 0.0,
+        "path_recovery_attempts_total": 0.0,
+        "path_recovery_succeeded_total": 0.0,
+        "path_recovery_rejected_total": 0.0,
+        "log_dropped_total": 0.0,
+        "rejected_total": 0.0,
+        "errors_total": 0.0,
+        "opening_transport_retries_total": 0.0,
+        "opening_syn_timeouts_total": 0.0,
+        "opening_receipt_timeouts_total": 0.0,
+        "opening_result_timeouts_total": 0.0,
+        "opening_closed_attempts_total": 0.0,
+        "config_reload_applied_total": 0.0,
+        "config_reload_rejected_total": 0.0,
+        "config_degraded": 0.0
+      },
+      "review_counter_deltas": {
+        "opening_capacity_retries_total": 0.0,
+        "opening_reused_targets_total": 0.0,
+        "path_recovery_attempts_total": 0.0,
+        "path_recovery_succeeded_total": 0.0,
+        "path_recovery_rejected_total": 0.0,
+        "log_dropped_total": 0.0,
+        "accepted_total": 23.0,
+        "rejected_total": 0.0,
+        "errors_total": 0.0,
+        "opening_transport_retries_total": 0.0,
+        "sent_bytes_total": 38799.0,
+        "received_bytes_total": 10911593.0,
+        "opening_syn_timeouts_total": 0.0,
+        "opening_receipt_timeouts_total": 0.0,
+        "opening_result_timeouts_total": 0.0,
+        "opening_closed_attempts_total": 0.0,
+        "aborted_connections_total": 6.0,
+        "config_reload_applied_total": 0.0,
+        "config_reload_rejected_total": 0.0,
+        "gc_total": 8.0
+      },
+      "recent_sample_interval": [
+        "2026-10-14T15:37:15.411806+00:00",
+        "2026-10-14T16:01:10.745043+00:00"
+      ],
+      "recent_sample_counter_deltas": {
+        "opening_capacity_retries_total": 0.0,
+        "opening_reused_targets_total": 0.0,
+        "path_recovery_attempts_total": 0.0,
+        "path_recovery_succeeded_total": 0.0,
+        "path_recovery_rejected_total": 0.0,
+        "log_dropped_total": 0.0,
+        "accepted_total": 30.0,
+        "rejected_total": 0.0,
+        "errors_total": 0.0,
+        "opening_transport_retries_total": 0.0,
+        "sent_bytes_total": 39083.0,
+        "received_bytes_total": 10911593.0,
+        "opening_syn_timeouts_total": 0.0,
+        "opening_receipt_timeouts_total": 0.0,
+        "opening_result_timeouts_total": 0.0,
+        "opening_closed_attempts_total": 0.0,
+        "aborted_connections_total": 6.0,
+        "config_reload_applied_total": 0.0,
+        "config_reload_rejected_total": 0.0,
+        "gc_total": 20.0
+      },
+      "observer_archive": "/var/log/super-paqet-watch/client142-20261013T143745Z",
+      "observer_last_sample": "2026-10-14T16:01:10.745043+00:00",
+      "observer_deadline": "2026-10-20T14:37:45.836073+00:00",
+      "observer_peak_active_full_window": 109.0,
+      "application_processes": [
+        {
+          "pid": "16291",
+          "exe": "/usr/sbin/nginx",
+          "start_utc": "2026-10-13T14:40:18.880000+00:00"
+        },
+        {
+          "pid": "16292",
+          "exe": "/usr/sbin/nginx",
+          "start_utc": "2026-10-13T14:40:18.880000+00:00"
+        },
+        {
+          "pid": "16293",
+          "exe": "/usr/sbin/nginx",
+          "start_utc": "2026-10-13T14:40:18.880000+00:00"
+        },
+        {
+          "pid": "16294",
+          "exe": "/usr/sbin/nginx",
+          "start_utc": "2026-10-13T14:40:18.880000+00:00"
+        },
+        {
+          "pid": "16295",
+          "exe": "/usr/sbin/nginx",
+          "start_utc": "2026-10-13T14:40:18.880000+00:00"
+        }
+      ],
+      "application_lifecycle": {
+        "rc": 0,
+        "out": "-- No entries --\n",
+        "err": ""
+      },
+      "kernel_warnings": {
+        "rc": 0,
+        "out": "2026-10-14T07:13:25.951633+0000 hws51fy5y4 kernel: kauditd_printk_skb: 6 callbacks suppressed\n2026-10-14T07:13:45.373016+0000 hws51fy5y4 kernel: kauditd_printk_skb: 5 callbacks suppressed\n2026-10-14T07:44:43.623584+0000 hws51fy5y4 kernel: kauditd_printk_skb: 5 callbacks suppressed\n",
+        "err": ""
+      },
+      "journal_command_status": 0,
+      "disk": {
+        "rc": 0,
+        "out": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/sda2        45G  7.5G   35G  18% /\n/dev/sda2        45G  7.5G   35G  18% /\n",
+        "err": ""
+      },
+      "host_memory": {
+        "MemTotal": "8142020 kB",
+        "MemAvailable": "7350384 kB",
+        "SwapFree": "2097148 kB"
+      }
+    }
+  ],
+  "application_routes": [
+    {
+      "client": "94.139.180.109",
+      "country": "germany",
+      "protocol": "vless",
+      "forward_port": 9001,
+      "results": [
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.753421",
+            "1.661201"
+          ],
+          "passed": true
+        },
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "1.371919",
+            "1.927432"
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "client": "94.139.180.109",
+      "country": "germany",
+      "protocol": "shadowsocks",
+      "forward_port": 8001,
+      "results": [
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "1.065369",
+            "1.585721"
+          ],
+          "passed": true
+        },
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.694581",
+            "1.388624"
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "client": "94.139.180.109",
+      "country": "france",
+      "protocol": "vless",
+      "forward_port": 9003,
+      "results": [
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.971695",
+            "1.791148"
+          ],
+          "passed": true
+        },
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.770635",
+            "2.038821"
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "client": "94.139.180.109",
+      "country": "france",
+      "protocol": "shadowsocks",
+      "forward_port": 8003,
+      "results": [
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.989956",
+            "3.498660"
+          ],
+          "passed": true
+        },
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.563252",
+            "1.083916"
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "client": "94.139.180.109",
+      "country": "finland",
+      "protocol": "vless",
+      "forward_port": 9002,
+      "results": [
+        {
+          "exit_code": 28,
+          "status": "000",
+          "bytes": "0",
+          "timing": [
+            "0.000000",
+            "8.011625"
+          ],
+          "passed": false
+        },
+        {
+          "exit_code": 28,
+          "status": "000",
+          "bytes": "0",
+          "timing": [
+            "0.000000",
+            "8.001953"
+          ],
+          "passed": false
+        }
+      ]
+    },
+    {
+      "client": "94.139.180.109",
+      "country": "finland",
+      "protocol": "shadowsocks",
+      "forward_port": 8002,
+      "results": [
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.540834",
+            "1.988329"
+          ],
+          "passed": true
+        },
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.558912",
+            "1.021443"
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "client": "94.139.180.142",
+      "country": "germany",
+      "protocol": "vless",
+      "forward_port": 9001,
+      "results": [
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.571865",
+            "0.923736"
+          ],
+          "passed": true
+        },
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.541461",
+            "1.873558"
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "client": "94.139.180.142",
+      "country": "germany",
+      "protocol": "shadowsocks",
+      "forward_port": 8001,
+      "results": [
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.442953",
+            "1.749816"
+          ],
+          "passed": true
+        },
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.431850",
+            "1.882984"
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "client": "94.139.180.142",
+      "country": "france",
+      "protocol": "vless",
+      "forward_port": 9003,
+      "results": [
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.724435",
+            "2.183644"
+          ],
+          "passed": true
+        },
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "3.148671",
+            "4.280068"
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "client": "94.139.180.142",
+      "country": "france",
+      "protocol": "shadowsocks",
+      "forward_port": 8003,
+      "results": [
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.625642",
+            "0.955596"
+          ],
+          "passed": true
+        },
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.433214",
+            "1.588843"
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "client": "94.139.180.142",
+      "country": "finland",
+      "protocol": "vless",
+      "forward_port": 9002,
+      "results": [
+        {
+          "exit_code": 28,
+          "status": "000",
+          "bytes": "0",
+          "timing": [
+            "0.000000",
+            "8.000612"
+          ],
+          "passed": false
+        },
+        {
+          "exit_code": 28,
+          "status": "000",
+          "bytes": "0",
+          "timing": [
+            "0.000000",
+            "8.001406"
+          ],
+          "passed": false
+        }
+      ]
+    },
+    {
+      "client": "94.139.180.142",
+      "country": "finland",
+      "protocol": "shadowsocks",
+      "forward_port": 8002,
+      "results": [
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.458761",
+            "0.739773"
+          ],
+          "passed": true
+        },
+        {
+          "exit_code": 0,
+          "status": "200",
+          "bytes": "1048576",
+          "timing": [
+            "0.399470",
+            "1.757831"
+          ],
+          "passed": true
+        }
+      ]
+    }
+  ],
+  "probe_cleanup": {
+    "94.139.180.109": "owned probe executable and directory removed",
+    "94.139.180.142": "owned probe executable and directory removed"
+  },
+  "incidents": [
+    {
+      "start": "2026-10-13T17:50:05.057629+00:00",
+      "end": "2026-10-13T18:04:59.401451+00:00",
+      "deltas": {
+        "opening_transport_retries_total": 40756.0,
+        "errors_total": 12914.0,
+        "accepted_total": 65495.0,
+        "path_recovery_attempts_total": 0.0,
+        "path_recovery_succeeded_total": 0.0,
+        "path_recovery_rejected_total": 0.0
+      },
+      "sample_count": 90,
+      "france_max_receive_blocked": 0.0,
+      "france_min_remote_window": 4094.0
+    },
+    {
+      "start": "2026-10-13T19:50:00.172788+00:00",
+      "end": "2026-10-13T20:04:54.480859+00:00",
+      "deltas": {
+        "opening_transport_retries_total": 33181.0,
+        "errors_total": 9157.0,
+        "accepted_total": 71696.0,
+        "path_recovery_attempts_total": 0.0,
+        "path_recovery_succeeded_total": 0.0,
+        "path_recovery_rejected_total": 0.0
+      },
+      "sample_count": 90,
+      "france_max_receive_blocked": 0.0,
+      "france_min_remote_window": 4095.0
+    },
+    {
+      "start": "2026-10-13T21:30:09.704759+00:00",
+      "end": "2026-10-13T21:44:53.928580+00:00",
+      "deltas": {
+        "opening_transport_retries_total": 37.0,
+        "errors_total": 0.0,
+        "accepted_total": 36799.0,
+        "path_recovery_attempts_total": 5.0,
+        "path_recovery_succeeded_total": 3.0,
+        "path_recovery_rejected_total": 2.0
+      },
+      "sample_count": 89,
+      "france_max_receive_blocked": 0.0,
+      "france_min_remote_window": 32.0
+    },
+    {
+      "start": "2026-10-14T06:30:04.165457+00:00",
+      "end": "2026-10-14T06:44:58.460830+00:00",
+      "deltas": {
+        "opening_transport_retries_total": 227.0,
+        "errors_total": 17.0,
+        "accepted_total": 37539.0,
+        "path_recovery_attempts_total": 11.0,
+        "path_recovery_succeeded_total": 4.0,
+        "path_recovery_rejected_total": 7.0
+      },
+      "sample_count": 90,
+      "france_max_receive_blocked": 0.0,
+      "france_min_remote_window": 32.0
+    }
+  ],
+  "evidence_limits": [
+    "Finite current authenticated transfers; no new load/capacity qualification.",
+    "Observer full-window peaks can predate the 24-hour journal interval.",
+    "Opening retries count attempts, not distinct customers.",
+    "Sampled logs cannot enumerate all failures; counters provide bounded interval totals.",
+    "Continuing ACK progress does not establish successful new target openings.",
+    "Backend Xray processes run in user-session scopes; systemd xray.service inactivity is not application downtime."
+  ],
+  "client109_warning_counts": {
+    "opening.retry_burst": 76,
+    "connection.failed": 57,
+    "session.closed": 3,
+    "path.recovery_probe": 17,
+    "path.recovered": 8,
+    "path.recovery_probe_failed": 9
+  },
+  "france_recovery_events": [
+    {
+      "time": "2026-10-13T21:38:11.550490596Z",
+      "level": "WARN",
+      "msg": "path.recovered",
+      "peer": "france",
+      "session": 3,
+      "old_source_port": 65319,
+      "new_source_port": 36842,
+      "local": {
+        "IP": "94.139.180.109",
+        "Port": 36842,
+        "Zone": ""
+      },
+      "connections_preserved": true,
+      "preservation_reason": "preserved",
+      "preservation_error": null,
+      "old_close_reason": "",
+      "reason": "fresh carrier tuple verified after transport stalled"
+    },
+    {
+      "time": "2026-10-13T21:38:11.881172773Z",
+      "level": "WARN",
+      "msg": "path.recovered",
+      "peer": "france",
+      "session": 2,
+      "old_source_port": 39029,
+      "new_source_port": 43873,
+      "local": {
+        "IP": "94.139.180.109",
+        "Port": 43873,
+        "Zone": ""
+      },
+      "connections_preserved": false,
+      "preservation_reason": "capability_unavailable",
+      "preservation_error": null,
+      "old_close_reason": "",
+      "reason": "fresh carrier tuple verified after transport stalled"
+    },
+    {
+      "time": "2026-10-13T21:38:43.36773857Z",
+      "level": "WARN",
+      "msg": "path.recovered",
+      "peer": "france",
+      "session": 1,
+      "old_source_port": 37745,
+      "new_source_port": 53276,
+      "local": {
+        "IP": "94.139.180.109",
+        "Port": 53276,
+        "Zone": ""
+      },
+      "connections_preserved": false,
+      "preservation_reason": "capability_unavailable",
+      "preservation_error": null,
+      "old_close_reason": "",
+      "reason": "fresh carrier tuple verified after transport stalled"
+    },
+    {
+      "time": "2026-10-13T23:53:11.275716024Z",
+      "level": "WARN",
+      "msg": "path.recovered",
+      "peer": "france",
+      "session": 2,
+      "old_source_port": 43873,
+      "new_source_port": 65313,
+      "local": {
+        "IP": "94.139.180.109",
+        "Port": 65313,
+        "Zone": ""
+      },
+      "connections_preserved": true,
+      "preservation_reason": "preserved",
+      "preservation_error": null,
+      "old_close_reason": "",
+      "reason": "fresh carrier tuple verified after transport stalled"
+    },
+    {
+      "time": "2026-10-14T06:36:37.415985439Z",
+      "level": "WARN",
+      "msg": "path.recovered",
+      "peer": "france",
+      "session": 1,
+      "old_source_port": 53276,
+      "new_source_port": 42159,
+      "local": {
+        "IP": "94.139.180.109",
+        "Port": 42159,
+        "Zone": ""
+      },
+      "connections_preserved": false,
+      "preservation_reason": "capability_unavailable",
+      "preservation_error": null,
+      "old_close_reason": "",
+      "reason": "fresh carrier tuple verified after transport stalled"
+    },
+    {
+      "time": "2026-10-14T06:36:53.409909484Z",
+      "level": "WARN",
+      "msg": "path.recovered",
+      "peer": "france",
+      "session": 3,
+      "old_source_port": 36842,
+      "new_source_port": 56206,
+      "local": {
+        "IP": "94.139.180.109",
+        "Port": 56206,
+        "Zone": ""
+      },
+      "connections_preserved": true,
+      "preservation_reason": "preserved",
+      "preservation_error": null,
+      "old_close_reason": "",
+      "reason": "fresh carrier tuple verified after transport stalled"
+    },
+    {
+      "time": "2026-10-14T06:37:25.388636338Z",
+      "level": "WARN",
+      "msg": "path.recovered",
+      "peer": "france",
+      "session": 2,
+      "old_source_port": 65313,
+      "new_source_port": 44634,
+      "local": {
+        "IP": "94.139.180.109",
+        "Port": 44634,
+        "Zone": ""
+      },
+      "connections_preserved": false,
+      "preservation_reason": "carrier_closed",
+      "preservation_error": null,
+      "old_close_reason": "keepalive_timeout",
+      "reason": "fresh carrier tuple verified after transport stalled"
+    },
+    {
+      "time": "2026-10-14T06:37:26.479923011Z",
+      "level": "WARN",
+      "msg": "path.recovered",
+      "peer": "france",
+      "session": 0,
+      "old_source_port": 50314,
+      "new_source_port": 57805,
+      "local": {
+        "IP": "94.139.180.109",
+        "Port": 57805,
+        "Zone": ""
+      },
+      "connections_preserved": false,
+      "preservation_reason": "carrier_closed",
+      "preservation_error": null,
+      "old_close_reason": "keepalive_timeout",
+      "reason": "fresh carrier tuple verified after transport stalled"
+    }
+  ],
+  "france_recovery_preservation_counts": {
+    "preserved": 3,
+    "capability_unavailable": 3,
+    "carrier_closed": 2
+  },
+  "journal_query_correction": "Initial ISO offset timestamps were rejected by older systemd hosts. Their empty journal results were discarded; explicit UTC queries succeeded on all five hosts.",
+  "private_receipts": [
+    {
+      "path": "build/production-review-20261014/review-20261014T160103Z/116.202.177.233.json",
+      "sha256": "8592a10ed08300dd803d7f2554dc744e3b48b8847a80d5557694f02012a66ef3"
+    },
+    {
+      "path": "build/production-review-20261014/review-20261014T160103Z/171.22.132.226.json",
+      "sha256": "c60a47a3ed44289103ebee5fa9246dde974bd8c863f73dc54d36f5a7998d2ebf"
+    },
+    {
+      "path": "build/production-review-20261014/review-20261014T160103Z/65.109.249.222.json",
+      "sha256": "654fda06befe972cc0480e0d57d490b301d9141a173fdbbbbed0510fa83f4235"
+    },
+    {
+      "path": "build/production-review-20261014/review-20261014T160103Z/94.139.180.109.json",
+      "sha256": "916d2b88694b65e4d42d35b5a7f7a08b8e5b11ce713bae2fb57b3e7c08984a3a"
+    },
+    {
+      "path": "build/production-review-20261014/review-20261014T160103Z/94.139.180.142.json",
+      "sha256": "83bb0521238268464b5b23b58e18199541c8c2af05ca1cfea50ca40d142a7234"
+    },
+    {
+      "path": "build/production-review-20261014/logs-20261014T160430Z/116.202.177.233.json",
+      "sha256": "87afe592c3131d8cdecaebaeec4daeda8f201fe086252a2d00921c106d366a51"
+    },
+    {
+      "path": "build/production-review-20261014/logs-20261014T160430Z/171.22.132.226.json",
+      "sha256": "c6d8a492aac037787f417db68cbb2f68dc0d3dc81ab25efcaf437667e9f9c3de"
+    },
+    {
+      "path": "build/production-review-20261014/logs-20261014T160430Z/65.109.249.222.json",
+      "sha256": "62ce7d4b79d6cb911ed59fb649f7e2e78a114f632c3957fc8241ce0767bcd614"
+    },
+    {
+      "path": "build/production-review-20261014/logs-20261014T160430Z/94.139.180.109.json",
+      "sha256": "1a79db73abe6cf43796918cdd81b48055197213f2f627ddf22b0e8df435ed38d"
+    },
+    {
+      "path": "build/production-review-20261014/logs-20261014T160430Z/94.139.180.142.json",
+      "sha256": "d7e818e1364f982ff3f502312b14bf2755df84edb741da688aff4cc9296375db"
+    },
+    {
+      "path": "build/production-review-20261014/incident-windows-20261014T161026Z/171.22.132.226.json",
+      "sha256": "22b214ba7048a2d68c8336c014962500e970879fa1fdb9e5b783584edd448620"
+    },
+    {
+      "path": "build/production-review-20261014/incident-windows-20261014T161026Z/94.139.180.109.json",
+      "sha256": "9e216099db08a0f6aa7c78069f50c42217c3fcbd8fc3ec695cead7c84af78b31"
+    },
+    {
+      "path": "build/production-review-20261014/incident-windows-20261014T161026Z/94.139.180.142.json",
+      "sha256": "7dda9d58ad6cb2968b920ee0b36a57e6a13039d7f5d420a31dbabe238588728b"
+    },
+    {
+      "path": "build/production-review-20261014/auth-20261014T160518Z/receipt.json",
+      "sha256": "8aa206b3aaf1d218c3b00279a56ee0978b4c1a9f14906ce1f80f44bddc7283a1"
+    },
+    {
+      "path": "build/production-review-20261014/auth-20261014T160824Z/receipt.json",
+      "sha256": "fa0a059865ec9f91de947019d05bab831902cdd4d72699bfa2b4c83655a9e024"
+    },
+    {
+      "path": "build/production-review-20261014/final-health-20261014T161721Z/116.202.177.233.json",
+      "sha256": "4df6cd72c2fedcaa421c1f42e14c0431f9e20ba96e7c65306742a3f00bee47f5"
+    },
+    {
+      "path": "build/production-review-20261014/final-health-20261014T161721Z/171.22.132.226.json",
+      "sha256": "81869ea004e3259e4b49eeb9c19f5994ce413429ecdfcae0793d1057c61c674e"
+    },
+    {
+      "path": "build/production-review-20261014/final-health-20261014T161721Z/65.109.249.222.json",
+      "sha256": "231fc9bb84483bac128e4429fcbd27de22d29a0e8b6a961a12695f80b919f808"
+    },
+    {
+      "path": "build/production-review-20261014/final-health-20261014T161721Z/94.139.180.109.json",
+      "sha256": "dbd747bf369cd798e188dad19689ada70fff49ee6427ad390a89195b363def63"
+    },
+    {
+      "path": "build/production-review-20261014/final-health-20261014T161721Z/94.139.180.142.json",
+      "sha256": "a312f2e4db70831ff1ee776d3eae807c43b2f1a86daae69bddda6125c358dea0"
+    }
+  ]
+}
